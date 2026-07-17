@@ -1591,6 +1591,9 @@ int main(int argc, char **argv) {
 
     CompileResult result;
     int status = compile_translation_unit(&options, &result);
+    if (status == 0 && result.semanticErrors > 0) {
+        status = 1;
+    }
     if (result.compilerCtx && diagsJsonPath && diagsJsonPath[0] != '\0') {
         CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagsJsonPath);
         if (wr.code != CORE_OK) {

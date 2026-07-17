@@ -10,6 +10,8 @@ typedef struct Token {
     TokenType type;
     char* value;
     int line;
+    int spellingLine;
+    int spellingColumn;
     SourceRange location;
     SourceRange macroCallSite;
     SourceRange macroDefinition;

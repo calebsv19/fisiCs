@@ -259,6 +259,27 @@ static void cleanup_cross_tu_state(CrossTUVarDefList* defs,
     main_cross_tu_type_conflict_clear(conflict);
 }
 
+static void update_aggregate_diagnostics_json(const MainDriverConfig* config,
+                                              CompilerContext* aggregate,
+                                              const CompilerContext* current) {
+    if (!config || !aggregate || !current ||
+        !config->diagsJsonPath || config->diagsJsonPath[0] == '\0' ||
+        config->inputCFiles->count <= 1u) {
+        return;
+    }
+    if (!compiler_diagnostics_append(aggregate, current)) {
+        fprintf(stderr, "Warning: failed to aggregate translation-unit diagnostics\n");
+        return;
+    }
+    CoreResult wr =
+        compiler_diagnostics_write_core_dataset_json(aggregate, config->diagsJsonPath);
+    if (wr.code != CORE_OK) {
+        fprintf(stderr,
+                "Warning: failed to write diagnostics JSON to %s\n",
+                config->diagsJsonPath);
+    }
+}
+
 static int run_compile_only_mode(const MainDriverConfig* config) {
     if (config->inputCFiles->count == 0) {
         fprintf(stderr, "Error: no .c inputs provided for -c\n");
@@ -273,8 +294,8 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
         return 1;
     }
 
-    bool aggregateJsonWritten = false;
-    bool aggregateJsonHasDiagnostics = false;
+    bool allOk = true;
+    CompilerContext aggregateDiagnostics = {0};
 
     for (size_t i = 0; i < config->inputCFiles->count; ++i) {
         const char* cPath = config->inputCFiles->items[i];
@@ -290,6 +311,7 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
             free(diagPath);
             free(diagPackPathForInput);
             free(graphPath);
+            compiler_diagnostics_clear(&aggregateDiagnostics);
             return 1;
         }
 
@@ -310,6 +332,7 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
                 free(diagPackPathForInput);
                 free(graphPath);
                 free(objPath);
+                compiler_diagnostics_clear(&aggregateDiagnostics);
                 return 1;
             }
             free(fallbackErr);
@@ -328,27 +351,10 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
                 fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
             }
         }
-        if (config->diagsJsonPath && config->diagsJsonPath[0] != '\0' &&
-            config->inputCFiles->count > 1u && result.compilerCtx) {
-            size_t diagCount = 0;
-            (void)compiler_diagnostics_data(result.compilerCtx, &diagCount);
-            bool shouldWriteAggregate = !aggregateJsonWritten ||
-                                        (diagCount > 0u && !aggregateJsonHasDiagnostics);
-            if (shouldWriteAggregate) {
-                CoreResult wr =
-                    compiler_diagnostics_write_core_dataset_json(result.compilerCtx,
-                                                                 config->diagsJsonPath);
-                if (wr.code != CORE_OK) {
-                    fprintf(stderr,
-                            "Warning: failed to write diagnostics JSON to %s\n",
-                            config->diagsJsonPath);
-                } else {
-                    aggregateJsonWritten = true;
-                    if (diagCount > 0u) {
-                        aggregateJsonHasDiagnostics = true;
-                    }
-                }
-            }
+        if (result.compilerCtx) {
+            update_aggregate_diagnostics_json(config,
+                                              &aggregateDiagnostics,
+                                              result.compilerCtx);
         }
         if (diagPackPathForInput && result.compilerCtx) {
             CoreResult wr =
@@ -392,7 +398,8 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
             free(graphPath);
             free(objPath);
             compile_result_destroy(&result);
-            return 1;
+            allOk = false;
+            continue;
         }
 
         free(diagPath);
@@ -413,6 +420,7 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
                 free(fallbackErr);
                 free(objPath);
                 compile_result_destroy(&result);
+                compiler_diagnostics_clear(&aggregateDiagnostics);
                 return 1;
             }
             free(fallbackErr);
@@ -434,6 +442,7 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
             free(emitErr);
             free(objPath);
             compile_result_destroy(&result);
+            compiler_diagnostics_clear(&aggregateDiagnostics);
             return 1;
         }
         free(emitErr);
@@ -441,7 +450,8 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
         free(objPath);
     }
 
-    return 0;
+    compiler_diagnostics_clear(&aggregateDiagnostics);
+    return allOk ? 0 : 1;
 }
 
 static int run_link_mode(const MainDriverConfig* config) {
@@ -458,8 +468,7 @@ static int run_link_mode(const MainDriverConfig* config) {
     bool allOk = true;
     CrossTUVarDefList crossTuDefs = {0};
     CrossTUTypeConflict crossTuConflict = {0};
-    bool aggregateJsonWritten = false;
-    bool aggregateJsonHasDiagnostics = false;
+    CompilerContext aggregateDiagnostics = {0};
 
     for (size_t i = 0; i < config->inputCFiles->count; ++i) {
         const char* cPath = config->inputCFiles->items[i];
@@ -515,27 +524,10 @@ static int run_link_mode(const MainDriverConfig* config) {
                 fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
             }
         }
-        if (config->diagsJsonPath && config->diagsJsonPath[0] != '\0' &&
-            config->inputCFiles->count > 1u && result.compilerCtx) {
-            size_t diagCount = 0;
-            (void)compiler_diagnostics_data(result.compilerCtx, &diagCount);
-            bool shouldWriteAggregate = !aggregateJsonWritten ||
-                                        (diagCount > 0u && !aggregateJsonHasDiagnostics);
-            if (shouldWriteAggregate) {
-                CoreResult wr =
-                    compiler_diagnostics_write_core_dataset_json(result.compilerCtx,
-                                                                 config->diagsJsonPath);
-                if (wr.code != CORE_OK) {
-                    fprintf(stderr,
-                            "Warning: failed to write diagnostics JSON to %s\n",
-                            config->diagsJsonPath);
-                } else {
-                    aggregateJsonWritten = true;
-                    if (diagCount > 0u) {
-                        aggregateJsonHasDiagnostics = true;
-                    }
-                }
-            }
+        if (result.compilerCtx) {
+            update_aggregate_diagnostics_json(config,
+                                              &aggregateDiagnostics,
+                                              result.compilerCtx);
         }
         if (diagPackPathForInput && result.compilerCtx) {
             CoreResult wr =
@@ -554,10 +546,11 @@ static int run_link_mode(const MainDriverConfig* config) {
             free(objPath);
             compile_result_destroy(&result);
             allOk = false;
-            break;
+            continue;
         }
 
-        if (!main_collect_cross_tu_virtual_type_conflict(result.semanticModel,
+        if (allOk &&
+            !main_collect_cross_tu_virtual_type_conflict(result.semanticModel,
                                                          result.compilerCtx,
                                                          &crossTuDefs,
                                                          &crossTuConflict)) {
@@ -650,6 +643,7 @@ static int run_link_mode(const MainDriverConfig* config) {
     if (!allOk) {
         cleanup_temp_objects(&tempObjects);
         cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        compiler_diagnostics_clear(&aggregateDiagnostics);
         return 1;
     }
 
@@ -706,6 +700,7 @@ static int run_link_mode(const MainDriverConfig* config) {
         cleanup_temp_objects(&tempObjects);
         string_list_free(&argvList);
         cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        compiler_diagnostics_clear(&aggregateDiagnostics);
         return 1;
     }
 
@@ -715,6 +710,7 @@ static int run_link_mode(const MainDriverConfig* config) {
         cleanup_temp_objects(&tempObjects);
         string_list_free(&argvList);
         cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        compiler_diagnostics_clear(&aggregateDiagnostics);
         return 1;
     }
     for (size_t i = 0; i < argvList.count; ++i) {
@@ -733,6 +729,7 @@ static int run_link_mode(const MainDriverConfig* config) {
         cleanup_temp_objects(&tempObjects);
         string_list_free(&argvList);
         cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        compiler_diagnostics_clear(&aggregateDiagnostics);
         return 1;
     }
 
@@ -767,6 +764,7 @@ static int run_link_mode(const MainDriverConfig* config) {
     cleanup_temp_objects(&tempObjects);
     string_list_free(&argvList);
     cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+    compiler_diagnostics_clear(&aggregateDiagnostics);
     return statusCode;
 }
 

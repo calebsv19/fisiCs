@@ -23,6 +23,13 @@ ConstEvalResult constEval(ASTNode* expr,
                           struct Scope* scope,
                           bool allowEnumRefs);
 
+// Evaluate an integer constant expression using the stricter C99 operand
+// rules. Unlike a general constant expression, every operand of &&, ||, and
+// ?: must itself be admissible even when value evaluation discards that arm.
+ConstEvalResult constEvalIntegerResult(ASTNode* expr,
+                                       struct Scope* scope,
+                                       bool allowEnumRefs);
+
 // Convenience wrapper to match older call sites; returns true on success and
 // writes the value into `out`.
 bool constEvalInteger(ASTNode* expr,

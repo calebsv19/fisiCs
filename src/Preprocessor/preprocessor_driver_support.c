@@ -10,6 +10,24 @@
 
 #include "Utils/profiler.h"
 
+static SourceRange pp_remap_diagnostic_range(Preprocessor* pp, SourceRange range) {
+    if (!pp || !pp->lineRemapActive || !pp->logicalFile || !pp->logicalFile[0]) {
+        return range;
+    }
+    if (range.start.file && strcmp(range.start.file, pp->logicalFile) == 0) {
+        return range;
+    }
+    range.start.file = pp->logicalFile;
+    range.end.file = pp->logicalFile;
+    if (pp->lineOffset != 0) {
+        range.start.line += pp->lineOffset;
+        range.end.line += pp->lineOffset;
+        if (range.start.line < 1) range.start.line = 1;
+        if (range.end.line < 1) range.end.line = 1;
+    }
+    return range;
+}
+
 bool pp_append_directive_line(const Token* tokens,
                               size_t count,
                               size_t cursor,
@@ -83,6 +101,7 @@ static void pp_report_macro_trace_diag(Preprocessor* pp,
                                        const char* macroName,
                                        SourceRange definitionRange,
                                        const char* message) {
+    callSite = pp_remap_diagnostic_range(pp, callSite);
     const char* macro_names[2] = { macroName, macroName };
     const char* macro_roles[2] = { "call_site", "definition" };
     SourceRange macro_ranges[2] = { callSite, definitionRange };
@@ -122,6 +141,7 @@ static bool pp_flush_chunk(Preprocessor* pp,
             const char* macroName = (expandErr.macro && expandErr.macro->name)
                 ? expandErr.macro->name
                 : "<macro>";
+            SourceRange callSite = pp_remap_diagnostic_range(pp, expandErr.callSite);
             char diagMessage[256];
             if (expandErr.variadic) {
                 snprintf(diagMessage,
@@ -131,14 +151,14 @@ static bool pp_flush_chunk(Preprocessor* pp,
                          expandErr.expectedArgs,
                          expandErr.providedArgs);
                 pp_report_macro_trace_diag(pp,
-                                           expandErr.callSite,
+                                           callSite,
                                            macroName,
                                            expandErr.macro ? expandErr.macro->definitionRange : (SourceRange){0},
                                            diagMessage);
                 fprintf(stderr, "%s:%d:%d: error: macro '%s' requires at least %zu argument(s), got %zu\n",
-                        expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
-                        expandErr.callSite.start.line,
-                        expandErr.callSite.start.column,
+                        callSite.start.file ? callSite.start.file : "<unknown>",
+                        callSite.start.line,
+                        callSite.start.column,
                         macroName,
                         expandErr.expectedArgs,
                         expandErr.providedArgs);
@@ -150,14 +170,14 @@ static bool pp_flush_chunk(Preprocessor* pp,
                          expandErr.expectedArgs,
                          expandErr.providedArgs);
                 pp_report_macro_trace_diag(pp,
-                                           expandErr.callSite,
+                                           callSite,
                                            macroName,
                                            expandErr.macro ? expandErr.macro->definitionRange : (SourceRange){0},
                                            diagMessage);
                 fprintf(stderr, "%s:%d:%d: error: macro '%s' requires %zu argument(s), got %zu\n",
-                        expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
-                        expandErr.callSite.start.line,
-                        expandErr.callSite.start.column,
+                        callSite.start.file ? callSite.start.file : "<unknown>",
+                        callSite.start.line,
+                        callSite.start.column,
                         macroName,
                         expandErr.expectedArgs,
                         expandErr.providedArgs);
@@ -169,15 +189,16 @@ static bool pp_flush_chunk(Preprocessor* pp,
             const char* macroName = (expandErr.macro && expandErr.macro->name)
                 ? expandErr.macro->name
                 : "<macro>";
+            SourceRange callSite = pp_remap_diagnostic_range(pp, expandErr.callSite);
             pp_report_macro_trace_diag(pp,
-                                       expandErr.callSite,
+                                       callSite,
                                        macroName,
                                        expandErr.macro ? expandErr.macro->definitionRange : (SourceRange){0},
                                        "GNU ', ##__VA_ARGS__' extension is not supported");
             fprintf(stderr, "%s:%d:%d: error: GNU ', ##__VA_ARGS__' extension is not supported\n",
-                    expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
-                    expandErr.callSite.start.line,
-                    expandErr.callSite.start.column);
+                    callSite.start.file ? callSite.start.file : "<unknown>",
+                    callSite.start.line,
+                    callSite.start.column);
             pp_token_buffer_destroy(&expanded);
             return false;
         }
@@ -185,7 +206,7 @@ static bool pp_flush_chunk(Preprocessor* pp,
         MacroExpansionError err = macro_table_last_error(pp->table, &top);
         if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {
             const char* macroName = (top && top->macro && top->macro->name) ? top->macro->name : "<macro>";
-            SourceRange loc = top ? top->callSiteRange : (SourceRange){0};
+            SourceRange loc = top ? pp_remap_diagnostic_range(pp, top->callSiteRange) : (SourceRange){0};
             const char* msg = "macro recursion detected while expanding '%s'";
             if (err == MT_ERR_DEPTH) {
                 msg = "macro expansion depth exceeded (possible recursion) for '%s'";

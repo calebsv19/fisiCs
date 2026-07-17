@@ -127,10 +127,14 @@ static bool cg_parsed_is_record_like(const ParsedType* parsed) {
 
 static const StructInfo* lookupStructInfo(CodegenContext* ctx, const char* name, LLVMTypeRef llvmType) {
     if (!ctx) return NULL;
-    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
-        if (llvmType && ctx->structInfos[i].llvmType && ctx->structInfos[i].llvmType == llvmType) {
-            return &ctx->structInfos[i];
+    if (llvmType) {
+        for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+            if (ctx->structInfos[i].llvmType == llvmType) {
+                return &ctx->structInfos[i];
+            }
         }
+    }
+    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
         if (name && ctx->structInfos[i].name && strcmp(ctx->structInfos[i].name, name) == 0) {
             return &ctx->structInfos[i];
         }
@@ -167,7 +171,11 @@ static bool cg_lookup_nested_field_in_legacy(CodegenContext* ctx,
 
     for (size_t i = 0; i < info->fieldCount; ++i) {
         const StructFieldInfo* field = &info->fields[i];
-        uint64_t fieldOffset = baseOffset + cg_field_offset_bytes(ctx, info->llvmType, info->isUnion, field->index);
+        uint64_t fieldOffset = baseOffset +
+            cg_field_offset_bytes(ctx,
+                                  info->llvmType,
+                                  info->isUnion,
+                                  field->llvmIndex);
         if (field->name && strcmp(field->name, fieldName) == 0) {
             if (outFieldType) {
                 *outFieldType = field->type;
@@ -316,7 +324,7 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
             pointedResolved->kind != TYPE_INVALID &&
             parsedTypeIsDirectArray(pointedResolved) &&
             parsedTypeHasVLA(pointedResolved)) {
-            LLVMValueRef stepped = cg_build_pointer_offset(ctx, basePtr, idx64, baseParsedHint, NULL, false);
+            LLVMValueRef stepped = cg_build_pointer_offset(ctx, basePtr, idx64, baseParsedHint, NULL, NULL, false);
             LLVMTypeRef elem = cg_innermost_array_element_type(ctx, pointedResolved);
             parsedTypeFree(&pointed);
             if (!stepped) {
@@ -531,7 +539,7 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
         }
         for (size_t i = 0; i < semanticInfo->fieldCount; ++i) {
             if (semanticInfo->fields[i].name && strcmp(semanticInfo->fields[i].name, fieldName) == 0) {
-                fieldIndex = semanticInfo->isUnion ? 0 : semanticInfo->fields[i].index;
+                fieldIndex = semanticInfo->isUnion ? 0 : semanticInfo->fields[i].llvmIndex;
                 fieldLLVMType = cg_type_from_parsed(ctx, &semanticInfo->fields[i].parsedType);
                 if (outFieldParsedType) {
                     *outFieldParsedType = &semanticInfo->fields[i].parsedType;
@@ -547,7 +555,7 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
         if (legacy) {
             for (size_t i = 0; i < legacy->fieldCount; ++i) {
                 if (legacy->fields[i].name && strcmp(legacy->fields[i].name, fieldName) == 0) {
-                    fieldIndex = legacy->isUnion ? 0 : legacy->fields[i].index;
+                    fieldIndex = legacy->isUnion ? 0 : legacy->fields[i].llvmIndex;
                     fieldLLVMType = legacy->fields[i].type;
                     found = true;
                     break;

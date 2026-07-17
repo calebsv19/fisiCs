@@ -64,6 +64,8 @@ typedef struct Symbol {
     StorageClass storage;
     SymbolLinkage linkage;
     DllStorageClass dllStorage;
+    bool isWeak;
+    bool isParameter;
     bool hasDefinition;
     bool isTentative;
     bool hasConstValue;

@@ -24,7 +24,10 @@ typedef struct CGNamedLLVMType {
 
 typedef struct CGFieldNameIndex {
     char* name;
+    /* Declaration-order index in the C aggregate. */
     unsigned index;
+    /* Element index in the lowered LLVM struct body. */
+    unsigned llvmIndex;
     ParsedType parsedType;
 } CGFieldNameIndex;
 

@@ -13,6 +13,7 @@ Scope* createScope(Scope* parent) {
         return NULL;
     }
     initSymbolTable(&scope->table);
+    initSymbolTable(&scope->tagTable);
     scope->parent = parent;
     scope->depth = parent ? parent->depth + 1 : 0;
     scope->ctx = parent ? parent->ctx : NULL;
@@ -28,6 +29,7 @@ Scope* createScope(Scope* parent) {
 void destroyScope(Scope* scope) {
     if (!scope) return;
     freeSymbolTable(&scope->table);
+    freeSymbolTable(&scope->tagTable);
     scope->ctx = NULL;
     free(scope);
 }
@@ -43,6 +45,21 @@ Symbol* resolveInScopeChain(Scope* scope, const char* name) {
         Symbol* found = lookupSymbol(&scope->table, name);
         if (found) {
             profiler_record_value("semantic_count_scope_resolve_chain_hit", 1);
+            return found;
+        }
+        scope = scope->parent;
+    }
+    return NULL;
+}
+
+bool addTagToScope(Scope* scope, Symbol* sym) {
+    return scope && sym ? insertSymbol(&scope->tagTable, sym) : false;
+}
+
+Symbol* resolveTagInScopeChain(Scope* scope, const char* name) {
+    while (scope) {
+        Symbol* found = lookupSymbol(&scope->tagTable, name);
+        if (found) {
             return found;
         }
         scope = scope->parent;

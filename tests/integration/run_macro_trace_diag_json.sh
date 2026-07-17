@@ -25,7 +25,12 @@ int main(void) {
 }
 SRC
 
-"$BIN" --emit-diags-json "$json_path" "$src" >/dev/null 2>&1 || true
+compiler_status=0
+"$BIN" --emit-diags-json "$json_path" "$src" >/dev/null 2>&1 || compiler_status=$?
+if [ "$compiler_status" -ne 1 ]; then
+  echo "expected compiler exit 1 for macro arity diagnostic; got $compiler_status" >&2
+  exit 1
+fi
 
 python3 - "$json_path" "$src" <<'PY'
 import json

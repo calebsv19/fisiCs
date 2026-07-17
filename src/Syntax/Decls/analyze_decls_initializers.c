@@ -12,6 +12,7 @@ static void reportScalarInitializerIssue(ASTNode* context, const char* name, con
 static bool typeInfoIsStructLike(const TypeInfo* info);
 static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope);
 static bool isStaticStorageObjectAddressConstant(ASTNode* expr, Scope* scope);
+static bool isStaticStorageObjectLvalue(ASTNode* expr, Scope* scope);
 static bool aggregateStaticInitializerIsConstant(ASTNode* expr, Scope* scope);
 
 void reportErrorAtAstNode(ASTNode* node,
@@ -92,11 +93,26 @@ static bool isSimpleFloatingConstExpr(ASTNode* expr, Scope* scope, int depth) {
             if (strcmp(expr->expr.op, "+") == 0 ||
                 strcmp(expr->expr.op, "-") == 0 ||
                 strcmp(expr->expr.op, "*") == 0 ||
-                strcmp(expr->expr.op, "/") == 0) {
+                strcmp(expr->expr.op, "/") == 0 ||
+                strcmp(expr->expr.op, "==") == 0 ||
+                strcmp(expr->expr.op, "!=") == 0 ||
+                strcmp(expr->expr.op, "<") == 0 ||
+                strcmp(expr->expr.op, "<=") == 0 ||
+                strcmp(expr->expr.op, ">") == 0 ||
+                strcmp(expr->expr.op, ">=") == 0) {
                 return isSimpleFloatingConstExpr(expr->expr.left, scope, depth + 1) &&
                        isSimpleFloatingConstExpr(expr->expr.right, scope, depth + 1);
             }
             return false;
+        case AST_TERNARY_EXPRESSION: {
+            ConstEvalResult condition =
+                constEval(expr->ternaryExpr.condition, scope, true);
+            if (!condition.isConst) return false;
+            ASTNode* selected = condition.value
+                                    ? expr->ternaryExpr.trueExpr
+                                    : expr->ternaryExpr.falseExpr;
+            return isSimpleFloatingConstExpr(selected, scope, depth + 1);
+        }
         default:
             return false;
     }
@@ -162,8 +178,7 @@ static bool staticInitializerLeafIsConstant(ASTNode* expr, Scope* scope) {
     if (isSimpleFloatingConstExpr(expr, scope, 0)) {
         return true;
     }
-    long long ignored = 0;
-    return constEvalInteger(expr, scope, &ignored, true);
+    return constEval(expr, scope, true).isConst;
 }
 
 static bool aggregateStaticInitializerIsConstant(ASTNode* expr, Scope* scope) {
@@ -237,7 +252,8 @@ void validateVariableInitializer(ParsedType* type,
                      name);
             addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
         } else if (init->expression->type == AST_COMPOUND_LITERAL &&
-                   init->expression->compoundLiteral.entryCount == 0) {
+                   init->expression->compoundLiteral.entryCount == 0 &&
+                   !init->expression->compoundLiteral.hadParserRecovery) {
             char buffer[256];
             snprintf(buffer, sizeof(buffer), "Empty initializer for struct variable '%s'", name);
             addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
@@ -302,11 +318,14 @@ void validateVariableInitializer(ParsedType* type,
         if (typeInfoIsPointerLike(&info) && isFunctionAddressConstant(init->expression, scope)) {
             return;
         }
+        if (typeInfoIsPointerLike(&info) &&
+            isStaticStorageObjectAddressConstant(init->expression, scope)) {
+            return;
+        }
         if (isSimpleFloatingConstExpr(init->expression, scope, 0)) {
             return;
         }
-        long long ignored = 0;
-        if (!constEvalInteger(init->expression, scope, &ignored, true)) {
+        if (!constEval(init->expression, scope, true).isConst) {
             char buffer[256];
             snprintf(buffer,
                      sizeof(buffer),
@@ -342,41 +361,79 @@ static bool isStaticStorageObjectAddressConstant(ASTNode* expr, Scope* scope) {
         case AST_UNARY_EXPRESSION:
             if (!expr->expr.op ||
                 strcmp(expr->expr.op, "&") != 0 ||
-                !expr->expr.left ||
-                expr->expr.left->type != AST_IDENTIFIER ||
-                !expr->expr.left->valueNode.value) {
+                !expr->expr.left) {
                 return false;
             }
-            {
-                Symbol* sym = resolveInScopeChain(scope, expr->expr.left->valueNode.value);
-                if (!sym || sym->kind != SYMBOL_VARIABLE) {
-                    return false;
-                }
-                if (sym->storage == STORAGE_STATIC) {
-                    return true;
-                }
-                if (!sym->definition || sym->definition->type != AST_VARIABLE_DECLARATION) {
-                    return false;
-                }
-                ASTNode* decl = sym->definition;
-                for (size_t i = 0; i < decl->varDecl.varCount; ++i) {
-                    ASTNode* ident = decl->varDecl.varNames ? decl->varDecl.varNames[i] : NULL;
-                    if (!ident || ident->type != AST_IDENTIFIER || !ident->valueNode.value) {
-                        continue;
-                    }
-                    if (strcmp(ident->valueNode.value, sym->name) != 0) {
-                        continue;
-                    }
-                    const ParsedType* parsed = astVarDeclTypeAt(decl, i);
-                    if (parsed && parsed->isStatic) {
-                        return true;
-                    }
-                    break;
-                }
-                return decl->varDecl.declaredType.isStatic;
-            }
+            return isStaticStorageObjectLvalue(expr->expr.left, scope);
         case AST_CAST_EXPRESSION:
             return isStaticStorageObjectAddressConstant(expr->castExpr.expression, scope);
+        case AST_BINARY_EXPRESSION: {
+            if (!expr->expr.op || !expr->expr.left || !expr->expr.right) {
+                return false;
+            }
+            bool isAdd = strcmp(expr->expr.op, "+") == 0;
+            bool isSub = strcmp(expr->expr.op, "-") == 0;
+            if (!isAdd && !isSub) return false;
+            long long offset = 0;
+            if (isStaticStorageObjectAddressConstant(expr->expr.left, scope) &&
+                constEvalInteger(expr->expr.right, scope, &offset, true)) {
+                return true;
+            }
+            return isAdd &&
+                   constEvalInteger(expr->expr.left, scope, &offset, true) &&
+                   isStaticStorageObjectAddressConstant(expr->expr.right, scope);
+        }
+        case AST_TERNARY_EXPRESSION: {
+            ConstEvalResult condition =
+                constEval(expr->ternaryExpr.condition, scope, true);
+            if (!condition.isConst) return false;
+            ASTNode* selected = condition.value
+                                    ? expr->ternaryExpr.trueExpr
+                                    : expr->ternaryExpr.falseExpr;
+            return isStaticStorageObjectAddressConstant(selected, scope);
+        }
+        default:
+            return false;
+    }
+}
+
+static bool isStaticStorageObjectLvalue(ASTNode* expr, Scope* scope) {
+    if (!expr || !scope) return false;
+    switch (expr->type) {
+        case AST_IDENTIFIER: {
+            if (!expr->valueNode.value) return false;
+            Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+            if (!sym || sym->kind != SYMBOL_VARIABLE) return false;
+            if (sym->storage == STORAGE_STATIC) return true;
+            if (!sym->definition || sym->definition->type != AST_VARIABLE_DECLARATION) {
+                return false;
+            }
+            ASTNode* decl = sym->definition;
+            for (size_t i = 0; i < decl->varDecl.varCount; ++i) {
+                ASTNode* ident = decl->varDecl.varNames ? decl->varDecl.varNames[i] : NULL;
+                if (!ident || ident->type != AST_IDENTIFIER || !ident->valueNode.value) {
+                    continue;
+                }
+                if (strcmp(ident->valueNode.value, sym->name) != 0) continue;
+                const ParsedType* parsed = astVarDeclTypeAt(decl, i);
+                if (parsed && parsed->isStatic) return true;
+                break;
+            }
+            return decl->varDecl.declaredType.isStatic;
+        }
+        case AST_ARRAY_ACCESS: {
+            long long index = 0;
+            return expr->arrayAccess.array &&
+                   expr->arrayAccess.index &&
+                   isStaticStorageObjectLvalue(expr->arrayAccess.array, scope) &&
+                   constEvalInteger(expr->arrayAccess.index, scope, &index, true);
+        }
+        case AST_DOT_ACCESS:
+            return expr->memberAccess.base &&
+                   isStaticStorageObjectLvalue(expr->memberAccess.base, scope);
+        case AST_STRUCT_FIELD_ACCESS:
+            return expr->structFieldAccess.structInstance &&
+                   isStaticStorageObjectLvalue(expr->structFieldAccess.structInstance, scope);
         default:
             return false;
     }

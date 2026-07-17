@@ -881,6 +881,13 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     result.semanticModel = model;
     result.semanticErrors = semaErrors;
 
+    /* Parser recovery may produce a usable AST so semantic analysis can retain
+     * independent diagnostics, but a recovered translation unit is not a
+     * successful compilation and must never reach code generation or linking. */
+    if (compiler_diagnostics_parser_error_count(ctx) > 0) {
+        goto cleanup;
+    }
+
     /* If no data layout was provided but the context somehow has one, log and clear it
      * to avoid propagating corrupted strings into LLVM. */
     if (!options->dataLayout && cc_get_data_layout(ctx)) {
@@ -905,6 +912,10 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
 
     if (options->enableCodegen) {
         printf("\nLLVM Code Generation:\n");
+        /* LLVMDumpModule writes to stderr. Flush the section marker on stdout
+         * first so merged/captured output preserves the public dump order and
+         * test harnesses can associate the module with the IR section. */
+        fflush(stdout);
         if (semaErrors == 0) {
             ProfilerScope codegenScope = profiler_begin("codegen");
             CodegenContext* codegenCtx = codegen_context_create("compiler_module", model);

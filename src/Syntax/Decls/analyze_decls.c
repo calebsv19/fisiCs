@@ -4,8 +4,33 @@
 #include "Extensions/extension_units_view.h"
 #include "Utils/profiler.h"
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+
+static bool parsedTypeHasGnuWeakAttribute(const ParsedType* type) {
+    if (!type || !type->attributes) return false;
+    for (size_t i = 0; i < type->attributeCount; ++i) {
+        const ASTAttribute* attr = type->attributes[i];
+        if (!attr || attr->syntax != AST_ATTRIBUTE_SYNTAX_GNU || !attr->payload) {
+            continue;
+        }
+        const char* word = "weak";
+        size_t wordLength = strlen(word);
+        const char* match = attr->payload;
+        while ((match = strstr(match, word)) != NULL) {
+            char left = match == attr->payload ? '\0' : match[-1];
+            char right = match[wordLength];
+            bool leftBoundary = left == '\0' ||
+                                (!isalnum((unsigned char)left) && left != '_');
+            bool rightBoundary = right == '\0' ||
+                                 (!isalnum((unsigned char)right) && right != '_');
+            if (leftBoundary && rightBoundary) return true;
+            match += wordLength;
+        }
+    }
+    return false;
+}
 
 static bool declSourcePathIsVirtualRemap(const char* path) {
     if (!path || !path[0]) return false;
@@ -89,6 +114,54 @@ static void addVariableTypeConflictError(ASTNode* currentName,
                        name);
 }
 
+static bool directArrayHasKnownBound(const ParsedType* type) {
+    if (!parsedTypeIsDirectArray(type) || type->derivationCount == 0) {
+        return false;
+    }
+    const TypeDerivation* deriv = &type->derivations[0];
+    return deriv->kind == TYPE_DERIVATION_ARRAY &&
+           deriv->as.array.hasConstantSize &&
+           !deriv->as.array.isVLA &&
+           !deriv->as.array.isFlexible;
+}
+
+static bool parsedTypesLexicallyCompatibleInScope(const ParsedType* a,
+                                                  const ParsedType* b,
+                                                  Scope* scope) {
+    if (!parsedTypesStructurallyCompatibleInScope(a, b, scope)) {
+        return false;
+    }
+    TypeInfo lhs = typeInfoFromParsedType(a, scope);
+    TypeInfo rhs = typeInfoFromParsedType(b, scope);
+    return !lhs.recordDefinition ||
+           !rhs.recordDefinition ||
+           lhs.recordDefinition == rhs.recordDefinition;
+}
+
+static bool shouldAdoptCompletedArrayDefinition(const Symbol* existing,
+                                                const ParsedType* currentType,
+                                                bool newDefinition) {
+    if (!existing || !currentType || !newDefinition) {
+        return false;
+    }
+    return parsedTypeIsDirectArray(&existing->type) &&
+           !directArrayHasKnownBound(&existing->type) &&
+           directArrayHasKnownBound(currentType);
+}
+
+static Symbol* resolveLinkedVariableInScopeChain(Scope* scope, const char* name) {
+    for (Scope* current = scope; current; current = current->parent) {
+        Symbol* found = lookupSymbol(&current->table, name);
+        if (!found || found->kind != SYMBOL_VARIABLE) {
+            continue;
+        }
+        if (found->linkage != LINKAGE_NONE) {
+            return found;
+        }
+    }
+    return NULL;
+}
+
 static const char* staticAssertHint(ASTNode* node) {
     if (!node || node->type != AST_STATIC_ASSERT) return NULL;
     if (!node->expr.right || node->expr.right->type != AST_STRING_LITERAL) return NULL;
@@ -126,6 +199,126 @@ static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scop
     }
 }
 
+static bool analyzeFunctionTypedefDeclarator(ASTNode* node,
+                                             ASTNode* ident,
+                                             ParsedType* surfaceType,
+                                             Scope* scope,
+                                             StorageClass storage,
+                                             SymbolLinkage linkage,
+                                             bool hasInitializer) {
+    if (!node || !ident || !surfaceType || !scope ||
+        surfaceType->kind != TYPE_NAMED ||
+        surfaceType->pointerDepth != 0 ||
+        surfaceType->derivationCount != 0 ||
+        surfaceType->isFunctionPointer) {
+        return false;
+    }
+
+    ParsedType functionType = parsedTypeClone(surfaceType);
+    canonicalizeParsedTypeInScope(&functionType, scope);
+    if (!parsedTypeIsDirectFunction(&functionType)) {
+        parsedTypeFree(&functionType);
+        return false;
+    }
+
+    if (hasInitializer) {
+        addErrorWithRanges(ident->location,
+                           ident->macroCallSite,
+                           ident->macroDefinition,
+                           "Function declaration cannot have an initializer",
+                           ident->valueNode.value);
+        parsedTypeFree(&functionType);
+        return true;
+    }
+
+    ParsedType returnType = parsedTypeFunctionReturnType(&functionType);
+    Symbol candidate = {0};
+    candidate.type = returnType;
+    assignFunctionSignatureFromParsedType(&candidate, &functionType, scope);
+
+    Symbol* existing = lookupSymbol(&scope->table, ident->valueNode.value);
+    bool linkedFromParentScope = false;
+    if (!existing && !scopeIsFileScope(scope)) {
+        for (Scope* current = scope->parent; current; current = current->parent) {
+            Symbol* linked = lookupSymbol(&current->table, ident->valueNode.value);
+            if (!linked) {
+                continue;
+            }
+            if (linked->linkage != LINKAGE_NONE) {
+                existing = linked;
+                linkedFromParentScope = true;
+            }
+            break;
+        }
+    }
+    if (existing) {
+        if (linkedFromParentScope) {
+            linkage = existing->linkage;
+        }
+        bool compatible =
+            existing->kind == SYMBOL_FUNCTION &&
+            parsedTypesLexicallyCompatibleInScope(&existing->type,
+                                                  &candidate.type,
+                                                  scope) &&
+            functionSignaturesCompatible(&existing->signature,
+                                         &candidate.signature,
+                                         scope);
+        bool allowExternAfterStatic =
+            scopeIsFileScope(scope) &&
+            storage == STORAGE_EXTERN &&
+            existing->linkage == LINKAGE_INTERNAL &&
+            linkage == LINKAGE_EXTERNAL;
+        bool linkageConflict =
+            !allowExternAfterStatic &&
+            ((existing->linkage == LINKAGE_INTERNAL && linkage != LINKAGE_INTERNAL) ||
+             (linkage == LINKAGE_INTERNAL && existing->linkage != LINKAGE_INTERNAL));
+        compatible = compatible && !linkageConflict;
+        if (!compatible) {
+            addErrorWithRanges(ident->location,
+                               ident->macroCallSite,
+                               ident->macroDefinition,
+                               "Conflicting types for function",
+                               ident->valueNode.value);
+        } else {
+            mergeCompatibleFunctionSignatures(&existing->signature,
+                                              &candidate.signature);
+            applyInteropAttributes(existing, node, scope, true);
+        }
+        freeFunctionSignatureParameters(&candidate.signature);
+        parsedTypeFree(&candidate.type);
+        parsedTypeFree(&functionType);
+        return true;
+    }
+
+    Symbol* sym = calloc(1, sizeof(Symbol));
+    if (!sym) {
+        freeFunctionSignatureParameters(&candidate.signature);
+        parsedTypeFree(&candidate.type);
+        parsedTypeFree(&functionType);
+        return true;
+    }
+    sym->name = strdup(ident->valueNode.value);
+    sym->kind = SYMBOL_FUNCTION;
+    sym->type = candidate.type;
+    sym->signature = candidate.signature;
+    sym->definition = node;
+    sym->storage = storage;
+    sym->linkage = linkage;
+    sym->hasDefinition = false;
+    sym->isTentative = false;
+    primeSymbolTypeInfoCache(sym, scope);
+    applyInteropAttributes(sym, node, scope, true);
+    if (!addToScope(scope, sym)) {
+        addErrorWithRanges(ident->location,
+                           ident->macroCallSite,
+                           ident->macroDefinition,
+                           "Conflicting types for function",
+                           ident->valueNode.value);
+    }
+    parsedTypeFree(&functionType);
+    return true;
+}
+
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
     ProfilerScope declScope = profiler_begin("semantic_analyze_declaration");
     profiler_record_value("semantic_count_analyze_declaration", 1);
@@ -148,9 +341,19 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                            : NULL;
                 int declLine = ident ? ident->line : node->line;
 
+                ParsedType effectiveDeclaratorType = parsedTypeClone(varType);
+                canonicalizeParsedTypeInScope(&effectiveDeclaratorType, scope);
+                bool isFunctionTypedefDeclarator =
+                    varType->kind == TYPE_NAMED &&
+                    varType->pointerDepth == 0 &&
+                    varType->derivationCount == 0 &&
+                    !varType->isFunctionPointer &&
+                    parsedTypeIsDirectFunction(&effectiveDeclaratorType);
+                parsedTypeFree(&effectiveDeclaratorType);
+
                 if (!validateStorageUsage(varType,
                                           scopeIsFileScope(scope),
-                                          false,
+                                          isFunctionTypedefDeclarator,
                                           false,
                                           declLine,
                                           nameHint)) {
@@ -163,14 +366,35 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     continue;
                 }
                 analyzeInlineAggregateDefinition(varType, scope);
+                freezeAggregateAliasesAtDeclaration(varType, scope, 0);
                 evaluateArrayDerivations(varType, scope);
-                profiler_record_value("semantic_count_type_info_site_decl", 1);
-                TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
+                if (varType->kind == TYPE_NAMED) {
+                    ParsedType effectiveType = parsedTypeClone(varType);
+                    canonicalizeParsedTypeInScope(&effectiveType, scope);
+                    if (parsedTypeHasVLA(&effectiveType)) {
+                        varType->isVLA = true;
+                    }
+                    parsedTypeFree(&effectiveType);
+                }
                 StorageClass storage = deduceStorageClass(varType);
-                SymbolLinkage linkage = deduceLinkage(varType, scopeIsFileScope(scope));
+                SymbolLinkage linkage =
+                    isFunctionTypedefDeclarator && !scopeIsFileScope(scope)
+                        ? LINKAGE_EXTERNAL
+                        : deduceLinkage(varType, scopeIsFileScope(scope));
                 bool hasInitializer = node->varDecl.initializers &&
                                       i < node->varDecl.varCount &&
                                       node->varDecl.initializers[i] != NULL;
+                if (analyzeFunctionTypedefDeclarator(node,
+                                                     ident,
+                                                     varType,
+                                                     scope,
+                                                     storage,
+                                                     linkage,
+                                                     hasInitializer)) {
+                    continue;
+                }
+                profiler_record_value("semantic_count_type_info_site_decl", 1);
+                TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
                 bool fileScope = scopeIsFileScope(scope);
                 if (!fileScope && storage == STORAGE_EXTERN && hasInitializer) {
                     addErrorWithRanges(ident ? ident->location : node->location,
@@ -225,6 +449,14 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                            ident ? ident->valueNode.value : NULL);
                         continue;
                     }
+                    if (existing->isParameter) {
+                        addErrorWithRanges(ident ? ident->location : node->location,
+                                           ident ? ident->macroCallSite : node->macroCallSite,
+                                           ident ? ident->macroDefinition : node->macroDefinition,
+                                           "Redefinition of parameter",
+                                           ident ? ident->valueNode.value : NULL);
+                        continue;
+                    }
                     if (existing->linkage != linkage) {
                         bool conflict =
                             (existing->linkage == LINKAGE_INTERNAL && linkage != LINKAGE_INTERNAL) ||
@@ -258,25 +490,49 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     }
                     existing->isTentative = existing->isTentative || tentative;
                     if (newDefinition) {
+                        if (shouldAdoptCompletedArrayDefinition(existing, varType, newDefinition)) {
+                            existing->type = *varType;
+                        }
                         existing->hasDefinition = true;
                         existing->isTentative = false;
                         existing->definition = node;
                     }
+                    existing->isWeak = existing->isWeak ||
+                                       parsedTypeHasGnuWeakAttribute(varType);
                     symbolAttachUnitsAnnotation(existing, unitsAnn, i);
+                    applyInteropAttributes(existing, node, scope, true);
                     primeSymbolTypeInfoCache(existing, scope);
                     boundSym = existing;
                 } else {
                     if (!fileScope && storage == STORAGE_EXTERN) {
-                        Symbol* linked = resolveInScopeChain(scope, ident->valueNode.value);
-                        if (linked &&
-                            linked->kind == SYMBOL_VARIABLE &&
-                            linked->linkage != LINKAGE_NONE &&
-                            !parsedTypesStructurallyCompatibleInScope(&linked->type, varType, scope)) {
-                            addVariableTypeConflictError(ident,
-                                                         node,
-                                                         linked->definition,
-                                                         ident ? ident->valueNode.value : NULL);
-                            continue;
+                        Symbol* linked =
+                            resolveLinkedVariableInScopeChain(scope, ident->valueNode.value);
+                        if (!linked) {
+                            for (Scope* current = scope; current; current = current->parent) {
+                                Symbol* candidate =
+                                    lookupSymbol(&current->table, ident->valueNode.value);
+                                if (candidate && candidate->linkage != LINKAGE_NONE) {
+                                    linked = candidate;
+                                    break;
+                                }
+                            }
+                        }
+                        if (linked) {
+                            if (linked->kind != SYMBOL_VARIABLE) {
+                                addErrorWithRanges(ident ? ident->location : node->location,
+                                                   ident ? ident->macroCallSite : node->macroCallSite,
+                                                   ident ? ident->macroDefinition : node->macroDefinition,
+                                                   "Conflicting declaration kind",
+                                                   ident ? ident->valueNode.value : NULL);
+                                continue;
+                            }
+                            if (!parsedTypesStructurallyCompatibleInScope(&linked->type, varType, scope)) {
+                                addVariableTypeConflictError(ident,
+                                                             node,
+                                                             linked->definition,
+                                                             ident ? ident->valueNode.value : NULL);
+                                continue;
+                            }
                         }
                     }
                     Symbol* sym = calloc(1, sizeof(Symbol));
@@ -289,6 +545,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     sym->linkage = linkage;
                     sym->hasDefinition = newDefinition;
                     sym->isTentative = tentative;
+                    sym->isWeak = parsedTypeHasGnuWeakAttribute(varType);
                     sym->next = NULL;
                     symbolAttachUnitsAnnotation(sym, unitsAnn, i);
                     resetFunctionSignature(sym);
@@ -384,6 +641,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             if (!validatePrimitiveSpecifierUsage(returnType, funcLine, funcHint)) {
                 break;
             }
+            freezeAggregateAliasesAtDeclaration(returnType, scope, 0);
             ASTNode** params = node->type == AST_FUNCTION_DEFINITION
                                    ? node->functionDef.parameters
                                    : node->functionDecl.parameters;
@@ -393,6 +651,19 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             bool isVariadic = node->type == AST_FUNCTION_DEFINITION
                                   ? node->functionDef.isVariadic
                                   : node->functionDecl.isVariadic;
+            for (size_t p = 0; p < paramCount; ++p) {
+                ASTNode* param = params ? params[p] : NULL;
+                if (!param || param->type != AST_VARIABLE_DECLARATION) {
+                    continue;
+                }
+                ParsedType* paramTypes = param->varDecl.declaredTypes;
+                for (size_t v = 0; v < param->varDecl.varCount; ++v) {
+                    ParsedType* paramType = paramTypes
+                        ? &paramTypes[v]
+                        : &param->varDecl.declaredType;
+                    freezeAggregateAliasesAtDeclaration(paramType, scope, 0);
+                }
+            }
             if (!validateFunctionParameters(params,
                                             paramCount,
                                             isVariadic,
@@ -411,7 +682,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             bool isDefinition = (node->type == AST_FUNCTION_DEFINITION);
 
             Symbol* existing = lookupSymbol(&scope->table, funcName->valueNode.value);
-                if (existing && existing->kind == SYMBOL_FUNCTION) {
+            if (existing && existing->kind == SYMBOL_FUNCTION) {
                 if (!existing->definition) {
                     existing->type = node->type == AST_FUNCTION_DEFINITION
                                          ? node->functionDef.returnType
@@ -422,12 +693,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         assignFunctionSignature(existing,
                                                 node->functionDef.parameters,
                                                 node->functionDef.paramCount,
-                                                node->functionDef.isVariadic);
+                                                node->functionDef.isVariadic,
+                                                node->functionDef.hasPrototype,
+                                                scope);
                     } else {
                         assignFunctionSignature(existing,
                                                 node->functionDecl.parameters,
                                                 node->functionDecl.paramCount,
-                                                node->functionDecl.isVariadic);
+                                                node->functionDecl.isVariadic,
+                                                node->functionDecl.hasPrototype,
+                                                scope);
                     }
                     existing->definition = node;
                     existing->storage = storage;
@@ -473,7 +748,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     }
                 }
 
-                if (!parsedTypesStructurallyCompatibleInScope(
+                if (!parsedTypesLexicallyCompatibleInScope(
                         &existing->type,
                         node->type == AST_FUNCTION_DEFINITION
                             ? &node->functionDef.returnType
@@ -494,12 +769,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         assignFunctionSignature(&tmp,
                                                 node->functionDef.parameters,
                                                 node->functionDef.paramCount,
-                                                node->functionDef.isVariadic);
+                                                node->functionDef.isVariadic,
+                                                node->functionDef.hasPrototype,
+                                                scope);
                     } else {
                         assignFunctionSignature(&tmp,
                                                 node->functionDecl.parameters,
                                                 node->functionDecl.paramCount,
-                                                node->functionDecl.isVariadic);
+                                                node->functionDecl.isVariadic,
+                                                node->functionDecl.hasPrototype,
+                                                scope);
                     }
                     if (!functionSignaturesCompatible(&existing->signature, &tmp.signature, scope)) {
                         addErrorWithRanges(funcName ? funcName->location : node->location,
@@ -507,10 +786,18 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                            funcName ? funcName->macroDefinition : node->macroDefinition,
                                            "Conflicting types for function",
                                            funcName ? funcName->valueNode.value : NULL);
-                        free(tmp.signature.params);
+                        freeFunctionSignatureParameters(&tmp.signature);
                         break;
                     }
-                    free(tmp.signature.params);
+                    mergeCompatibleParsedTypeDetailsInScope(
+                        &existing->type,
+                        node->type == AST_FUNCTION_DEFINITION
+                            ? &node->functionDef.returnType
+                            : &node->functionDecl.returnType,
+                        scope);
+                    mergeCompatibleFunctionSignatures(&existing->signature,
+                                                      &tmp.signature);
+                    freeFunctionSignatureParameters(&tmp.signature);
                 }
 
                 if (existing->hasDefinition && isDefinition) {
@@ -526,16 +813,104 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     existing->type = node->functionDef.returnType;
                     invalidateSymbolTypeInfoCache(existing);
                     existing->definition = node;
-                    resetFunctionSignature(existing);
-                    assignFunctionSignature(existing,
-                                            node->functionDef.parameters,
-                                            node->functionDef.paramCount,
-                                            node->functionDef.isVariadic);
+                    if (node->functionDef.hasPrototype ||
+                        !existing->signature.hasPrototype) {
+                        resetFunctionSignature(existing);
+                        assignFunctionSignature(existing,
+                                                node->functionDef.parameters,
+                                                node->functionDef.paramCount,
+                                                node->functionDef.isVariadic,
+                                                node->functionDef.hasPrototype,
+                                                scope);
+                    }
                     existing->hasDefinition = true;
                 }
                 primeSymbolTypeInfoCache(existing, scope);
                 applyInteropAttributes(existing, node, scope, true);
                 break;
+            }
+
+            if (!existing && !fileScope) {
+                bool conflictingLinkedObject = false;
+                Symbol* linkedFunction = NULL;
+                for (Scope* current = scope->parent; current; current = current->parent) {
+                    Symbol* linked = lookupSymbol(&current->table, funcName->valueNode.value);
+                    if (!linked || linked->linkage == LINKAGE_NONE) {
+                        continue;
+                    }
+                    if (linked->kind != SYMBOL_FUNCTION) {
+                        addErrorWithRanges(funcName ? funcName->location : node->location,
+                                           funcName ? funcName->macroCallSite : node->macroCallSite,
+                                           funcName ? funcName->macroDefinition : node->macroDefinition,
+                                           "Conflicting declaration kind",
+                                           funcName ? funcName->valueNode.value : NULL);
+                        conflictingLinkedObject = true;
+                        break;
+                    }
+                    linkedFunction = linked;
+                    break;
+                }
+                if (conflictingLinkedObject) {
+                    break;
+                }
+                if (linkedFunction) {
+                    const ParsedType* currentReturn =
+                        node->type == AST_FUNCTION_DEFINITION
+                            ? &node->functionDef.returnType
+                            : &node->functionDecl.returnType;
+                    bool compatible = parsedTypesLexicallyCompatibleInScope(
+                        &linkedFunction->type, currentReturn, scope);
+
+                    Symbol tmp = {0};
+                    resetFunctionSignature(&tmp);
+                    if (node->type == AST_FUNCTION_DEFINITION) {
+                        assignFunctionSignature(&tmp,
+                                                node->functionDef.parameters,
+                                                node->functionDef.paramCount,
+                                                node->functionDef.isVariadic,
+                                                node->functionDef.hasPrototype,
+                                                scope);
+                    } else {
+                        assignFunctionSignature(&tmp,
+                                                node->functionDecl.parameters,
+                                                node->functionDecl.paramCount,
+                                                node->functionDecl.isVariadic,
+                                                node->functionDecl.hasPrototype,
+                                                scope);
+                    }
+                    if (compatible) {
+                        compatible = functionSignaturesCompatible(
+                            &linkedFunction->signature, &tmp.signature, scope);
+                    }
+                    if (compatible &&
+                        linkedFunction->signature.hasPrototype &&
+                        tmp.signature.hasPrototype &&
+                        linkedFunction->signature.paramCount == tmp.signature.paramCount) {
+                        for (size_t p = 0; p < tmp.signature.paramCount; ++p) {
+                            if (!parsedTypesLexicallyCompatibleInScope(
+                                    &linkedFunction->signature.params[p],
+                                    &tmp.signature.params[p],
+                                    scope)) {
+                                compatible = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (!compatible) {
+                        freeFunctionSignatureParameters(&tmp.signature);
+                        addErrorWithRanges(
+                            funcName ? funcName->location : node->location,
+                            funcName ? funcName->macroCallSite : node->macroCallSite,
+                            funcName ? funcName->macroDefinition : node->macroDefinition,
+                            "Conflicting types for function",
+                            funcName ? funcName->valueNode.value : NULL);
+                        break;
+                    }
+                    mergeCompatibleFunctionSignatures(&linkedFunction->signature,
+                                                      &tmp.signature);
+                    freeFunctionSignatureParameters(&tmp.signature);
+                    linkage = linkedFunction->linkage;
+                }
             }
 
             Symbol* sym = calloc(1, sizeof(Symbol));
@@ -557,12 +932,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 assignFunctionSignature(sym,
                                         node->functionDef.parameters,
                                         node->functionDef.paramCount,
-                                        node->functionDef.isVariadic);
+                                        node->functionDef.isVariadic,
+                                        node->functionDef.hasPrototype,
+                                        scope);
             } else {
                 assignFunctionSignature(sym,
                                         node->functionDecl.parameters,
                                         node->functionDecl.paramCount,
-                                        node->functionDecl.isVariadic);
+                                        node->functionDecl.isVariadic,
+                                        node->functionDecl.hasPrototype,
+                                        scope);
             }
             applyInteropAttributes(sym, node, scope, true);
 
@@ -578,6 +957,29 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
         case AST_TYPEDEF: {
             analyzeInlineAggregateDefinition(&node->typedefStmt.baseType, scope);
+            if (scopeIsFileScope(scope) && scope->ctx &&
+                !node->typedefStmt.baseType.inlineStructOrUnionDef &&
+                node->typedefStmt.baseType.userTypeName &&
+                (node->typedefStmt.baseType.kind == TYPE_STRUCT ||
+                 node->typedefStmt.baseType.kind == TYPE_UNION)) {
+                CCTagKind tagKind = node->typedefStmt.baseType.kind == TYPE_UNION
+                                        ? CC_TAG_UNION
+                                        : CC_TAG_STRUCT;
+                (void)cc_add_tag(scope->ctx,
+                                 tagKind,
+                                 node->typedefStmt.baseType.userTypeName);
+            }
+            if (!node->typedefStmt.baseType.inlineStructOrUnionDef &&
+                (node->typedefStmt.baseType.kind == TYPE_STRUCT ||
+                 node->typedefStmt.baseType.kind == TYPE_UNION) &&
+                node->typedefStmt.baseType.userTypeName) {
+                Symbol* tagSym = resolveTagInScopeChain(scope,
+                                                        node->typedefStmt.baseType.userTypeName);
+                if (tagSym && tagSym->definition) {
+                    node->typedefStmt.baseType.inlineStructOrUnionDef = tagSym->definition;
+                }
+            }
+            freezeAggregateAliasesAtDeclaration(&node->typedefStmt.baseType, scope, 0);
             const char* aliasName = node->typedefStmt.alias->valueNode.value;
             int aliasLine = node->typedefStmt.alias ? node->typedefStmt.alias->line : node->line;
             if (!validateStorageUsage(&node->typedefStmt.baseType,
@@ -595,6 +997,14 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 break;
             }
             evaluateArrayDerivations(&node->typedefStmt.baseType, scope);
+            if (node->typedefStmt.baseType.kind == TYPE_NAMED) {
+                ParsedType effectiveType = parsedTypeClone(&node->typedefStmt.baseType);
+                canonicalizeParsedTypeInScope(&effectiveType, scope);
+                if (parsedTypeHasVLA(&effectiveType)) {
+                    node->typedefStmt.baseType.isVLA = true;
+                }
+                parsedTypeFree(&effectiveType);
+            }
             Symbol* existing = lookupSymbol(&scope->table, aliasName);
             if (existing && existing->kind == SYMBOL_TYPEDEF) {
                 if (parsedTypesStructurallyEqual(&existing->type, &node->typedefStmt.baseType)) {
@@ -648,6 +1058,17 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                     : node->structDef.structName;
             if (!nameNode || nameNode->type != AST_IDENTIFIER || !scope->ctx) {
                 break;
+            }
+
+            Symbol* scopedTag = calloc(1, sizeof(Symbol));
+            if (scopedTag) {
+                scopedTag->name = strdup(nameNode->valueNode.value);
+                scopedTag->kind = node->type == AST_ENUM_DEFINITION ? SYMBOL_ENUM : SYMBOL_STRUCT;
+                scopedTag->definition = node;
+                if (!scopedTag->name || !addTagToScope(scope, scopedTag)) {
+                    free(scopedTag->name);
+                    free(scopedTag);
+                }
             }
             bool fileScope = scopeIsFileScope(scope);
 
@@ -776,7 +1197,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                                "Enumerator value contains an out-of-range integer literal",
                                                member ? member->valueNode.value : NULL);
                         }
-                        ConstEvalResult val = constEval(valueExpr, scope, true);
+                        ConstEvalResult val = constEvalIntegerResult(valueExpr, scope, true);
                         if (!val.isConst) {
                             addErrorWithRanges(member ? member->location : node->location,
                                                member ? member->macroCallSite : node->macroCallSite,

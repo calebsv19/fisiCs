@@ -101,6 +101,38 @@ void reportNodeError(ASTNode* node, const char* message, const char* hint) {
     addErrorWithRanges(loc, callSite, macroDef, message, hint);
 }
 
+void reportNodeWarning(ASTNode* node, const char* message, const char* hint) {
+    if (!node) {
+        addWarning(0, 0, message, hint);
+        return;
+    }
+    SourceRange loc = node->location;
+    SourceRange callSite = node->macroCallSite;
+    SourceRange macroDef = node->macroDefinition;
+    ASTNode* child = NULL;
+    if (node->type == AST_BINARY_EXPRESSION ||
+        node->type == AST_UNARY_EXPRESSION ||
+        node->type == AST_ALIGNOF ||
+        node->type == AST_SIZEOF ||
+        node->type == AST_CAST_EXPRESSION) {
+        child = node->expr.left ? node->expr.left : node->expr.right;
+    } else if (node->type == AST_ASSIGNMENT) {
+        child = node->assignment.target ? node->assignment.target : node->assignment.value;
+    }
+    if (child) {
+        if ((!loc.start.file || loc.start.column <= 0) && child->location.start.file) {
+            loc = child->location;
+        }
+        if (!callSite.start.file && child->macroCallSite.start.file) {
+            callSite = child->macroCallSite;
+        }
+        if (!macroDef.start.file && child->macroDefinition.start.file) {
+            macroDef = child->macroDefinition;
+        }
+    }
+    addWarningWithRanges(loc, callSite, macroDef, message, hint);
+}
+
 bool typeInfoIsKnown(const TypeInfo* info) {
     return info && info->category != TYPEINFO_INVALID;
 }

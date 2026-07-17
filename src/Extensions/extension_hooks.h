@@ -7,10 +7,13 @@
 
 #include "Extensions/Units/units_model.h"
 #include "Extensions/Units/units_registry.h"
+#include "Parser/Helpers/parsed_type.h"
 
 struct ASTNode;
 struct CompilerContext;
+struct DesignatedInit;
 struct Scope;
+struct Symbol;
 
 typedef struct FisicsUnitsAnnotation {
     /* Pipeline-lifetime owner key for the current declaration-side scaffold. */
@@ -51,6 +54,9 @@ typedef struct FisicsUnitsCallArgContract {
 typedef struct FisicsUnitsExprBinding {
     struct ASTNode* node;
     const FisicsUnitsAnnotation* annotation;
+    ParsedType symbolType;
+    bool hasSymbolType;
+    struct DesignatedInit* initializer;
 } FisicsUnitsExprBinding;
 
 typedef struct FisicsExtensionState {

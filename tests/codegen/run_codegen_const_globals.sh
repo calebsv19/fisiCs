@@ -8,7 +8,8 @@ if [ ! -x "$BIN" ]; then
 fi
 
 OUT=$(mktemp)
-trap 'rm -f "$OUT"' EXIT
+BIN_OUT=$(mktemp)
+trap 'rm -f "$OUT" "$BIN_OUT"' EXIT
 
 "$BIN" tests/codegen/codegen_const_globals.c >"$OUT" 2>&1
 
@@ -48,10 +49,22 @@ if ! grep -q "@gp2 = .*%P { i32 3, i32 4 }" "$OUT"; then
   exit 1
 fi
 
-# Bitfield carrier should still be a constant struct initializer
-if ! grep -q "@gb = .*%Bit { i32 5, i32 7 }" "$OUT"; then
+# Bitfields sharing one storage unit are packed into the first carrier:
+# a=5 occupies bits 0..2 and b=7 occupies bits 3..7, yielding 61.
+if ! grep -q "@gb = .*%Bit { i32 61, i32 0 }" "$OUT"; then
   echo "bitfield initializer missing" >&2
   cat "$OUT" >&2
+  exit 1
+fi
+
+# Keep the IR-shape assertion tied to observable behavior.
+"$BIN" tests/codegen/codegen_const_globals.c -o "$BIN_OUT" >/dev/null 2>&1
+set +e
+"$BIN_OUT"
+STATUS=$?
+set -e
+if [ "$STATUS" -ne 13 ]; then
+  echo "constant-global runtime result incorrect: expected 13, got $STATUS" >&2
   exit 1
 fi
 

@@ -3,14 +3,17 @@
 #include "analyze_decls_internal.h"
 #include "Utils/profiler.h"
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 static int countParameterDeclarators(ASTNode** params, size_t paramCount);
 static bool isVoidParameterDecl(ASTNode* param);
 static bool isSyntheticUnnamedParameterName(const char* name);
-static bool adjustFunctionParameterType(ParsedType* type);
 static void stripTopLevelParameterQualifiers(ParsedType* type);
+static void normalizeFunctionSignatureParameter(ParsedType* type,
+                                                Scope* scope,
+                                                bool canonicalizeAliases);
 static bool parameterNameAlreadySeen(char** names, size_t count, const char* candidate);
 static void parameterNameRemember(char*** names, size_t* count, size_t* capacity, char* name);
 static int ascii_tolower(int c);
@@ -23,6 +26,166 @@ void resetFunctionSignature(Symbol* sym) {
     sym->signature.paramCount = 0;
     sym->signature.isVariadic = false;
     sym->signature.hasPrototype = false;
+}
+
+void freeFunctionSignatureParameters(FunctionSignature* signature) {
+    if (!signature || !signature->params) return;
+    for (size_t i = 0; i < signature->paramCount; ++i) {
+        parsedTypeFree(&signature->params[i]);
+    }
+    free(signature->params);
+    signature->params = NULL;
+    signature->paramCount = 0;
+}
+
+static bool arrayDerivationIsIncomplete(const TypeDerivation* deriv) {
+    return deriv &&
+           deriv->kind == TYPE_DERIVATION_ARRAY &&
+           !deriv->as.array.hasConstantSize &&
+           !deriv->as.array.isVLA &&
+           !deriv->as.array.isFlexible &&
+           deriv->as.array.sizeExpr == NULL;
+}
+
+static bool arrayDerivationHasKnownBound(const TypeDerivation* deriv) {
+    return deriv &&
+           deriv->kind == TYPE_DERIVATION_ARRAY &&
+           deriv->as.array.hasConstantSize &&
+           !deriv->as.array.isVLA &&
+           !deriv->as.array.isFlexible;
+}
+
+static void freeParsedTypeArray(ParsedType* params, size_t count) {
+    if (!params) return;
+    for (size_t i = 0; i < count; ++i) {
+        parsedTypeFree(&params[i]);
+    }
+    free(params);
+}
+
+static bool adoptNestedFunctionPrototype(TypeDerivation* accumulated,
+                                         const TypeDerivation* incoming) {
+    if (!accumulated || !incoming ||
+        accumulated->kind != TYPE_DERIVATION_FUNCTION ||
+        incoming->kind != TYPE_DERIVATION_FUNCTION ||
+        accumulated->as.function.hasPrototype ||
+        !incoming->as.function.hasPrototype) {
+        return false;
+    }
+
+    size_t count = incoming->as.function.paramCount;
+    ParsedType* params = NULL;
+    if (count > 0) {
+        if (!incoming->as.function.params) return false;
+        params = calloc(count, sizeof(ParsedType));
+        if (!params) return false;
+        for (size_t i = 0; i < count; ++i) {
+            params[i] = parsedTypeClone(&incoming->as.function.params[i]);
+            if (params[i].kind == TYPE_INVALID &&
+                incoming->as.function.params[i].kind != TYPE_INVALID) {
+                freeParsedTypeArray(params, i + 1);
+                return false;
+            }
+        }
+    }
+
+    freeParsedTypeArray(accumulated->as.function.params,
+                        accumulated->as.function.paramCount);
+    accumulated->as.function.params = params;
+    accumulated->as.function.paramCount = count;
+    accumulated->as.function.isVariadic = incoming->as.function.isVariadic;
+    accumulated->as.function.hasPrototype = true;
+    return true;
+}
+
+static void mergeCompatibleParsedTypeDetails(ParsedType* accumulated,
+                                             const ParsedType* incoming,
+                                             unsigned depth) {
+    if (!accumulated || !incoming || depth > 32) return;
+
+    size_t commonDerivations = accumulated->derivationCount < incoming->derivationCount
+                                   ? accumulated->derivationCount
+                                   : incoming->derivationCount;
+    for (size_t i = 0; i < commonDerivations; ++i) {
+        TypeDerivation* current = &accumulated->derivations[i];
+        const TypeDerivation* next = &incoming->derivations[i];
+        if (current->kind != next->kind) continue;
+        if (arrayDerivationIsIncomplete(current) &&
+            arrayDerivationHasKnownBound(next)) {
+            current->as.array = next->as.array;
+            continue;
+        }
+        if (current->kind == TYPE_DERIVATION_FUNCTION) {
+            (void)adoptNestedFunctionPrototype(current, next);
+        }
+        if (current->kind != TYPE_DERIVATION_FUNCTION ||
+            !current->as.function.hasPrototype ||
+            !next->as.function.hasPrototype ||
+            current->as.function.paramCount != next->as.function.paramCount) {
+            continue;
+        }
+        for (size_t p = 0; p < current->as.function.paramCount; ++p) {
+            mergeCompatibleParsedTypeDetails(&current->as.function.params[p],
+                                             &next->as.function.params[p],
+                                             depth + 1);
+        }
+    }
+
+    if (accumulated->hasParamArrayInfo && incoming->hasParamArrayInfo &&
+        !accumulated->paramArrayInfo.hasConstantSize &&
+        !accumulated->paramArrayInfo.isVLA &&
+        !accumulated->paramArrayInfo.isFlexible &&
+        accumulated->paramArrayInfo.sizeExpr == NULL &&
+        incoming->paramArrayInfo.hasConstantSize &&
+        !incoming->paramArrayInfo.isVLA &&
+        !incoming->paramArrayInfo.isFlexible) {
+        accumulated->paramArrayInfo = incoming->paramArrayInfo;
+    }
+}
+
+void mergeCompatibleParsedTypeDetailsInScope(ParsedType* accumulated,
+                                             const ParsedType* incoming,
+                                             Scope* scope) {
+    if (!accumulated || !incoming || !scope) return;
+
+    ParsedType current = parsedTypeClone(accumulated);
+    ParsedType next = parsedTypeClone(incoming);
+    if ((current.kind == TYPE_INVALID && accumulated->kind != TYPE_INVALID) ||
+        (next.kind == TYPE_INVALID && incoming->kind != TYPE_INVALID)) {
+        parsedTypeFree(&current);
+        parsedTypeFree(&next);
+        return;
+    }
+
+    canonicalizeParsedTypeInScope(&current, scope);
+    canonicalizeParsedTypeInScope(&next, scope);
+    mergeCompatibleParsedTypeDetails(&current, &next, 0);
+    parsedTypeFree(accumulated);
+    *accumulated = current;
+    parsedTypeFree(&next);
+}
+
+void mergeCompatibleFunctionSignatures(FunctionSignature* accumulated,
+                                       FunctionSignature* incoming) {
+    if (!accumulated || !incoming) return;
+
+    if (!accumulated->hasPrototype && incoming->hasPrototype) {
+        freeFunctionSignatureParameters(accumulated);
+        *accumulated = *incoming;
+        incoming->params = NULL;
+        incoming->paramCount = 0;
+        return;
+    }
+    if (!accumulated->hasPrototype || !incoming->hasPrototype ||
+        accumulated->paramCount != incoming->paramCount ||
+        !accumulated->params || !incoming->params) {
+        return;
+    }
+    for (size_t i = 0; i < accumulated->paramCount; ++i) {
+        mergeCompatibleParsedTypeDetails(&accumulated->params[i],
+                                         &incoming->params[i],
+                                         0);
+    }
 }
 
 static int countParameterDeclarators(ASTNode** params, size_t paramCount) {
@@ -69,36 +232,6 @@ static bool isSyntheticUnnamedParameterName(const char* name) {
     return name && strncmp(name, kPrefix, strlen(kPrefix)) == 0;
 }
 
-static bool adjustFunctionParameterType(ParsedType* type) {
-    if (!type) return false;
-    bool changed = false;
-    if (parsedTypeAdjustArrayParameter(type)) {
-        changed = true;
-    }
-    if (!parsedTypeIsDirectFunction(type)) {
-        return changed;
-    }
-    TypeDerivation* grown = realloc(type->derivations,
-                                    (type->derivationCount + 1) * sizeof(TypeDerivation));
-    if (!grown) {
-        return changed;
-    }
-    type->derivations = grown;
-    memmove(type->derivations + 1,
-            type->derivations,
-            type->derivationCount * sizeof(TypeDerivation));
-    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
-    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
-    type->derivations[0].as.pointer.isConst = false;
-    type->derivations[0].as.pointer.isVolatile = false;
-    type->derivations[0].as.pointer.isRestrict = false;
-    type->derivationCount++;
-    type->pointerDepth += 1;
-    type->directlyDeclaresFunction = false;
-    changed = true;
-    return changed;
-}
-
 static void stripTopLevelParameterQualifiers(ParsedType* type) {
     if (!type) return;
 
@@ -128,6 +261,21 @@ static void stripTopLevelParameterQualifiers(ParsedType* type) {
         outer->as.pointer.isVolatile = false;
         outer->as.pointer.isRestrict = false;
     }
+}
+
+static void normalizeFunctionSignatureParameter(ParsedType* type,
+                                                Scope* scope,
+                                                bool canonicalizeAliases) {
+    if (!type) return;
+
+    if (canonicalizeAliases) {
+        canonicalizeParsedTypeInScope(type, scope);
+    } else {
+        parsedTypeResolvePlainNamedTypedefInScope(type, scope);
+    }
+    evaluateArrayDerivations(type, scope);
+    parsedTypeAdjustFunctionParameter(type);
+    stripTopLevelParameterQualifiers(type);
 }
 
 static bool parameterNameAlreadySeen(char** names, size_t count, const char* candidate) {
@@ -278,9 +426,11 @@ bool validateFunctionParameters(ASTNode** params,
 void assignFunctionSignature(Symbol* sym,
                              ASTNode** params,
                              size_t paramCount,
-                             bool isVariadic) {
+                             bool isVariadic,
+                             bool hasPrototype,
+                             Scope* scope) {
     if (!sym) return;
-    free(sym->signature.params);
+    freeFunctionSignatureParameters(&sym->signature);
     sym->signature.params = NULL;
     sym->signature.paramCount = 0;
     sym->signature.isVariadic = isVariadic;
@@ -288,6 +438,7 @@ void assignFunctionSignature(Symbol* sym,
     sym->signature.callConv = CALLCONV_DEFAULT;
 
     if (!params || paramCount == 0) {
+        sym->signature.hasPrototype = hasPrototype;
         return;
     }
 
@@ -318,15 +469,196 @@ void assignFunctionSignature(Symbol* sym,
             if (idx < (size_t)totalDecls) {
                 const ParsedType* srcType = perTypes ? &perTypes[k] : &param->varDecl.declaredType;
                 ParsedType adjusted = parsedTypeClone(srcType);
-                adjustFunctionParameterType(&adjusted);
-                stripTopLevelParameterQualifiers(&adjusted);
+                normalizeFunctionSignatureParameter(&adjusted, scope, false);
                 sym->signature.params[idx] = adjusted;
                 idx++;
             }
         }
     }
     sym->signature.paramCount = idx;
-    sym->signature.hasPrototype = true;
+    sym->signature.hasPrototype = hasPrototype;
+}
+
+void assignFunctionSignatureFromParsedType(Symbol* sym,
+                                           const ParsedType* functionType,
+                                           Scope* scope) {
+    if (!sym || !functionType || !parsedTypeIsDirectFunction(functionType)) {
+        return;
+    }
+
+    const TypeDerivation* function = &functionType->derivations[0];
+    resetFunctionSignature(sym);
+    sym->signature.isVariadic = function->as.function.isVariadic;
+    sym->signature.hasPrototype = function->as.function.hasPrototype;
+    sym->signature.callConv = CALLCONV_DEFAULT;
+
+    size_t count = function->as.function.paramCount;
+    const ParsedType* params = function->as.function.params;
+    if (count == 1 && params && parsedTypeIsPlainVoid(&params[0]) &&
+        !function->as.function.isVariadic) {
+        sym->signature.hasPrototype = true;
+        return;
+    }
+    if (count == 0 || !params) {
+        return;
+    }
+
+    sym->signature.params = calloc(count, sizeof(ParsedType));
+    if (!sym->signature.params) {
+        return;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        ParsedType adjusted = parsedTypeClone(&params[i]);
+        normalizeFunctionSignatureParameter(&adjusted, scope, true);
+        sym->signature.params[i] = adjusted;
+    }
+    sym->signature.paramCount = count;
+}
+
+static bool prototypeAggregateIdentityConflictsShallow(const ParsedType* lhs,
+                                                       const ParsedType* rhs,
+                                                       Scope* scope) {
+    if (!lhs || !rhs || !scope) return false;
+
+    TypeInfo lhsInfo = typeInfoFromParsedType(lhs, scope);
+    TypeInfo rhsInfo = typeInfoFromParsedType(rhs, scope);
+    if (lhsInfo.tag == TAG_NONE || rhsInfo.tag == TAG_NONE) {
+        return false;
+    }
+    if (lhsInfo.tag != rhsInfo.tag) {
+        return true;
+    }
+    if (lhsInfo.recordDefinition && rhsInfo.recordDefinition) {
+        return lhsInfo.recordDefinition != rhsInfo.recordDefinition;
+    }
+    /* Anonymous enum typedefs carry their declaration identity through the
+       defining AST node, just as struct/union types do through
+       recordDefinition.  Their typedef spelling is an ordinary identifier,
+       not a visible enum tag, so falling through to the prototype-scope tag
+       check would incorrectly treat two uses of the same typedef as distinct
+       types. */
+    if (lhsInfo.tag == TAG_ENUM && rhsInfo.tag == TAG_ENUM &&
+        lhs->inlineEnumDef && rhs->inlineEnumDef) {
+        return lhs->inlineEnumDef != rhs->inlineEnumDef;
+    }
+
+    const char* lhsName = lhsInfo.userTypeName;
+    const char* rhsName = rhsInfo.userTypeName;
+    Symbol* lhsVisible = lhsName ? resolveTagInScopeChain(scope, lhsName) : NULL;
+    Symbol* rhsVisible = rhsName ? resolveTagInScopeChain(scope, rhsName) : NULL;
+    bool lhsKnown = lhsVisible != NULL;
+    bool rhsKnown = rhsVisible != NULL;
+    if (scope->ctx) {
+        CCTagKind lhsKind = lhsInfo.tag == TAG_UNION
+                                ? CC_TAG_UNION
+                                : (lhsInfo.tag == TAG_ENUM ? CC_TAG_ENUM : CC_TAG_STRUCT);
+        CCTagKind rhsKind = rhsInfo.tag == TAG_UNION
+                                ? CC_TAG_UNION
+                                : (rhsInfo.tag == TAG_ENUM ? CC_TAG_ENUM : CC_TAG_STRUCT);
+        lhsKnown = lhsKnown || (lhsName && cc_has_tag(scope->ctx, lhsKind, lhsName));
+        rhsKnown = rhsKnown || (rhsName && cc_has_tag(scope->ctx, rhsKind, rhsName));
+    }
+
+    /*
+     * A tag first mentioned inside a function prototype has prototype scope.
+     * If neither parameter type resolves to a visible tag, two declarations
+     * introduce distinct types even when their tag spelling is identical.
+     */
+    return !lhsKnown || !rhsKnown;
+}
+
+static bool prototypeParameterAggregateIdentityConflicts(const ParsedType* lhs,
+                                                         const ParsedType* rhs,
+                                                         Scope* scope,
+                                                         unsigned depth) {
+    if (!lhs || !rhs || !scope || depth > 32) return false;
+    if (prototypeAggregateIdentityConflictsShallow(lhs, rhs, scope)) {
+        return true;
+    }
+
+    const ParsedType* lhsParams = NULL;
+    const ParsedType* rhsParams = NULL;
+    size_t lhsCount = 0;
+    size_t rhsCount = 0;
+    bool lhsVariadic = false;
+    bool rhsVariadic = false;
+    bool lhsHasFunction = parsedTypeGetEffectiveFunctionPointerSignature(
+        lhs, &lhsParams, &lhsCount, &lhsVariadic, NULL);
+    bool rhsHasFunction = parsedTypeGetEffectiveFunctionPointerSignature(
+        rhs, &rhsParams, &rhsCount, &rhsVariadic, NULL);
+    if (!lhsHasFunction || !rhsHasFunction) {
+        return false;
+    }
+
+    ParsedType lhsReturn = parsedTypeFunctionReturnType(lhs);
+    ParsedType rhsReturn = parsedTypeFunctionReturnType(rhs);
+    bool returnConflict =
+        lhsReturn.kind != TYPE_INVALID &&
+        rhsReturn.kind != TYPE_INVALID &&
+        prototypeParameterAggregateIdentityConflicts(
+            &lhsReturn, &rhsReturn, scope, depth + 1);
+    parsedTypeFree(&lhsReturn);
+    parsedTypeFree(&rhsReturn);
+    if (returnConflict) {
+        return true;
+    }
+
+    size_t commonCount = lhsCount < rhsCount ? lhsCount : rhsCount;
+    for (size_t i = 0; i < commonCount; ++i) {
+        if (prototypeParameterAggregateIdentityConflicts(
+                &lhsParams[i], &rhsParams[i], scope, depth + 1)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool prototypeParametersSurviveDefaultPromotions(
+    const FunctionSignature* signature,
+    Scope* scope) {
+    if (!signature || !signature->hasPrototype || signature->isVariadic) {
+        return false;
+    }
+    if (signature->paramCount > 0 && !signature->params) {
+        return false;
+    }
+    for (size_t i = 0; i < signature->paramCount; ++i) {
+        TypeInfo declared = typeInfoFromParsedType(&signature->params[i], scope);
+        TypeInfo promoted = defaultArgumentPromotion(declared);
+        if (!typesAreEqual(&declared, &promoted)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool prototypeCompatibleWithOldStyleDefinition(
+    const FunctionSignature* prototype,
+    const FunctionSignature* oldStyle,
+    Scope* scope) {
+    if (!prototype || !oldStyle || !prototype->hasPrototype ||
+        oldStyle->hasPrototype || oldStyle->paramCount == 0) {
+        return false;
+    }
+    if (prototype->isVariadic || oldStyle->isVariadic ||
+        prototype->paramCount != oldStyle->paramCount ||
+        !prototype->params || !oldStyle->params) {
+        return false;
+    }
+    for (size_t i = 0; i < prototype->paramCount; ++i) {
+        if (parsedTypesStructurallyCompatibleInScope(&prototype->params[i],
+                                                     &oldStyle->params[i],
+                                                     scope)) {
+            continue;
+        }
+        TypeInfo declared = typeInfoFromParsedType(&oldStyle->params[i], scope);
+        TypeInfo promoted = defaultArgumentPromotion(declared);
+        TypeInfo expected = typeInfoFromParsedType(&prototype->params[i], scope);
+        if (!typesAreEqual(&expected, &promoted)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool functionSignaturesCompatible(const FunctionSignature* lhs,
@@ -334,7 +666,16 @@ bool functionSignaturesCompatible(const FunctionSignature* lhs,
                                   Scope* scope) {
     if (!lhs || !rhs) return true;
     if (!lhs->hasPrototype || !rhs->hasPrototype) {
-        return true;
+        if (!lhs->hasPrototype && !rhs->hasPrototype) {
+            return true;
+        }
+        const FunctionSignature* prototype = lhs->hasPrototype ? lhs : rhs;
+        const FunctionSignature* oldStyle = lhs->hasPrototype ? rhs : lhs;
+        if (oldStyle->paramCount > 0) {
+            return prototypeCompatibleWithOldStyleDefinition(
+                prototype, oldStyle, scope);
+        }
+        return prototypeParametersSurviveDefaultPromotions(prototype, scope);
     }
     if ((lhs->paramCount > 0 && !lhs->params) || (rhs->paramCount > 0 && !rhs->params)) {
         return true;
@@ -342,6 +683,10 @@ bool functionSignaturesCompatible(const FunctionSignature* lhs,
     if (lhs->paramCount != rhs->paramCount) return false;
     if (lhs->isVariadic != rhs->isVariadic) return false;
     for (size_t i = 0; i < lhs->paramCount; ++i) {
+        if (prototypeParameterAggregateIdentityConflicts(
+                &lhs->params[i], &rhs->params[i], scope, 0)) {
+            return false;
+        }
         if (!parsedTypesStructurallyCompatibleInScope(&lhs->params[i], &rhs->params[i], scope)) {
             return false;
         }
@@ -372,6 +717,23 @@ static void lower_inplace(char* s) {
     }
 }
 
+static bool attr_payload_has_word(const char* payload, const char* word) {
+    if (!payload || !word || !word[0]) return false;
+    size_t wordLength = strlen(word);
+    const char* match = payload;
+    while ((match = strstr(match, word)) != NULL) {
+        char left = match == payload ? '\0' : match[-1];
+        char right = match[wordLength];
+        bool leftBoundary = left == '\0' ||
+                            (!isalnum((unsigned char)left) && left != '_');
+        bool rightBoundary = right == '\0' ||
+                             (!isalnum((unsigned char)right) && right != '_');
+        if (leftBoundary && rightBoundary) return true;
+        match += wordLength;
+    }
+    return false;
+}
+
 void applyInteropAttributes(Symbol* sym, ASTNode* node, Scope* scope, bool allowWarn) {
     if (!sym || !node || node->attributeCount == 0 || !node->attributes) return;
     CompilerContext* ctx = scope ? scope->ctx : NULL;
@@ -386,6 +748,10 @@ void applyInteropAttributes(Symbol* sym, ASTNode* node, Scope* scope, bool allow
         lower_inplace(tmp);
         bool isGnu = attr->syntax == AST_ATTRIBUTE_SYNTAX_GNU;
         bool isDeclspec = attr->syntax == AST_ATTRIBUTE_SYNTAX_DECLSPEC;
+
+        if (isGnu && attr_payload_has_word(tmp, "weak")) {
+            sym->isWeak = true;
+        }
 
         if ((isGnu && (strstr(tmp, "stdcall") || strstr(tmp, "__stdcall"))) ||
             (isDeclspec && strstr(tmp, "stdcall"))) {
@@ -518,6 +884,10 @@ bool validateStorageUsage(const ParsedType* type,
     }
 
     if (isFunction && (storage == STORAGE_AUTO || storage == STORAGE_REGISTER)) {
+        addError(line, 0, "Invalid storage class for function declaration", nameHint);
+        return false;
+    }
+    if (isFunction && !fileScope && storage == STORAGE_STATIC) {
         addError(line, 0, "Invalid storage class for function declaration", nameHint);
         return false;
     }

@@ -1,13 +1,13 @@
 # Manual SDL Probe (Isolated)
 
 These probes are intentionally minimal and isolated from the rest of your app.
+Run all commands below from the `fisiCs` repository root.
 
 ## 1) Headless color check
 
 Compile:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./fisics tests/manual_sdl_probe/sdl_headless_color_check.c $(pkg-config --cflags --libs sdl2) -o /tmp/sdl_headless_probe.out
 ```
 
@@ -26,7 +26,6 @@ Expected output:
 Compile:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./fisics tests/manual_sdl_probe/sdl_visible_color_window.c $(pkg-config --cflags --libs sdl2) -o /tmp/sdl_visible_probe.out
 ```
 
@@ -48,7 +47,6 @@ Expected:
 Compile:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./fisics tests/manual_sdl_probe/sdl_visible_color_cycle_window.c $(pkg-config --cflags --libs sdl2) -o /tmp/sdl_visible_cycle_probe.out
 ```
 
@@ -69,7 +67,6 @@ Expected:
 Compile:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./fisics tests/manual_sdl_probe/sdl_headless_event_route_probe.c $(pkg-config --cflags --libs sdl2) -o /tmp/sdl_headless_route_probe.out
 ```
 
@@ -90,7 +87,6 @@ Expected:
 Compile:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./fisics tests/manual_sdl_probe/sdl_visible_input_route_probe.c $(pkg-config --cflags --libs sdl2) -o /tmp/sdl_visible_input_probe.out
 ```
 
@@ -124,7 +120,6 @@ This probe is intentionally different from the existing color/input checks. It e
 Compile:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./fisics tests/manual_sdl_probe/sdl_visible_visual_fx_playground.c $(pkg-config --cflags --libs sdl2) -o /tmp/sdl_visual_fx_probe.out
 ```
 
@@ -154,5 +149,5 @@ Knob:
 If macOS loader cannot find SDL:
 
 ```bash
-DYLD_LIBRARY_PATH=/opt/homebrew/lib /tmp/sdl_visible_probe.out
+DYLD_LIBRARY_PATH="$(pkg-config --variable=libdir sdl2)" /tmp/sdl_visible_probe.out
 ```

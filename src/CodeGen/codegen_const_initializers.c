@@ -5,6 +5,7 @@
 #include "Syntax/const_eval.h"
 #include "Compiler/compiler_context.h"
 #include "codegen_const_initializers_internal.h"
+#include "codegen_initializers_aggregate.h"
 #include "codegen_types.h"
 #include "literal_utils.h"
 
@@ -151,6 +152,30 @@ static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
             if (strcmp(expr->expr.op, "/") == 0) {
                 if (rhs == 0.0) return false;
                 *outValue = lhs / rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "==") == 0) {
+                *outValue = lhs == rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "!=") == 0) {
+                *outValue = lhs != rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "<") == 0) {
+                *outValue = lhs < rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "<=") == 0) {
+                *outValue = lhs <= rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, ">") == 0) {
+                *outValue = lhs > rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, ">=") == 0) {
+                *outValue = lhs >= rhs;
                 return true;
             }
             return false;
@@ -369,6 +394,62 @@ static LLVMValueRef cg_const_resolve_global_lvalue(CodegenContext* ctx,
         return elementPointer;
     }
 
+    if (expr->type == AST_DOT_ACCESS || expr->type == AST_STRUCT_FIELD_ACCESS) {
+        ASTNode* memberBase = (expr->type == AST_STRUCT_FIELD_ACCESS)
+            ? expr->structFieldAccess.structInstance
+            : expr->memberAccess.base;
+        const char* memberName = (expr->type == AST_STRUCT_FIELD_ACCESS)
+            ? expr->structFieldAccess.fieldName
+            : expr->memberAccess.field;
+        if (!memberBase || !memberName) return NULL;
+        LLVMTypeRef baseValueType = NULL;
+        LLVMValueRef basePointer =
+            cg_const_resolve_global_lvalue(ctx, memberBase, &baseValueType);
+        if (!basePointer || !baseValueType ||
+            LLVMGetTypeKind(baseValueType) != LLVMStructTypeKind) {
+            return NULL;
+        }
+
+        const ParsedType* baseParsed =
+            cg_resolve_expression_type(ctx, memberBase);
+        CGStructLLVMInfo* info =
+            cg_init_find_struct_info_for_aggregate(ctx, baseValueType, baseParsed);
+        unsigned fieldIndex = LLVMCountStructElementTypes(baseValueType);
+        if (info) {
+            for (size_t i = 0; i < info->fieldCount; ++i) {
+                if (info->fields[i].name &&
+                    strcmp(info->fields[i].name, memberName) == 0) {
+                    fieldIndex = info->fields[i].llvmIndex;
+                    break;
+                }
+            }
+        }
+        if (fieldIndex >= LLVMCountStructElementTypes(baseValueType)) {
+            for (unsigned i = 0; i < LLVMCountStructElementTypes(baseValueType); ++i) {
+                const char* fieldName = NULL;
+                if (cg_init_field_by_index(ctx, baseParsed, i, &fieldName, NULL) &&
+                    fieldName && strcmp(fieldName, memberName) == 0) {
+                    fieldIndex = i;
+                    break;
+                }
+            }
+        }
+        if (fieldIndex < LLVMCountStructElementTypes(baseValueType)) {
+            LLVMTypeRef indexType = cg_get_intptr_type(ctx);
+            LLVMValueRef indices[2] = {
+                LLVMConstInt(indexType, 0, 0),
+                LLVMConstInt(indexType, fieldIndex, 0),
+            };
+            LLVMValueRef fieldPointer =
+                LLVMConstGEP2(baseValueType, basePointer, indices, 2);
+            if (!fieldPointer) return NULL;
+            if (outValueType) {
+                *outValueType = LLVMStructGetTypeAtIndex(baseValueType, fieldIndex);
+            }
+            return fieldPointer;
+        }
+    }
+
     return NULL;
 }
 
@@ -462,6 +543,57 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
     LLVMTypeKind targetKind = LLVMGetTypeKind(targetType);
     if (targetKind == LLVMVoidTypeKind) {
         CG_CONST_INIT_RETURN(NULL);
+    }
+
+    if (expr->type == AST_TERNARY_EXPRESSION &&
+        expr->ternaryExpr.condition &&
+        expr->ternaryExpr.trueExpr &&
+        expr->ternaryExpr.falseExpr) {
+        long long condition = 0;
+        if (cg_eval_initializer_signed_const(ctx,
+                                             expr->ternaryExpr.condition,
+                                             &condition)) {
+            ASTNode* selected = condition
+                                    ? expr->ternaryExpr.trueExpr
+                                    : expr->ternaryExpr.falseExpr;
+            CG_CONST_INIT_RETURN(cg_build_const_initializer(ctx,
+                                                            selected,
+                                                            targetType,
+                                                            parsedType));
+        }
+    }
+
+    if (expr->type == AST_CAST_EXPRESSION &&
+        expr->castExpr.expression &&
+        targetKind == LLVMPointerTypeKind) {
+        LLVMTypeRef castTarget = cg_type_from_parsed(ctx, &expr->castExpr.castType);
+        if (castTarget && LLVMGetTypeKind(castTarget) == LLVMPointerTypeKind) {
+            const ParsedType* innerParsed =
+                cg_resolve_expression_type(ctx, expr->castExpr.expression);
+            LLVMTypeRef innerTarget = innerParsed
+                                        ? cg_type_from_parsed(ctx, innerParsed)
+                                        : NULL;
+            if (!innerTarget || LLVMGetTypeKind(innerTarget) != LLVMPointerTypeKind) {
+                innerParsed = &expr->castExpr.castType;
+                innerTarget = castTarget;
+            }
+            LLVMValueRef inner = cg_build_const_initializer(ctx,
+                                                            expr->castExpr.expression,
+                                                            innerTarget,
+                                                            innerParsed);
+            if (inner) {
+                LLVMValueRef result = inner;
+                if (LLVMTypeOf(result) != castTarget) {
+                    result = LLVMConstPointerCast(result, castTarget);
+                    if (!result) result = LLVMConstBitCast(inner, castTarget);
+                }
+                if (LLVMTypeOf(result) != targetType) {
+                    result = LLVMConstPointerCast(result, targetType);
+                    if (!result) result = LLVMConstBitCast(inner, targetType);
+                }
+                if (result) CG_CONST_INIT_RETURN(result);
+            }
+        }
     }
 
     const ParsedType* effectiveParsed = parsedType;
@@ -638,6 +770,23 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
             targetExpr = expr->expr.left;
             tookAddress = true;
         }
+        if (tookAddress && targetExpr && targetExpr->type == AST_COMPOUND_LITERAL) {
+            LLVMTypeRef literalType = NULL;
+            LLVMValueRef literalPtr =
+                cg_emit_compound_literal_pointer(ctx, targetExpr, &literalType);
+            if (literalPtr && literalType) {
+                LLVMValueRef result = literalPtr;
+                if (LLVMTypeOf(result) != targetType) {
+                    result = LLVMConstPointerCast(result, targetType);
+                    if (!result) {
+                        result = LLVMConstBitCast(literalPtr, targetType);
+                    }
+                }
+                if (result) {
+                    CG_CONST_INIT_RETURN(result);
+                }
+            }
+        }
         if (targetExpr && targetExpr->type == AST_IDENTIFIER) {
             const char* name = targetExpr->valueNode.value;
             if (name) {
@@ -724,7 +873,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
             }
         }
 
-        if (targetExpr && targetExpr->type == AST_ARRAY_ACCESS) {
+        if (targetExpr) {
             LLVMTypeRef accessValueType = NULL;
             LLVMValueRef accessPointer =
                 cg_const_resolve_global_lvalue(ctx, targetExpr, &accessValueType);
@@ -764,6 +913,15 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
     }
     ConstEvalResult res = constEval(expr, globalScope, true);
     if (!res.isConst) {
+        if (targetKind == LLVMIntegerTypeKind) {
+            double foldedFP = 0.0;
+            if (cg_eval_const_float_expr(expr, &foldedFP)) {
+                int isUnsigned = effectiveParsed && effectiveParsed->isUnsigned;
+                CG_CONST_INIT_RETURN(LLVMConstInt(targetType,
+                                                  (unsigned long long)(long long)foldedFP,
+                                                  isUnsigned ? 0 : 1));
+            }
+        }
         CG_CONST_INIT_RETURN(NULL);
     }
     LLVMValueRef folded = cg_const_from_eval(ctx, &res, targetType, effectiveParsed);

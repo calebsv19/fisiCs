@@ -16,6 +16,10 @@ typedef struct {
     size_t* initIndices;
     size_t initCount;
     size_t initCapacity;
+    size_t* vlaIndices;
+    size_t vlaCount;
+    size_t vlaCapacity;
+    bool entryHasVLA;
 } BlockInitInfo;
 
 typedef struct {
@@ -25,6 +29,7 @@ typedef struct {
     SourceRange location;
     SourceRange macroCallSite;
     SourceRange macroDefinition;
+    bool directBlockStatement;
 } LabelInfo;
 
 typedef struct {
@@ -34,14 +39,20 @@ typedef struct {
     SourceRange location;
     SourceRange macroCallSite;
     SourceRange macroDefinition;
+    bool directBlockStatement;
 } GotoInfo;
 
 static void blockInitInfoFree(BlockInitInfo* info) {
     if (!info) return;
     free(info->initIndices);
+    free(info->vlaIndices);
     info->initIndices = NULL;
     info->initCount = 0;
     info->initCapacity = 0;
+    info->vlaIndices = NULL;
+    info->vlaCount = 0;
+    info->vlaCapacity = 0;
+    info->entryHasVLA = false;
 }
 
 static BlockInitInfo* blockInitInfoAdd(BlockInitInfo** list,
@@ -63,6 +74,9 @@ static BlockInitInfo* blockInitInfoAdd(BlockInitInfo** list,
     info->initIndices = NULL;
     info->initCount = 0;
     info->initCapacity = 0;
+    info->vlaIndices = NULL;
+    info->vlaCount = 0;
+    info->vlaCapacity = 0;
     return info;
 }
 
@@ -78,6 +92,18 @@ static void blockInitInfoAddIndex(BlockInitInfo* info, size_t index) {
     info->initIndices[info->initCount++] = index;
 }
 
+static void blockInitInfoAddVLAIndex(BlockInitInfo* info, size_t index) {
+    if (!info) return;
+    if (info->vlaCount >= info->vlaCapacity) {
+        size_t newCap = info->vlaCapacity ? info->vlaCapacity * 2 : 8;
+        size_t* resized = (size_t*)realloc(info->vlaIndices, newCap * sizeof(size_t));
+        if (!resized) return;
+        info->vlaIndices = resized;
+        info->vlaCapacity = newCap;
+    }
+    info->vlaIndices[info->vlaCount++] = index;
+}
+
 static BlockInitInfo* blockInitInfoFind(BlockInitInfo* list, size_t count, ASTNode* block) {
     for (size_t i = 0; i < count; ++i) {
         if (list[i].block == block) {
@@ -87,34 +113,21 @@ static BlockInitInfo* blockInitInfoFind(BlockInitInfo* list, size_t count, ASTNo
     return NULL;
 }
 
-static bool varDeclHasInitOrVLA(ASTNode* node) {
+static bool varDeclHasVLA(ASTNode* node) {
     if (!node || node->type != AST_VARIABLE_DECLARATION) return false;
     for (size_t i = 0; i < node->varDecl.varCount; ++i) {
         const ParsedType* t = astVarDeclTypeAt(node, i);
-        if (t) {
-            if (parsedTypeHasVLA(t)) {
+        if (!t) {
+            continue;
+        }
+        if (t->isVLA || parsedTypeHasVLA(t)) {
+            return true;
+        }
+        for (size_t d = 0; d < t->derivationCount; ++d) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(t, d);
+            if (deriv && deriv->kind == TYPE_DERIVATION_ARRAY && deriv->as.array.isVLA) {
                 return true;
             }
-            for (size_t d = 0; d < t->derivationCount; ++d) {
-                const TypeDerivation* deriv = parsedTypeGetDerivation(t, d);
-                if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) {
-                    continue;
-                }
-                if (deriv->as.array.isVLA) {
-                    return true;
-                }
-                ASTNode* sizeExpr = deriv->as.array.sizeExpr;
-                if (!sizeExpr) {
-                    continue;
-                }
-                long long ignored = 0;
-                if (!constEvalInteger(sizeExpr, NULL, &ignored, true)) {
-                    return true;
-                }
-            }
-        }
-        if (node->varDecl.initializers && node->varDecl.initializers[i]) {
-            return true;
         }
     }
     return false;
@@ -128,7 +141,8 @@ static void labelInfoAdd(LabelInfo** list,
                          size_t index,
                          SourceRange location,
                          SourceRange macroCallSite,
-                         SourceRange macroDefinition) {
+                         SourceRange macroDefinition,
+                         bool directBlockStatement) {
     if (!list || !count || !capacity || !name) return;
     if (*count >= *capacity) {
         size_t newCap = *capacity ? *capacity * 2 : 8;
@@ -143,7 +157,8 @@ static void labelInfoAdd(LabelInfo** list,
         .index = index,
         .location = location,
         .macroCallSite = macroCallSite,
-        .macroDefinition = macroDefinition
+        .macroDefinition = macroDefinition,
+        .directBlockStatement = directBlockStatement
     };
     (*count)++;
 }
@@ -156,7 +171,8 @@ static void gotoInfoAdd(GotoInfo** list,
                         size_t index,
                         SourceRange location,
                         SourceRange macroCallSite,
-                        SourceRange macroDefinition) {
+                        SourceRange macroDefinition,
+                        bool directBlockStatement) {
     if (!list || !count || !capacity || !name) return;
     if (*count >= *capacity) {
         size_t newCap = *capacity ? *capacity * 2 : 8;
@@ -171,7 +187,8 @@ static void gotoInfoAdd(GotoInfo** list,
         .index = index,
         .location = location,
         .macroCallSite = macroCallSite,
-        .macroDefinition = macroDefinition
+        .macroDefinition = macroDefinition,
+        .directBlockStatement = directBlockStatement
     };
     (*count)++;
 }
@@ -187,7 +204,8 @@ static void collectGotoInfoFromStatement(ASTNode* stmt,
                                          size_t* labelCapacity,
                                          GotoInfo** gotos,
                                          size_t* gotoCount,
-                                         size_t* gotoCapacity);
+                                         size_t* gotoCapacity,
+                                         bool directBlockStatement);
 
 static void collectGotoInfoFromBlock(ASTNode* block,
                                      ASTNode* parentBlock,
@@ -207,29 +225,14 @@ static void collectGotoInfoFromBlock(ASTNode* block,
     for (size_t i = 0; i < block->block.statementCount; ++i) {
         ASTNode* stmt = block->block.statements[i];
         if (!stmt) continue;
-        if (stmt->type == AST_VARIABLE_DECLARATION && varDeclHasInitOrVLA(stmt)) {
+        bool introducesVariablyModifiedIdentifier =
+            (stmt->type == AST_VARIABLE_DECLARATION && varDeclHasVLA(stmt)) ||
+            (stmt->type == AST_TYPEDEF &&
+             (stmt->typedefStmt.baseType.isVLA ||
+              parsedTypeHasVLA(&stmt->typedefStmt.baseType)));
+        if (introducesVariablyModifiedIdentifier) {
             blockInitInfoAddIndex(&(*blocks)[blockIndex], i);
-        }
-        if (stmt->type == AST_LABEL_DECLARATION && stmt->label.labelName) {
-            labelInfoAdd(labels,
-                         labelCount,
-                         labelCapacity,
-                         stmt->label.labelName,
-                         block,
-                         i,
-                         stmt->location,
-                         stmt->macroCallSite,
-                         stmt->macroDefinition);
-        } else if (stmt->type == AST_GOTO_STATEMENT && stmt->gotoStmt.label) {
-            gotoInfoAdd(gotos,
-                        gotoCount,
-                        gotoCapacity,
-                        stmt->gotoStmt.label,
-                        block,
-                        i,
-                        stmt->location,
-                        stmt->macroCallSite,
-                        stmt->macroDefinition);
+            blockInitInfoAddVLAIndex(&(*blocks)[blockIndex], i);
         }
         collectGotoInfoFromStatement(stmt,
                                      block,
@@ -242,7 +245,8 @@ static void collectGotoInfoFromBlock(ASTNode* block,
                                      labelCapacity,
                                      gotos,
                                      gotoCount,
-                                     gotoCapacity);
+                                     gotoCapacity,
+                                     true);
     }
 }
 
@@ -257,10 +261,32 @@ static void collectGotoInfoFromStatement(ASTNode* stmt,
                                          size_t* labelCapacity,
                                          GotoInfo** gotos,
                                          size_t* gotoCount,
-                                         size_t* gotoCapacity) {
+                                         size_t* gotoCapacity,
+                                         bool directBlockStatement) {
     if (!stmt) return;
-    (void)currentBlock;
-    (void)stmtIndex;
+    if (stmt->type == AST_LABEL_DECLARATION && stmt->label.labelName) {
+        labelInfoAdd(labels,
+                     labelCount,
+                     labelCapacity,
+                     stmt->label.labelName,
+                     currentBlock,
+                     stmtIndex,
+                     stmt->location,
+                     stmt->macroCallSite,
+                     stmt->macroDefinition,
+                     directBlockStatement);
+    } else if (stmt->type == AST_GOTO_STATEMENT && stmt->gotoStmt.label) {
+        gotoInfoAdd(gotos,
+                    gotoCount,
+                    gotoCapacity,
+                    stmt->gotoStmt.label,
+                    currentBlock,
+                    stmtIndex,
+                    stmt->location,
+                    stmt->macroCallSite,
+                    stmt->macroDefinition,
+                    directBlockStatement);
+    }
     switch (stmt->type) {
         case AST_BLOCK:
             collectGotoInfoFromBlock(stmt, currentBlock, blocks, blockCount, blockCapacity,
@@ -271,32 +297,60 @@ static void collectGotoInfoFromStatement(ASTNode* stmt,
             collectGotoInfoFromStatement(stmt->ifStmt.thenBranch, currentBlock, stmtIndex,
                                          blocks, blockCount, blockCapacity,
                                          labels, labelCount, labelCapacity,
-                                         gotos, gotoCount, gotoCapacity);
+                                         gotos, gotoCount, gotoCapacity,
+                                         false);
             if (stmt->ifStmt.elseBranch) {
                 collectGotoInfoFromStatement(stmt->ifStmt.elseBranch, currentBlock, stmtIndex,
                                              blocks, blockCount, blockCapacity,
                                              labels, labelCount, labelCapacity,
-                                             gotos, gotoCount, gotoCapacity);
+                                             gotos, gotoCount, gotoCapacity,
+                                             false);
             }
             break;
         case AST_FOR_LOOP:
+            {
+            bool initializerHasVLA =
+                stmt->forLoop.initializer &&
+                ((stmt->forLoop.initializer->type == AST_VARIABLE_DECLARATION &&
+                  varDeclHasVLA(stmt->forLoop.initializer)) ||
+                 (stmt->forLoop.initializer->type == AST_TYPEDEF &&
+                  (stmt->forLoop.initializer->typedefStmt.baseType.isVLA ||
+                   parsedTypeHasVLA(&stmt->forLoop.initializer->typedefStmt.baseType))));
+            if (initializerHasVLA) {
+                BlockInitInfo* currentInfo =
+                    blockInitInfoFind(*blocks, *blockCount, currentBlock);
+                blockInitInfoAddIndex(currentInfo, stmtIndex);
+                blockInitInfoAddVLAIndex(currentInfo, stmtIndex);
+            }
             collectGotoInfoFromStatement(stmt->forLoop.body, currentBlock, stmtIndex,
                                          blocks, blockCount, blockCapacity,
                                          labels, labelCount, labelCapacity,
-                                         gotos, gotoCount, gotoCapacity);
+                                         gotos, gotoCount, gotoCapacity,
+                                         false);
+            if (initializerHasVLA && stmt->forLoop.body &&
+                stmt->forLoop.body->type == AST_BLOCK) {
+                BlockInitInfo* bodyInfo =
+                    blockInitInfoFind(*blocks, *blockCount, stmt->forLoop.body);
+                if (bodyInfo) {
+                    bodyInfo->entryHasVLA = true;
+                }
+            }
+            }
             break;
         case AST_WHILE_LOOP:
             collectGotoInfoFromStatement(stmt->whileLoop.body, currentBlock, stmtIndex,
                                          blocks, blockCount, blockCapacity,
                                          labels, labelCount, labelCapacity,
-                                         gotos, gotoCount, gotoCapacity);
+                                         gotos, gotoCount, gotoCapacity,
+                                         false);
             break;
         case AST_SWITCH:
             for (size_t i = 0; i < stmt->switchStmt.caseListSize; ++i) {
                 collectGotoInfoFromStatement(stmt->switchStmt.caseList[i], currentBlock, stmtIndex,
                                              blocks, blockCount, blockCapacity,
                                              labels, labelCount, labelCapacity,
-                                             gotos, gotoCount, gotoCapacity);
+                                             gotos, gotoCount, gotoCapacity,
+                                             false);
             }
             break;
         case AST_CASE:
@@ -304,13 +358,15 @@ static void collectGotoInfoFromStatement(ASTNode* stmt,
                 collectGotoInfoFromStatement(stmt->caseStmt.caseBody[i], currentBlock, stmtIndex,
                                              blocks, blockCount, blockCapacity,
                                              labels, labelCount, labelCapacity,
-                                             gotos, gotoCount, gotoCapacity);
+                                             gotos, gotoCount, gotoCapacity,
+                                             false);
             }
             if (stmt->caseStmt.nextCase) {
                 collectGotoInfoFromStatement(stmt->caseStmt.nextCase, currentBlock, stmtIndex,
                                              blocks, blockCount, blockCapacity,
                                              labels, labelCount, labelCapacity,
-                                             gotos, gotoCount, gotoCapacity);
+                                             gotos, gotoCount, gotoCapacity,
+                                             false);
             }
             break;
         case AST_LABEL_DECLARATION:
@@ -318,7 +374,8 @@ static void collectGotoInfoFromStatement(ASTNode* stmt,
                 collectGotoInfoFromStatement(stmt->label.statement, currentBlock, stmtIndex,
                                              blocks, blockCount, blockCapacity,
                                              labels, labelCount, labelCapacity,
-                                             gotos, gotoCount, gotoCapacity);
+                                             gotos, gotoCount, gotoCapacity,
+                                             false);
             }
             break;
         default:
@@ -347,12 +404,36 @@ static bool blockHasInitBefore(const BlockInitInfo* info, size_t end) {
     return false;
 }
 
+static bool blockHasVLABefore(const BlockInitInfo* info, size_t end) {
+    if (!info || info->vlaCount == 0) return false;
+    for (size_t i = 0; i < info->vlaCount; ++i) {
+        if (info->vlaIndices[i] < end) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool blockIsDescendant(BlockInitInfo* list, size_t count, ASTNode* block, ASTNode* ancestor) {
     ASTNode* current = block;
     while (current) {
         if (current == ancestor) return true;
         BlockInitInfo* info = blockInitInfoFind(list, count, current);
         current = info ? info->parent : NULL;
+    }
+    return false;
+}
+
+static bool blockPathEntersVLA(BlockInitInfo* list,
+                               size_t count,
+                               ASTNode* block,
+                               ASTNode* ancestor) {
+    ASTNode* current = block;
+    while (current && current != ancestor) {
+        BlockInitInfo* info = blockInitInfoFind(list, count, current);
+        if (!info) return false;
+        if (info->entryHasVLA) return true;
+        current = info->parent;
     }
     return false;
 }
@@ -403,7 +484,9 @@ void validateGotoScopes(ASTNode* node) {
         }
 
         if (blockIsDescendant(blocks, blockCount, label->block, gt->block) &&
-            blockHasInitBefore(labelBlockInfo, label->index)) {
+            (blockPathEntersVLA(blocks, blockCount, label->block, gt->block) ||
+             (label->directBlockStatement && blockHasInitBefore(labelBlockInfo, label->index)) ||
+             (!label->directBlockStatement && blockHasVLABefore(labelBlockInfo, label->index)))) {
             addErrorWithRanges(gt->location,
                                gt->macroCallSite,
                                gt->macroDefinition,

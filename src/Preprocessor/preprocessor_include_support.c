@@ -18,6 +18,10 @@ static bool raw_range_starts_with_typedef(const TokenBuffer* buffer,
                                           const IncludeSummaryAction* action);
 static bool raw_range_is_single_top_level_typedef_declaration(const TokenBuffer* buffer,
                                                               const IncludeSummaryAction* action);
+static size_t skip_directive_line_cursor(const Token* tokens,
+                                         size_t count,
+                                         size_t cursor);
+static bool token_type_is_conditional_start(TokenType type);
 
 static void strip_include_spaces(char* name) {
     if (!name) return;
@@ -138,7 +142,30 @@ const char* detect_include_guard(const TokenBuffer* buffer) {
     if (i >= buffer->count || tokens[i].type == TOKEN_EOF || tokens[i].line != defineLine) return NULL;
     if (tokens[i].type != TOKEN_IDENTIFIER) return NULL;
     if (strcmp(tokens[i].value, guard) != 0) return NULL;
-    return guard;
+
+    size_t depth = 1;
+    while (i < buffer->count && tokens[i].type != TOKEN_EOF) {
+        TokenType type = tokens[i].type;
+        if (token_type_is_conditional_start(type)) {
+            depth++;
+        } else if (type == TOKEN_ENDIF) {
+            if (depth == 0) return NULL;
+            depth--;
+            if (depth == 0) {
+                i = skip_directive_line_cursor(tokens, buffer->count, i);
+                while (i < buffer->count && tokens[i].type != TOKEN_EOF) {
+                    if (tokens[i].type != TOKEN_UNKNOWN) {
+                        return NULL;
+                    }
+                    i++;
+                }
+                return guard;
+            }
+        }
+        i++;
+    }
+
+    return NULL;
 }
 
 const char* detect_include_guard_from_summary_actions(const TokenBuffer* buffer,
@@ -176,7 +203,32 @@ const char* detect_include_guard_from_summary_actions(const TokenBuffer* buffer,
                                                    guard)) {
         return NULL;
     }
-    return guard;
+
+    size_t depth = 0;
+    for (size_t i = index; i < actionCount; ++i) {
+        IncludeSummaryActionKind kind = actions[i].kind;
+        if (kind == INCLUDE_SUMMARY_ACTION_IF ||
+            kind == INCLUDE_SUMMARY_ACTION_IFDEF ||
+            kind == INCLUDE_SUMMARY_ACTION_IFNDEF) {
+            depth++;
+        } else if (kind == INCLUDE_SUMMARY_ACTION_ENDIF) {
+            if (depth == 0) {
+                return NULL;
+            }
+            depth--;
+            if (depth == 0) {
+                return (i + 1 == actionCount) ? guard : NULL;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+static bool token_type_is_conditional_start(TokenType type) {
+    return type == TOKEN_PP_IF ||
+           type == TOKEN_IFDEF ||
+           type == TOKEN_IFNDEF;
 }
 
 static size_t skip_directive_line_cursor(const Token* tokens,

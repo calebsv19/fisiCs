@@ -37,4 +37,5 @@ Warning at (3:14): Previous case label with same value here
 Error at (10:20): Duplicate default label in switch
    Spelling: tests/syntax/semantic_switch.c:10:20
 Warning at (8:0): Previous default label is here
+   Spelling: tests/syntax/semantic_switch.c:8:0
 

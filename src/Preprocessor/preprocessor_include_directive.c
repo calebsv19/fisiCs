@@ -421,8 +421,16 @@ bool process_include(Preprocessor* pp,
         return true;
     }
 
+    bool includeWouldRecurse = pp_include_stack_contains(pp, incValue->path);
+    bool summaryProbeSupported = pp_include_supports_summary_probe(origin, incValue->path);
+    bool cachedGuardCoversWholeFile =
+        summaryProbe.status != INCLUDE_SUMMARY_PROBE_CANDIDATE ||
+        !summaryProbe.routerRawTail;
+
     const char* cachedGuard = pp_include_file_cached_guard(pp, includeFileIndex);
-    if (cachedGuard && macro_table_lookup(pp->table, cachedGuard) != NULL) {
+    if (cachedGuard &&
+        cachedGuardCoversWholeFile &&
+        macro_table_lookup(pp->table, cachedGuard) != NULL) {
         pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_cached_guard", 1);
         if (nestedIncludeDispatch) {
             pp_profile_event(wasIncludedBefore
@@ -431,9 +439,6 @@ bool process_include(Preprocessor* pp,
         }
         return true;
     }
-
-    bool includeWouldRecurse = pp_include_stack_contains(pp, incValue->path);
-    bool summaryProbeSupported = pp_include_supports_summary_probe(origin, incValue->path);
 
     int savedOffset = pp->lineOffset;
     char* savedLogical = pp->logicalFile;
@@ -549,7 +554,12 @@ bool process_include(Preprocessor* pp,
                                               summaryActionCount,
                                               guard);
     }
-    if (guard && macro_table_lookup(pp->table, guard) != NULL) {
+    cachedGuardCoversWholeFile =
+        summaryProbe.status != INCLUDE_SUMMARY_PROBE_CANDIDATE ||
+        !summaryProbe.routerRawTail;
+    if (guard &&
+        cachedGuardCoversWholeFile &&
+        macro_table_lookup(pp->table, guard) != NULL) {
         pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_guard_after_lex", 1);
         if (nestedIncludeDispatch) {
             pp_profile_event(wasIncludedBefore

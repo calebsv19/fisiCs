@@ -23,6 +23,25 @@ static const ParsedType* lookupAggregateFieldTypeForInitValidation(const ParsedT
                                                                    const char* fieldName,
                                                                    Scope* scope);
 
+static bool arrayLeafIsFunctionPointer(const ParsedType* type, Scope* scope) {
+    if (!type || !scope || !parsedTypeIsDirectArray(type)) {
+        return false;
+    }
+    ParsedType leaf = parsedTypeClone(type);
+    while (parsedTypeIsDirectArray(&leaf)) {
+        ParsedType next = parsedTypeArrayElementType(&leaf);
+        parsedTypeFree(&leaf);
+        leaf = next;
+    }
+    parsedTypeResolvePlainNamedTypedefInScope(&leaf, scope);
+    bool hasFunction = leaf.isFunctionPointer;
+    for (size_t i = 0; !hasFunction && i < leaf.derivationCount; ++i) {
+        hasFunction = leaf.derivations[i].kind == TYPE_DERIVATION_FUNCTION;
+    }
+    parsedTypeFree(&leaf);
+    return hasFunction;
+}
+
 static bool typeInfoIsStructLike(const TypeInfo* info) {
     return info && (info->category == TYPEINFO_STRUCT || info->category == TYPEINFO_UNION);
 }
@@ -263,6 +282,20 @@ void validateAggregateDesignatedFieldsRecursive(const ParsedType* aggregateType,
                                                       entry->fieldName,
                                                       scope);
         if (!fieldType) {
+            continue;
+        }
+
+        if (arrayLeafIsFunctionPointer(fieldType, scope)) {
+            ParsedType fieldArray = parsedTypeClone(fieldType);
+            validateArrayInitializerEntries(
+                &fieldArray,
+                entry->fieldName,
+                entry->expression->compoundLiteral.entries,
+                entry->expression->compoundLiteral.entryCount,
+                scope,
+                entry->expression,
+                NULL);
+            parsedTypeFree(&fieldArray);
             continue;
         }
 

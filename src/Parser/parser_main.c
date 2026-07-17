@@ -441,7 +441,8 @@ ASTNode* parseStatement(Parser* parser) {
     // Do-while recovery can leave us on a non-expression token (for example
     // 'return') when the trailing ';' is missing. In that case, falling into
     // expression parsing creates duplicate parser diagnostics for the same spot.
-    if (controlStartTok == TOKEN_DO && !isValidExpressionStart(parser->currentToken.type)) {
+    if ((controlStartTok == TOKEN_DO || controlStartTok == TOKEN_SWITCH) &&
+        !isValidExpressionStart(parser->currentToken.type)) {
         parsed = NULL;
         goto attach_attrs;
     }
@@ -449,10 +450,12 @@ ASTNode* parseStatement(Parser* parser) {
     // --- Case labels inside switch bodies (Duff's device, nested blocks) ---
     if (parser->switchDepth > 0 &&
         (parser->currentToken.type == TOKEN_CASE || parser->currentToken.type == TOKEN_DEFAULT)) {
+        Token caseToken = parser->currentToken;
         bool isDefault = (parser->currentToken.type == TOKEN_DEFAULT);
         advance(parser);
+        ASTNode* caseExpr = NULL;
         if (!isDefault) {
-            ASTNode* caseExpr = parseExpression(parser);
+            caseExpr = parseExpression(parser);
             if (!caseExpr) {
                 printParseError("case label expression", parser);
                 return NULL;
@@ -463,7 +466,22 @@ ASTNode* parseStatement(Parser* parser) {
             return NULL;
         }
         advance(parser);
-        parsed = parseStatement(parser);
+        ASTNode* labeledStmt = parseStatement(parser);
+        if (!labeledStmt) {
+            return NULL;
+        }
+        ASTNode** caseBody = (ASTNode**)malloc(sizeof(ASTNode*));
+        if (!caseBody) {
+            return NULL;
+        }
+        caseBody[0] = labeledStmt;
+        parsed = createCaseNode(caseExpr, caseBody);
+        if (!parsed) {
+            free(caseBody);
+            return NULL;
+        }
+        parsed->caseStmt.caseBodySize = 1;
+        astNodeSetProvenance(parsed, &caseToken);
         goto attach_attrs;
     }
 

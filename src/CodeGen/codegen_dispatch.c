@@ -57,6 +57,7 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
         case AST_FUNCTION_DEFINITION:
             return codegenFunctionDefinition(ctx, node);
         case AST_FUNCTION_DECLARATION:
+            declareFunctionPrototype(ctx, node);
             return 0; // prototypes do not emit code
         case AST_INCLUDE_DIRECTIVE:
         case AST_DEFINE_DIRECTIVE:
@@ -77,6 +78,8 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenContinue(ctx, node);
         case AST_SWITCH:
             return codegenSwitch(ctx, node);
+        case AST_CASE:
+            return codegenCase(ctx, node);
         case AST_LABEL_DECLARATION:
             return codegenLabel(ctx, node);
         case AST_GOTO_STATEMENT:

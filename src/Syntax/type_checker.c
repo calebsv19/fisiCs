@@ -180,6 +180,30 @@ static const ParsedType* resolveTypedef(const ParsedType* type, Scope* scope) {
     return NULL;
 }
 
+bool parsedTypeResolvePlainNamedTypedefInScope(ParsedType* type, Scope* scope) {
+    if (!type || !scope) return false;
+    int depthGuard = 0;
+    while (type->kind == TYPE_NAMED &&
+           type->userTypeName &&
+           type->derivationCount == 0 &&
+           type->pointerDepth == 0 &&
+           !type->isFunctionPointer &&
+           depthGuard < 32) {
+        const ParsedType* resolved = resolveTypedef(type, scope);
+        if (!resolved || resolved == type) {
+            break;
+        }
+        ParsedType next = parsedTypeClone(resolved);
+        if (next.kind == TYPE_INVALID) {
+            return false;
+        }
+        parsedTypeFree(type);
+        *type = next;
+        depthGuard++;
+    }
+    return type->kind != TYPE_INVALID;
+}
+
 static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
     if (!type) {
         return makeInvalidType();
@@ -267,6 +291,13 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             info.category = (type->kind == TYPE_STRUCT) ? TYPEINFO_STRUCT : TYPEINFO_UNION;
             info.tag = (type->kind == TYPE_STRUCT) ? TAG_STRUCT : TAG_UNION;
             info.userTypeName = type->userTypeName;
+            info.recordDefinition = type->inlineStructOrUnionDef;
+            if (!info.recordDefinition && scope && type->userTypeName) {
+                Symbol* tagSym = resolveTagInScopeChain(scope, type->userTypeName);
+                if (tagSym && tagSym->definition) {
+                    info.recordDefinition = tagSym->definition;
+                }
+            }
             info.isComplete = (type->inlineStructOrUnionDef != NULL);
             if (!info.isComplete && scope && scope->ctx && type->userTypeName) {
                 CCTagKind k = (type->kind == TYPE_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
@@ -331,6 +362,7 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
             info.primitive = target.primitive;
             info.tag = target.tag;
             info.userTypeName = target.userTypeName;
+            info.recordDefinition = target.recordDefinition;
             info.bitWidth = target.bitWidth;
             info.isSigned = target.isSigned;
             info.isComplex = target.isComplex;
@@ -411,6 +443,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         info.primitive = base.primitive;
         info.tag = base.tag;
         info.userTypeName = base.userTypeName;
+        info.recordDefinition = base.recordDefinition;
         info.bitWidth = base.bitWidth ? base.bitWidth : defaultIntBits();
         info.isSigned = base.isSigned;
         info.isComplex = base.isComplex;
@@ -426,7 +459,9 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         info.isComplete = true; // pointer itself is complete regardless of target
     } else {
         info = typeInfoFromBaseKind(type, scope);
-        info.originalType = type;
+        if (!info.originalType) {
+            info.originalType = type;
+        }
     }
 
     applyQualifiers(&info, type);
@@ -514,6 +549,9 @@ static bool pointerTargetsEqual(const TypeInfo* a, const TypeInfo* b) {
         return false;
     }
     if (a->tag != TAG_NONE) {
+        if (a->recordDefinition && b->recordDefinition) {
+            return a->recordDefinition == b->recordDefinition;
+        }
         return sameString(aName, bName);
     }
     if (a->primitive != b->primitive) {
@@ -551,6 +589,10 @@ static void normalizePointerDerivations(ParsedType* t) {
 bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
     if (!a || !b) return false;
     if (typeInfoIsPointerLike(a) && typeInfoIsPointerLike(b)) {
+        if (a->recordDefinition && b->recordDefinition &&
+            a->recordDefinition != b->recordDefinition) {
+            return false;
+        }
         if (a->originalType && b->originalType &&
             parsedTypeIsPointerish(a->originalType) &&
             parsedTypeIsPointerish(b->originalType)) {
@@ -581,6 +623,9 @@ bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
                    a->isImaginary == b->isImaginary;
         case TYPEINFO_STRUCT:
         case TYPEINFO_UNION:
+            if (a->recordDefinition && b->recordDefinition) {
+                return a->recordDefinition == b->recordDefinition;
+            }
             return a->tag == b->tag &&
                    sameString(canonicalUserTypeName(a), canonicalUserTypeName(b));
         case TYPEINFO_ENUM:
@@ -614,13 +659,28 @@ static bool parsedTypeIsPlainVoidType(const ParsedType* type) {
     return true;
 }
 
-static bool functionDerivationHasPrototypeParams(const TypeDerivation* fn) {
-    if (!fn || fn->kind != TYPE_DERIVATION_FUNCTION) return false;
-    if (fn->as.function.isVariadic) return true;
-    if (fn->as.function.paramCount == 0) return false;
-    if (fn->as.function.paramCount == 1 &&
-        parsedTypeIsPlainVoidType(&fn->as.function.params[0])) {
+static bool functionDerivationHasPrototype(const TypeDerivation* fn) {
+    return fn && fn->kind == TYPE_DERIVATION_FUNCTION &&
+           fn->as.function.hasPrototype;
+}
+
+static bool functionPrototypeParamsSurviveDefaultPromotions(
+    const TypeDerivation* fn,
+    Scope* scope) {
+    if (!fn || fn->kind != TYPE_DERIVATION_FUNCTION ||
+        fn->as.function.isVariadic) {
         return false;
+    }
+    if (fn->as.function.paramCount > 0 && !fn->as.function.params) {
+        return false;
+    }
+    for (size_t i = 0; i < fn->as.function.paramCount; ++i) {
+        TypeInfo declared =
+            typeInfoFromParsedType(&fn->as.function.params[i], scope);
+        TypeInfo promoted = defaultArgumentPromotion(declared);
+        if (!typesAreEqual(&declared, &promoted)) {
+            return false;
+        }
     }
     return true;
 }
@@ -683,6 +743,24 @@ static bool parsedTypesEqualForFunctionCompat(const ParsedType* lhs, const Parse
     return equal;
 }
 
+static bool parsedFunctionParametersEqualForCompat(const ParsedType* lhs,
+                                                   const ParsedType* rhs,
+                                                   Scope* scope) {
+    if (!lhs || !rhs) return false;
+    ParsedType lhsAdjusted = parsedTypeClone(lhs);
+    ParsedType rhsAdjusted = parsedTypeClone(rhs);
+    if (scope) {
+        parsedTypeResolvePlainNamedTypedefInScope(&lhsAdjusted, scope);
+        parsedTypeResolvePlainNamedTypedefInScope(&rhsAdjusted, scope);
+    }
+    parsedTypeAdjustFunctionParameter(&lhsAdjusted);
+    parsedTypeAdjustFunctionParameter(&rhsAdjusted);
+    bool equal = parsedTypesEqualForFunctionCompat(&lhsAdjusted, &rhsAdjusted);
+    parsedTypeFree(&lhsAdjusted);
+    parsedTypeFree(&rhsAdjusted);
+    return equal;
+}
+
 static bool typeInfoIsFunctionPointer(const TypeInfo* info) {
     if (!info || !info->originalType) return false;
     if (info->originalType->isFunctionPointer) return true;
@@ -691,6 +769,63 @@ static bool typeInfoIsFunctionPointer(const TypeInfo* info) {
     bool hasFunction = findFunctionDerivation(&target) != NULL;
     parsedTypeFree(&target);
     return hasFunction;
+}
+
+static bool parsedTypesHaveDistinctRecordDefinitionsShallow(const ParsedType* lhs,
+                                                            const ParsedType* rhs,
+                                                            Scope* scope) {
+    if (!lhs || !rhs) return false;
+    TypeInfo lhsInfo = typeInfoFromParsedType(lhs, scope);
+    TypeInfo rhsInfo = typeInfoFromParsedType(rhs, scope);
+    return lhsInfo.recordDefinition &&
+           rhsInfo.recordDefinition &&
+           lhsInfo.recordDefinition != rhsInfo.recordDefinition;
+}
+
+static bool parsedTypesHaveDistinctRecordDefinitions(const ParsedType* lhs,
+                                                     const ParsedType* rhs,
+                                                     Scope* scope,
+                                                     unsigned depth) {
+    if (!lhs || !rhs || depth > 32) return false;
+    if (parsedTypesHaveDistinctRecordDefinitionsShallow(lhs, rhs, scope)) {
+        return true;
+    }
+
+    const ParsedType* lhsParams = NULL;
+    const ParsedType* rhsParams = NULL;
+    size_t lhsCount = 0;
+    size_t rhsCount = 0;
+    bool lhsVariadic = false;
+    bool rhsVariadic = false;
+    bool lhsHasFunction = parsedTypeGetEffectiveFunctionPointerSignature(
+        lhs, &lhsParams, &lhsCount, &lhsVariadic, NULL);
+    bool rhsHasFunction = parsedTypeGetEffectiveFunctionPointerSignature(
+        rhs, &rhsParams, &rhsCount, &rhsVariadic, NULL);
+    if (!lhsHasFunction || !rhsHasFunction) {
+        return false;
+    }
+
+    ParsedType lhsReturn = parsedTypeFunctionReturnType(lhs);
+    ParsedType rhsReturn = parsedTypeFunctionReturnType(rhs);
+    bool returnConflict =
+        lhsReturn.kind != TYPE_INVALID &&
+        rhsReturn.kind != TYPE_INVALID &&
+        parsedTypesHaveDistinctRecordDefinitions(
+            &lhsReturn, &rhsReturn, scope, depth + 1);
+    parsedTypeFree(&lhsReturn);
+    parsedTypeFree(&rhsReturn);
+    if (returnConflict) {
+        return true;
+    }
+
+    size_t commonCount = lhsCount < rhsCount ? lhsCount : rhsCount;
+    for (size_t i = 0; i < commonCount; ++i) {
+        if (parsedTypesHaveDistinctRecordDefinitions(
+                &lhsParams[i], &rhsParams[i], scope, depth + 1)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static bool functionPointerTargetsCompatible(const ParsedType* destType,
@@ -718,11 +853,19 @@ static bool functionPointerTargetsCompatible(const ParsedType* destType,
 
     ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
     ParsedType srcRet = parsedTypeFunctionReturnType(&srcTarget);
-    bool retCompat = parsedTypesEqualForFunctionCompat(&destRet, &srcRet);
+    bool retCompat =
+        !parsedTypesHaveDistinctRecordDefinitions(&destRet, &srcRet, scope, 0) &&
+        parsedTypesEqualForFunctionCompat(&destRet, &srcRet);
     if (!retCompat && scope) {
         TypeInfo destRetInfo = typeInfoFromParsedType(&destRet, scope);
         TypeInfo srcRetInfo = typeInfoFromParsedType(&srcRet, scope);
-        retCompat = typesAreEqual(&destRetInfo, &srcRetInfo);
+        if (typeInfoIsFunctionPointer(&destRetInfo) &&
+            typeInfoIsFunctionPointer(&srcRetInfo)) {
+            retCompat = functionPointerTargetsCompatible(
+                destRetInfo.originalType, srcRetInfo.originalType, scope);
+        } else {
+            retCompat = typesAreEqual(&destRetInfo, &srcRetInfo);
+        }
     }
     parsedTypeFree(&destRet);
     parsedTypeFree(&srcRet);
@@ -732,9 +875,17 @@ static bool functionPointerTargetsCompatible(const ParsedType* destType,
         return false;
     }
 
-    bool destHasParams = functionDerivationHasPrototypeParams(destFn);
-    bool srcHasParams = functionDerivationHasPrototypeParams(srcFn);
-    if (!destHasParams || !srcHasParams) {
+    bool destHasPrototype = functionDerivationHasPrototype(destFn);
+    bool srcHasPrototype = functionDerivationHasPrototype(srcFn);
+    if (destHasPrototype != srcHasPrototype) {
+        const TypeDerivation* prototype = destHasPrototype ? destFn : srcFn;
+        bool compatible =
+            functionPrototypeParamsSurviveDefaultPromotions(prototype, scope);
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return compatible;
+    }
+    if (!destHasPrototype) {
         parsedTypeFree(&destTarget);
         parsedTypeFree(&srcTarget);
         return true;
@@ -754,12 +905,24 @@ static bool functionPointerTargetsCompatible(const ParsedType* destType,
 
     for (size_t i = 0; i < destFn->as.function.paramCount; ++i) {
         bool paramCompat =
-            parsedTypesEqualForFunctionCompat(&destFn->as.function.params[i],
-                                              &srcFn->as.function.params[i]);
+            !parsedTypesHaveDistinctRecordDefinitions(
+                &destFn->as.function.params[i],
+                &srcFn->as.function.params[i],
+                scope,
+                0) &&
+            parsedFunctionParametersEqualForCompat(&destFn->as.function.params[i],
+                                                   &srcFn->as.function.params[i],
+                                                   scope);
         if (!paramCompat && scope) {
             TypeInfo destParamInfo = typeInfoFromParsedType(&destFn->as.function.params[i], scope);
             TypeInfo srcParamInfo = typeInfoFromParsedType(&srcFn->as.function.params[i], scope);
-            paramCompat = typesAreEqual(&destParamInfo, &srcParamInfo);
+            if (typeInfoIsFunctionPointer(&destParamInfo) &&
+                typeInfoIsFunctionPointer(&srcParamInfo)) {
+                paramCompat = functionPointerTargetsCompatible(
+                    destParamInfo.originalType, srcParamInfo.originalType, scope);
+            } else {
+                paramCompat = typesAreEqual(&destParamInfo, &srcParamInfo);
+            }
         }
         if (!paramCompat) {
             parsedTypeFree(&destTarget);
@@ -836,6 +999,27 @@ static bool parsedTypesEqualIgnoringQualifiers(const ParsedType* lhs, const Pars
     parsedTypeFree(&lhsCopy);
     parsedTypeFree(&rhsCopy);
     return equal;
+}
+
+static bool enumPointerTargetsShareDefinitionInScope(const TypeInfo* lhs,
+                                                     const TypeInfo* rhs,
+                                                     Scope* scope) {
+    if (!lhs || !rhs || !scope || !lhs->originalType || !rhs->originalType ||
+        lhs->pointerDepth != 1 || rhs->pointerDepth != 1) {
+        return false;
+    }
+
+    ParsedType lhsTarget = parsedTypePointerTargetType(lhs->originalType);
+    ParsedType rhsTarget = parsedTypePointerTargetType(rhs->originalType);
+    (void)parsedTypeResolvePlainNamedTypedefInScope(&lhsTarget, scope);
+    (void)parsedTypeResolvePlainNamedTypedefInScope(&rhsTarget, scope);
+    bool sameDefinition =
+        lhsTarget.kind == TYPE_ENUM && rhsTarget.kind == TYPE_ENUM &&
+        lhsTarget.inlineEnumDef && rhsTarget.inlineEnumDef &&
+        lhsTarget.inlineEnumDef == rhsTarget.inlineEnumDef;
+    parsedTypeFree(&lhsTarget);
+    parsedTypeFree(&rhsTarget);
+    return sameDefinition;
 }
 
 static bool functionPointerQualifierLoss(const ParsedType* destType, const ParsedType* srcType) {
@@ -945,6 +1129,17 @@ AssignmentCheckResult canAssignTypesInScope(const TypeInfo* dest,
                 debugAssignmentMismatch(dest, src, "function pointer target mismatch");
                 return ASSIGN_INCOMPATIBLE;
             }
+            return ASSIGN_OK;
+        }
+        if (dest->tag != TAG_NONE &&
+            src->tag != TAG_NONE &&
+            dest->recordDefinition &&
+            src->recordDefinition &&
+            dest->recordDefinition != src->recordDefinition) {
+            debugAssignmentMismatch(dest, src, "aggregate definition identity mismatch");
+            return ASSIGN_INCOMPATIBLE;
+        }
+        if (enumPointerTargetsShareDefinitionInScope(dest, src, scope)) {
             return ASSIGN_OK;
         }
         if (parsedTypesEqualIgnoringQualifiers(dest->originalType, src->originalType)) {

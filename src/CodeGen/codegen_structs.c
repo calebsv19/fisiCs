@@ -10,6 +10,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+static LLVMTypeRef cg_structs_captured_pointer_element_type(CodegenContext* ctx,
+                                                            ASTNode* expr) {
+    if (!ctx || !ctx->currentScope || !expr) {
+        return NULL;
+    }
+    if (expr->type == AST_IDENTIFIER) {
+        NamedValue* entry = cg_scope_lookup(ctx->currentScope, expr->valueNode.value);
+        return entry ? entry->elementType : NULL;
+    }
+    if (expr->type == AST_BINARY_EXPRESSION && expr->expr.op &&
+        (strcmp(expr->expr.op, "+") == 0 || strcmp(expr->expr.op, "-") == 0)) {
+        LLVMTypeRef hint = cg_structs_captured_pointer_element_type(ctx, expr->expr.left);
+        return hint ? hint : cg_structs_captured_pointer_element_type(ctx, expr->expr.right);
+    }
+    return NULL;
+}
+
 static LLVMValueRef cg_structs_bitfield_mask(LLVMTypeRef storageTy, unsigned width) {
     unsigned storageBits = LLVMGetIntTypeWidth(storageTy);
     if (width == 0) {
@@ -20,6 +37,76 @@ static LLVMValueRef cg_structs_bitfield_mask(LLVMTypeRef storageTy, unsigned wid
     }
     uint64_t mask = (width >= 64) ? ~0ULL : ((1ULL << width) - 1ULL);
     return LLVMConstInt(storageTy, mask, 0);
+}
+
+static bool cg_structs_type_contains_pointer(LLVMTypeRef type, unsigned depth) {
+    if (!type || depth > 16) return false;
+    LLVMTypeKind kind = LLVMGetTypeKind(type);
+    if (kind == LLVMPointerTypeKind) return true;
+    if (kind == LLVMArrayTypeKind || kind == LLVMVectorTypeKind) {
+        return cg_structs_type_contains_pointer(LLVMGetElementType(type), depth + 1);
+    }
+    if (kind == LLVMStructTypeKind && !LLVMIsOpaqueStruct(type)) {
+        unsigned count = LLVMCountStructElementTypes(type);
+        for (unsigned i = 0; i < count; ++i) {
+            if (cg_structs_type_contains_pointer(LLVMStructGetTypeAtIndex(type, i),
+                                                depth + 1)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static LLVMTypeRef cg_structs_union_storage_type_for_layout(CodegenContext* ctx,
+                                                            uint64_t size,
+                                                            uint32_t align) {
+    LLVMContextRef llvmCtx = ctx->llvmContext;
+    if (size == 0) size = 1;
+    if (align == 0) align = 1;
+
+    LLVMTypeRef alignTy = NULL;
+    uint64_t alignTySize = 1;
+    if (align >= 8) {
+        alignTy = LLVMInt64TypeInContext(llvmCtx);
+        alignTySize = 8;
+    } else if (align >= 4) {
+        alignTy = LLVMInt32TypeInContext(llvmCtx);
+        alignTySize = 4;
+    } else if (align >= 2) {
+        alignTy = LLVMInt16TypeInContext(llvmCtx);
+        alignTySize = 2;
+    } else {
+        alignTy = LLVMInt8TypeInContext(llvmCtx);
+        alignTySize = 1;
+    }
+
+    LLVMModuleRef module = cg_context_get_module(ctx);
+    LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
+    LLVMTypeRef members[3];
+    unsigned used = 0;
+    uint32_t carrierAlign = td
+        ? (uint32_t)LLVMABIAlignmentOfType(td, alignTy)
+        : (uint32_t)alignTySize;
+    if (td && align > carrierAlign) {
+        LLVMTypeRef alignVector = LLVMVectorType(LLVMInt8TypeInContext(llvmCtx), align);
+        LLVMTypeRef alignAnchor = LLVMArrayType(alignVector, 0);
+        if (LLVMABISizeOfType(td, alignAnchor) == 0 &&
+            LLVMABIAlignmentOfType(td, alignAnchor) == align) {
+            members[used++] = alignAnchor;
+        }
+    }
+    members[used++] = alignTy;
+    if (size > alignTySize) {
+        members[used++] = LLVMArrayType(LLVMInt8TypeInContext(llvmCtx),
+                                       (unsigned)(size - alignTySize));
+    }
+    LLVMTypeRef storage = LLVMStructTypeInContext(llvmCtx, members, used, false);
+    if (td && (LLVMABISizeOfType(td, storage) != size ||
+               LLVMABIAlignmentOfType(td, storage) != align)) {
+        return NULL;
+    }
+    return storage;
 }
 
 static LLVMValueRef cg_structs_load_bitfield(CodegenContext* ctx,
@@ -72,6 +159,7 @@ static bool cg_structs_has_pointer_layer(const ParsedType* type) {
 
 static void recordStructInfo(CodegenContext* ctx,
                              const char* name,
+                             const ASTNode* definition,
                              bool isUnion,
                              StructFieldInfo* fields,
                              size_t fieldCount,
@@ -82,7 +170,8 @@ static void recordStructInfo(CodegenContext* ctx,
     }
 
     for (size_t i = 0; i < ctx->structInfoCount; ++i) {
-        if (ctx->structInfos[i].name && strcmp(ctx->structInfos[i].name, name) == 0) {
+        if ((definition && ctx->structInfos[i].definition == definition) ||
+            (llvmType && ctx->structInfos[i].llvmType == llvmType)) {
             for (size_t j = 0; j < ctx->structInfos[i].fieldCount; ++j) {
                 free(ctx->structInfos[i].fields[j].name);
             }
@@ -91,6 +180,7 @@ static void recordStructInfo(CodegenContext* ctx,
             ctx->structInfos[i].fieldCount = fieldCount;
             ctx->structInfos[i].isUnion = isUnion;
             ctx->structInfos[i].llvmType = llvmType;
+            ctx->structInfos[i].definition = definition;
             return;
         }
     }
@@ -110,6 +200,7 @@ static void recordStructInfo(CodegenContext* ctx,
     }
 
     ctx->structInfos[ctx->structInfoCount].name = strdup(name);
+    ctx->structInfos[ctx->structInfoCount].definition = definition;
     ctx->structInfos[ctx->structInfoCount].fields = fields;
     ctx->structInfos[ctx->structInfoCount].fieldCount = fieldCount;
     ctx->structInfos[ctx->structInfoCount].isUnion = isUnion;
@@ -209,6 +300,10 @@ bool codegenLValue(CodegenContext* ctx,
             LLVMTypeRef baseType = NULL;
             const ParsedType* baseParsed = NULL;
             CGLValueInfo baseInfo;
+            ParsedType expandedBaseParsed;
+            memset(&expandedBaseParsed, 0, sizeof(expandedBaseParsed));
+            expandedBaseParsed.kind = TYPE_INVALID;
+            bool expandedBaseOwned = false;
             bool haveBasePtr =
                 codegenLValue(ctx, target->arrayAccess.array, &arrayPtr, &baseType, &baseParsed, &baseInfo);
             if (!haveBasePtr) {
@@ -223,7 +318,18 @@ bool codegenLValue(CodegenContext* ctx,
             if (refinedCallParsed) {
                 baseParsed = refinedCallParsed;
             }
-            if (!arrayPtr) return false;
+            const ParsedType* baseParsedResolved = cg_resolve_typedef_parsed_type(ctx, baseParsed);
+            if (baseParsedResolved && baseParsedResolved->kind != TYPE_INVALID) {
+                baseParsed = baseParsedResolved;
+            }
+            if (cg_expand_surface_typedef_parsed_type(ctx, baseParsed, &expandedBaseParsed)) {
+                baseParsed = &expandedBaseParsed;
+                expandedBaseOwned = true;
+            }
+            if (!arrayPtr) {
+                if (expandedBaseOwned) parsedTypeFree(&expandedBaseParsed);
+                return false;
+            }
             /* If the base is a pointer variable (not an actual array object), load the pointer
                value so we index the pointee rather than the stack slot. */
             bool baseIsDirectArray = (baseParsed && parsedTypeIsDirectArray(baseParsed)) ||
@@ -250,6 +356,7 @@ bool codegenLValue(CodegenContext* ctx,
                 LLVMValueRef offset = index;
                 LLVMTypeRef idxTy = LLVMTypeOf(offset);
                 if (!idxTy || LLVMGetTypeKind(idxTy) != LLVMIntegerTypeKind) {
+                    if (expandedBaseOwned) parsedTypeFree(&expandedBaseParsed);
                     return false;
                 }
                 if (idxTy != intptrTy) {
@@ -324,6 +431,7 @@ bool codegenLValue(CodegenContext* ctx,
                 if (!elementPtr) {
                     parsedTypeFree(&remainingParsed);
                     parsedTypeFree(&scalarParsed);
+                    if (expandedBaseOwned) parsedTypeFree(&expandedBaseParsed);
                     return false;
                 }
                 if (outInfo) {
@@ -344,6 +452,7 @@ bool codegenLValue(CodegenContext* ctx,
                 }
                 parsedTypeFree(&remainingParsed);
                 parsedTypeFree(&scalarParsed);
+                if (expandedBaseOwned) parsedTypeFree(&expandedBaseParsed);
                 return true;
             }
             LLVMTypeRef aggregateHint = NULL;
@@ -375,7 +484,10 @@ bool codegenLValue(CodegenContext* ctx,
                                                                aggregateHint,
                                                                elementHint,
                                                                &elementType);
-            if (!elementPtr) return false;
+            if (!elementPtr) {
+                if (expandedBaseOwned) parsedTypeFree(&expandedBaseParsed);
+                return false;
+            }
             if (!elementType) {
                 elementType = cg_dereference_ptr_type(ctx, LLVMTypeOf(elementPtr), "array element load");
             }
@@ -441,6 +553,7 @@ bool codegenLValue(CodegenContext* ctx,
                     }
                 }
             }
+            if (expandedBaseOwned) parsedTypeFree(&expandedBaseParsed);
             return true;
         }
         case AST_UNARY_EXPRESSION: {
@@ -450,7 +563,20 @@ bool codegenLValue(CodegenContext* ctx,
             LLVMValueRef pointerValue = codegenNode(ctx, target->expr.left);
             if (!pointerValue) return false;
             const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, target->expr.left);
-            LLVMTypeRef elemType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(pointerValue));
+            LLVMTypeRef elemType = NULL;
+            if (target->expr.left &&
+                target->expr.left->type == AST_IDENTIFIER) {
+                NamedValue* entry = cg_scope_lookup(
+                    ctx->currentScope,
+                    target->expr.left->valueNode.value);
+                if (entry && entry->elementType &&
+                    LLVMGetTypeKind(entry->elementType) == LLVMStructTypeKind) {
+                    elemType = entry->elementType;
+                }
+            }
+            if (!elemType) {
+                elemType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(pointerValue));
+            }
             if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind) {
                 elemType = LLVMInt32TypeInContext(ctx->llvmContext);
             }
@@ -625,6 +751,11 @@ bool codegenLValue(CodegenContext* ctx,
             }
             LLVMValueRef basePtr = baseValue;
             LLVMTypeRef baseType = cg_dereference_ptr_type(ctx, LLVMTypeOf(baseValue), "pointer member access");
+            LLVMTypeRef capturedBaseType =
+                cg_structs_captured_pointer_element_type(ctx, target->memberAccess.base);
+            if (capturedBaseType) {
+                baseType = capturedBaseType;
+            }
             const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
             ParsedType pointed = parsedTypePointerTargetType(baseParsed);
             ParsedType arrayElem;
@@ -775,6 +906,9 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     ASTNode* nameNode = node->structDef.structName;
     const char* structName = (nameNode && nameNode->type == AST_IDENTIFIER) ? nameNode->valueNode.value : NULL;
     bool isUnion = (node->type == AST_UNION_DEFINITION);
+    if (structName && structName[0]) {
+        cg_scope_insert_tag(ctx->currentScope, structName, node, isUnion);
+    }
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     CGStructLLVMInfo* semanticInfo = NULL;
     bool semanticInfoMatchesNode = false;
@@ -783,17 +917,36 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
         semanticInfo = cg_type_cache_get_struct_by_definition(cache, node);
         if (semanticInfo) {
             semanticInfoMatchesNode = true;
-        } else if (structName && structName[0]) {
+        }
+        if (structName && structName[0]) {
             CGStructLLVMInfo* byName = cg_type_cache_get_struct_info(cache, structName);
             if (byName) {
-                if (byName->definition == node) {
+                if (!semanticInfo && byName->definition == node) {
                     semanticInfo = byName;
                     semanticInfoMatchesNode = true;
-                } else {
+                } else if (byName->definition != node) {
                     // Same spelling, different definition (block-scope shadowing).
                     forceScopedTypeName = true;
                 }
             }
+        }
+    }
+    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+        StructInfo* runtimeInfo = &ctx->structInfos[i];
+        if (runtimeInfo->definition == node && runtimeInfo->llvmType) {
+            semanticInfoMatchesNode = true;
+            if (semanticInfo && !semanticInfo->llvmType) {
+                semanticInfo->llvmType = runtimeInfo->llvmType;
+            }
+            if (!LLVMIsOpaqueStruct(runtimeInfo->llvmType)) {
+                profiler_end(scope);
+                return runtimeInfo->llvmType;
+            }
+        }
+        if (structName && structName[0] && runtimeInfo->name &&
+            strcmp(runtimeInfo->name, structName) == 0 &&
+            runtimeInfo->definition && runtimeInfo->definition != node) {
+            forceScopedTypeName = true;
         }
     }
 
@@ -804,7 +957,13 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
 
     if (!structType) {
         if (!forceScopedTypeName && structName && structName[0]) {
-            structType = ensureStructLLVMTypeByName(ctx, structName, isUnion);
+            /* Definition materialization must not re-enter lexical tag
+               resolution through cg_type_from_parsed. */
+            structType = cg_context_lookup_named_type(ctx, structName);
+            if (!structType) {
+                structType = LLVMStructCreateNamed(ctx->llvmContext, structName);
+                cg_context_cache_named_type(ctx, structName, structType);
+            }
         } else {
             char anonName[96];
             snprintf(anonName,
@@ -824,6 +983,19 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
         semanticInfo->llvmType = structType;
     }
 
+    bool haveRuntimeIdentity = false;
+    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+        if (ctx->structInfos[i].definition == node) {
+            haveRuntimeIdentity = true;
+            break;
+        }
+    }
+    if (!haveRuntimeIdentity) {
+        /* Publish the opaque identity before lowering fields so recursive
+           references can reuse it without re-entering this definition. */
+        recordStructInfo(ctx, structName, node, isUnion, NULL, 0, structType);
+    }
+
     if (!LLVMIsOpaqueStruct(structType)) {
         profiler_end(scope);
         return structType;
@@ -840,7 +1012,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
 
     if (totalFields == 0) {
         LLVMStructSetBody(structType, NULL, 0, 0);
-        recordStructInfo(ctx, structName, isUnion, NULL, 0, structType);
+        recordStructInfo(ctx, structName, node, isUnion, NULL, 0, structType);
         profiler_end(scope);
         return structType;
     }
@@ -882,6 +1054,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
             fieldTypes[fieldIndex] = memberType;
             infos[fieldIndex].name = fname ? strdup(fname) : NULL;
             infos[fieldIndex].index = isUnion ? 0 : (unsigned)fieldIndex;
+            infos[fieldIndex].llvmIndex = isUnion ? 0 : (unsigned)fieldIndex;
             infos[fieldIndex].type = memberType;
             infos[fieldIndex].parsedType = parsed ? *parsed : fieldNode->varDecl.declaredType;
             fieldIndex++;
@@ -895,20 +1068,47 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
         uint64_t maxSize = 0;
         uint32_t maxAlign = 1;
         uint64_t maxAlignTySize = 0;
+        bool maxAlignTyContainsPointer = false;
 
         for (size_t i = 0; i < fieldIndex; ++i) {
             LLVMTypeRef memberTy = fieldTypes[i];
             if (!memberTy || LLVMGetTypeKind(memberTy) == LLVMVoidTypeKind) {
                 memberTy = LLVMInt8TypeInContext(ctx->llvmContext);
             }
+            uint64_t semanticSize = 0;
+            uint32_t semanticAlign = 0;
+            if (cg_size_align_for_type(ctx,
+                                       &infos[i].parsedType,
+                                       memberTy,
+                                       &semanticSize,
+                                       &semanticAlign) &&
+                semanticSize > 0) {
+                uint64_t llvmSize = td ? LLVMABISizeOfType(td, memberTy) : semanticSize;
+                uint32_t llvmAlign = td ? (uint32_t)LLVMABIAlignmentOfType(td, memberTy) : semanticAlign;
+                if (semanticSize != llvmSize ||
+                    (semanticAlign > 0 && llvmAlign > 0 && semanticAlign != llvmAlign)) {
+                    LLVMTypeRef exactStorage =
+                        cg_structs_union_storage_type_for_layout(ctx,
+                                                                 semanticSize,
+                                                                 semanticAlign);
+                    if (exactStorage) {
+                        memberTy = exactStorage;
+                    }
+                }
+            }
             uint64_t sz = td ? LLVMABISizeOfType(td, memberTy) : 0;
             uint32_t al = td ? (uint32_t)LLVMABIAlignmentOfType(td, memberTy) : 1;
+            bool containsPointer = cg_structs_type_contains_pointer(memberTy, 0);
             if (al == 0) al = 1;
             if (sz > maxSize) maxSize = sz;
-            if (!maxAlignTy || al > maxAlign || (al == maxAlign && sz > maxAlignTySize)) {
+            if (!maxAlignTy ||
+                (containsPointer && !maxAlignTyContainsPointer) ||
+                (containsPointer == maxAlignTyContainsPointer &&
+                 (al > maxAlign || (al == maxAlign && sz > maxAlignTySize)))) {
                 maxAlignTy = memberTy;
                 maxAlign = al;
                 maxAlignTySize = sz;
+                maxAlignTyContainsPointer = containsPointer;
             }
         }
 
@@ -920,26 +1120,225 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
         }
 
         uint64_t finalSize = maxSize;
-        if (maxAlign > 1) {
-            uint64_t rem = finalSize % (uint64_t)maxAlign;
-            if (rem != 0) finalSize += ((uint64_t)maxAlign - rem);
+        uint32_t finalAlign = maxAlign;
+        const SemanticModel* semanticModel = cg_context_get_semantic_model(ctx);
+        CompilerContext* compiler = semanticModel
+            ? semanticModelGetContext(semanticModel)
+            : NULL;
+        size_t semanticSize = 0;
+        size_t semanticAlign = 0;
+        if (compiler &&
+            cc_tag_definition(compiler, CC_TAG_UNION, structName) == node &&
+            cc_get_tag_layout(compiler,
+                              CC_TAG_UNION,
+                              structName,
+                              &semanticSize,
+                              &semanticAlign) &&
+            semanticSize > 0 && semanticAlign > 0 &&
+            semanticSize <= 0xffffffffu && semanticAlign <= 0xffffffffu) {
+            finalSize = semanticSize;
+            finalAlign = (uint32_t)semanticAlign;
+        } else if (finalAlign > 1) {
+            uint64_t rem = finalSize % (uint64_t)finalAlign;
+            if (rem != 0) finalSize += ((uint64_t)finalAlign - rem);
         }
         if (finalSize == 0) finalSize = 1;
 
-        if (maxAlignTySize >= finalSize) {
+        LLVMTypeRef members[3];
+        unsigned used = 0;
+        uint32_t carrierAlign = td
+            ? (uint32_t)LLVMABIAlignmentOfType(td, maxAlignTy)
+            : maxAlign;
+        if (td && finalAlign > carrierAlign) {
+            LLVMTypeRef alignVector = LLVMVectorType(
+                LLVMInt8TypeInContext(ctx->llvmContext),
+                finalAlign);
+            LLVMTypeRef alignAnchor = LLVMArrayType(alignVector, 0);
+            if (LLVMABISizeOfType(td, alignAnchor) == 0 &&
+                LLVMABIAlignmentOfType(td, alignAnchor) == finalAlign) {
+                members[used++] = alignAnchor;
+            }
+        }
+        members[used++] = maxAlignTy;
+        if (maxAlignTySize < finalSize) {
+            members[used++] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvmContext),
+                                           (unsigned)(finalSize - maxAlignTySize));
+        }
+
+        LLVMTypeRef candidate = LLVMStructTypeInContext(ctx->llvmContext,
+                                                        members,
+                                                        used,
+                                                        0);
+        if (td && maxAlignTySize <= finalSize &&
+            LLVMABISizeOfType(td, candidate) == finalSize &&
+            LLVMABIAlignmentOfType(td, candidate) == finalAlign) {
+            LLVMStructSetBody(structType, members, used, 0);
+        } else if (maxAlignTySize >= finalSize) {
             LLVMStructSetBody(structType, &maxAlignTy, 1, 0);
         } else {
-            uint64_t tailBytes = finalSize - maxAlignTySize;
-            LLVMTypeRef members[2];
-            members[0] = maxAlignTy;
-            members[1] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvmContext),
-                                       (unsigned)tailBytes);
-            LLVMStructSetBody(structType, members, 2, 0);
+            LLVMTypeRef fallbackMembers[2];
+            fallbackMembers[0] = maxAlignTy;
+            fallbackMembers[1] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvmContext),
+                                               (unsigned)(finalSize - maxAlignTySize));
+            LLVMStructSetBody(structType, fallbackMembers, 2, 0);
         }
     } else {
-        LLVMStructSetBody(structType, fieldTypes, (unsigned)fieldIndex, 0);
+        LLVMTypeRef* bodyTypes = fieldTypes;
+        unsigned bodyCount = (unsigned)fieldIndex;
+        LLVMTypeRef* paddedBody = NULL;
+
+        /* Realize semantic record layout in the LLVM body when possible.
+           Padding elements are physical-only; infos[] keeps C declaration
+           order and records the corresponding LLVM element separately. */
+        const SemanticModel* semanticModel = cg_context_get_semantic_model(ctx);
+        CompilerContext* compiler = semanticModel ? semanticModelGetContext(semanticModel) : NULL;
+        LLVMTargetDataRef targetData = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        CCTagKind tagKind = CC_TAG_STRUCT;
+        const CCTagFieldLayout* semanticFields = NULL;
+        size_t semanticFieldCount = 0;
+        size_t semanticSize = 0;
+        size_t semanticAlign = 0;
+        bool exactDefinition = compiler &&
+            cc_tag_definition(compiler, tagKind, structName) == node;
+        bool haveSemanticLayout = exactDefinition &&
+            !node->structDef.hasFlexibleArray &&
+            cc_get_tag_layout(compiler,
+                              tagKind,
+                              structName,
+                              &semanticSize,
+                              &semanticAlign) &&
+            cc_get_tag_field_layouts(compiler,
+                                     tagKind,
+                                     structName,
+                                     &semanticFields,
+                                     &semanticFieldCount) &&
+            semanticFields && semanticFieldCount == fieldIndex;
+        if (haveSemanticLayout && targetData && fieldIndex > 0) {
+            LLVMTypeRef naturalBody = LLVMStructTypeInContext(ctx->llvmContext,
+                                                              fieldTypes,
+                                                              (unsigned)fieldIndex,
+                                                              0);
+            bool offsetsMatch = naturalBody != NULL;
+            for (size_t i = 0; offsetsMatch && i < fieldIndex; ++i) {
+                if (semanticFields[i].isBitfield ||
+                    LLVMOffsetOfElement(targetData, naturalBody, (unsigned)i) !=
+                        semanticFields[i].byteOffset) {
+                    offsetsMatch = false;
+                }
+            }
+            uint64_t naturalSize = naturalBody
+                ? LLVMABISizeOfType(targetData, naturalBody)
+                : 0;
+            uint32_t naturalAlign = naturalBody
+                ? (uint32_t)LLVMABIAlignmentOfType(targetData, naturalBody)
+                : 0;
+            bool needsPhysicalLayout =
+                !offsetsMatch || naturalSize != semanticSize || naturalAlign != semanticAlign;
+
+            if (needsPhysicalLayout && semanticSize <= 0xffffffffu &&
+                semanticAlign > 0 && semanticAlign <= 0xffffffffu) {
+                size_t capacity = fieldIndex * 2 + 2;
+                paddedBody = (LLVMTypeRef*)calloc(capacity, sizeof(LLVMTypeRef));
+                unsigned* physicalIndices =
+                    (unsigned*)calloc(fieldIndex, sizeof(unsigned));
+                size_t used = 0;
+                uint64_t currentEnd = 0;
+                bool realizable = paddedBody && physicalIndices;
+
+                if (realizable && semanticAlign > naturalAlign) {
+                    LLVMTypeRef alignVector = LLVMVectorType(
+                        LLVMInt8TypeInContext(ctx->llvmContext),
+                        (unsigned)semanticAlign);
+                    LLVMTypeRef alignAnchor = LLVMArrayType(alignVector, 0);
+                    if (LLVMABISizeOfType(targetData, alignAnchor) != 0 ||
+                        LLVMABIAlignmentOfType(targetData, alignAnchor) != semanticAlign) {
+                        realizable = false;
+                    } else {
+                        paddedBody[used++] = alignAnchor;
+                    }
+                }
+
+                for (size_t i = 0; realizable && i < fieldIndex; ++i) {
+                    if (semanticFields[i].isBitfield ||
+                        semanticFields[i].byteOffset < currentEnd) {
+                        realizable = false;
+                        break;
+                    }
+                    uint64_t gap = semanticFields[i].byteOffset - currentEnd;
+                    if (gap > 0) {
+                        if (gap > 0xffffffffu || used >= capacity) {
+                            realizable = false;
+                            break;
+                        }
+                        paddedBody[used++] = LLVMArrayType(
+                            LLVMInt8TypeInContext(ctx->llvmContext),
+                            (unsigned)gap);
+                    }
+                    if (used >= capacity || !LLVMTypeIsSized(fieldTypes[i])) {
+                        realizable = false;
+                        break;
+                    }
+                    physicalIndices[i] = (unsigned)used;
+                    paddedBody[used++] = fieldTypes[i];
+                    currentEnd = semanticFields[i].byteOffset +
+                        LLVMABISizeOfType(targetData, fieldTypes[i]);
+                }
+
+                if (realizable) {
+                    if (semanticSize < currentEnd) {
+                        realizable = false;
+                    } else if (semanticSize > currentEnd) {
+                        uint64_t tail = semanticSize - currentEnd;
+                        if (tail > 0xffffffffu || used >= capacity) {
+                            realizable = false;
+                        } else {
+                            paddedBody[used++] = LLVMArrayType(
+                                LLVMInt8TypeInContext(ctx->llvmContext),
+                                (unsigned)tail);
+                        }
+                    }
+                }
+
+                LLVMTypeRef verifiedBody = realizable
+                    ? LLVMStructTypeInContext(ctx->llvmContext,
+                                              paddedBody,
+                                              (unsigned)used,
+                                              0)
+                    : NULL;
+                bool verified = verifiedBody &&
+                    LLVMABISizeOfType(targetData, verifiedBody) == semanticSize &&
+                    LLVMABIAlignmentOfType(targetData, verifiedBody) == semanticAlign;
+                for (size_t i = 0; verified && i < fieldIndex; ++i) {
+                    verified = LLVMOffsetOfElement(targetData,
+                                                   verifiedBody,
+                                                   physicalIndices[i]) ==
+                        semanticFields[i].byteOffset;
+                }
+
+                if (verified) {
+                    bodyTypes = paddedBody;
+                    bodyCount = (unsigned)used;
+                    CGStructLLVMInfo* mappedSemanticInfo = cache
+                        ? cg_type_cache_get_struct_by_definition(cache, node)
+                        : NULL;
+                    for (size_t i = 0; i < fieldIndex; ++i) {
+                        infos[i].llvmIndex = physicalIndices[i];
+                        if (mappedSemanticInfo && i < mappedSemanticInfo->fieldCount) {
+                            mappedSemanticInfo->fields[i].llvmIndex = physicalIndices[i];
+                        }
+                    }
+                } else {
+                    free(paddedBody);
+                    paddedBody = NULL;
+                }
+                free(physicalIndices);
+            }
+        }
+
+        LLVMStructSetBody(structType, bodyTypes, bodyCount, 0);
+        free(paddedBody);
     }
-    recordStructInfo(ctx, structName, isUnion, infos, fieldIndex, structType);
+    recordStructInfo(ctx, structName, node, isUnion, infos, fieldIndex, structType);
     free(fieldTypes);
     profiler_end(scope);
     return structType;

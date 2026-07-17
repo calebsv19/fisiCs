@@ -121,33 +121,83 @@ static bool cg_parsed_type_is_unsigned_for_index(CodegenContext* ctx, const Pars
     }
 }
 
-static bool cg_parsed_type_is_direct_function_for_param(const ParsedType* type) {
-    return type &&
-           type->derivationCount > 0 &&
-           type->derivations &&
-           type->derivations[0].kind == TYPE_DERIVATION_FUNCTION;
-}
+static bool cg_bind_parameter_aliases_at_declaration(CodegenContext* ctx,
+                                                     ParsedType* type,
+                                                     unsigned depth) {
+    if (!ctx || !type || depth > 32) {
+        return false;
+    }
 
-static void cg_adjust_parameter_type_for_lowering(ParsedType* type) {
-    if (!type) return;
-    parsedTypeAdjustArrayParameter(type);
-    if (!cg_parsed_type_is_direct_function_for_param(type)) {
-        return;
+    if (type->kind == TYPE_NAMED && type->userTypeName) {
+        ParsedType bare = parsedTypeClone(type);
+        if (bare.kind != TYPE_INVALID) {
+            parsedTypeResetDerivations(&bare);
+            bare.pointerDepth = 0;
+            bare.isFunctionPointer = false;
+            const ParsedType* resolved = cg_resolve_typedef_chain(ctx, &bare);
+            if (resolved && resolved != &bare && resolved->kind != TYPE_INVALID) {
+                ParsedType bound = parsedTypeClone(resolved);
+                if (bound.kind != TYPE_INVALID) {
+                    ParsedType surface = parsedTypeClone(type);
+                    size_t surfaceCount = surface.derivationCount;
+                    size_t baseCount = bound.derivationCount;
+                    TypeDerivation* merged = NULL;
+                    if (surfaceCount + baseCount > 0) {
+                        merged = calloc(surfaceCount + baseCount, sizeof(*merged));
+                    }
+                    if (surfaceCount + baseCount == 0 || merged) {
+                        if (surfaceCount > 0) {
+                            memcpy(merged,
+                                   surface.derivations,
+                                   surfaceCount * sizeof(*merged));
+                        }
+                        if (baseCount > 0) {
+                            memcpy(merged + surfaceCount,
+                                   bound.derivations,
+                                   baseCount * sizeof(*merged));
+                        }
+                        free(surface.derivations);
+                        surface.derivations = NULL;
+                        surface.derivationCount = 0;
+                        free(bound.derivations);
+                        bound.derivations = merged;
+                        bound.derivationCount = surfaceCount + baseCount;
+                        bound.pointerDepth += surface.pointerDepth;
+                        bound.isFunctionPointer = surface.isFunctionPointer;
+                        bound.directlyDeclaresFunction = surface.directlyDeclaresFunction;
+                        bound.isVariadicFunction = surface.isVariadicFunction;
+                        bound.isConst |= surface.isConst;
+                        bound.isVolatile |= surface.isVolatile;
+                        bound.isRestrict |= surface.isRestrict;
+                        bound.isStatic |= surface.isStatic;
+                        bound.isExtern |= surface.isExtern;
+                        bound.isRegister |= surface.isRegister;
+                        bound.isAuto |= surface.isAuto;
+                        parsedTypeFree(type);
+                        *type = bound;
+                    } else {
+                        parsedTypeFree(&bound);
+                    }
+                    parsedTypeFree(&surface);
+                }
+            }
+            parsedTypeFree(&bare);
+        }
     }
-    TypeDerivation* grown = realloc(type->derivations, (type->derivationCount + 1) * sizeof(TypeDerivation));
-    if (!grown) {
-        return;
+
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        TypeDerivation* deriv = &type->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_FUNCTION) {
+            continue;
+        }
+        for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
+            (void)cg_bind_parameter_aliases_at_declaration(
+                ctx,
+                &deriv->as.function.params[p],
+                depth + 1);
+        }
     }
-    type->derivations = grown;
-    memmove(type->derivations + 1, type->derivations, type->derivationCount * sizeof(TypeDerivation));
-    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
-    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
-    type->derivations[0].as.pointer.isConst = false;
-    type->derivations[0].as.pointer.isVolatile = false;
-    type->derivations[0].as.pointer.isRestrict = false;
-    type->derivationCount++;
-    type->pointerDepth += 1;
-    type->directlyDeclaresFunction = false;
+    return type->kind != TYPE_INVALID;
 }
 
 bool cg_prepare_parameter_type_for_lowering(CodegenContext* ctx,
@@ -171,7 +221,8 @@ bool cg_prepare_parameter_type_for_lowering(CodegenContext* ctx,
     }
 
     *outAdjusted = parsedTypeClone(surface);
-    cg_adjust_parameter_type_for_lowering(outAdjusted);
+    (void)cg_bind_parameter_aliases_at_declaration(ctx, outAdjusted, 0);
+    parsedTypeAdjustFunctionParameter(outAdjusted);
     return true;
 }
 
@@ -543,6 +594,39 @@ bool cg_size_align_for_type(CodegenContext* ctx,
         haveLLVM = true;
     }
 
+    /* Inline lexical aggregate definitions carry an AST identity that the
+       global semantic layout table cannot represent when a same-name tag is
+       shadowed. The already-materialized LLVM type is authoritative here. */
+    bool haveLexicalTagIdentity = false;
+    bool semanticLayoutMatchesLexicalTag = false;
+    if (ctx && parsed && parsed->userTypeName &&
+        (parsed->kind == TYPE_STRUCT || parsed->kind == TYPE_UNION)) {
+        bool isUnion = parsed->kind == TYPE_UNION;
+        const ASTNode* lexicalDefinition =
+            cg_scope_lookup_tag(ctx->currentScope,
+                                parsed->userTypeName,
+                                isUnion);
+        haveLexicalTagIdentity = lexicalDefinition != NULL;
+        const SemanticModel* semanticModel = cg_context_get_semantic_model(ctx);
+        CompilerContext* compiler = semanticModel ? semanticModelGetContext(semanticModel) : NULL;
+        if (compiler && lexicalDefinition) {
+            CCTagKind kind = isUnion ? CC_TAG_UNION : CC_TAG_STRUCT;
+            semanticLayoutMatchesLexicalTag =
+                cc_tag_definition(compiler, kind, parsed->userTypeName) == lexicalDefinition;
+        }
+    }
+    if (haveLLVM && parsed &&
+        (parsed->inlineStructOrUnionDef || haveLexicalTagIdentity) &&
+        !semanticLayoutMatchesLexicalTag) {
+        uint32_t surfaceAlign = llvmAlign ? llvmAlign : 1;
+        if (parsed->hasAlignOverride && parsed->alignOverride > surfaceAlign) {
+            surfaceAlign = (uint32_t)parsed->alignOverride;
+        }
+        if (outSize) *outSize = llvmSize;
+        if (outAlign) *outAlign = surfaceAlign;
+        return true;
+    }
+
     if (haveSemantic) {
         if (haveLLVM && getenv("FISICS_DEBUG_LAYOUT")) {
             if (sz != llvmSize || (al && llvmAlign && al != llvmAlign)) {
@@ -554,7 +638,19 @@ bool cg_size_align_for_type(CodegenContext* ctx,
                         llvmAlign);
             }
         }
-        if (outSize) *outSize = sz;
+        uint64_t storageSize = sz;
+        if (haveLLVM && llvmHint &&
+            (LLVMGetTypeKind(llvmHint) == LLVMStructTypeKind ||
+             LLVMGetTypeKind(llvmHint) == LLVMArrayTypeKind) &&
+            sz > llvmSize && al > llvmAlign) {
+            /* An over-aligned aggregate whose semantic field offsets are not
+               yet represented in its LLVM body must not drive memset/memcpy
+               past the actual allocation. Keep the stronger C alignment, but
+               cap storage operations to the materialized LLVM extent until
+               the offset-aware body is available. */
+            storageSize = llvmSize;
+        }
+        if (outSize) *outSize = storageSize;
         if (outAlign) *outAlign = al ? al : (haveLLVM ? llvmAlign : 1);
         return true;
     }
@@ -631,6 +727,7 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
                                      LLVMValueRef basePtr,
                                      LLVMValueRef offsetValue,
                                      const ParsedType* pointerParsed,
+                                     LLVMTypeRef elementTypeHint,
                                      const ParsedType* offsetParsed,
                                      bool isSubtract) {
     if (!ctx || !basePtr || !offsetValue) return NULL;
@@ -704,7 +801,9 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
             index = LLVMBuildNeg(ctx->builder, index, "ptr.idx.neg");
         }
 
-        LLVMTypeRef elementType = cg_element_type_from_pointer(ctx, elemParsed, ptrType);
+        LLVMTypeRef elementType = elementTypeHint
+            ? elementTypeHint
+            : cg_element_type_from_pointer(ctx, elemParsed, ptrType);
         ParsedType targetParsed = parsedTypePointerTargetType(elemParsed);
         const ParsedType* targetResolved = cg_resolve_typedef_parsed_type(ctx, &targetParsed);
         const ParsedType* sizeParsed = elemParsed;
@@ -717,7 +816,9 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
         if (sizeParsed && parsedTypeIsDirectArray(sizeParsed) && parsedTypeHasVLA(sizeParsed)) {
             dynamicElemSize = cg_build_vla_array_size_bytes(ctx, sizeParsed);
         }
-        LLVMTypeRef sizeHintType = cg_type_from_parsed(ctx, sizeParsed);
+        LLVMTypeRef sizeHintType = elementTypeHint
+            ? elementTypeHint
+            : cg_type_from_parsed(ctx, sizeParsed);
         if (!sizeHintType || LLVMGetTypeKind(sizeHintType) == LLVMVoidTypeKind) {
             sizeHintType = elementType;
         }

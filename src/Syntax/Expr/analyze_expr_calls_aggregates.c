@@ -313,6 +313,21 @@ static bool shouldDowngradeArgTypeMismatchToWarning(const Scope* scope,
     return true;
 }
 
+static bool typeInfoIsVoidPointerForNullConstant(const TypeInfo* info) {
+    if (!info || !typeInfoIsPointerLike(info)) {
+        return false;
+    }
+    if (info->originalType) {
+        ParsedType target = parsedTypePointerTargetType(info->originalType);
+        bool isVoid = target.kind == TYPE_PRIMITIVE &&
+                      target.primitiveType == TOKEN_VOID &&
+                      target.derivationCount == 0;
+        parsedTypeFree(&target);
+        return isVoid;
+    }
+    return !info->isFunction && info->pointerDepth == 1 && info->primitive == TOKEN_VOID;
+}
+
 static void validateCallArgumentsAgainstParsedSignature(ASTNode* node,
                                                         Scope* scope,
                                                         const Symbol* calleeSym,
@@ -398,7 +413,7 @@ static void validateCallArgumentsAgainstParsedSignature(ASTNode* node,
         AssignmentCheckResult check = canAssignTypesInScope(&paramInfo, &argInfo, scope);
         if (check == ASSIGN_INCOMPATIBLE &&
             typeInfoIsPointerLike(&paramInfo) &&
-            typeInfoIsInteger(&argInfo) &&
+            (typeInfoIsInteger(&argInfo) || typeInfoIsVoidPointerForNullConstant(&argInfo)) &&
             node->functionCall.arguments &&
             isNullPointerConstant(node->functionCall.arguments[i], scope)) {
             check = ASSIGN_OK;
@@ -655,16 +670,28 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             }
 
             if (callSig) {
-                validateCallArgumentsAgainstParsedSignature(node,
-                                                            scope,
-                                                            NULL,
-                                                            calleeName,
-                                                            callSig->params,
-                                                            callSig->paramCount,
-                                                            callSig->isVariadic,
-                                                            argCount,
-                                                            argInfos,
-                                                            argRawInfos);
+                node->functionCall.usesPrototype = callSig->hasPrototype;
+                if (callSig->hasPrototype) {
+                    validateCallArgumentsAgainstParsedSignature(node,
+                                                                scope,
+                                                                NULL,
+                                                                calleeName,
+                                                                callSig->params,
+                                                                callSig->paramCount,
+                                                                callSig->isVariadic,
+                                                                argCount,
+                                                                argInfos,
+                                                                argRawInfos);
+                    if (callSig->isVariadic && argInfos) {
+                        for (size_t i = callSig->paramCount; i < argCount; ++i) {
+                            argInfos[i] = defaultArgumentPromotion(argInfos[i]);
+                        }
+                    }
+                } else if (argInfos) {
+                    for (size_t i = 0; i < argCount; ++i) {
+                        argInfos[i] = defaultArgumentPromotion(argInfos[i]);
+                    }
+                }
             }
 
             parsedTypeFree(&fnTarget);
@@ -708,6 +735,9 @@ TypeInfo analyzePointerDereferenceExpression(ASTNode* node, Scope* scope) {
                 profiler_record_value("semantic_count_type_info_site_temp", 1);
                 profiler_record_value("semantic_count_type_info_temp_deref_target", 1);
                 TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                if (base.recordDefinition) {
+                    targetInfo.recordDefinition = base.recordDefinition;
+                }
                 typeInfoAdoptParsedType(&targetInfo, &targetParsed);
                 targetInfo.isLValue = true;
                 parsedTypeFree(&targetParsed);
@@ -762,7 +792,7 @@ TypeInfo analyzeMemberAccessExpression(ASTNode* node, Scope* scope) {
         profiler_record_value("semantic_count_type_info_temp_member_field", 1);
         TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
         fieldInfo.originalType = fieldType;
-        fieldInfo.isLValue = true;
+        fieldInfo.isLValue = base.isLValue;
         if (fieldInfo.category == TYPEINFO_POINTER) {
             const TypeDerivation* deriv = NULL;
             if (fieldType->derivationCount > 0) {
@@ -792,6 +822,27 @@ TypeInfo analyzeMemberAccessExpression(ASTNode* node, Scope* scope) {
 TypeInfo analyzeArrayAccessExpression(ASTNode* node, Scope* scope) {
     TypeInfo arrayInfo = analyzeExpression(node->arrayAccess.array, scope);
     analyzeExpression(node->arrayAccess.index, scope);
+    if (arrayInfo.originalType) {
+        ParsedType arrayParsed = parsedTypeClone(arrayInfo.originalType);
+        (void)resolveNamedParsedTypeInScope(&arrayParsed, scope);
+        if (parsedTypeIsDirectArray(&arrayParsed)) {
+            ParsedType elementParsed = parsedTypeArrayElementType(&arrayParsed);
+            parsedTypeFree(&arrayParsed);
+            (void)resolveNamedParsedTypeInScope(&elementParsed, scope);
+            profiler_record_value("semantic_count_type_info_site_temp", 1);
+            profiler_record_value("semantic_count_type_info_temp_array_element", 1);
+            TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
+            typeInfoAdoptParsedType(&elementInfo, &elementParsed);
+            parsedTypeFree(&elementParsed);
+            if (elementInfo.category != TYPEINFO_POINTER) {
+                elementInfo.isConst = elementInfo.isConst || arrayInfo.isConst;
+                elementInfo.isVolatile = elementInfo.isVolatile || arrayInfo.isVolatile;
+            }
+            elementInfo.isLValue = true;
+            return elementInfo;
+        }
+        parsedTypeFree(&arrayParsed);
+    }
     if (arrayInfo.originalType && parsedTypeIsDirectArray(arrayInfo.originalType)) {
         ParsedType elementParsed = parsedTypeArrayElementType(arrayInfo.originalType);
         profiler_record_value("semantic_count_type_info_site_temp", 1);
@@ -805,6 +856,10 @@ TypeInfo analyzeArrayAccessExpression(ASTNode* node, Scope* scope) {
             parsedTypeFree(&elementParsed);
             elementInfo.originalType = NULL;
         }
+        if (elementInfo.category != TYPEINFO_POINTER) {
+            elementInfo.isConst = elementInfo.isConst || arrayInfo.isConst;
+            elementInfo.isVolatile = elementInfo.isVolatile || arrayInfo.isVolatile;
+        }
         elementInfo.isLValue = true;
         return elementInfo;
     }
@@ -813,7 +868,11 @@ TypeInfo analyzeArrayAccessExpression(ASTNode* node, Scope* scope) {
     }
     if (arrayInfo.category == TYPEINFO_POINTER && arrayInfo.pointerDepth > 0) {
         if (arrayInfo.originalType) {
-            ParsedType targetParsed = parsedTypePointerTargetType(arrayInfo.originalType);
+            ParsedType baseParsed = parsedTypeClone(arrayInfo.originalType);
+            (void)resolveNamedParsedTypeInScope(&baseParsed, scope);
+            ParsedType targetParsed = parsedTypePointerTargetType(&baseParsed);
+            parsedTypeFree(&baseParsed);
+            (void)resolveNamedParsedTypeInScope(&targetParsed, scope);
             if (targetParsed.kind != TYPE_INVALID) {
                 profiler_record_value("semantic_count_type_info_site_temp", 1);
                 profiler_record_value("semantic_count_type_info_temp_array_pointer_target", 1);

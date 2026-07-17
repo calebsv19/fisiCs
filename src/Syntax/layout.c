@@ -215,6 +215,17 @@ static bool size_align_of_typeinfo(TypeInfo info, Scope* scope, size_t* sizeOut,
         case TYPEINFO_UNION: {
             if (!info.userTypeName || !scope || !scope->ctx) return false;
             CCTagKind kind = (info.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+            if (!cc_tag_is_defined(scope->ctx, kind, info.userTypeName) &&
+                info.originalType &&
+                info.originalType->inlineStructOrUnionDef) {
+                ASTNode* def = info.originalType->inlineStructOrUnionDef;
+                bool kindMatches =
+                    (kind == CC_TAG_STRUCT && def->type == AST_STRUCT_DEFINITION) ||
+                    (kind == CC_TAG_UNION && def->type == AST_UNION_DEFINITION);
+                if (kindMatches) {
+                    (void)cc_define_tag(scope->ctx, kind, info.userTypeName, 0, def);
+                }
+            }
             return layout_struct_union(scope->ctx, scope, kind, info.userTypeName, sizeOut, alignOut);
         }
         default:

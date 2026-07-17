@@ -48,6 +48,7 @@ assert_fail() {
   out_file="$(mktemp)"
   trap 'rm -f "$out_file"' RETURN
 
+  set +e
   FISICS_SHIM_PROFILE_ENFORCE=1 \
     FISICS_SHIM_PROFILE_ID="$PROFILE_ID" \
     FISICS_SHIM_PROFILE_VERSION="$PROFILE_VERSION" \
@@ -56,7 +57,14 @@ assert_fail() {
     FISICS_SHIM_PROFILE_EXPECT_OVERLAY="$SHIM_OVERLAY" \
     FISICS_SHIM_PROFILE_EXPECT_INCLUDE="$SHIM_INCLUDE" \
     SYSTEM_INCLUDE_PATHS="$include_paths" \
-    "$SHADOW_BIN" "$SRC" >"$out_file" 2>&1 || true
+    "$SHADOW_BIN" "$SRC" >"$out_file" 2>&1
+  local status=$?
+  set -e
+  if [ "$status" -ne 1 ]; then
+    echo "$label should have exited 1, got $status" >&2
+    cat "$out_file" >&2
+    exit 1
+  fi
   if ! grep -Eq "Error:|Error at|shim profile contract failed" "$out_file"; then
     echo "$label should have failed with semantic/preprocessor errors" >&2
     cat "$out_file" >&2

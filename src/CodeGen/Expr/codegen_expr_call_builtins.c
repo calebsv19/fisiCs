@@ -24,6 +24,81 @@ static const char* builtinStringLiteralPayload(const ASTNode* node) {
     return payload;
 }
 
+static bool cg_va_arg_type_uses_memory_slot(LLVMTypeRef type) {
+    if (!type) return false;
+    LLVMTypeKind kind = LLVMGetTypeKind(type);
+    return kind == LLVMStructTypeKind ||
+           kind == LLVMArrayTypeKind ||
+           kind == LLVMVectorTypeKind;
+}
+
+static uint64_t cg_round_up_u64(uint64_t value, uint64_t alignment) {
+    if (alignment == 0) return value;
+    uint64_t remainder = value % alignment;
+    return remainder ? value + (alignment - remainder) : value;
+}
+
+static LLVMValueRef cg_emit_memory_slot_va_arg(CodegenContext* ctx,
+                                               LLVMValueRef listPtr,
+                                               const ParsedType* resultParsed,
+                                               LLVMTypeRef resultType,
+                                               LLVMTypeRef i8PtrType) {
+    if (!ctx || !listPtr || !resultType || !i8PtrType) return NULL;
+
+    uint64_t bytes = 0;
+    uint32_t align = 0;
+    if (!cg_size_align_for_type(ctx, resultParsed, resultType, &bytes, &align) || bytes == 0) {
+        LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        if (td && LLVMTypeIsSized(resultType)) {
+            bytes = LLVMABISizeOfType(td, resultType);
+            align = (uint32_t)LLVMABIAlignmentOfType(td, resultType);
+        }
+    }
+    if (bytes == 0) return NULL;
+
+    bool indirectSlot = bytes > 16u;
+    uint64_t slotAlign = indirectSlot ? 8u : (align > 8u ? align : 8u);
+    uint64_t slotBytes = indirectSlot ? 8u : cg_round_up_u64(bytes, slotAlign);
+    unsigned dstAlign = align ? align : 1u;
+    unsigned srcAlign = (unsigned)slotAlign;
+
+    LLVMValueRef current = LLVMBuildLoad2(ctx->builder, i8PtrType, listPtr, "vaarg.agg.cur");
+    LLVMValueRef currentI8 = LLVMBuildBitCast(ctx->builder, current, i8PtrType, "vaarg.agg.src");
+    LLVMValueRef sourceI8 = currentI8;
+    if (indirectSlot) {
+        LLVMTypeRef ptrPtrType = LLVMPointerType(i8PtrType, 0);
+        LLVMValueRef ptrSlot = LLVMBuildBitCast(ctx->builder,
+                                                currentI8,
+                                                ptrPtrType,
+                                                "vaarg.agg.ptrslot");
+        LLVMValueRef sourcePtr = LLVMBuildLoad2(ctx->builder,
+                                                i8PtrType,
+                                                ptrSlot,
+                                                "vaarg.agg.indirect.src");
+        sourceI8 = LLVMBuildBitCast(ctx->builder,
+                                    sourcePtr,
+                                    i8PtrType,
+                                    "vaarg.agg.indirect.src.i8");
+        srcAlign = align ? align : 1u;
+    }
+    LLVMValueRef tmp = cg_build_entry_alloca(ctx, resultType, "vaarg.agg.tmp");
+    if (!tmp) return NULL;
+
+    LLVMValueRef tmpI8 = LLVMBuildBitCast(ctx->builder, tmp, i8PtrType, "vaarg.agg.dst");
+    LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
+    LLVMBuildMemCpy(ctx->builder, tmpI8, dstAlign, sourceI8, srcAlign ? srcAlign : 1u, sizeVal);
+
+    LLVMValueRef step = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), slotBytes, 0);
+    LLVMValueRef next = LLVMBuildGEP2(ctx->builder,
+                                      LLVMInt8TypeInContext(ctx->llvmContext),
+                                      currentI8,
+                                      &step,
+                                      1,
+                                      "vaarg.agg.next");
+    LLVMBuildStore(ctx->builder, next, listPtr);
+    return LLVMBuildLoad2(ctx->builder, resultType, tmp, "vaarg.agg.value");
+}
+
 bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                  ASTNode* node,
                                  const char* calleeName,
@@ -806,9 +881,25 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                 LLVMTypeRef listTy = NULL;
                 CGLValueInfo linfo;
                 if (codegenLValue(ctx, node->functionCall.arguments[0], &listPtr, &listTy, NULL, &linfo)) {
-                    val = LLVMBuildVAArg(ctx->builder, listPtr, resTy, "vaarg");
+                    if (cg_va_arg_type_uses_memory_slot(resTy)) {
+                        val = cg_emit_memory_slot_va_arg(ctx,
+                                                         listPtr,
+                                                         &vaArgTypeNode->parsedTypeNode.parsed,
+                                                         resTy,
+                                                         i8PtrType);
+                    } else {
+                        val = LLVMBuildVAArg(ctx->builder, listPtr, resTy, "vaarg");
+                    }
                 } else if (args && node->functionCall.argumentCount >= 1 && args[0]) {
-                    val = LLVMBuildVAArg(ctx->builder, args[0], resTy, "vaarg");
+                    if (cg_va_arg_type_uses_memory_slot(resTy)) {
+                        val = cg_emit_memory_slot_va_arg(ctx,
+                                                         args[0],
+                                                         &vaArgTypeNode->parsedTypeNode.parsed,
+                                                         resTy,
+                                                         i8PtrType);
+                    } else {
+                        val = LLVMBuildVAArg(ctx->builder, args[0], resTy, "vaarg");
+                    }
                 }
             }
         }

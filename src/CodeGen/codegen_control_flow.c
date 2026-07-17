@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "codegen_private.h"
+#include "Syntax/const_eval.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +18,8 @@ static bool cg_builder_block_terminated(const CodegenContext* ctx) {
 }
 
 static bool cg_statement_can_reopen_block(const ASTNode* stmt) {
-    return stmt && stmt->type == AST_LABEL_DECLARATION;
+    return stmt &&
+           (stmt->type == AST_LABEL_DECLARATION || stmt->type == AST_CASE);
 }
 
 static bool cg_should_emit_statement_in_current_block(const CodegenContext* ctx,
@@ -35,6 +37,21 @@ LLVMValueRef codegenIfStatement(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_IF_STATEMENT) {
         fprintf(stderr, "Error: Invalid node type for codegenIfStatement\n");
         return NULL;
+    }
+
+    /* Parser recovery can preserve an if statement with a missing condition so
+       later declarations and statements remain available to the frontend. The
+       parser diagnostic is already authoritative; omit the malformed statement
+       during lowering instead of reporting a second internal codegen failure. */
+    if (!node->ifStmt.condition) {
+        return NULL;
+    }
+
+    LLVMBasicBlockRef current = LLVMGetInsertBlock(ctx->builder);
+    if (current && LLVMGetBasicBlockTerminator(current)) {
+        LLVMValueRef function = LLVMGetBasicBlockParent(current);
+        LLVMBasicBlockRef entryBB = LLVMAppendBasicBlock(function, "if.entry");
+        LLVMPositionBuilderAtEnd(ctx->builder, entryBB);
     }
 
     LLVMValueRef cond = codegenNode(ctx, node->ifStmt.condition);
@@ -150,6 +167,11 @@ LLVMValueRef codegenForLoop(CodegenContext* ctx, ASTNode* node) {
     LLVMBasicBlockRef afterBB = LLVMAppendBasicBlock(func, "forend");
 
     if (node->forLoop.initializer) {
+        LLVMBasicBlockRef current = LLVMGetInsertBlock(ctx->builder);
+        if (current && LLVMGetBasicBlockTerminator(current)) {
+            LLVMBasicBlockRef initBB = LLVMAppendBasicBlock(func, "forinit");
+            LLVMPositionBuilderAtEnd(ctx->builder, initBB);
+        }
         codegenNode(ctx, node->forLoop.initializer);
     }
 
@@ -218,6 +240,98 @@ typedef struct {
     LLVMBasicBlockRef bodyBB;
 } CGCaseEntry;
 
+typedef struct {
+    ASTNode** items;
+    size_t count;
+    size_t capacity;
+} CGCaseList;
+
+static bool cg_case_list_add(CGCaseList* list, ASTNode* node) {
+    if (!list || !node) return false;
+    if (list->count == list->capacity) {
+        size_t newCapacity = list->capacity ? list->capacity * 2 : 8;
+        ASTNode** resized = realloc(list->items, newCapacity * sizeof(ASTNode*));
+        if (!resized) return false;
+        list->items = resized;
+        list->capacity = newCapacity;
+    }
+    list->items[list->count++] = node;
+    return true;
+}
+
+static bool cg_collect_switch_cases(ASTNode* node, CGCaseList* list) {
+    if (!node) return true;
+    switch (node->type) {
+        case AST_CASE:
+            if (!cg_case_list_add(list, node)) return false;
+            for (size_t i = 0; i < node->caseStmt.caseBodySize; ++i) {
+                if (!cg_collect_switch_cases(node->caseStmt.caseBody[i], list)) return false;
+            }
+            return !node->caseStmt.nextCase ||
+                   cg_collect_switch_cases(node->caseStmt.nextCase, list);
+        case AST_BLOCK:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                if (!cg_collect_switch_cases(node->block.statements[i], list)) return false;
+            }
+            return true;
+        case AST_IF_STATEMENT:
+            return cg_collect_switch_cases(node->ifStmt.thenBranch, list) &&
+                   cg_collect_switch_cases(node->ifStmt.elseBranch, list);
+        case AST_WHILE_LOOP:
+            return cg_collect_switch_cases(node->whileLoop.body, list);
+        case AST_FOR_LOOP:
+            return cg_collect_switch_cases(node->forLoop.body, list);
+        case AST_LABEL_DECLARATION:
+            return cg_collect_switch_cases(node->label.statement, list);
+        case AST_SWITCH:
+            /* A nested switch owns its case labels and creates its own frame. */
+            return true;
+        default:
+            return true;
+    }
+}
+
+static bool cg_contains_owned_switch_case(ASTNode* node) {
+    if (!node) return false;
+    switch (node->type) {
+        case AST_CASE:
+            return true;
+        case AST_BLOCK:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                if (cg_contains_owned_switch_case(node->block.statements[i])) return true;
+            }
+            return false;
+        case AST_IF_STATEMENT:
+            return cg_contains_owned_switch_case(node->ifStmt.thenBranch) ||
+                   cg_contains_owned_switch_case(node->ifStmt.elseBranch);
+        case AST_WHILE_LOOP:
+            return cg_contains_owned_switch_case(node->whileLoop.body);
+        case AST_FOR_LOOP:
+            return cg_contains_owned_switch_case(node->forLoop.body);
+        case AST_LABEL_DECLARATION:
+            return cg_contains_owned_switch_case(node->label.statement);
+        case AST_SWITCH:
+            return false;
+        default:
+            return false;
+    }
+}
+
+static CGSwitchCaseBinding* cg_find_switch_case_binding(CodegenContext* ctx,
+                                                        ASTNode* node) {
+    if (!ctx || !node) return NULL;
+    for (CGSwitchCaseContext* frame = ctx->switchCaseContext;
+         frame;
+         frame = frame->parent) {
+        for (size_t i = 0; i < frame->count; ++i) {
+            if (frame->bindings[i].node == node) {
+                return &frame->bindings[i];
+            }
+        }
+    }
+    return NULL;
+}
+
 static bool cg_const_int_from_value(LLVMValueRef v, long long* out) {
     if (!v || LLVMGetTypeKind(LLVMTypeOf(v)) != LLVMIntegerTypeKind) return false;
     if (!LLVMIsConstant(v)) return false;
@@ -252,16 +366,52 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
         conditionType = LLVMTypeOf(condition);
     }
 
-    size_t caseCount = node->switchStmt.caseListSize;
+    CGCaseList cases = {0};
+    for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+        if (!cg_collect_switch_cases(node->switchStmt.caseList[i], &cases)) {
+            free(cases.items);
+            return NULL;
+        }
+    }
+    size_t caseCount = cases.count;
     CGCaseEntry* entries = calloc(caseCount, sizeof(CGCaseEntry));
+    CGSwitchCaseBinding* bindings = calloc(caseCount, sizeof(CGSwitchCaseBinding));
+    if ((caseCount > 0) && (!entries || !bindings)) {
+        free(entries);
+        free(bindings);
+        free(cases.items);
+        return NULL;
+    }
     size_t realCases = 0;
     for (size_t i = 0; i < caseCount; ++i) {
-        ASTNode* caseNode = node->switchStmt.caseList[i];
+        ASTNode* caseNode = cases.items[i];
         if (!caseNode || caseNode->type != AST_CASE) continue;
         if (!caseNode->caseStmt.caseValue) {
             continue;
         }
-        LLVMValueRef caseValue = codegenNode(ctx, caseNode->caseStmt.caseValue);
+        LLVMValueRef caseValue = NULL;
+        if (caseNode->caseStmt.hasAnalyzedConstValue) {
+            caseValue = LLVMConstInt(conditionType,
+                                     (unsigned long long)caseNode->caseStmt.analyzedConstValue,
+                                     true);
+        } else {
+            struct Scope* globalScope = ctx->semanticModel
+                                            ? semanticModelGetGlobalScope(ctx->semanticModel)
+                                            : NULL;
+            long long caseInteger = 0;
+            if (globalScope &&
+                constEvalInteger(caseNode->caseStmt.caseValue,
+                                 globalScope,
+                                 &caseInteger,
+                                 true)) {
+                caseValue = LLVMConstInt(conditionType,
+                                         (unsigned long long)caseInteger,
+                                         true);
+            }
+        }
+        if (!caseValue) {
+            caseValue = codegenNode(ctx, caseNode->caseStmt.caseValue);
+        }
         if (!caseValue) continue;
         if (LLVMTypeOf(caseValue) != conditionType) {
             caseValue = cg_cast_value(ctx, caseValue, conditionType, NULL, NULL, "case.cast");
@@ -293,6 +443,8 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     LLVMBasicBlockRef* sourceBlocks = calloc(caseCount, sizeof(LLVMBasicBlockRef));
     if (caseCount > 0 && !sourceBlocks) {
         free(entries);
+        free(bindings);
+        free(cases.items);
         return NULL;
     }
     for (size_t i = 0; i < realCases; ++i) {
@@ -300,7 +452,7 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
         sourceBlocks[entries[i].sourceIndex] = entries[i].bodyBB;
     }
     for (size_t i = 0; i < caseCount; ++i) {
-        ASTNode* caseNode = node->switchStmt.caseList[i];
+        ASTNode* caseNode = cases.items[i];
         if (!caseNode || caseNode->type != AST_CASE || caseNode->caseStmt.caseValue) {
             continue;
         }
@@ -309,9 +461,19 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
         break;
     }
 
-    cg_loop_push(ctx, switchEnd, NULL);
-    LLVMBasicBlockRef pendingFallthrough = NULL;
+    for (size_t i = 0; i < caseCount; ++i) {
+        bindings[i].node = cases.items[i];
+        bindings[i].block = sourceBlocks[i];
+    }
 
+    CGSwitchCaseContext switchCaseFrame = {
+        .bindings = bindings,
+        .count = caseCount,
+        .parent = ctx->switchCaseContext,
+    };
+    ctx->switchCaseContext = &switchCaseFrame;
+
+    cg_loop_push(ctx, switchEnd, NULL);
     if (dense) {
         LLVMValueRef switchInst = LLVMBuildSwitch(ctx->builder,
                                                   condition,
@@ -337,43 +499,57 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
         LLVMBuildBr(ctx->builder, defaultBB ? defaultBB : switchEnd);
     }
 
-    for (size_t i = 0; i < caseCount; ++i) {
-        ASTNode* caseNode = node->switchStmt.caseList[i];
-        LLVMBasicBlockRef caseBB = sourceBlocks[i];
-        if (!caseNode || caseNode->type != AST_CASE || !caseBB) {
-            continue;
-        }
-        if (pendingFallthrough) {
-            LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
-            LLVMBuildBr(ctx->builder, caseBB);
-            pendingFallthrough = NULL;
-        }
-        LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
-        for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
-            ASTNode* stmt = caseNode->caseStmt.caseBody[stmtIdx];
-            if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
-                continue;
-            }
+    for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+        ASTNode* stmt = node->switchStmt.caseList[i];
+        if (stmt &&
+            (cg_should_emit_statement_in_current_block(ctx, stmt) ||
+             cg_contains_owned_switch_case(stmt))) {
             codegenNode(ctx, stmt);
-        }
-        LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
-        if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
-            pendingFallthrough = currentBB;
         }
     }
 
-    free(sourceBlocks);
-    free(entries);
-
-    if (pendingFallthrough) {
-        LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
+    LLVMBasicBlockRef finalCaseBlock = LLVMGetInsertBlock(ctx->builder);
+    if (finalCaseBlock && !LLVMGetBasicBlockTerminator(finalCaseBlock)) {
         LLVMBuildBr(ctx->builder, switchEnd);
-        pendingFallthrough = NULL;
     }
 
     cg_loop_pop(ctx);
+    ctx->switchCaseContext = switchCaseFrame.parent;
+
+    free(sourceBlocks);
+    free(entries);
+    free(bindings);
+    free(cases.items);
 
     LLVMPositionBuilderAtEnd(ctx->builder, switchEnd);
+    return NULL;
+}
+
+LLVMValueRef codegenCase(CodegenContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_CASE) {
+        fprintf(stderr, "Error: Invalid node for case codegen\n");
+        return NULL;
+    }
+    CGSwitchCaseBinding* binding = cg_find_switch_case_binding(ctx, node);
+    if (!binding || !binding->block) {
+        fprintf(stderr, "Error: Missing switch case binding\n");
+        return NULL;
+    }
+
+    LLVMBasicBlockRef current = LLVMGetInsertBlock(ctx->builder);
+    if (current && current != binding->block && !LLVMGetBasicBlockTerminator(current)) {
+        LLVMBuildBr(ctx->builder, binding->block);
+    }
+    LLVMPositionBuilderAtEnd(ctx->builder, binding->block);
+    for (size_t i = 0; i < node->caseStmt.caseBodySize; ++i) {
+        ASTNode* stmt = node->caseStmt.caseBody[i];
+        if (cg_should_emit_statement_in_current_block(ctx, stmt)) {
+            codegenNode(ctx, stmt);
+        }
+    }
+    if (node->caseStmt.nextCase) {
+        codegenCase(ctx, node->caseStmt.nextCase);
+    }
     return NULL;
 }
 

@@ -18,6 +18,7 @@ typedef struct FunctionTypeParseResult {
     ParsedType* params;
     size_t count;
     bool isVariadic;
+    bool hasPrototype;
 } FunctionTypeParseResult;
 
 static bool looksLikeIdentifierParamList(Parser* parser);
@@ -51,6 +52,7 @@ static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* lay
 static void normalizeGroupedArrayPointer(ParsedType* type);
 static void parsedDeclaratorInit(ParsedDeclarator* decl);
 static ParsedType* buildParamTypesFromDecls(ASTNode** params, size_t paramCount);
+static bool parsedTypeIsPlainVoidParameter(const ParsedType* type);
 static bool parseFunctionSuffix(Parser* parser,
                                 ParsedType* type,
                                 ParsedDeclarator* decl,
@@ -262,6 +264,7 @@ static void parsedDeclaratorInit(ParsedDeclarator* decl) {
     decl->functionParameters = NULL;
     decl->functionParamCount = 0;
     decl->functionIsVariadic = false;
+    decl->functionHasPrototype = false;
     decl->declaresFunction = false;
 }
 
@@ -280,6 +283,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
     out->params = NULL;
     out->count = 0;
     out->isVariadic = false;
+    out->hasPrototype = false;
 
     size_t capacity = 0;
     bool onlyVoid = false;
@@ -307,6 +311,9 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         return parser->currentToken.type == TOKEN_RPAREN;
     }
 
+    out->hasPrototype = true;
+    parserPushOrdinaryScope(parser);
+
     while (parser->currentToken.type != TOKEN_RPAREN &&
            parser->currentToken.type != TOKEN_EOF) {
         if (parser->currentToken.type == TOKEN_ELLIPSIS) {
@@ -329,6 +336,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         ParsedType baseType = parseType(parser);
         if (baseType.kind == TYPE_INVALID) {
             parsedTypeAdoptAttributes(NULL, leadingAttrs, leadingAttrCount);
+            parserPopOrdinaryScope(parser);
             return false;
         }
 
@@ -336,9 +344,15 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         if (!parserParseDeclarator(parser, &baseType, false, false, false, &paramDecl)) {
             parsedTypeFree(&baseType);
             parsedTypeAdoptAttributes(NULL, leadingAttrs, leadingAttrCount);
+            parserPopOrdinaryScope(parser);
             return false;
         }
         ParsedType paramType = parsedTypeClone(&paramDecl.type);
+        if (paramDecl.identifier &&
+            paramDecl.identifier->type == AST_IDENTIFIER &&
+            paramDecl.identifier->valueNode.value) {
+            parserRecordOrdinaryIdentifier(parser, paramDecl.identifier->valueNode.value);
+        }
         parserDeclaratorDestroy(&paramDecl);
         parsedTypeFree(&baseType);
 
@@ -350,6 +364,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
             ParsedType* grown = realloc(out->params, newCap * sizeof(ParsedType));
             if (!grown) {
                 parsedTypeFree(&paramType);
+                parserPopOrdinaryScope(parser);
                 return false;
             }
             out->params = grown;
@@ -365,6 +380,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
     }
 
     if (parser->currentToken.type != TOKEN_RPAREN) {
+        parserPopOrdinaryScope(parser);
         return false;
     }
 
@@ -374,6 +390,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         out->count = 0;
         out->isVariadic = false;
     }
+    parserPopOrdinaryScope(parser);
     return true;
 }
 
@@ -383,6 +400,7 @@ static void freeFunctionTypeParseResult(FunctionTypeParseResult* out) {
     out->params = NULL;
     out->count = 0;
     out->isVariadic = false;
+    out->hasPrototype = false;
 }
 
 static ParsedType* buildParamTypesFromDecls(ASTNode** params, size_t paramCount) {
@@ -406,6 +424,14 @@ static ParsedType* buildParamTypesFromDecls(ASTNode** params, size_t paramCount)
     return types;
 }
 
+static bool parsedTypeIsPlainVoidParameter(const ParsedType* type) {
+    return type &&
+           type->kind == TYPE_PRIMITIVE &&
+           type->primitiveType == TOKEN_VOID &&
+           type->pointerDepth == 0 &&
+           type->derivationCount == 0;
+}
+
 static bool parseFunctionSuffix(Parser* parser,
                                 ParsedType* type,
                                 ParsedDeclarator* decl,
@@ -426,6 +452,7 @@ static bool parseFunctionSuffix(Parser* parser,
                              decl->functionParameters == NULL;
 
     if (captureDeclParams) {
+        info.hasPrototype = parser->currentToken.type != TOKEN_RPAREN;
         paramList = parseParameterList(parser, &paramCount, &isVariadic);
         if (!paramList && paramCount == 0) {
             printParseError("Invalid function parameter list", parser);
@@ -443,9 +470,16 @@ static bool parseFunctionSuffix(Parser* parser,
         info.params = paramTypes;
         info.count = paramCount;
         info.isVariadic = isVariadic;
+        if (paramCount == 1 &&
+            !isVariadic &&
+            parsedTypeIsPlainVoidParameter(&paramTypes[0])) {
+            info.params = NULL;
+            info.count = 0;
+        }
         decl->functionParameters = paramList;
         decl->functionParamCount = paramCount;
         decl->functionIsVariadic = isVariadic;
+        decl->functionHasPrototype = info.hasPrototype;
     } else {
         if (!parseFunctionTypeParameterList(parser, &info)) {
             freeFunctionTypeParseResult(&info);
@@ -464,7 +498,8 @@ static bool parseFunctionSuffix(Parser* parser,
     bool appended = parsedTypeAppendFunction(type,
                                             info.params,
                                             info.count,
-                                            info.isVariadic);
+                                            info.isVariadic,
+                                            info.hasPrototype);
     if (groupedDeclarator) {
         bool hasGroupedPointer = false;
         for (size_t i = 0; i < type->derivationCount; ++i) {
@@ -584,7 +619,11 @@ static bool parseDeclaratorInternal(Parser* parser,
                 printParseError("Failed to parse array suffix", parser);
                 return false;
             }
-            TypeDerivation* arr = parsedTypeGetMutableArrayDerivation(type, type->derivationCount - 1);
+            size_t arrayCount =
+                parsedTypeCountDerivationsOfKind(type, TYPE_DERIVATION_ARRAY);
+            TypeDerivation* arr = arrayCount > 0
+                ? parsedTypeGetMutableArrayDerivation(type, arrayCount - 1)
+                : NULL;
             if (arr) {
                 arr->as.array.hasStatic = arrayInfo.hasStatic;
                 arr->as.array.qualConst = arrayInfo.qualConst;

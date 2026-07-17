@@ -92,7 +92,10 @@ static void printParsedType_inner(const ParsedType* pt) {
         printf(")(");
         const ParsedType* fpParams = NULL;
         size_t fpParamCount = 0;
-        parsedTypeGetEffectiveFunctionPointerSignature(pt, &fpParams, &fpParamCount, NULL);
+        bool fpHasPrototype = false;
+        parsedTypeGetEffectiveFunctionPointerSignature(
+            pt, &fpParams, &fpParamCount, NULL, &fpHasPrototype);
+        if (fpHasPrototype && fpParamCount == 0) printf("void");
         for (size_t i = 0; i < fpParamCount; i++) {
             if (i) printf(", ");
             printParsedType_inner(&fpParams[i]);
@@ -145,6 +148,11 @@ static void printParsedType_inner(const ParsedType* pt) {
                     break;
                 }
                 printf(" (");
+                if (deriv->as.function.hasPrototype &&
+                    deriv->as.function.paramCount == 0 &&
+                    !deriv->as.function.isVariadic) {
+                    printf("void");
+                }
                 for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
                     if (p) printf(", ");
                     printParsedType_inner(&deriv->as.function.params[p]);

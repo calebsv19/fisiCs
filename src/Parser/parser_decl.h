@@ -51,6 +51,7 @@ typedef struct ParsedDeclarator {
     ASTNode** functionParameters;
     size_t functionParamCount;
     bool functionIsVariadic;
+    bool functionHasPrototype;
     bool declaresFunction;
 } ParsedDeclarator;
 

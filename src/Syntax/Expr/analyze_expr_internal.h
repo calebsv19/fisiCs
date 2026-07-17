@@ -29,6 +29,7 @@ TypeInfo analyzeTernaryExpression(ASTNode* node, Scope* scope);
 
 void reportOperandError(ASTNode* node, const char* expectation, const char* op);
 void reportNodeError(ASTNode* node, const char* message, const char* hint);
+void reportNodeWarning(ASTNode* node, const char* message, const char* hint);
 bool typeInfoIsKnown(const TypeInfo* info);
 bool isNullPointerConstant(ASTNode* expr, Scope* scope);
 void restoreBaseCategory(TypeInfo* info);

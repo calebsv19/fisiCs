@@ -29,14 +29,47 @@ ASTNode* parseSwitchStatement(Parser* parser) {
     }   
             
     if (parser->currentToken.type != TOKEN_RPAREN) {
-        printParseError("')'", parser);
+        printParseError("expected ')' after switch condition", parser);
+        if (parser->currentToken.type == TOKEN_LBRACE) {
+            int depth = 0;
+            do {
+                if (parser->currentToken.type == TOKEN_LBRACE) {
+                    depth++;
+                } else if (parser->currentToken.type == TOKEN_RBRACE) {
+                    depth--;
+                }
+                advance(parser);
+            } while (depth > 0 && parser->currentToken.type != TOKEN_EOF);
+            return createBlockNode(NULL, 0);
+        }
         return NULL;
     }
     advance(parser); // Consume ')'
                     
     if (parser->currentToken.type != TOKEN_LBRACE) {
-        printParseError("'{'", parser);
-        return NULL;
+        if (parser->currentToken.type == TOKEN_RBRACE ||
+            parser->currentToken.type == TOKEN_EOF) {
+            printParseError("expected statement after switch condition", parser);
+            return NULL;
+        }
+        parser->switchDepth++;
+        ASTNode* body = parseStatement(parser);
+        parser->switchDepth--;
+        if (!body) {
+            return NULL;
+        }
+        ASTNode** bodyList = malloc(sizeof(*bodyList));
+        if (!bodyList) {
+            return NULL;
+        }
+        bodyList[0] = body;
+        ASTNode* switchNode = createSwitchNode(condition, bodyList);
+        if (!switchNode) {
+            free(bodyList);
+            return NULL;
+        }
+        switchNode->switchStmt.caseListSize = 1;
+        return switchNode;
     }
     advance(parser); // Consume '{'
 
@@ -106,10 +139,22 @@ ASTNode* parseSwitchStatement(Parser* parser) {
             }
             caseList[caseListSize++] = caseNode;
         } else {
-            printf("Error: Unexpected token '%s' inside switch statement at line %d\n",
-                   parser->currentToken.value, parser->currentToken.line);
-            parser->switchDepth--;
-            return NULL;
+            /* A switch body is an ordinary compound statement whose labels may
+               occur inside nested control statements (Duff-style forms). Keep
+               those structural statements in source order so semantic analysis
+               and codegen can discover the case nodes they own. */
+            ASTNode* stmt = parseStatement(parser);
+            if (!stmt) {
+                printf("Error: Invalid statement inside switch body at line %d\n",
+                       parser->currentToken.line);
+                parser->switchDepth--;
+                return NULL;
+            }
+            if (caseListSize >= caseListCapacity) {
+                caseListCapacity *= 2;
+                caseList = realloc(caseList, caseListCapacity * sizeof(ASTNode*));
+            }
+            caseList[caseListSize++] = stmt;
         }
     }
      

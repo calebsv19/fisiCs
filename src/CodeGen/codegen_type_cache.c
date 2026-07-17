@@ -97,6 +97,7 @@ CGTypeCache* cg_type_cache_create(const SemanticModel* model) {
                 for (size_t j = 0; j < infos[i].fieldCount; ++j) {
                     cache->structCache[i].fields[j].name = infos[i].fields[j].name ? strdup(infos[i].fields[j].name) : NULL;
                     cache->structCache[i].fields[j].index = infos[i].isUnion ? 0 : (unsigned)j;
+                    cache->structCache[i].fields[j].llvmIndex = infos[i].isUnion ? 0 : (unsigned)j;
                     cache->structCache[i].fields[j].parsedType = infos[i].fields[j].type;
                 }
             }
@@ -159,7 +160,7 @@ unsigned cg_type_cache_lookup_field_index(CGTypeCache* cache, const char* struct
     for (size_t i = 0; i < info->fieldCount; ++i) {
         if (info->fields[i].name && strcmp(info->fields[i].name, fieldName) == 0) {
             if (outFound) *outFound = true;
-            return info->fields[i].index;
+            return info->fields[i].llvmIndex;
         }
     }
     return 0;

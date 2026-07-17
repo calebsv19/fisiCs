@@ -59,16 +59,51 @@ const char *lookupKeyword(const char *str, size_t len) {
     return in_keyword_set(str, len);
 }
 
+static LexerMark numeric_diagnostic_mark_if_raw_line_changed(Lexer* lexer,
+                                                             LexerMark start,
+                                                             LexerMark candidate) {
+    int startRawLine = 0;
+    int candidateRawLine = 0;
+    lexer_mark_source_location(lexer, start, &startRawLine, NULL);
+    lexer_mark_source_location(lexer, candidate, &candidateRawLine, NULL);
+    if (startRawLine > 0 && candidateRawLine > 0 && startRawLine != candidateRawLine) {
+        return candidate;
+    }
+    return start;
+}
+
 Token handleIdentifierOrKeyword(Lexer* lexer) {
     LexerMark startMark = lexer_mark(lexer);
     int startPos = lexer->position;
 
-    while (isalnum((unsigned char)lexer->source[lexer->position]) ||
-           lexer->source[lexer->position] == '_') {
-        lexer->position++;
+    while (true) {
+        unsigned char current = (unsigned char)lexer->source[lexer->position];
+        if (isalnum(current) || current == '_') {
+            lexer->position++;
+            continue;
+        }
+        int ucnLength = lexer_identifier_ucn_length(lexer,
+                                                    lexer->position,
+                                                    lexer->position == startPos);
+        if (ucnLength > 0) {
+            lexer->position += ucnLength;
+            continue;
+        }
+        int utf8Length = lexer_identifier_utf8_length(lexer,
+                                                      lexer->position,
+                                                      lexer->position == startPos);
+        if (utf8Length > 0) {
+            lexer->position += utf8Length;
+            continue;
+        }
+        break;
     }
 
-    char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+    size_t textLength = (size_t)(lexer->position - startPos);
+    char* text = lexer_normalize_identifier_spelling(lexer->source + startPos, textLength);
+    if (!text) {
+        text = strndup(lexer->source + startPos, textLength);
+    }
     if (lexer_debug_enabled()) {
         LEXER_DEBUG_PRINTF("DEBUG: Identified potential identifier or keyword: %s\n", text);
     }
@@ -178,6 +213,7 @@ Token handleNumber(Lexer* lexer) {
     if (!sawExp && ((!isHex && (lexer->source[lexer->position] == 'e' || lexer->source[lexer->position] == 'E')) ||
                     (isHex && (lexer->source[lexer->position] == 'p' || lexer->source[lexer->position] == 'P')))) {
         sawExp = true;
+        LexerMark exponentMark = lexer_mark(lexer);
         lexer->position++;
         if (lexer->source[lexer->position] == '+' || lexer->source[lexer->position] == '-') {
             lexer->position++;
@@ -192,7 +228,12 @@ Token handleNumber(Lexer* lexer) {
                 lexer->position++;
             }
             char* text = strndup(lexer->source + startPos, lexer->position - startPos);
-            report_lexer_error(lexer, startMark, "Malformed floating literal exponent", text);
+            LexerMark diagnosticMark =
+                numeric_diagnostic_mark_if_raw_line_changed(lexer, startMark, exponentMark);
+            report_lexer_error(lexer,
+                               diagnosticMark,
+                               "Malformed floating literal exponent",
+                               text);
             return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
         }
         type = TOKEN_FLOAT_LITERAL;
@@ -260,8 +301,10 @@ Token handleNumber(Lexer* lexer) {
     }
 
     if (isHex && !sawFraction && radixDigits == 0) {
+        LexerMark diagnosticMark =
+            numeric_diagnostic_mark_if_raw_line_changed(lexer, startMark, lexer_mark(lexer));
         char* text = strndup(lexer->source + startPos, lexer->position - startPos);
-        report_lexer_error(lexer, startMark, "Hex literal requires at least one hex digit", text);
+        report_lexer_error(lexer, diagnosticMark, "Hex literal requires at least one hex digit", text);
         return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
     }
 

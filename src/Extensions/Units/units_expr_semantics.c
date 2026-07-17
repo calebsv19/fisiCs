@@ -11,12 +11,34 @@
 #include "Extensions/extension_units_view.h"
 #include "Extensions/Units/units_conversion.h"
 #include "Syntax/scope.h"
+#include "Syntax/type_checker.h"
 
 #include <string.h>
 
 static void walk_expr_results(ASTNode* node, CompilerContext* ctx);
 static bool node_is_explicit_units_convert_call(const ASTNode* node);
+static void maybe_record_owner_literal(CompilerContext* ctx,
+                                       ASTNode* ownerNode,
+                                       ASTNode* expression);
+static bool type_info_is_record(const TypeInfo* info);
+static ASTNode* resolve_units_record_definition(const ParsedType* parsedType,
+                                                const TypeInfo* info,
+                                                CompilerContext* ctx);
+static bool lookup_units_record_field(ASTNode* recordDef,
+                                      const char* fieldName,
+                                      size_t positionalIndex,
+                                      ASTNode** outFieldDecl,
+                                      const ParsedType** outFieldType);
 static Scope* s_units_root_scope = NULL;
+
+typedef struct UnitsPointerAlias {
+    const char* name;
+    const FisicsUnitsAnnotation* annotation;
+} UnitsPointerAlias;
+
+#define UNITS_POINTER_ALIAS_MAX 256
+static UnitsPointerAlias s_units_pointer_aliases[UNITS_POINTER_ALIAS_MAX];
+static size_t s_units_pointer_alias_count = 0;
 
 static bool is_dimensionless_literal(const ASTNode* node) {
     return node && (node->type == AST_NUMBER_LITERAL || node->type == AST_CHAR_LITERAL);
@@ -451,6 +473,250 @@ static void maybe_record_binary_result(CompilerContext* ctx, ASTNode* node) {
     }
 }
 
+static bool units_annotation_is_concrete(const FisicsUnitsAnnotation* ann) {
+    return ann && ann->resolved && ann->dimDuplicateCount <= 1 && ann->unitResolved && ann->unitDef;
+}
+
+static bool units_annotations_same_concrete(const FisicsUnitsAnnotation* a,
+                                            const FisicsUnitsAnnotation* b) {
+    return units_annotation_is_concrete(a) &&
+           units_annotation_is_concrete(b) &&
+           fisics_dim_equal(a->dim, b->dim) &&
+           a->unitDef == b->unitDef;
+}
+
+static const FisicsUnitsAnnotation* lookup_units_pointer_alias(const char* name) {
+    if (!name || !name[0]) return NULL;
+    for (size_t i = s_units_pointer_alias_count; i > 0; --i) {
+        const UnitsPointerAlias* alias = &s_units_pointer_aliases[i - 1];
+        if (alias->name && strcmp(alias->name, name) == 0) {
+            return alias->annotation;
+        }
+    }
+    return NULL;
+}
+
+static void remember_units_pointer_alias(const char* name, const FisicsUnitsAnnotation* ann) {
+    if (!name || !name[0] || !units_annotation_is_concrete(ann)) return;
+    for (size_t i = 0; i < s_units_pointer_alias_count; ++i) {
+        UnitsPointerAlias* alias = &s_units_pointer_aliases[i];
+        if (alias->name && strcmp(alias->name, name) == 0) {
+            alias->annotation = ann;
+            return;
+        }
+    }
+    if (s_units_pointer_alias_count >= UNITS_POINTER_ALIAS_MAX) return;
+    s_units_pointer_aliases[s_units_pointer_alias_count].name = name;
+    s_units_pointer_aliases[s_units_pointer_alias_count].annotation = ann;
+    ++s_units_pointer_alias_count;
+}
+
+static const ParsedType* lookup_bound_units_parsed_type(CompilerContext* ctx, ASTNode* node) {
+    if (!ctx || !node) return NULL;
+    return fisics_extension_lookup_units_symbol_type_binding(ctx, node);
+}
+
+static const FisicsUnitsAnnotation* lookup_assignment_lvalue_units_annotation(CompilerContext* ctx,
+                                                                              ASTNode* node,
+                                                                              int depth);
+
+static const FisicsUnitsAnnotation* lookup_address_target_units_annotation(CompilerContext* ctx,
+                                                                          ASTNode* node,
+                                                                          int depth) {
+    if (!ctx || !node || depth > 16) return NULL;
+
+    if (node->type == AST_UNARY_EXPRESSION && node->expr.op && strcmp(node->expr.op, "&") == 0) {
+        return lookup_assignment_lvalue_units_annotation(ctx, node->expr.left, depth + 1);
+    }
+
+    if (node->type == AST_TERNARY_EXPRESSION) {
+        const FisicsUnitsAnnotation* left =
+            lookup_address_target_units_annotation(ctx, node->ternaryExpr.trueExpr, depth + 1);
+        const FisicsUnitsAnnotation* right =
+            lookup_address_target_units_annotation(ctx, node->ternaryExpr.falseExpr, depth + 1);
+        return units_annotations_same_concrete(left, right) ? left : NULL;
+    }
+
+    if (node->type == AST_COMMA_EXPRESSION && node->commaExpr.exprCount > 0) {
+        ASTNode* tail = node->commaExpr.expressions
+                            ? node->commaExpr.expressions[node->commaExpr.exprCount - 1]
+                            : NULL;
+        return lookup_address_target_units_annotation(ctx, tail, depth + 1);
+    }
+
+    if (node->type == AST_CAST_EXPRESSION) {
+        return lookup_address_target_units_annotation(ctx, node->castExpr.expression, depth + 1);
+    }
+
+    if (node->type == AST_IDENTIFIER) {
+        const FisicsUnitsAnnotation* aliasAnn = lookup_units_pointer_alias(node->valueNode.value);
+        if (units_annotation_is_concrete(aliasAnn)) return aliasAnn;
+
+        DesignatedInit* init =
+            fisics_extension_lookup_units_symbol_initializer_binding(ctx, node);
+        if (init && init->expression) {
+            return lookup_address_target_units_annotation(ctx, init->expression, depth + 1);
+        }
+    }
+
+    return NULL;
+}
+
+static void maybe_remember_units_pointer_alias(CompilerContext* ctx,
+                                               ASTNode* nameNode,
+                                               DesignatedInit* init) {
+    if (!ctx || !nameNode || nameNode->type != AST_IDENTIFIER || !init || !init->expression) return;
+    const FisicsUnitsAnnotation* ann = lookup_address_target_units_annotation(ctx, init->expression, 0);
+    remember_units_pointer_alias(nameNode->valueNode.value, ann);
+}
+
+static bool lookup_member_base_type_info(CompilerContext* ctx,
+                                         ASTNode* base,
+                                         bool pointerAccess,
+                                         TypeInfo* outInfo) {
+    if (!ctx || !base || !outInfo || !s_units_root_scope) return false;
+    const ParsedType* parsed = lookup_bound_units_parsed_type(ctx, base);
+    ParsedType scratch;
+    memset(&scratch, 0, sizeof(scratch));
+    bool haveScratch = false;
+
+    if (base->type == AST_POINTER_DEREFERENCE) {
+        const ParsedType* ptrParsed = lookup_bound_units_parsed_type(ctx, base->pointerDeref.pointer);
+        if (ptrParsed) {
+            scratch = parsedTypePointerTargetType(ptrParsed);
+            parsed = &scratch;
+            haveScratch = true;
+        }
+    }
+
+    if (!parsed) return false;
+    if (pointerAccess) {
+        ParsedType target = parsedTypePointerTargetType(parsed);
+        if (haveScratch) {
+            parsedTypeFree(&scratch);
+            haveScratch = false;
+        }
+        scratch = target;
+        parsed = &scratch;
+        haveScratch = true;
+    }
+
+    *outInfo = typeInfoFromParsedType(parsed, s_units_root_scope);
+    if (haveScratch) {
+        parsedTypeFree(&scratch);
+    }
+    return outInfo->category != TYPEINFO_INVALID;
+}
+
+static bool var_decl_contains_name(ASTNode* decl, const char* name) {
+    if (!decl || decl->type != AST_VARIABLE_DECLARATION || !name || !name[0]) return false;
+    for (size_t i = 0; i < decl->varDecl.varCount; ++i) {
+        ASTNode* varName = decl->varDecl.varNames ? decl->varDecl.varNames[i] : NULL;
+        const char* value = (varName && varName->type == AST_IDENTIFIER) ? varName->valueNode.value : NULL;
+        if (value && strcmp(value, name) == 0) return true;
+    }
+    return false;
+}
+
+static const FisicsUnitsAnnotation* lookup_units_annotation_by_decl_name(CompilerContext* ctx,
+                                                                         const char* name) {
+    if (!ctx || !ctx->extensionState || !name || !name[0]) return NULL;
+    const FisicsUnitsAnnotation* match = NULL;
+    for (size_t i = 0; i < ctx->extensionState->unitsAnnotationCount; ++i) {
+        const FisicsUnitsAnnotation* ann = &ctx->extensionState->unitsAnnotations[i];
+        if (!units_annotation_is_concrete(ann) || !var_decl_contains_name(ann->node, name)) continue;
+        if (match && !units_annotations_same_concrete(match, ann)) {
+            return NULL;
+        }
+        match = ann;
+    }
+    return match;
+}
+
+static const FisicsUnitsAnnotation* lookup_member_units_annotation(CompilerContext* ctx,
+                                                                  ASTNode* node,
+                                                                  int depth) {
+    if (!ctx || !node || depth > 16) return NULL;
+    if (node->type != AST_DOT_ACCESS && node->type != AST_POINTER_ACCESS) return NULL;
+    if (!node->memberAccess.field || !node->memberAccess.field[0]) return NULL;
+
+    TypeInfo baseInfo = makeInvalidType();
+    if (!lookup_member_base_type_info(ctx,
+                                      node->memberAccess.base,
+                                      node->type == AST_POINTER_ACCESS,
+                                      &baseInfo)) {
+        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+    }
+    if (!type_info_is_record(&baseInfo)) {
+        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+    }
+
+    ASTNode* recordDef = resolve_units_record_definition(baseInfo.originalType, &baseInfo, ctx);
+    if (!recordDef) {
+        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+    }
+
+    ASTNode* fieldDecl = NULL;
+    if (!lookup_units_record_field(recordDef, node->memberAccess.field, 0, &fieldDecl, NULL)) {
+        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+    }
+    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, fieldDecl);
+    if (units_annotation_is_concrete(ann)) return ann;
+    return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+}
+
+static const FisicsUnitsAnnotation* lookup_assignment_lvalue_units_annotation(CompilerContext* ctx,
+                                                                              ASTNode* node,
+                                                                              int depth) {
+    if (!ctx || !node || depth > 16) return NULL;
+
+    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation_binding(ctx, node);
+    if (units_annotation_is_concrete(ann)) return ann;
+
+    switch (node->type) {
+        case AST_ARRAY_ACCESS:
+            return lookup_assignment_lvalue_units_annotation(ctx, node->arrayAccess.array, depth + 1);
+        case AST_DOT_ACCESS:
+        case AST_POINTER_ACCESS:
+            return lookup_member_units_annotation(ctx, node, depth + 1);
+        case AST_POINTER_DEREFERENCE:
+            return lookup_address_target_units_annotation(ctx, node->pointerDeref.pointer, depth + 1);
+        case AST_UNARY_EXPRESSION:
+            if (node->expr.op && strcmp(node->expr.op, "*") == 0) {
+                return lookup_address_target_units_annotation(ctx, node->expr.left, depth + 1);
+            }
+            break;
+        case AST_COMMA_EXPRESSION:
+            if (node->commaExpr.exprCount > 0) {
+                ASTNode* tail = node->commaExpr.expressions
+                                    ? node->commaExpr.expressions[node->commaExpr.exprCount - 1]
+                                    : NULL;
+                return lookup_assignment_lvalue_units_annotation(ctx, tail, depth + 1);
+            }
+            break;
+        case AST_CAST_EXPRESSION:
+            return lookup_assignment_lvalue_units_annotation(ctx, node->castExpr.expression, depth + 1);
+        default:
+            break;
+    }
+
+    return NULL;
+}
+
+static bool fill_units_from_lvalue_annotation(CompilerContext* ctx,
+                                              ASTNode* target,
+                                              FisicsDim8* outDim,
+                                              const FisicsUnitDef** outUnit,
+                                              bool* outUnitResolved) {
+    if (!ctx || !target || !outDim || !outUnit || !outUnitResolved) return false;
+    const FisicsUnitsAnnotation* ann = lookup_assignment_lvalue_units_annotation(ctx, target, 0);
+    if (!units_annotation_is_concrete(ann)) return false;
+    *outDim = ann->dim;
+    *outUnit = ann->unitDef;
+    *outUnitResolved = true;
+    return true;
+}
+
 static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_ASSIGNMENT) return;
     if (!node->assignment.op) return;
@@ -460,7 +726,19 @@ static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) 
     const FisicsUnitDef* valueUnit = NULL;
     bool targetUnitResolved = false;
     bool valueUnitResolved = false;
-    if (!lookup_resolved_expr_metadata(ctx, node->assignment.target, &targetDim, &targetUnit, &targetUnitResolved) ||
+    bool haveTarget = lookup_resolved_expr_metadata(ctx,
+                                                    node->assignment.target,
+                                                    &targetDim,
+                                                    &targetUnit,
+                                                    &targetUnitResolved);
+    if (!haveTarget) {
+        haveTarget = fill_units_from_lvalue_annotation(ctx,
+                                                       node->assignment.target,
+                                                       &targetDim,
+                                                       &targetUnit,
+                                                       &targetUnitResolved);
+    }
+    if (!haveTarget ||
         !lookup_resolved_expr_metadata(ctx, node->assignment.value, &valueDim, &valueUnit, &valueUnitResolved)) {
         return;
     }
@@ -472,7 +750,7 @@ static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) 
         }
         if (units_resolved_and_different(targetUnit, targetUnitResolved, valueUnit, valueUnitResolved)) {
             fisics_extension_diag_units_implicit_unit_conversion(ctx,
-                                                                 node,
+                                                                 node->assignment.value ? node->assignment.value : node,
                                                                  "assignment",
                                                                  valueUnit,
                                                                  targetUnit);
@@ -572,13 +850,20 @@ static void maybe_record_decl_owned_literal(CompilerContext* ctx,
                                             ASTNode* declNode,
                                             DesignatedInit* init) {
     if (!ctx || !declNode || !init || !init->expression) return;
-    if (!is_dimensionless_literal(init->expression)) return;
+    maybe_record_owner_literal(ctx, declNode, init->expression);
+}
 
-    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, declNode);
+static void maybe_record_owner_literal(CompilerContext* ctx,
+                                       ASTNode* ownerNode,
+                                       ASTNode* expression) {
+    if (!ctx || !ownerNode || !expression) return;
+    if (!is_dimensionless_literal(expression)) return;
+
+    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, ownerNode);
     if (!ann || !ann->resolved || ann->dimDuplicateCount > 1) return;
 
     (void)fisics_extension_set_units_expr_result_with_unit(ctx,
-                                                           init->expression,
+                                                           expression,
                                                            ann->dim,
                                                            true,
                                                            ann->unitResolved ? ann->unitDef : NULL,
@@ -671,6 +956,147 @@ static void maybe_validate_decl_owned_initializer_units(CompilerContext* ctx,
     }
 }
 
+static bool type_info_is_record(const TypeInfo* info) {
+    return info && (info->category == TYPEINFO_STRUCT || info->category == TYPEINFO_UNION);
+}
+
+static ASTNode* resolve_units_record_definition(const ParsedType* parsedType,
+                                                const TypeInfo* info,
+                                                CompilerContext* ctx) {
+    if (parsedType && parsedType->inlineStructOrUnionDef) {
+        ASTNode* def = parsedType->inlineStructOrUnionDef;
+        if (def->type == AST_STRUCT_DEFINITION || def->type == AST_UNION_DEFINITION) {
+            return def;
+        }
+    }
+    if (!info || !ctx || !info->userTypeName || !type_info_is_record(info)) {
+        return NULL;
+    }
+    CCTagKind kind = (info->category == TYPEINFO_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+    ASTNode* def = cc_tag_definition(ctx, kind, info->userTypeName);
+    if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
+        return NULL;
+    }
+    return def;
+}
+
+static bool lookup_units_record_field(ASTNode* recordDef,
+                                      const char* fieldName,
+                                      size_t positionalIndex,
+                                      ASTNode** outFieldDecl,
+                                      const ParsedType** outFieldType) {
+    if (outFieldDecl) *outFieldDecl = NULL;
+    if (outFieldType) *outFieldType = NULL;
+    if (!recordDef || (recordDef->type != AST_STRUCT_DEFINITION &&
+                       recordDef->type != AST_UNION_DEFINITION)) {
+        return false;
+    }
+
+    size_t ordinal = 0;
+    for (size_t i = 0; i < recordDef->structDef.fieldCount; ++i) {
+        ASTNode* field = recordDef->structDef.fields ? recordDef->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        for (size_t k = 0; k < field->varDecl.varCount; ++k) {
+            ASTNode* name = field->varDecl.varNames ? field->varDecl.varNames[k] : NULL;
+            const char* nameValue = (name && name->type == AST_IDENTIFIER) ? name->valueNode.value : NULL;
+            bool matched = false;
+            if (fieldName && fieldName[0]) {
+                matched = nameValue && strcmp(nameValue, fieldName) == 0;
+            } else {
+                matched = ordinal == positionalIndex;
+            }
+            if (matched) {
+                if (outFieldDecl) *outFieldDecl = field;
+                if (outFieldType) {
+                    *outFieldType = field->varDecl.declaredTypes ? &field->varDecl.declaredTypes[k]
+                                                                  : &field->varDecl.declaredType;
+                }
+                return true;
+            }
+            ++ordinal;
+        }
+    }
+    return false;
+}
+
+static void validate_units_initializer_against_owner(CompilerContext* ctx,
+                                                     ASTNode* ownerNode,
+                                                     ASTNode* expression) {
+    if (!ctx || !ownerNode || !expression) return;
+
+    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, ownerNode);
+    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1 || !ann->unitResolved || !ann->unitDef) return;
+
+    FisicsDim8 initDim = fisics_dim_zero();
+    const FisicsUnitDef* initUnit = NULL;
+    bool initUnitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, expression, &initDim, &initUnit, &initUnitResolved)) return;
+    if (!fisics_dim_equal(initDim, ann->dim)) return;
+    if (units_resolved_and_different(ann->unitDef, true, initUnit, initUnitResolved)) {
+        fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                             expression,
+                                                             "initializer",
+                                                             initUnit,
+                                                             ann->unitDef);
+    }
+}
+
+static void validate_units_aggregate_initializer(CompilerContext* ctx,
+                                                 const ParsedType* aggregateType,
+                                                 ASTNode* compoundExpr,
+                                                 int depth) {
+    if (!ctx || !aggregateType || !compoundExpr || compoundExpr->type != AST_COMPOUND_LITERAL) return;
+    if (!s_units_root_scope || depth > 16) return;
+
+    TypeInfo aggregateInfo = typeInfoFromParsedType(aggregateType, s_units_root_scope);
+    if (!type_info_is_record(&aggregateInfo)) return;
+
+    ASTNode* recordDef = resolve_units_record_definition(aggregateType, &aggregateInfo, ctx);
+    if (!recordDef) return;
+
+    size_t positionalIndex = 0;
+    for (size_t i = 0; i < compoundExpr->compoundLiteral.entryCount; ++i) {
+        DesignatedInit* entry =
+            compoundExpr->compoundLiteral.entries ? compoundExpr->compoundLiteral.entries[i] : NULL;
+        if (!entry || !entry->expression) {
+            if (entry && (!entry->fieldName || !entry->fieldName[0])) {
+                ++positionalIndex;
+            }
+            continue;
+        }
+
+        ASTNode* fieldDecl = NULL;
+        const ParsedType* fieldType = NULL;
+        if (!lookup_units_record_field(recordDef,
+                                       entry->fieldName,
+                                       positionalIndex,
+                                       &fieldDecl,
+                                       &fieldType)) {
+            if (!entry->fieldName || !entry->fieldName[0]) {
+                ++positionalIndex;
+            }
+            continue;
+        }
+
+        if (entry->expression->type == AST_COMPOUND_LITERAL && fieldType) {
+            TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, s_units_root_scope);
+            if (type_info_is_record(&fieldInfo)) {
+                validate_units_aggregate_initializer(ctx, fieldType, entry->expression, depth + 1);
+            } else {
+                validate_units_initializer_against_owner(ctx, fieldDecl, entry->expression);
+            }
+        } else {
+            validate_units_initializer_against_owner(ctx, fieldDecl, entry->expression);
+        }
+
+        if (!entry->fieldName || !entry->fieldName[0]) {
+            ++positionalIndex;
+        }
+    }
+}
+
 static void walk_designated_init(ASTNode* declNode, DesignatedInit* init, CompilerContext* ctx) {
     if (!init) return;
     walk_expr_results(init->indexExpr, ctx);
@@ -698,6 +1124,15 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
             for (size_t i = 0; i < node->varDecl.varCount; ++i) {
                 DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
                 walk_designated_init(node, init, ctx);
+                maybe_remember_units_pointer_alias(ctx,
+                                                   node->varDecl.varNames ? node->varDecl.varNames[i] : NULL,
+                                                   init);
+                if (init && init->expression && init->expression->type == AST_COMPOUND_LITERAL) {
+                    const ParsedType* varType = astVarDeclTypeAt(node, i);
+                    if (varType && init->expression->compoundLiteral.literalType.kind == TYPE_INVALID) {
+                        validate_units_aggregate_initializer(ctx, varType, init->expression, 0);
+                    }
+                }
             }
             walk_expr_results(node->varDecl.arraySize, ctx);
             walk_expr_results(node->varDecl.bitFieldWidth, ctx);
@@ -851,6 +1286,9 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
                                      node->compoundLiteral.entries ? node->compoundLiteral.entries[i] : NULL,
                                      ctx);
             }
+            if (node->compoundLiteral.literalType.kind != TYPE_INVALID) {
+                validate_units_aggregate_initializer(ctx, &node->compoundLiteral.literalType, node, 0);
+            }
             break;
 
         case AST_NUMBER_LITERAL:
@@ -871,6 +1309,8 @@ void fisics_units_run_expr_semantics(ASTNode* root, Scope* globalScope) {
     if (!root || !globalScope || !globalScope->ctx) return;
     CompilerContext* ctx = globalScope->ctx;
     s_units_root_scope = globalScope;
+    memset(s_units_pointer_aliases, 0, sizeof(s_units_pointer_aliases));
+    s_units_pointer_alias_count = 0;
     fisics_extension_clear_units_expr_results(ctx);
     walk_expr_results(root, ctx);
     s_units_root_scope = NULL;

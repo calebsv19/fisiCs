@@ -13,13 +13,13 @@ typedef enum InitializerPathStepKind {
     INIT_PATH_INDEX,
 } InitializerPathStepKind;
 
-typedef struct InitializerPathStep {
+struct InitializerPathStep {
     InitializerPathStepKind kind;
     char* fieldName;
     ASTNode* indexExpr;
-} InitializerPathStep;
+};
 
-static void freeInitializerPathSteps(InitializerPathStep* steps, size_t count) {
+void freeInitializerPathSteps(InitializerPathStep* steps, size_t count) {
     if (!steps) return;
     for (size_t i = 0; i < count; ++i) {
         free(steps[i].fieldName);
@@ -78,9 +78,9 @@ static bool appendInitializerPathIndex(InitializerPathStep** steps,
     return true;
 }
 
-static bool parseInitializerDesignatorPath(Parser* parser,
-                                           InitializerPathStep** outSteps,
-                                           size_t* outCount) {
+bool parseInitializerDesignatorPath(Parser* parser,
+                                    InitializerPathStep** outSteps,
+                                    size_t* outCount) {
     if (!parser || !outSteps || !outCount) {
         return false;
     }
@@ -138,10 +138,10 @@ static bool parseInitializerDesignatorPath(Parser* parser,
     return true;
 }
 
-static DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
-                                                  size_t stepCount,
-                                                  ASTNode* expr,
-                                                  bool resetInnermostSubobject) {
+DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
+                                           size_t stepCount,
+                                           ASTNode* expr,
+                                           bool resetInnermostSubobject) {
     if (!steps || stepCount == 0 || !expr) {
         return NULL;
     }
@@ -270,7 +270,7 @@ ASTNode* parseArraySize(Parser* parser, bool* outIsVLA, ParsedArrayInfo* outInfo
          
         ASTNode* size = parseAssignmentExpression(parser); //  Parse array size
         if (!size) {
-            printf("Error: Invalid array size at line %d\n", parser->currentToken.line);
+            printParseError("Failed to parse expression", parser);
             return NULL;
         }
         if (parser->currentToken.type != TOKEN_RBRACKET) {
@@ -352,99 +352,51 @@ DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, si
         DesignatedInit* init = NULL;
         
         if (parser->currentToken.type == TOKEN_LBRACKET) {
-            // [index] = value
-            advance(parser); // consume `[`
-            ASTNode* indexExpr = parseAssignmentExpression(parser);
-            if (!indexExpr) {
-                printf("Error: Invalid index expression at line %d\n", parser->currentToken.line);
+            InitializerPathStep* steps = NULL;
+            size_t stepCount = 0;
+            if (!parseInitializerDesignatorPath(parser, &steps, &stepCount)) {
                 free(values);
-                return NULL; 
+                return NULL;
             }
-             
-            if (parser->currentToken.type != TOKEN_RBRACKET) {
-                printf("Error: expected ']' after index at line %d\n", parser->currentToken.line);
+            if (parser->currentToken.type != TOKEN_ASSIGN) {
+                printf("Error: expected '=' after [index] at line %d\n", parser->currentToken.line);
+                freeInitializerPathSteps(steps, stepCount);
                 free(values);
-                return NULL; 
+                return NULL;
             }
-            advance(parser); // consume `]`
+            advance(parser); // consume '='
 
             ASTNode* valueExpr = NULL;
-
-            if (parser->currentToken.type == TOKEN_DOT) {
-                advance(parser);
-                if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-                    printParseError("Expected field name after '.' in array designator", parser);
+            if (parser->currentToken.type == TOKEN_LBRACE) {
+                size_t nestedCount = 0;
+                DesignatedInit** nested = parseInitializerList(parser, parentType, &nestedCount);
+                if (!nested) {
+                    printf("Error: Invalid compound initializer after [index] = at line %d\n",
+                                parser->currentToken.line);
+                    freeInitializerPathSteps(steps, stepCount);
                     free(values);
                     return NULL;
                 }
-                char* fieldName = strdup(parser->currentToken.value);
-                advance(parser);
-                if (parser->currentToken.type != TOKEN_ASSIGN) {
-                    printParseError("Expected '=' after field name in array designator", parser);
-                    free(values);
-                    return NULL;
-                }
-                advance(parser);
-                if (parser->currentToken.type == TOKEN_LBRACE) {
-                    size_t nestedCount = 0;
-                    DesignatedInit** nested = parseInitializerList(parser, parentType, &nestedCount);
-                    if (!nested) {
-                        printParseError("Invalid compound initializer after [index].field =", parser);
-                        free(values);
-                        return NULL;
-                    }
-                    valueExpr = createCompoundInit(nested, nestedCount);
-                } else {
-                    valueExpr = parseAssignmentExpression(parser);
-                }
-                if (!valueExpr) {
-                    printf("Error: Invalid value expression at line %d\n", parser->currentToken.line);
-                    free(values);
-                    return NULL;
-                }
-                DesignatedInit* fieldInit = createDesignatedInit(fieldName, valueExpr);
-                if (fieldInit && valueExpr->type == AST_COMPOUND_LITERAL) {
-                    fieldInit->resetSubobjectBeforeStore = true;
-                }
-                DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
-                if (!nestedEntries) {
-                    free(values);
-                    return NULL;
-                }
-                nestedEntries[0] = fieldInit;
-                valueExpr = createCompoundInit(nestedEntries, 1);
+                valueExpr = createCompoundInit(nested, nestedCount);
             } else {
-                if (parser->currentToken.type != TOKEN_ASSIGN) {
-                    printf("Error: expected '=' after [index] at line %d\n", parser->currentToken.line);
-                    free(values);
-                    return NULL; 
-                }
-                advance(parser); // consume '='
-            
-                if (parser->currentToken.type == TOKEN_LBRACE) {
-                    size_t nestedCount = 0;
-                    DesignatedInit** nested = parseInitializerList(parser, parentType, &nestedCount);
-                    if (!nested) {
-                        printf("Error: Invalid compound initializer after [index] = at line %d\n",
-                                    parser->currentToken.line);
-                        free(values);
-                        return NULL; 
-                    }
-                    valueExpr = createCompoundInit(nested, nestedCount);
-                } else {
-                    valueExpr = parseAssignmentExpression(parser);
-                }
+                valueExpr = parseAssignmentExpression(parser);
             }
              
             if (!valueExpr) {
                 printf("Error: Invalid value expression at line %d\n", parser->currentToken.line);
+                freeInitializerPathSteps(steps, stepCount);
                 free(values);
                 return NULL; 
             }
 
-            init = createIndexedInit(indexExpr, valueExpr);
-            if (init && valueExpr->type == AST_COMPOUND_LITERAL) {
-                init->resetSubobjectBeforeStore = true;
+            init = createNestedDesignatorPath(steps,
+                                              stepCount,
+                                              valueExpr,
+                                              valueExpr->type == AST_COMPOUND_LITERAL);
+            freeInitializerPathSteps(steps, stepCount);
+            if (!init) {
+                free(values);
+                return NULL;
             }
             
         } else {

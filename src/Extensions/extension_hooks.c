@@ -24,6 +24,11 @@ void fisics_extension_state_destroy(FisicsExtensionState* state) {
         free(state->unitsAnnotations[i].canonicalText);
         free(state->unitsAnnotations[i].unitExprText);
     }
+    for (size_t i = 0; i < state->unitsExprBindingCount; ++i) {
+        if (state->unitsExprBindings[i].hasSymbolType) {
+            parsedTypeFree(&state->unitsExprBindings[i].symbolType);
+        }
+    }
     free(state->unitsAnnotations);
     free(state->unitsExprResults);
     free(state->unitsExprBindings);

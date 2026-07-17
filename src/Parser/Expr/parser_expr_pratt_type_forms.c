@@ -111,15 +111,21 @@ bool looksLikeParenTypeName(Parser* parser) {
     return ok;
 }
 
-ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
+ASTNode* parseCastExpressionPratt(Parser* parser,
+                                  bool alreadyConsumedLParen,
+                                  const Token* lparenToken) {
     PARSER_DEBUG_PRINTF("DEBUG: [Pratt] Entering parseCastExpressionPratt() with token '%s' (line %d)\n",
            parser->currentToken.value, parser->currentToken.line);
 
+    Token localLParen;
+    const Token* castToken = lparenToken;
     if (!alreadyConsumedLParen) {
         if (parser->currentToken.type != TOKEN_LPAREN) {
             printParseError("Expected '(' to start cast", parser);
             return NULL;
         }
+        localLParen = parser->currentToken;
+        castToken = &localLParen;
         advance(parser);
     }
 
@@ -149,7 +155,11 @@ ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
         return NULL;
     }
 
-    return createCastExpressionNode(castType, targetExpr);
+    ASTNode* cast = createCastExpressionNode(castType, targetExpr);
+    if (castToken) {
+        astNodeSetProvenance(cast, castToken);
+    }
+    return cast;
 }
 
 ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
@@ -189,42 +199,51 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
 
     DesignatedInit** items = NULL;
     size_t count = 0;
+    bool hadParserRecovery = false;
 
     while (parser->currentToken.type != TOKEN_RBRACE &&
            parser->currentToken.type != TOKEN_EOF) {
         DesignatedInit* di = NULL;
 
-        if (parser->currentToken.type == TOKEN_DOT) {
-            size_t fieldCount = 0;
-            size_t fieldCap = 4;
-            char** fieldNames = malloc(fieldCap * sizeof(char*));
-            if (!fieldNames) return NULL;
-
-            while (parser->currentToken.type == TOKEN_DOT) {
-                advance(parser);
-                if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-                    printParseError("Expected field name after '.' in designated initializer", parser);
-                    free(fieldNames);
-                    return NULL;
-                }
-                if (fieldCount >= fieldCap) {
-                    fieldCap *= 2;
-                    char** grown = realloc(fieldNames, fieldCap * sizeof(char*));
-                    if (!grown) {
-                        free(fieldNames);
-                        return NULL;
-                    }
-                    fieldNames = grown;
-                }
-                fieldNames[fieldCount++] = strdup(parser->currentToken.value);
-                advance(parser);
-            }
-
-            if (fieldCount == 0 || parser->currentToken.type != TOKEN_ASSIGN) {
-                printParseError("Expected '=' after field designator", parser);
-                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-                free(fieldNames);
+        if (parser->currentToken.type == TOKEN_DOT ||
+            parser->currentToken.type == TOKEN_LBRACKET) {
+            InitializerPathStep* steps = NULL;
+            size_t stepCount = 0;
+            if (!parseInitializerDesignatorPath(parser, &steps, &stepCount)) {
                 return NULL;
+            }
+            if (parser->currentToken.type != TOKEN_ASSIGN) {
+                printParseErrorAtTokenSpelling(
+                    "Expected '=' after initializer designator", parser);
+                freeInitializerPathSteps(steps, stepCount);
+                hadParserRecovery = true;
+                /* Keep the compound literal as the controlling grammar after
+                   a valid designator. Discard only this malformed initializer
+                   element, then resume at the next top-level comma or the
+                   closing brace so the declaration and following statements
+                   retain their provenance without generic parser cascades. */
+                int parenDepth = 0;
+                int bracketDepth = 0;
+                int braceDepth = 0;
+                while (parser->currentToken.type != TOKEN_EOF) {
+                    TokenType type = parser->currentToken.type;
+                    if (type == TOKEN_COMMA && parenDepth == 0 &&
+                        bracketDepth == 0 && braceDepth == 0) {
+                        advance(parser);
+                        break;
+                    }
+                    if (type == TOKEN_RBRACE && braceDepth == 0) {
+                        break;
+                    }
+                    if (type == TOKEN_LPAREN) ++parenDepth;
+                    else if (type == TOKEN_RPAREN && parenDepth > 0) --parenDepth;
+                    else if (type == TOKEN_LBRACKET) ++bracketDepth;
+                    else if (type == TOKEN_RBRACKET && bracketDepth > 0) --bracketDepth;
+                    else if (type == TOKEN_LBRACE) ++braceDepth;
+                    else if (type == TOKEN_RBRACE && braceDepth > 0) --braceDepth;
+                    advance(parser);
+                }
+                continue;
             }
             advance(parser);
 
@@ -233,8 +252,7 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
                 size_t nestedCount = 0;
                 DesignatedInit** nested = parseInitializerList(parser, literalType, &nestedCount);
                 if (!nested) {
-                    for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-                    free(fieldNames);
+                    freeInitializerPathSteps(steps, stepCount);
                     return NULL;
                 }
                 value = createCompoundInit(nested, nestedCount);
@@ -242,71 +260,17 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
                 value = parseExpressionPratt(parser, 0);
             }
             if (!value) {
-                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-                free(fieldNames);
+                freeInitializerPathSteps(steps, stepCount);
                 return NULL;
             }
 
-            if (fieldCount == 1) {
-                di = createDesignatedInit(fieldNames[0], value);
-                if (di && value->type == AST_COMPOUND_LITERAL) {
-                    di->resetSubobjectBeforeStore = true;
-                }
-            } else {
-                ASTNode* nestedExpr = value;
-                for (size_t i = fieldCount; i-- > 1;) {
-                    DesignatedInit* fieldInit = createDesignatedInit(fieldNames[i], nestedExpr);
-                    DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
-                    if (!fieldInit || !nestedEntries) {
-                        for (size_t j = 0; j < fieldCount; ++j) free(fieldNames[j]);
-                        free(fieldNames);
-                        return NULL;
-                    }
-                    if (value->type == AST_COMPOUND_LITERAL && i == fieldCount - 1) {
-                        fieldInit->resetSubobjectBeforeStore = true;
-                    }
-                    nestedEntries[0] = fieldInit;
-                    nestedExpr = createCompoundInit(nestedEntries, 1);
-                }
-                di = createDesignatedInit(fieldNames[0], nestedExpr);
-            }
-            for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-            free(fieldNames);
-            if (!di) return NULL;
-        } else if (parser->currentToken.type == TOKEN_LBRACKET) {
-            advance(parser);
-
-            ASTNode* idx = parseExpressionPratt(parser, 0);
-            if (!idx) return NULL;
-
-            if (parser->currentToken.type != TOKEN_RBRACKET) {
-                printParseError("Expected ']' after index designator", parser);
+            di = createNestedDesignatorPath(steps,
+                                            stepCount,
+                                            value,
+                                            value->type == AST_COMPOUND_LITERAL);
+            freeInitializerPathSteps(steps, stepCount);
+            if (!di) {
                 return NULL;
-            }
-            advance(parser);
-
-            if (parser->currentToken.type != TOKEN_ASSIGN) {
-                printParseError("Expected '=' after index designator", parser);
-                return NULL;
-            }
-            advance(parser);
-
-            ASTNode* value = NULL;
-            if (parser->currentToken.type == TOKEN_LBRACE) {
-                size_t nestedCount = 0;
-                DesignatedInit** nested = parseInitializerList(parser, literalType, &nestedCount);
-                if (!nested) return NULL;
-                value = createCompoundInit(nested, nestedCount);
-            } else {
-                value = parseExpressionPratt(parser, 0);
-            }
-            if (!value) return NULL;
-
-            di = createSimpleInit(value);
-            if (!di) return NULL;
-            di->indexExpr = idx;
-            if (value->type == AST_COMPOUND_LITERAL) {
-                di->resetSubobjectBeforeStore = true;
             }
         } else {
             ASTNode* value = NULL;
@@ -351,7 +315,11 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
     }
     advance(parser);
 
-    return createCompoundLiteralNode(literalType, items, count);
+    ASTNode* literal = createCompoundLiteralNode(literalType, items, count);
+    if (literal) {
+        literal->compoundLiteral.hadParserRecovery = hadParserRecovery;
+    }
+    return literal;
 }
 
 ASTNode* parseSizeofExpressionPratt(Parser* parser, const Token* sizeofToken) {
@@ -368,7 +336,11 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser, const Token* sizeofToken) {
             ParsedDeclarator probeDecl;
             if (parserParseDeclarator(&temp, &probeType, false, false, false, &probeDecl)) {
                 parserDeclaratorDestroy(&probeDecl);
-                looksLikeType = (temp.currentToken.type == TOKEN_RPAREN);
+                /* A valid type-name remains the controlling grammar even when
+                 * its closing ')' is malformed. Requiring the delimiter here
+                 * made the real parser fall back to expression grouping and
+                 * report the error at the first type token instead. */
+                looksLikeType = true;
             } else {
                 looksLikeType = false;
             }
@@ -395,12 +367,23 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser, const Token* sizeofToken) {
             parserDeclaratorDestroy(&abstractDecl);
             if (parser->currentToken.type != TOKEN_RPAREN) {
                 printParseError("Expected ')' after sizeof(type)", parser);
-                return NULL;
+                /* Keep the successfully parsed type operand as a recovery node.
+                 * The parser error remains fail-closed, while the enclosing
+                 * declaration can consume its own delimiter without adding a
+                 * second generic initializer diagnostic. */
+                ASTNode* node = createSizeofNode(createParsedTypeNode(realType));
+                if (node && sizeofToken) {
+                    astNodeSetProvenance(node, sizeofToken);
+                    node->location.end = parser->currentToken.location.start;
+                }
+                return node;
             }
+            SourceLocation sizeofEnd = parser->currentToken.location.end;
             advance(parser);
             ASTNode* node = createSizeofNode(createParsedTypeNode(realType));
             if (node && sizeofToken) {
                 astNodeSetProvenance(node, sizeofToken);
+                node->location.end = sizeofEnd;
             }
             return node;
         }

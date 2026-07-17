@@ -33,7 +33,12 @@ cat >"$header_src" <<'SRC'
 #define VALUE 1
 SRC
 
-"$BIN" --emit-diags-json "$json_path" -I"$tmpdir" "$main_src" >/dev/null 2>&1 || true
+compiler_status=0
+"$BIN" --emit-diags-json "$json_path" -I"$tmpdir" "$main_src" >/dev/null 2>&1 || compiler_status=$?
+if [ "$compiler_status" -ne 1 ]; then
+  echo "expected compiler exit 1 for malformed included header; got $compiler_status" >&2
+  exit 1
+fi
 
 python3 - "$json_path" "$main_src" "$header_src" <<'PY'
 import json

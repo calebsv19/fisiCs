@@ -68,7 +68,7 @@ static bool cloneParsedTypeArray(ParsedType** outItems,
     return true;
 }
 
-static void refreshFunctionFlags(ParsedType* t);
+void parsedTypeRefreshFunctionFlags(ParsedType* t);
 static const TypeDerivation* findFirstFunctionDerivation(const ParsedType* t);
 static size_t countFunctionDerivations(const ParsedType* t);
 static bool parsedTypeCloneInto(ParsedType* dst, const ParsedType* src);
@@ -152,12 +152,17 @@ bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA) 
     return true;
 }
 
-bool parsedTypeAppendFunction(ParsedType* t, const ParsedType* params, size_t paramCount, bool isVariadic) {
+bool parsedTypeAppendFunction(ParsedType* t,
+                              const ParsedType* params,
+                              size_t paramCount,
+                              bool isVariadic,
+                              bool hasPrototype) {
     if (!ensureDerivationCapacity(t, 1)) {
         return false;
     }
     TypeDerivation* slot = &t->derivations[t->derivationCount];
     slot->kind = TYPE_DERIVATION_FUNCTION;
+    slot->as.function.hasPrototype = hasPrototype;
     slot->as.function.isVariadic = isVariadic;
     slot->as.function.paramCount = paramCount;
     slot->as.function.params = NULL;
@@ -220,6 +225,7 @@ static bool cloneDerivationInto(TypeDerivation* dst, const TypeDerivation* src) 
             dst->as.array.qualRestrict = src->as.array.qualRestrict;
             return true;
         case TYPE_DERIVATION_FUNCTION:
+            dst->as.function.hasPrototype = src->as.function.hasPrototype;
             dst->as.function.isVariadic = src->as.function.isVariadic;
             dst->as.function.paramCount = 0;
             dst->as.function.params = NULL;
@@ -347,6 +353,37 @@ bool parsedTypeAdjustArrayParameter(ParsedType* t) {
     return true;
 }
 
+bool parsedTypeAdjustFunctionParameter(ParsedType* t) {
+    if (!t) {
+        return false;
+    }
+
+    bool changed = parsedTypeAdjustArrayParameter(t);
+    if (t->derivationCount == 0 || !t->derivations ||
+        t->derivations[0].kind != TYPE_DERIVATION_FUNCTION) {
+        return changed;
+    }
+
+    TypeDerivation* grown = realloc(
+        t->derivations,
+        (t->derivationCount + 1) * sizeof(TypeDerivation));
+    if (!grown) {
+        return changed;
+    }
+    t->derivations = grown;
+    memmove(t->derivations + 1,
+            t->derivations,
+            t->derivationCount * sizeof(TypeDerivation));
+    memset(&t->derivations[0], 0, sizeof(TypeDerivation));
+    t->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    t->derivationCount++;
+    t->pointerDepth++;
+    t->directlyDeclaresFunction = false;
+    t->isFunctionPointer = true;
+    parsedTypeNormalizeFunctionPointer(t);
+    return true;
+}
+
 ParsedType parsedTypeArrayElementType(const ParsedType* t) {
     ParsedType element = parsedTypeClone(t);
     if (!parsedTypeIsDirectArray(&element)) {
@@ -362,7 +399,7 @@ ParsedType parsedTypeArrayElementType(const ParsedType* t) {
         free(element.derivations);
         element.derivations = NULL;
     }
-    refreshFunctionFlags(&element);
+    parsedTypeRefreshFunctionFlags(&element);
     return element;
 }
 
@@ -400,7 +437,7 @@ ParsedType parsedTypePointerTargetType(const ParsedType* t) {
         copy.tag = TAG_NONE;
         return copy;
     }
-    refreshFunctionFlags(&copy);
+    parsedTypeRefreshFunctionFlags(&copy);
     return copy;
 }
 
@@ -443,7 +480,7 @@ ParsedType parsedTypeFunctionReturnType(const ParsedType* t) {
         int dec = (int)removedPointers;
         copy.pointerDepth = copy.pointerDepth > dec ? (copy.pointerDepth - dec) : 0;
     }
-    refreshFunctionFlags(&copy);
+    parsedTypeRefreshFunctionFlags(&copy);
     return copy;
 }
 
@@ -545,7 +582,7 @@ ParsedType parsedTypeDeclaredFunctionReturnType(const ParsedType* t) {
         }
     }
 
-    refreshFunctionFlags(&copy);
+    parsedTypeRefreshFunctionFlags(&copy);
     return copy;
 }
 
@@ -634,10 +671,12 @@ static size_t countFunctionDerivations(const ParsedType* t) {
 bool parsedTypeGetEffectiveFunctionPointerSignature(const ParsedType* t,
                                                     const ParsedType** params,
                                                     size_t* count,
-                                                    bool* isVariadic) {
+                                                    bool* isVariadic,
+                                                    bool* hasPrototype) {
     if (params) *params = NULL;
     if (count) *count = 0;
     if (isVariadic) *isVariadic = false;
+    if (hasPrototype) *hasPrototype = false;
     if (!t || !t->isFunctionPointer) {
         return false;
     }
@@ -645,6 +684,12 @@ bool parsedTypeGetEffectiveFunctionPointerSignature(const ParsedType* t,
     if (t->fpParams || t->fpParamCount > 0) {
         if (params) *params = t->fpParams;
         if (count) *count = t->fpParamCount;
+        const TypeDerivation* func = findFirstFunctionDerivation(t);
+        if (hasPrototype) {
+            *hasPrototype = func ? func->as.function.hasPrototype
+                                 : t->fpParamCount > 0;
+        }
+        if (isVariadic && func) *isVariadic = func->as.function.isVariadic;
         return true;
     }
 
@@ -653,6 +698,7 @@ bool parsedTypeGetEffectiveFunctionPointerSignature(const ParsedType* t,
         if (params) *params = func->as.function.params;
         if (count) *count = func->as.function.paramCount;
         if (isVariadic) *isVariadic = func->as.function.isVariadic;
+        if (hasPrototype) *hasPrototype = func->as.function.hasPrototype;
         return true;
     }
 
@@ -665,7 +711,7 @@ static bool namesEqual(const char* a, const char* b) {
     return strcmp(a, b) == 0;
 }
 
-static void refreshFunctionFlags(ParsedType* t) {
+void parsedTypeRefreshFunctionFlags(ParsedType* t) {
     if (!t) return;
     t->isFunctionPointer = false;
     t->directlyDeclaresFunction = false;
@@ -716,12 +762,17 @@ bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b) {
         size_t rhsCount = 0;
         bool lhsVariadic = false;
         bool rhsVariadic = false;
-        bool lhsHave = parsedTypeGetEffectiveFunctionPointerSignature(a, &lhsParams, &lhsCount, &lhsVariadic);
-        bool rhsHave = parsedTypeGetEffectiveFunctionPointerSignature(b, &rhsParams, &rhsCount, &rhsVariadic);
+        bool lhsPrototype = false;
+        bool rhsPrototype = false;
+        bool lhsHave = parsedTypeGetEffectiveFunctionPointerSignature(
+            a, &lhsParams, &lhsCount, &lhsVariadic, &lhsPrototype);
+        bool rhsHave = parsedTypeGetEffectiveFunctionPointerSignature(
+            b, &rhsParams, &rhsCount, &rhsVariadic, &rhsPrototype);
         if (lhsHave != rhsHave) return false;
         if (lhsHave) {
             if (lhsCount != rhsCount) return false;
             if (lhsVariadic != rhsVariadic) return false;
+            if (lhsPrototype != rhsPrototype) return false;
             for (size_t i = 0; i < lhsCount; ++i) {
                 if (!parsedTypesStructurallyEqual(&lhsParams[i], &rhsParams[i])) {
                     return false;
@@ -754,6 +805,7 @@ bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b) {
                 if (lhs->as.array.isVLA != rhs->as.array.isVLA) return false;
                 break;
             case TYPE_DERIVATION_FUNCTION:
+                if (lhs->as.function.hasPrototype != rhs->as.function.hasPrototype) return false;
                 if (lhs->as.function.isVariadic != rhs->as.function.isVariadic) return false;
                 if (lhs->as.function.paramCount != rhs->as.function.paramCount) return false;
                 for (size_t p = 0; p < lhs->as.function.paramCount; ++p) {

@@ -12,7 +12,7 @@ TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
 "$BIN" '-DVK_RENDERER_SHADER_ROOT=\"$(VK_RENDERER_RESOLVED_DIR)\"' \
-  '-DVK_RENDERER_SHADER_ROOT=\"/Users/calebsv/Desktop/CodeWork/shared/vk_renderer\"' \
+  '-DVK_RENDERER_SHADER_ROOT=\"/workspace/codework/shared/vk_renderer\"' \
   tests/preprocessor/cli_define_string_macro_escaped.c >"$TMP_OUTPUT" 2>&1
 
 if grep -Fq "Unexpected token at start of expression" "$TMP_OUTPUT"; then

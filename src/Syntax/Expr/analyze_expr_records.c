@@ -16,7 +16,7 @@ static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
         return NULL;
     }
     CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
-    ASTNode* def = NULL;
+    ASTNode* def = (ASTNode*)base->recordDefinition;
     if (base->originalType && base->originalType->inlineStructOrUnionDef) {
         def = base->originalType->inlineStructOrUnionDef;
     }
@@ -29,17 +29,34 @@ static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
             if (typeSym->type.inlineStructOrUnionDef) {
                 def = typeSym->type.inlineStructOrUnionDef;
             } else if (typeSym->type.userTypeName) {
-                CCTagKind symKind = kind;
-                if (typeSym->type.kind == TYPE_STRUCT) {
-                    symKind = CC_TAG_STRUCT;
-                } else if (typeSym->type.kind == TYPE_UNION) {
-                    symKind = CC_TAG_UNION;
+                Symbol* tagSym = resolveTagInScopeChain(scope, typeSym->type.userTypeName);
+                if (tagSym && tagSym->definition) {
+                    def = tagSym->definition;
+                } else {
+                    CCTagKind symKind = kind;
+                    if (typeSym->type.kind == TYPE_STRUCT) {
+                        symKind = CC_TAG_STRUCT;
+                    } else if (typeSym->type.kind == TYPE_UNION) {
+                        symKind = CC_TAG_UNION;
+                    }
+                    def = cc_tag_definition(scope->ctx, symKind, typeSym->type.userTypeName);
                 }
-                def = cc_tag_definition(scope->ctx, symKind, typeSym->type.userTypeName);
             }
         }
     }
+    if (!def && base->originalType && base->originalType->userTypeName) {
+        Symbol* tagSym = resolveTagInScopeChain(scope, base->originalType->userTypeName);
+        if (tagSym && tagSym->definition) {
+            def = tagSym->definition;
+        }
+    }
     if (base->userTypeName) {
+        if (!def) {
+            Symbol* tagSym = resolveTagInScopeChain(scope, base->userTypeName);
+            if (tagSym && tagSym->definition) {
+                def = tagSym->definition;
+            }
+        }
         if (!def) {
             def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
         }
@@ -253,6 +270,99 @@ const CCTagFieldLayout* analyzeExprLookupFieldLayout(const TypeInfo* base,
     return NULL;
 }
 
+static bool fieldDeclIsAnonymousAggregate(ASTNode* field) {
+    if (!field || field->type != AST_VARIABLE_DECLARATION) {
+        return false;
+    }
+    return field->varDecl.varCount == 0 ||
+           (field->varDecl.varCount == 1 &&
+            field->varDecl.varNames &&
+            field->varDecl.varNames[0] == NULL);
+}
+
+static size_t fieldDeclLayoutSlotCount(ASTNode* field) {
+    if (!field || field->type != AST_VARIABLE_DECLARATION) {
+        return 0;
+    }
+    return field->varDecl.varCount > 0 ? field->varDecl.varCount : 1;
+}
+
+static bool lookupFieldLayoutValue(const TypeInfo* base,
+                                   const char* fieldName,
+                                   Scope* scope,
+                                   CCTagFieldLayout* outLayout) {
+    if (!base || !fieldName || !scope || !scope->ctx || !outLayout) {
+        return false;
+    }
+    if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
+        return false;
+    }
+
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    if (base->userTypeName) {
+        if (!cc_tag_is_defined(scope->ctx, kind, base->userTypeName) &&
+            base->originalType &&
+            base->originalType->inlineStructOrUnionDef) {
+            ASTNode* def = base->originalType->inlineStructOrUnionDef;
+            bool kindMatches =
+                (kind == CC_TAG_STRUCT && def->type == AST_STRUCT_DEFINITION) ||
+                (kind == CC_TAG_UNION && def->type == AST_UNION_DEFINITION);
+            if (kindMatches) {
+                (void)cc_define_tag(scope->ctx, kind, base->userTypeName, 0, def);
+            }
+        }
+        size_t sz = 0, al = 0;
+        (void)layout_struct_union(scope->ctx, scope, kind, base->userTypeName, &sz, &al);
+        if (cc_get_tag_field_layouts(scope->ctx, kind, base->userTypeName, &layouts, &count) &&
+            layouts) {
+            for (size_t i = 0; i < count; ++i) {
+                const CCTagFieldLayout* lay = &layouts[i];
+                if (lay->name && strcmp(lay->name, fieldName) == 0) {
+                    *outLayout = *lay;
+                    return true;
+                }
+            }
+        }
+    }
+
+    ASTNode* def = resolveRecordDefinition(base, scope);
+    if (!def) {
+        return false;
+    }
+
+    size_t layoutIndex = 0;
+    for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
+        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        size_t slotCount = fieldDeclLayoutSlotCount(field);
+        const CCTagFieldLayout* parentLay =
+            (layouts && layoutIndex < count) ? &layouts[layoutIndex] : NULL;
+        layoutIndex += slotCount;
+
+        if (!fieldDeclIsAnonymousAggregate(field)) {
+            continue;
+        }
+        const ParsedType* anonType = &field->varDecl.declaredType;
+        profiler_record_value("semantic_count_type_info_temp_record_anon_layout_value", 1);
+        TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
+        if (anonInfo.category != TYPEINFO_STRUCT && anonInfo.category != TYPEINFO_UNION) {
+            continue;
+        }
+        CCTagFieldLayout nested = {0};
+        if (lookupFieldLayoutValue(&anonInfo, fieldName, scope, &nested)) {
+            nested.byteOffset += parentLay ? parentLay->byteOffset : 0;
+            *outLayout = nested;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool evalOffsetofFieldPath(const ParsedType* baseType,
                            const char* fieldPath,
                            Scope* scope,
@@ -285,17 +395,17 @@ bool evalOffsetofFieldPath(const ParsedType* baseType,
         memcpy(segment, cursor, segLen);
         segment[segLen] = '\0';
 
-        const CCTagFieldLayout* lay = analyzeExprLookupFieldLayout(&current, segment, scope);
-        if (!lay) {
+        CCTagFieldLayout lay = {0};
+        if (!lookupFieldLayoutValue(&current, segment, scope, &lay)) {
             free(segment);
             return false;
         }
-        if (lay->isBitfield && !lay->isZeroWidth) {
+        if (lay.isBitfield && !lay.isZeroWidth) {
             if (bitfieldOut) *bitfieldOut = true;
             free(segment);
             return false;
         }
-        totalOffset += lay->byteOffset;
+        totalOffset += lay.byteOffset;
 
         if (!dot) {
             free(segment);

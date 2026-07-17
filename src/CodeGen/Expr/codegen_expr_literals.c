@@ -179,6 +179,7 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
 
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
     const ParsedType* parsed = NULL;
+    LLVMTypeRef declarationTypeHint = NULL;
     if (node->expr.left) {
         ASTNode* operand = node->expr.left;
         if (operand->type == AST_STRING_LITERAL) {
@@ -224,10 +225,45 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
             parsed = &operand->parsedTypeNode.parsed;
         } else {
             parsed = cg_resolve_expression_type(ctx, operand);
+            if (operand->type == AST_IDENTIFIER) {
+                NamedValue* entry =
+                    cg_scope_lookup(ctx->currentScope, operand->valueNode.value);
+                if (entry) {
+                    declarationTypeHint = entry->type;
+                }
+            } else if (((operand->type == AST_POINTER_DEREFERENCE &&
+                         operand->pointerDeref.pointer &&
+                         operand->pointerDeref.pointer->type == AST_IDENTIFIER) ||
+                        (operand->type == AST_UNARY_EXPRESSION &&
+                         operand->expr.op && strcmp(operand->expr.op, "*") == 0 &&
+                         operand->expr.left &&
+                         operand->expr.left->type == AST_IDENTIFIER))) {
+                ASTNode* pointerNode = operand->type == AST_POINTER_DEREFERENCE
+                    ? operand->pointerDeref.pointer
+                    : operand->expr.left;
+                NamedValue* entry = cg_scope_lookup(
+                    ctx->currentScope,
+                    pointerNode->valueNode.value);
+                if (entry) {
+                    declarationTypeHint = entry->elementType;
+                }
+            }
         }
     }
 
     if (parsed) {
+        ParsedType expandedParsed;
+        memset(&expandedParsed, 0, sizeof(expandedParsed));
+        expandedParsed.kind = TYPE_INVALID;
+        bool expandedOwned = false;
+        const ParsedType* resolvedParsed = cg_resolve_typedef_parsed_type(ctx, parsed);
+        if (resolvedParsed) {
+            parsed = resolvedParsed;
+        }
+        if (cg_expand_surface_typedef_parsed_type(ctx, parsed, &expandedParsed)) {
+            parsed = &expandedParsed;
+            expandedOwned = true;
+        }
         if (parsedTypeHasVLA(parsed)) {
             LLVMValueRef elementCount = NULL;
             if (node->expr.left && node->expr.left->type == AST_IDENTIFIER && ctx->currentScope) {
@@ -239,24 +275,38 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
             if (!elementCount) {
                 elementCount = computeVLAElementCount(ctx, parsed);
             }
-            if (!elementCount) return NULL;
+            if (!elementCount) {
+                if (expandedOwned) parsedTypeFree(&expandedParsed);
+                return NULL;
+            }
             elementCount = ensureIntegerLike(ctx, elementCount);
-            if (!elementCount) return NULL;
+            if (!elementCount) {
+                if (expandedOwned) parsedTypeFree(&expandedParsed);
+                return NULL;
+            }
             LLVMTypeRef elemType = vlaInnermostElementLLVM(ctx, parsed);
             unsigned long long elemSize = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), elemType);
             LLVMValueRef elemSizeVal = LLVMConstInt(intptrTy, elemSize, 0);
-            return LLVMBuildMul(ctx->builder, elementCount, elemSizeVal, "sizeof.vla");
+            LLVMValueRef result = LLVMBuildMul(ctx->builder, elementCount, elemSizeVal, "sizeof.vla");
+            if (expandedOwned) parsedTypeFree(&expandedParsed);
+            return result;
         }
 
         LLVMTypeRef ty = cg_type_from_parsed(ctx, parsed);
+        if (declarationTypeHint &&
+            LLVMGetTypeKind(declarationTypeHint) != LLVMVoidTypeKind) {
+            ty = declarationTypeHint;
+        }
         if (!ty || LLVMGetTypeKind(ty) == LLVMVoidTypeKind) {
             ty = LLVMInt32TypeInContext(ctx->llvmContext);
         }
         uint64_t semanticSize = 0;
         if (cg_size_align_for_type(ctx, parsed, ty, &semanticSize, NULL) && semanticSize > 0) {
+            if (expandedOwned) parsedTypeFree(&expandedParsed);
             return LLVMConstInt(intptrTy, semanticSize, 0);
         }
         unsigned long long abiSize = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), ty);
+        if (expandedOwned) parsedTypeFree(&expandedParsed);
         return LLVMConstInt(intptrTy, abiSize, 0);
     }
 

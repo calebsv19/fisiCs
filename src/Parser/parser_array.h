@@ -11,6 +11,16 @@
 #include "Lexer/tokens.h"
 #include "Lexer/lexer.h"
 
+typedef struct InitializerPathStep InitializerPathStep;
+
+void freeInitializerPathSteps(InitializerPathStep* steps, size_t count);
+bool parseInitializerDesignatorPath(Parser* parser,
+                                    InitializerPathStep** outSteps,
+                                    size_t* outCount);
+DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
+                                           size_t stepCount,
+                                           ASTNode* expr,
+                                           bool resetInnermostSubobject);
 
 // Initializer list (used for both arrays and structs)
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount);

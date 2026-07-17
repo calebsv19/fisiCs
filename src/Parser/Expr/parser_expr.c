@@ -453,6 +453,7 @@ ASTNode* parseCastExpression(Parser* parser) {
         printParseError("Expected '(' at start of cast", parser);
         return NULL;
     }
+    Token castToken = parser->currentToken;
     advance(parser); // consume '('
 
     // Parse the cast type inside the parentheses
@@ -487,7 +488,9 @@ ASTNode* parseCastExpression(Parser* parser) {
         return NULL;
     }
 
-    return createCastExpressionNode(castType, targetExpr);
+    ASTNode* cast = createCastExpressionNode(castType, targetExpr);
+    astNodeSetProvenance(cast, &castToken);
+    return cast;
 }
 
 

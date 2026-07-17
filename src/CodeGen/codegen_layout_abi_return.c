@@ -108,6 +108,25 @@ bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef 
     return size > 16u;
 }
 
+bool cg_should_direct_aggregate_result_to_destination(CodegenContext* ctx,
+                                                      const ParsedType* parsedType,
+                                                      LLVMTypeRef returnType) {
+    if (!cg_should_lower_indirect_aggregate_return(ctx, returnType)) {
+        return false;
+    }
+    if (cg_aggregate_type_contains_union(ctx, parsedType, returnType)) {
+        return true;
+    }
+    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (!td || !LLVMTypeIsSized(returnType)) {
+        return false;
+    }
+    /* Direct destination lowering avoids backend-scale aggregate SSA for
+       production scene records, but ordinary ABI aggregates retain the
+       established temporary/copy path. */
+    return LLVMABISizeOfType(td, returnType) >= 4096u;
+}
+
 LLVMValueRef cg_pack_aggregate_for_abi_return(CodegenContext* ctx,
                                               LLVMValueRef value,
                                               LLVMTypeRef packedType,

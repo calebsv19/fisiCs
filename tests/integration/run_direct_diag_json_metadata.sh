@@ -39,8 +39,18 @@ cat >"$cross_lib" <<'SRC'
 long shared_value = 2;
 SRC
 
-"$BIN" --emit-diags-json "$link_json" "$link_main" "$link_lib" -o "$tmpdir/link_out" >/dev/null 2>&1 || true
-"$BIN" --emit-diags-json "$cross_json" "$cross_main" "$cross_lib" -o "$tmpdir/cross_out" >/dev/null 2>&1 || true
+link_status=0
+"$BIN" --emit-diags-json "$link_json" "$link_main" "$link_lib" -o "$tmpdir/link_out" >/dev/null 2>&1 || link_status=$?
+if [ "$link_status" -ne 1 ]; then
+  echo "expected compiler exit 1 for duplicate-definition link failure; got $link_status" >&2
+  exit 1
+fi
+cross_status=0
+"$BIN" --emit-diags-json "$cross_json" "$cross_main" "$cross_lib" -o "$tmpdir/cross_out" >/dev/null 2>&1 || cross_status=$?
+if [ "$cross_status" -ne 1 ]; then
+  echo "expected compiler exit 1 for cross-TU type conflict; got $cross_status" >&2
+  exit 1
+fi
 
 python3 - "$link_json" "$cross_json" <<'PY'
 import json

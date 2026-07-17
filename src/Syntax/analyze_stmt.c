@@ -28,6 +28,7 @@ typedef struct {
     unsigned originalSwitchBits;
     bool originalSwitchIsUnsigned;
     bool hasOriginalSwitchType;
+    Scope* scope;
 } SwitchFrame;
 
 #define SWITCH_STACK_MAX 32
@@ -36,6 +37,76 @@ typedef struct {
     SwitchFrame frames[SWITCH_STACK_MAX];
     int depth;
 } SwitchStack;
+
+static SourceRange expressionCoveringRange(ASTNode* expr) {
+    if (!expr) return (SourceRange){0};
+    SourceRange range = expr->location;
+    ASTNode* children[3] = {0};
+    size_t childCount = 0;
+    if (expr->type == AST_BINARY_EXPRESSION) {
+        children[childCount++] = expr->expr.left;
+        children[childCount++] = expr->expr.right;
+    } else if (expr->type == AST_TERNARY_EXPRESSION) {
+        children[childCount++] = expr->ternaryExpr.condition;
+        children[childCount++] = expr->ternaryExpr.trueExpr;
+        children[childCount++] = expr->ternaryExpr.falseExpr;
+    } else if (expr->type == AST_UNARY_EXPRESSION ||
+               expr->type == AST_CAST_EXPRESSION) {
+        children[childCount++] = expr->type == AST_CAST_EXPRESSION
+                                     ? expr->castExpr.expression
+                                     : expr->expr.left;
+    }
+
+    for (size_t i = 0; i < childCount; ++i) {
+        SourceRange child = expressionCoveringRange(children[i]);
+        if (!child.start.file) continue;
+        if (!range.start.file) {
+            range = child;
+            continue;
+        }
+        if (strcmp(range.start.file, child.start.file) != 0 ||
+            range.start.line != child.start.line ||
+            range.end.line != child.end.line) {
+            continue;
+        }
+        if (child.start.column < range.start.column) range.start = child.start;
+        if (child.end.column > range.end.column) range.end = child.end;
+    }
+    return range;
+}
+
+static bool expressionContainsVlaSizeof(ASTNode* expr, Scope* scope) {
+    if (!expr || !scope) return false;
+    if (expr->type == AST_SIZEOF && expr->expr.left) {
+        ASTNode* operand = expr->expr.left;
+        if (operand->type == AST_PARSED_TYPE) {
+            return parsedTypeHasVLA(&operand->parsedTypeNode.parsed);
+        }
+        if (operand->type == AST_IDENTIFIER && operand->valueNode.value) {
+            Symbol* sym = resolveInScopeChain(scope, operand->valueNode.value);
+            return sym && parsedTypeHasVLA(&sym->type);
+        }
+        TypeInfo info = analyzeExpression(operand, scope);
+        return info.isVLA ||
+               (info.originalType && parsedTypeHasVLA(info.originalType));
+    }
+    if (expr->type == AST_BINARY_EXPRESSION) {
+        return expressionContainsVlaSizeof(expr->expr.left, scope) ||
+               expressionContainsVlaSizeof(expr->expr.right, scope);
+    }
+    if (expr->type == AST_TERNARY_EXPRESSION) {
+        return expressionContainsVlaSizeof(expr->ternaryExpr.condition, scope) ||
+               expressionContainsVlaSizeof(expr->ternaryExpr.trueExpr, scope) ||
+               expressionContainsVlaSizeof(expr->ternaryExpr.falseExpr, scope);
+    }
+    if (expr->type == AST_UNARY_EXPRESSION) {
+        return expressionContainsVlaSizeof(expr->expr.left, scope);
+    }
+    if (expr->type == AST_CAST_EXPRESSION) {
+        return expressionContainsVlaSizeof(expr->castExpr.expression, scope);
+    }
+    return false;
+}
 
 static void switchFrameFree(SwitchFrame* frame) {
     if (!frame) return;
@@ -53,9 +124,10 @@ static void switchFrameFree(SwitchFrame* frame) {
     frame->originalSwitchBits = 0;
     frame->originalSwitchIsUnsigned = false;
     frame->hasOriginalSwitchType = false;
+    frame->scope = NULL;
 }
 
-static SwitchFrame* pushSwitchFrame(SwitchStack* stack) {
+static SwitchFrame* pushSwitchFrame(SwitchStack* stack, Scope* scope) {
     if (!stack || stack->depth >= SWITCH_STACK_MAX) {
         return NULL;
     }
@@ -72,7 +144,22 @@ static SwitchFrame* pushSwitchFrame(SwitchStack* stack) {
     frame->originalSwitchBits = 0;
     frame->originalSwitchIsUnsigned = false;
     frame->hasOriginalSwitchType = false;
+    frame->scope = scope;
     return frame;
+}
+
+static const char* variablyModifiedNameBetweenScopes(Scope* scope, Scope* stopScope) {
+    for (Scope* current = scope; current && current != stopScope; current = current->parent) {
+        for (size_t bucket = 0; bucket < SYMBOL_TABLE_SIZE; ++bucket) {
+            for (Symbol* sym = current->table.buckets[bucket]; sym; sym = sym->next) {
+                if ((sym->kind == SYMBOL_VARIABLE || sym->kind == SYMBOL_TYPEDEF) &&
+                    (sym->type.isVLA || parsedTypeHasVLA(&sym->type))) {
+                    return sym->name;
+                }
+            }
+        }
+    }
+    return NULL;
 }
 
 static void popSwitchFrame(SwitchStack* stack) {
@@ -185,12 +272,12 @@ static bool labelTrackerRecord(LabelTracker* tracker,
 static bool isDeclarationStatementType(ASTNodeType type) {
     switch (type) {
         case AST_VARIABLE_DECLARATION:
+        case AST_FUNCTION_DECLARATION:
         case AST_STRUCT_DEFINITION:
         case AST_UNION_DEFINITION:
         case AST_ENUM_DEFINITION:
         case AST_TYPEDEF:
         case AST_STATIC_ASSERT:
-        case AST_FUNCTION_DECLARATION:
             return true;
         default:
             return false;
@@ -391,7 +478,7 @@ static void analyzeStatementInternal(ASTNode* node,
 
         case AST_SWITCH: {
             analyzeControlCondition(node->switchStmt.condition, node, scope, true, "switch");
-            SwitchFrame* frame = pushSwitchFrame(switchStack);
+            SwitchFrame* frame = pushSwitchFrame(switchStack, scope);
             if (frame && node->switchStmt.condition) {
                 TypeInfo originalSwitchType = switchOriginalConditionType(node->switchStmt.condition, scope);
                 if (typeInfoIsInteger(&originalSwitchType)) {
@@ -417,6 +504,33 @@ static void analyzeStatementInternal(ASTNode* node,
         }
 
         case AST_CASE:
+            if (switchStack && switchStack->depth > 0) {
+                SwitchFrame* frame = &switchStack->frames[switchStack->depth - 1];
+                const char* bypassed = variablyModifiedNameBetweenScopes(scope, frame->scope);
+                if (bypassed) {
+                    char hint[256];
+                    if (node->caseStmt.caseValue) {
+                        ConstEvalResult caseValue =
+                            constEvalIntegerResult(node->caseStmt.caseValue, scope, true);
+                        if (caseValue.isConst) {
+                            snprintf(hint,
+                                     sizeof(hint),
+                                     "case %lld bypasses %s",
+                                     caseValue.value,
+                                     bypassed);
+                        } else {
+                            snprintf(hint, sizeof(hint), "case label bypasses %s", bypassed);
+                        }
+                    } else {
+                        snprintf(hint, sizeof(hint), "default label bypasses %s", bypassed);
+                    }
+                    addErrorWithRanges(node->location,
+                                       node->macroCallSite,
+                                       node->macroDefinition,
+                                       "switch dispatch jumps into scope of variably modified declaration",
+                                       hint);
+                }
+            }
             if (node->caseStmt.caseBodySize > 0 &&
                 node->caseStmt.caseBody &&
                 node->caseStmt.caseBody[0] &&
@@ -428,15 +542,22 @@ static void analyzeStatementInternal(ASTNode* node,
                                    NULL);
             }
             if (node->caseStmt.caseValue) {
+                node->caseStmt.hasAnalyzedConstValue = false;
                 analyze(node->caseStmt.caseValue, scope);
-                ConstEvalResult res = constEval(node->caseStmt.caseValue, scope, true);
+                ConstEvalResult res = constEvalIntegerResult(node->caseStmt.caseValue, scope, true);
                 if (!res.isConst) {
-                    addErrorWithRanges(node->caseStmt.caseValue->location,
+                    SourceRange caseRange =
+                        expressionContainsVlaSizeof(node->caseStmt.caseValue, scope)
+                            ? expressionCoveringRange(node->caseStmt.caseValue)
+                            : node->caseStmt.caseValue->location;
+                    addErrorWithRanges(caseRange,
                                        node->caseStmt.caseValue->macroCallSite,
                                        node->caseStmt.caseValue->macroDefinition,
                                        "Case label is not an integer constant expression",
                                        NULL);
                 } else if (switchStack && switchStack->depth > 0) {
+                    node->caseStmt.analyzedConstValue = res.value;
+                    node->caseStmt.hasAnalyzedConstValue = true;
                     SwitchFrame* frame = &switchStack->frames[switchStack->depth - 1];
                     if (frame->hasOriginalSwitchType) {
                         long long converted =
@@ -514,7 +635,14 @@ static void analyzeStatementInternal(ASTNode* node,
                                            "Duplicate default label in switch",
                                            NULL);
                         if (frame->defaultLoc.start.line > 0) {
-                            addWarning(frame->defaultLoc.start.line, 0, "Previous default label is here", NULL);
+                            SourceRange previousDefault = frame->defaultLoc;
+                            previousDefault.start.column = 0;
+                            previousDefault.end.column = 0;
+                            addWarningWithRanges(previousDefault,
+                                                 (SourceRange){0},
+                                                 (SourceRange){0},
+                                                 "Previous default label is here",
+                                                 NULL);
                         }
                     } else {
                         frame->hasDefault = true;
@@ -581,6 +709,7 @@ static void analyzeStatementInternal(ASTNode* node,
             break;
 
         case AST_VARIABLE_DECLARATION:
+        case AST_FUNCTION_DECLARATION:
         case AST_STRUCT_DEFINITION:
         case AST_UNION_DEFINITION:
         case AST_ENUM_DEFINITION:
@@ -623,6 +752,28 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
     SwitchStack stack = {0};
     LabelTracker labels = {0};
     analyzeStatementInternal(node, scope, &stack, &labels, 0);
+    free(labels.names);
+    free(labels.locations);
+    profiler_end(stmtScope);
+}
+
+void analyzeFunctionBody(ASTNode* node, Scope* scope) {
+    if (!node || node->type != AST_BLOCK) {
+        analyzeStatement(node, scope);
+        return;
+    }
+
+    ProfilerScope stmtScope = profiler_begin("semantic_analyze_function_body");
+    profiler_record_value("semantic_count_analyze_statement", 1);
+    SwitchStack stack = {0};
+    LabelTracker labels = {0};
+    for (size_t i = 0; i < node->block.statementCount; ++i) {
+        analyzeStatementInternal(node->block.statements[i],
+                                 scope,
+                                 &stack,
+                                 &labels,
+                                 0);
+    }
     free(labels.names);
     free(labels.locations);
     profiler_end(stmtScope);

@@ -307,7 +307,9 @@ static ASTNode* nud(Parser* parser, Token token) {
     }
 
     if (typeForm == PARENTHESIZED_TYPE_FORM_CAST) {
-        return parseCastExpressionPratt(parser, /*alreadyConsumedLParen=*/true);
+        return parseCastExpressionPratt(parser,
+                                        /*alreadyConsumedLParen=*/true,
+                                        &token);
     }
 
     if (parser->currentToken.type == TOKEN_LBRACE) {

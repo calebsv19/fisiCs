@@ -18,6 +18,9 @@ typedef struct {
     int line;
     int lineStart;
     int fatalErrorCount;
+    const char* rawSource;  // original source before phase-1/phase-2 translation
+    int* rawLineMap;        // translated position -> original physical line
+    int* rawColumnMap;      // translated position -> original physical column
     char* ownedSource;   // translated buffer (trigraph/digraph), owned if non-NULL
     bool enableTrigraphs;
 } Lexer;

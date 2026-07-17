@@ -4,9 +4,56 @@
 #include "codegen_types.h"
 #include "Syntax/symbol_table.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static bool cg_decl_attr_payload_has_word(const char* payload, const char* word) {
+    if (!payload || !word || !word[0]) return false;
+    size_t wordLength = strlen(word);
+    const char* match = payload;
+    while ((match = strstr(match, word)) != NULL) {
+        char left = (match == payload) ? '\0' : match[-1];
+        char right = match[wordLength];
+        bool leftBoundary = left == '\0' ||
+                            (!isalnum((unsigned char)left) && left != '_');
+        bool rightBoundary = right == '\0' ||
+                             (!isalnum((unsigned char)right) && right != '_');
+        if (leftBoundary && rightBoundary) return true;
+        match += wordLength;
+    }
+    return false;
+}
+
+static bool cg_decl_node_has_gnu_weak_attribute(const ASTNode* node) {
+    if (!node || !node->attributes) return false;
+    for (size_t i = 0; i < node->attributeCount; ++i) {
+        const ASTAttribute* attr = node->attributes[i];
+        if (attr && attr->syntax == AST_ATTRIBUTE_SYNTAX_GNU &&
+            cg_decl_attr_payload_has_word(attr->payload, "weak")) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool cg_decl_has_gnu_weak_attribute(const Symbol* sym) {
+    if (!sym) return false;
+    if (sym->isWeak) return true;
+    const ASTNode* definition = sym->definition;
+    if (cg_decl_node_has_gnu_weak_attribute(definition)) return true;
+    if (sym->type.attributes) {
+        for (size_t i = 0; i < sym->type.attributeCount; ++i) {
+            const ASTAttribute* attr = sym->type.attributes[i];
+            if (attr && attr->syntax == AST_ATTRIBUTE_SYNTAX_GNU &&
+                cg_decl_attr_payload_has_word(attr->payload, "weak")) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 static bool cg_is_builtin_const_name(const char* name) {
     if (!name) return false;
@@ -351,6 +398,12 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
                 LLVMSetDLLStorageClass(fn, LLVMDLLImportStorageClass);
             }
         }
+        if (cg_decl_has_gnu_weak_attribute(symHint) &&
+            LLVMGetLinkage(fn) != LLVMInternalLinkage) {
+            LLVMSetLinkage(fn,
+                           symHint->hasDefinition ? LLVMWeakAnyLinkage
+                                                  : LLVMExternalWeakLinkage);
+        }
     }
 
     if (ctx->verifyFunctions) {
@@ -399,7 +452,23 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
     size_t flattenedCount = 0;
     LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
     LLVMValueRef fn = ensureFunction(ctx, name, returnType, flattenedCount, paramTypes, isVariadic, NULL);
-    (void)fn;
+    if (fn && cg_decl_node_has_gnu_weak_attribute(node) &&
+        LLVMGetLinkage(fn) != LLVMInternalLinkage) {
+        LLVMSetLinkage(fn,
+                       node->type == AST_FUNCTION_DEFINITION
+                           ? LLVMWeakAnyLinkage
+                           : LLVMExternalWeakLinkage);
+    }
+    if (fn && ctx->currentScope) {
+        cg_scope_insert(ctx->currentScope,
+                        name,
+                        fn,
+                        LLVMGlobalGetValueType(fn),
+                        true,
+                        true,
+                        NULL,
+                        NULL);
+    }
     free(paramTypes);
 }
 
@@ -463,6 +532,12 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     } else {
         LLVMSetLinkage(existing, LLVMExternalLinkage);
     }
+    if (cg_decl_has_gnu_weak_attribute(sym) &&
+        LLVMGetLinkage(existing) != LLVMInternalLinkage) {
+        LLVMSetLinkage(existing,
+                       externDeclOnly ? LLVMExternalWeakLinkage
+                                      : LLVMWeakAnyLinkage);
+    }
 
     if (!externDeclOnly && !sym->isTentative) {
         const char* skipConst = getenv("FISICS_NO_CONST_GLOBALS");
@@ -521,11 +596,25 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
     bool useSignature = false;
     if (sym->definition) {
         if (sym->definition->type == AST_FUNCTION_DEFINITION) {
-            paramCount = sym->definition->functionDef.paramCount;
-            params = sym->definition->functionDef.parameters;
+            if (!sym->definition->functionDef.hasPrototype &&
+                sym->signature.hasPrototype &&
+                sym->signature.paramCount > 0 &&
+                sym->signature.params) {
+                paramCount = sym->signature.paramCount;
+                sigParams = sym->signature.params;
+                useSignature = true;
+            } else {
+                paramCount = sym->definition->functionDef.paramCount;
+                params = sym->definition->functionDef.parameters;
+            }
         } else if (sym->definition->type == AST_FUNCTION_DECLARATION) {
             paramCount = sym->definition->functionDecl.paramCount;
             params = sym->definition->functionDecl.parameters;
+        } else if (sym->definition->type == AST_VARIABLE_DECLARATION &&
+                   sym->signature.hasPrototype) {
+            paramCount = sym->signature.paramCount;
+            sigParams = sym->signature.params;
+            useSignature = true;
         }
     } else if (sym->signature.paramCount > 0 && sym->signature.params) {
         paramCount = sym->signature.paramCount;
@@ -555,6 +644,59 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
     free(paramTypes);
 }
 
+void declareFunctionFromParsedType(CodegenContext* ctx,
+                                   const char* name,
+                                   const ParsedType* functionType) {
+    if (!ctx || !name || !parsedTypeIsDirectFunction(functionType)) {
+        return;
+    }
+    const TypeDerivation* function = &functionType->derivations[0];
+    const ParsedType* params = function->as.function.params;
+    size_t paramCount = function->as.function.paramCount;
+    if (paramCount == 1 && params && parsedTypeIsPlainVoid(&params[0]) &&
+        !function->as.function.isVariadic) {
+        paramCount = 0;
+    }
+
+    LLVMTypeRef* paramTypes = NULL;
+    if (paramCount > 0) {
+        paramTypes = calloc(paramCount, sizeof(LLVMTypeRef));
+        if (!paramTypes) {
+            return;
+        }
+        for (size_t i = 0; i < paramCount; ++i) {
+            ParsedType adjusted = parsedTypeClone(&params[i]);
+            parsedTypeAdjustFunctionParameter(&adjusted);
+            paramTypes[i] = cg_lower_parameter_type(ctx, &adjusted, NULL, NULL);
+            parsedTypeFree(&adjusted);
+            if (!paramTypes[i] || LLVMGetTypeKind(paramTypes[i]) == LLVMVoidTypeKind) {
+                paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+        }
+    }
+
+    ParsedType returnType = parsedTypeFunctionReturnType(functionType);
+    LLVMValueRef fn = ensureFunction(ctx,
+                                     name,
+                                     &returnType,
+                                     paramCount,
+                                     paramTypes,
+                                     function->as.function.isVariadic,
+                                     NULL);
+    if (fn && ctx->currentScope) {
+        cg_scope_insert(ctx->currentScope,
+                        name,
+                        fn,
+                        LLVMGlobalGetValueType(fn),
+                        true,
+                        true,
+                        NULL,
+                        functionType);
+    }
+    parsedTypeFree(&returnType);
+    free(paramTypes);
+}
+
 static void predeclareGlobalSymbolCallback(const Symbol* sym, void* userData) {
     CodegenContext* ctx = (CodegenContext*)userData;
     if (!ctx || !sym) return;
@@ -565,7 +707,9 @@ static void predeclareGlobalSymbolCallback(const Symbol* sym, void* userData) {
             declareGlobalVariableSymbol(ctx, sym);
             break;
         case SYMBOL_FUNCTION:
-            if (!sym->hasDefinition) {
+            if (!sym->hasDefinition &&
+                (!sym->definition ||
+                 sym->definition->type != AST_VARIABLE_DECLARATION)) {
                 profiler_record_value("codegen_count_predeclare_function_decl_only", 1);
                 break;
             }
@@ -629,6 +773,16 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
                 storedParsed = &info->parsedType;
             }
         }
+        DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
+        if (init && init->expression && !parsedTypeHasVLA(storedParsed)) {
+            LLVMValueRef constInit = cg_build_const_initializer(ctx,
+                                                                init->expression,
+                                                                existingType,
+                                                                storedParsed);
+            if (constInit) {
+                LLVMSetInitializer(existing, constInit);
+            }
+        }
         cg_scope_insert(ctx->currentScope,
                         name,
                         existing,
@@ -681,21 +835,21 @@ void predeclareGlobals(CodegenContext* ctx, ASTNode* program) {
     }
 
     const SemanticModel* model = cg_context_get_semantic_model(ctx);
-    if (model) {
-        semanticModelForEachGlobal(model, predeclareGlobalSymbolCallback, ctx);
-
-        if (program && program->type == AST_PROGRAM) {
-            for (size_t i = 0; i < program->block.statementCount; ++i) {
-                ASTNode* stmt = program->block.statements[i];
-                if (!stmt) continue;
-                if (stmt->type == AST_STRUCT_DEFINITION || stmt->type == AST_UNION_DEFINITION) {
-                    (void)codegenStructDefinition(ctx, stmt);
-                } else if (stmt->type == AST_TYPEDEF &&
-                           stmt->typedefStmt.baseType.inlineStructOrUnionDef) {
-                    (void)codegenStructDefinition(ctx, stmt->typedefStmt.baseType.inlineStructOrUnionDef);
-                }
+    if (program && program->type == AST_PROGRAM) {
+        for (size_t i = 0; i < program->block.statementCount; ++i) {
+            ASTNode* stmt = program->block.statements[i];
+            if (!stmt) continue;
+            if (stmt->type == AST_STRUCT_DEFINITION || stmt->type == AST_UNION_DEFINITION) {
+                (void)codegenStructDefinition(ctx, stmt);
+            } else if (stmt->type == AST_TYPEDEF &&
+                       stmt->typedefStmt.baseType.inlineStructOrUnionDef) {
+                (void)codegenStructDefinition(ctx, stmt->typedefStmt.baseType.inlineStructOrUnionDef);
             }
         }
+    }
+
+    if (model) {
+        semanticModelForEachGlobal(model, predeclareGlobalSymbolCallback, ctx);
         profiler_end(scope);
         return;
     }

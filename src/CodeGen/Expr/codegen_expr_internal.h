@@ -82,6 +82,9 @@ bool cg_is_external_decl_function(LLVMValueRef function);
 bool cg_is_known_external_abi_function_name(const char* name);
 LLVMTypeRef cg_external_abi_coerce_param_type(CodegenContext* ctx, LLVMTypeRef paramType);
 bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef returnType);
+bool cg_should_direct_aggregate_result_to_destination(CodegenContext* ctx,
+                                                      const ParsedType* parsedType,
+                                                      LLVMTypeRef returnType);
 LLVMValueRef cg_pack_aggregate_for_external_abi(CodegenContext* ctx,
                                                 LLVMValueRef value,
                                                 LLVMTypeRef packedType,

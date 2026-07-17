@@ -133,6 +133,56 @@ static FlowResult checkStatement(ASTNode* node, Scope* scope, FlowContext ctx);
 static FlowResult checkStatementList(ASTNode** list, size_t count, Scope* scope, FlowContext ctx);
 static bool conditionlessLoopMayExit(ASTNode* node, int nestedLoopDepth, int nestedSwitchDepth);
 
+typedef struct {
+    ASTNode** items;
+    size_t count;
+    size_t capacity;
+} FlowCaseList;
+
+static bool flowCaseListAdd(FlowCaseList* list, ASTNode* node) {
+    if (!list || !node) return false;
+    if (list->count == list->capacity) {
+        size_t newCapacity = list->capacity ? list->capacity * 2 : 8;
+        ASTNode** resized = realloc(list->items, newCapacity * sizeof(*resized));
+        if (!resized) return false;
+        list->items = resized;
+        list->capacity = newCapacity;
+    }
+    list->items[list->count++] = node;
+    return true;
+}
+
+static bool collectOwnedSwitchCases(ASTNode* node, FlowCaseList* list) {
+    if (!node) return true;
+    switch (node->type) {
+        case AST_CASE:
+            if (!flowCaseListAdd(list, node)) return false;
+            for (size_t i = 0; i < node->caseStmt.caseBodySize; ++i) {
+                if (!collectOwnedSwitchCases(node->caseStmt.caseBody[i], list)) return false;
+            }
+            return !node->caseStmt.nextCase ||
+                   collectOwnedSwitchCases(node->caseStmt.nextCase, list);
+        case AST_BLOCK:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                if (!collectOwnedSwitchCases(node->block.statements[i], list)) return false;
+            }
+            return true;
+        case AST_IF_STATEMENT:
+            return collectOwnedSwitchCases(node->ifStmt.thenBranch, list) &&
+                   collectOwnedSwitchCases(node->ifStmt.elseBranch, list);
+        case AST_WHILE_LOOP:
+            return collectOwnedSwitchCases(node->whileLoop.body, list);
+        case AST_FOR_LOOP:
+            return collectOwnedSwitchCases(node->forLoop.body, list);
+        case AST_LABEL_DECLARATION:
+            return collectOwnedSwitchCases(node->label.statement, list);
+        case AST_SWITCH:
+            return true;
+        default:
+            return true;
+    }
+}
+
 static void reportUnreachable(ASTNode* node) {
     addWarning(safeLine(node), 0, "Unreachable statement", NULL);
 }
@@ -160,7 +210,15 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
     FlowContext caseCtx = ctx;
     caseCtx.inSwitch = true;
 
-    size_t caseCount = node->switchStmt.caseListSize;
+    FlowCaseList cases = {0};
+    for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+        if (!collectOwnedSwitchCases(node->switchStmt.caseList[i], &cases)) {
+            free(cases.items);
+            return result;
+        }
+    }
+    size_t caseCount = cases.count;
+
     FlowResult* caseFlows = NULL;
     bool* isDefault = NULL;
     FlowResult* chainFlows = NULL;
@@ -172,13 +230,14 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
             free(caseFlows);
             free(isDefault);
             free(chainFlows);
+            free(cases.items);
             return result;
         }
     }
 
     bool sawDefault = false;
     for (size_t i = 0; i < caseCount; ++i) {
-        ASTNode* caseNode = node->switchStmt.caseList[i];
+        ASTNode* caseNode = cases.items[i];
         if (!caseNode) {
             caseFlows[i] = makeFlow(false, false);
             continue;
@@ -242,6 +301,7 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
     free(caseFlows);
     free(isDefault);
     free(chainFlows);
+    free(cases.items);
     return result;
 }
 
@@ -380,7 +440,7 @@ static void traverse(ASTNode* node, Scope* scope) {
 
             profiler_record_value("semantic_count_type_info_site_return", 1);
             TypeInfo retInfo = typeInfoFromParsedType(&node->functionDef.returnType, scope);
-            if (retInfo.category != TYPEINFO_VOID && !flow.returns) {
+            if (retInfo.category != TYPEINFO_VOID && !flow.stops) {
                 const char* name = node->functionDef.funcName && node->functionDef.funcName->valueNode.value
                     ? node->functionDef.funcName->valueNode.value
                     : "<anonymous>";

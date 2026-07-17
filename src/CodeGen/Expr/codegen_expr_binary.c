@@ -6,6 +6,55 @@
 #include <stdlib.h>
 #include <string.h>
 
+static LLVMTypeRef cg_pointer_element_hint_for_expr(CodegenContext* ctx, ASTNode* expr) {
+    if (!ctx || !ctx->currentScope || !expr || expr->type != AST_IDENTIFIER) {
+        return NULL;
+    }
+    NamedValue* entry = cg_scope_lookup(ctx->currentScope, expr->valueNode.value);
+    LLVMTypeRef elementType = entry ? entry->elementType : NULL;
+    return elementType && LLVMGetTypeKind(elementType) == LLVMStructTypeKind
+        ? elementType
+        : NULL;
+}
+
+static bool cg_promoted_operand_is_unsigned(CodegenContext* ctx,
+                                            LLVMTypeRef originalType,
+                                            bool originalUnsigned,
+                                            unsigned* outPromotedBits) {
+    if (!originalType || LLVMGetTypeKind(originalType) != LLVMIntegerTypeKind) {
+        if (outPromotedBits) *outPromotedBits = 0;
+        return originalUnsigned;
+    }
+    unsigned bits = LLVMGetIntTypeWidth(originalType);
+    unsigned intBits = cg_default_int_bits(ctx);
+    unsigned promotedBits = bits < intBits ? intBits : bits;
+    if (outPromotedBits) {
+        *outPromotedBits = promotedBits;
+    }
+    return bits < intBits ? false : originalUnsigned;
+}
+
+static bool cg_usual_integer_result_is_unsigned(CodegenContext* ctx,
+                                                LLVMTypeRef lhsOriginalType,
+                                                LLVMTypeRef rhsOriginalType,
+                                                bool lhsOriginalUnsigned,
+                                                bool rhsOriginalUnsigned) {
+    unsigned lhsBits = 0;
+    unsigned rhsBits = 0;
+    bool lhsUnsigned = cg_promoted_operand_is_unsigned(ctx, lhsOriginalType, lhsOriginalUnsigned, &lhsBits);
+    bool rhsUnsigned = cg_promoted_operand_is_unsigned(ctx, rhsOriginalType, rhsOriginalUnsigned, &rhsBits);
+    if (lhsUnsigned == rhsUnsigned) {
+        return lhsUnsigned;
+    }
+    if (lhsUnsigned) {
+        return lhsBits >= rhsBits;
+    }
+    if (rhsUnsigned) {
+        return rhsBits >= lhsBits;
+    }
+    return false;
+}
+
 LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_BINARY_EXPRESSION) {
         fprintf(stderr, "Error: Invalid node type for codegenBinaryExpression\n");
@@ -97,6 +146,10 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         rhsUnsigned = cg_is_unsigned_parsed(rhsParsed, rhsType);
     }
     bool preferUnsigned = lhsUnsigned || rhsUnsigned;
+    LLVMTypeRef lhsOriginalIntegerType = lhsType;
+    LLVMTypeRef rhsOriginalIntegerType = rhsType;
+    bool lhsOriginalUnsigned = lhsUnsigned;
+    bool rhsOriginalUnsigned = rhsUnsigned;
     bool lhsComplex = cg_parsed_type_is_complex_value(lhsParsed);
     bool rhsComplex = cg_parsed_type_is_complex_value(rhsParsed);
 
@@ -144,6 +197,12 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         lhsType = floatType;
         rhsType = floatType;
     } else if (!lhsIsPointer && !rhsIsPointer) {
+        bool usualIntegerUnsigned =
+            cg_usual_integer_result_is_unsigned(ctx,
+                                                lhsOriginalIntegerType,
+                                                rhsOriginalIntegerType,
+                                                lhsOriginalUnsigned,
+                                                rhsOriginalUnsigned);
         cg_promote_integer_operands(ctx,
                                     &L,
                                     &R,
@@ -151,6 +210,15 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
                                     &rhsType,
                                     lhsUnsigned,
                                     rhsUnsigned);
+        lhsUnsigned = cg_promoted_operand_is_unsigned(ctx,
+                                                      lhsOriginalIntegerType,
+                                                      lhsOriginalUnsigned,
+                                                      NULL);
+        rhsUnsigned = cg_promoted_operand_is_unsigned(ctx,
+                                                      rhsOriginalIntegerType,
+                                                      rhsOriginalUnsigned,
+                                                      NULL);
+        preferUnsigned = (strcmp(op, ">>") == 0) ? lhsUnsigned : usualIntegerUnsigned;
     }
 
     if (strcmp(op, "+") == 0) {
@@ -159,7 +227,9 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
             return NULL;
         }
         if (lhsIsPointer) {
-            LLVMValueRef res = cg_build_pointer_offset(ctx, L, R, lhsParsed, rhsParsed, false);
+            LLVMTypeRef elementHint = cg_pointer_element_hint_for_expr(ctx, node->expr.left);
+            LLVMValueRef res = cg_build_pointer_offset(
+                ctx, L, R, lhsParsed, elementHint, rhsParsed, false);
             if (!res) return NULL;
             if (lhsType && LLVMGetTypeKind(lhsType) == LLVMPointerTypeKind) {
                 res = LLVMBuildPointerCast(ctx->builder, res, lhsType, "ptr.arith.cast");
@@ -167,7 +237,9 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
             return res;
         }
         if (rhsIsPointer) {
-            LLVMValueRef res = cg_build_pointer_offset(ctx, R, L, rhsParsed, lhsParsed, false);
+            LLVMTypeRef elementHint = cg_pointer_element_hint_for_expr(ctx, node->expr.right);
+            LLVMValueRef res = cg_build_pointer_offset(
+                ctx, R, L, rhsParsed, elementHint, lhsParsed, false);
             if (!res) return NULL;
             if (rhsType && LLVMGetTypeKind(rhsType) == LLVMPointerTypeKind) {
                 res = LLVMBuildPointerCast(ctx->builder, res, rhsType, "ptr.arith.cast");
@@ -185,7 +257,9 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
             return cg_build_pointer_difference(ctx, L, R, lhsParsed, rhsParsed);
         }
         if (lhsIsPointer) {
-            return cg_build_pointer_offset(ctx, L, R, lhsParsed, rhsParsed, true);
+            LLVMTypeRef elementHint = cg_pointer_element_hint_for_expr(ctx, node->expr.left);
+            return cg_build_pointer_offset(
+                ctx, L, R, lhsParsed, elementHint, rhsParsed, true);
         }
         if (rhsIsPointer) {
             fprintf(stderr, "Error: cannot subtract pointer from integer\n");

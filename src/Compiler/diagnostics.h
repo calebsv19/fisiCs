@@ -167,6 +167,8 @@ bool compiler_report_units_diag_with_details(struct CompilerContext* ctx,
 // Accessors for consumers/IDE bridge.
 const FisicsDiagnostic* compiler_diagnostics_data(const struct CompilerContext* ctx, size_t* countOut);
 bool compiler_diagnostics_copy(const struct CompilerContext* ctx, FisicsDiagnostic** outItems, size_t* outCount);
+bool compiler_diagnostics_append(struct CompilerContext* dst,
+                                 const struct CompilerContext* src);
 void compiler_diagnostics_clear(struct CompilerContext* ctx);
 size_t compiler_diagnostics_error_count(const struct CompilerContext* ctx);
 size_t compiler_diagnostics_parser_error_count(const struct CompilerContext* ctx);

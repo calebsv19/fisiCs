@@ -125,9 +125,15 @@ void analyze(ASTNode* node, Scope* scope) {
                 fprintf(stderr, "OOM: Symbol param name\n");
                 free(s);
                 continue;
-            }
-                    s->type = *typeForParam;              // copy-by-value of ParsedType
+                    }
+                    s->type = parsedTypeClone(typeForParam);
+                    parsedTypeResolvePlainNamedTypedefInScope(&s->type, fscope);
+                    parsedTypeAdjustFunctionParameter(&s->type);
                     s->definition = p;
+                    s->storage = STORAGE_AUTO;
+                    s->linkage = LINKAGE_NONE;
+                    s->isParameter = true;
+                    s->hasDefinition = true;
                     symbolAttachUnitsAnnotation(
                         s,
                         fisics_extension_lookup_units_annotation(fscope ? fscope->ctx : NULL, p),
@@ -149,8 +155,15 @@ void analyze(ASTNode* node, Scope* scope) {
 
         // 4) Analyze the function body under the function scope
         ASTNode* functionBody = node->functionDef.body;
+        /* Function parameters and declarations in the outermost compound
+         * statement share one ordinary-identifier scope. Nested compound
+         * statements still create child scopes through analyzeStatement. */
+        analyzeFunctionBody(functionBody, fscope);
+        /* Goto-entry classification depends on declaration analysis having
+         * resolved enum-bound fixed arrays versus true variably modified
+         * arrays. The analyzed array flags remain attached to the AST after
+         * nested semantic scopes have been released. */
         validateGotoScopes(functionBody);
-        analyze(functionBody, fscope);
 
         destroyScope(fscope);
         break;

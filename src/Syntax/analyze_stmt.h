@@ -6,6 +6,7 @@
 #include "AST/ast_node.h"
 #include "scope.h"
 void analyzeStatement(ASTNode* node, Scope* scope);
+void analyzeFunctionBody(ASTNode* node, Scope* scope);
 void validateGotoScopes(ASTNode* node);
 
 #endif // ANALYZE_STMT_H

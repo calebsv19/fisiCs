@@ -27,6 +27,7 @@ SourceRange varDeclBestMacroDefinition(ASTNode* node);
 
 const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth);
 void canonicalizeParsedTypeInScope(ParsedType* type, Scope* scope);
+void freezeAggregateAliasesAtDeclaration(ParsedType* type, Scope* scope, int depth);
 bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
                                              const ParsedType* b,
                                              Scope* scope);
@@ -56,10 +57,21 @@ bool validateFunctionParameters(ASTNode** params,
 void assignFunctionSignature(Symbol* sym,
                              ASTNode** params,
                              size_t paramCount,
-                             bool isVariadic);
+                             bool isVariadic,
+                             bool hasPrototype,
+                             Scope* scope);
+void assignFunctionSignatureFromParsedType(Symbol* sym,
+                                           const ParsedType* functionType,
+                                           Scope* scope);
 bool functionSignaturesCompatible(const FunctionSignature* lhs,
                                   const FunctionSignature* rhs,
                                   Scope* scope);
+void mergeCompatibleFunctionSignatures(FunctionSignature* accumulated,
+                                       FunctionSignature* incoming);
+void mergeCompatibleParsedTypeDetailsInScope(ParsedType* accumulated,
+                                             const ParsedType* incoming,
+                                             Scope* scope);
+void freeFunctionSignatureParameters(FunctionSignature* signature);
 const char* safeIdentifierName(ASTNode* node);
 bool scopeIsFileScope(Scope* scope);
 void applyInteropAttributes(Symbol* sym, ASTNode* node, Scope* scope, bool allowWarn);
@@ -107,6 +119,13 @@ void validateVariableArrayInitializer(ParsedType* type,
                                       DesignatedInit* init,
                                       ASTNode* nameNode,
                                       Scope* scope);
+void validateArrayInitializerEntries(ParsedType* type,
+                                     const char* arrayName,
+                                     DesignatedInit** values,
+                                     size_t valueCount,
+                                     Scope* scope,
+                                     ASTNode* contextNode,
+                                     long long* outInferredLength);
 void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope);
 
 #endif // ANALYZE_DECLS_INTERNAL_H

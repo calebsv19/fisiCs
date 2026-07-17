@@ -711,8 +711,13 @@ LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     if (!ctx || !type) {
         return NULL;
     }
+    ParsedType expandedResolved;
+    memset(&expandedResolved, 0, sizeof(expandedResolved));
+    expandedResolved.kind = TYPE_INVALID;
     const ParsedType* resolved = type;
-    if (type->kind == TYPE_NAMED &&
+    if (cg_expand_surface_typedef_parsed_type(ctx, type, &expandedResolved)) {
+        resolved = &expandedResolved;
+    } else if (type->kind == TYPE_NAMED &&
         type->derivationCount == 0 &&
         type->pointerDepth == 0 &&
         !type->isFunctionPointer &&
@@ -764,6 +769,7 @@ LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
         usingFpParams = true;
     }
     if (!haveCallableSignature) {
+        parsedTypeFree(&expandedResolved);
         return NULL;
     }
 
@@ -814,7 +820,10 @@ LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     LLVMTypeRef* params = NULL;
     if (count > 0) {
         params = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * count);
-        if (!params) return NULL;
+        if (!params) {
+            parsedTypeFree(&expandedResolved);
+            return NULL;
+        }
         for (size_t i = 0; i < count; ++i) {
             if (paramCount > 0 && paramList) {
                 params[i] = cg_lower_parameter_type(ctx, &paramList[i], NULL, NULL);
@@ -829,6 +838,7 @@ LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
 
     LLVMTypeRef fnType = LLVMFunctionType(returnType, params, (unsigned)count, isVariadic ? 1 : 0);
     free(params);
+    parsedTypeFree(&expandedResolved);
     return fnType;
 }
 

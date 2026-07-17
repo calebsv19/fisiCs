@@ -196,6 +196,10 @@ static void cg_scope_destroy(CGScope* scope) {
         parsedTypeFree(&scope->typedefs[i].parsedType);
     }
     free(scope->typedefs);
+    for (size_t i = 0; i < scope->tagCount; ++i) {
+        free(scope->tags[i].name);
+    }
+    free(scope->tags);
     free(scope);
 }
 
@@ -302,6 +306,57 @@ const ParsedType* cg_scope_lookup_typedef(CGScope* scope, const char* name) {
     return NULL;
 }
 
+void cg_scope_insert_tag(CGScope* scope,
+                         const char* name,
+                         const ASTNode* definition,
+                         bool isUnion) {
+    if (!scope || !name || !definition) return;
+    for (size_t i = 0; i < scope->tagCount; ++i) {
+        if (scope->tags[i].isUnion == isUnion &&
+            scope->tags[i].name && strcmp(scope->tags[i].name, name) == 0) {
+            const ASTNode* existing = scope->tags[i].definition;
+            bool existingComplete =
+                existing &&
+                (existing->type == AST_STRUCT_DEFINITION ||
+                 existing->type == AST_UNION_DEFINITION) &&
+                existing->structDef.fieldCount > 0;
+            bool replacementComplete =
+                (definition->type == AST_STRUCT_DEFINITION ||
+                 definition->type == AST_UNION_DEFINITION) &&
+                definition->structDef.fieldCount > 0;
+            if (existing == definition || (!existingComplete && replacementComplete)) {
+                scope->tags[i].definition = definition;
+            }
+            return;
+        }
+    }
+    if (scope->tagCount == scope->tagCapacity) {
+        size_t newCap = scope->tagCapacity ? scope->tagCapacity * 2 : 4;
+        CGTagBinding* resized =
+            (CGTagBinding*)realloc(scope->tags, newCap * sizeof(CGTagBinding));
+        if (!resized) return;
+        scope->tags = resized;
+        scope->tagCapacity = newCap;
+    }
+    CGTagBinding* binding = &scope->tags[scope->tagCount++];
+    binding->name = strdup(name);
+    binding->definition = definition;
+    binding->isUnion = isUnion;
+}
+
+const ASTNode* cg_scope_lookup_tag(CGScope* scope, const char* name, bool isUnion) {
+    if (!name) return NULL;
+    for (CGScope* iter = scope; iter; iter = iter->parent) {
+        for (size_t i = 0; i < iter->tagCount; ++i) {
+            if (iter->tags[i].isUnion == isUnion &&
+                iter->tags[i].name && strcmp(iter->tags[i].name, name) == 0) {
+                return iter->tags[i].definition;
+            }
+        }
+    }
+    return NULL;
+}
+
 static bool cg_type_is_bare_named_typedef_ref(const ParsedType* type) {
     return type &&
            type->kind == TYPE_NAMED &&
@@ -337,6 +392,63 @@ const ParsedType* cg_resolve_typedef_parsed_type(CodegenContext* ctx, const Pars
     }
 
     return type;
+}
+
+bool cg_expand_surface_typedef_parsed_type(CodegenContext* ctx, const ParsedType* type, ParsedType* out) {
+    if (!ctx || !type || !out || type->kind != TYPE_NAMED || !type->userTypeName ||
+        type->derivationCount == 0) {
+        return false;
+    }
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+            return false;
+        }
+    }
+
+    ParsedType bare = parsedTypeClone(type);
+    if (bare.kind == TYPE_INVALID) {
+        return false;
+    }
+    parsedTypeResetDerivations(&bare);
+    bare.pointerDepth = 0;
+    bare.isFunctionPointer = false;
+
+    const ParsedType* resolved = cg_resolve_typedef_parsed_type(ctx, &bare);
+    if (!resolved || resolved == &bare || resolved->kind == TYPE_INVALID) {
+        parsedTypeFree(&bare);
+        return false;
+    }
+
+    ParsedType expanded = parsedTypeClone(resolved);
+    parsedTypeFree(&bare);
+    if (expanded.kind == TYPE_INVALID) {
+        return false;
+    }
+
+    size_t surfaceCount = type->derivationCount;
+    size_t baseCount = expanded.derivationCount;
+    TypeDerivation* merged = NULL;
+    if (surfaceCount + baseCount > 0) {
+        merged = (TypeDerivation*)calloc(surfaceCount + baseCount, sizeof(TypeDerivation));
+        if (!merged) {
+            parsedTypeFree(&expanded);
+            return false;
+        }
+        for (size_t i = 0; i < surfaceCount; ++i) {
+            merged[i] = type->derivations[i];
+        }
+        for (size_t i = 0; i < baseCount; ++i) {
+            merged[surfaceCount + i] = expanded.derivations[i];
+        }
+    }
+
+    free(expanded.derivations);
+    expanded.derivations = merged;
+    expanded.derivationCount = surfaceCount + baseCount;
+    expanded.isVLA = parsedTypeHasVLA(&expanded);
+    *out = expanded;
+    return true;
 }
 
 void cg_loop_push(CodegenContext* ctx, LLVMBasicBlockRef breakBB, LLVMBasicBlockRef continueBB) {

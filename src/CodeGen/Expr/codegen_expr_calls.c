@@ -39,6 +39,37 @@ static LLVMValueRef cg_decay_array_argument_to_pointer(CodegenContext* ctx,
     return decayed;
 }
 
+static bool cg_variadic_aggregate_uses_indirect_slot(CodegenContext* ctx, LLVMTypeRef type) {
+    if (!ctx || !type) return false;
+    LLVMTypeKind kind = LLVMGetTypeKind(type);
+    if (kind != LLVMStructTypeKind && kind != LLVMArrayTypeKind) {
+        return false;
+    }
+    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (!td || !LLVMTypeIsSized(type)) {
+        return false;
+    }
+    return LLVMABISizeOfType(td, type) > 16u;
+}
+
+static LLVMValueRef cg_prepare_variadic_aggregate_arg(CodegenContext* ctx,
+                                                      LLVMValueRef value,
+                                                      const char* nameHint) {
+    if (!ctx || !value) return value;
+    LLVMTypeRef type = LLVMTypeOf(value);
+    if (!cg_variadic_aggregate_uses_indirect_slot(ctx, type)) {
+        return value;
+    }
+    LLVMValueRef slot = cg_build_entry_alloca(ctx, type, "call.vararg.agg.indirect.slot");
+    if (!slot) return value;
+    LLVMBuildStore(ctx->builder, value, slot);
+    LLVMTypeRef i8PtrType = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    return LLVMBuildBitCast(ctx->builder,
+                            slot,
+                            i8PtrType,
+                            nameHint ? nameHint : "call.vararg.agg.indirect");
+}
+
 static const char* cg_memcheck_wrapper_for_callee(const char* calleeName,
                                                   size_t argCount) {
     if (!calleeName) return NULL;
@@ -300,7 +331,9 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
 
     const Symbol* sym = cg_lookup_function_symbol_for_callee(ctx, node->functionCall.callee);
-    bool noPrototype = sym && sym->kind == SYMBOL_FUNCTION && !sym->signature.hasPrototype;
+    bool noPrototype = !node->functionCall.usesPrototype ||
+                       (sym && sym->kind == SYMBOL_FUNCTION &&
+                        !sym->signature.hasPrototype);
     bool externalAbiEligible = cg_is_known_external_abi_function_name(calleeName);
 
     LLVMTypeRef calleeType = NULL;
@@ -354,6 +387,21 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                 retType = LLVMPointerType(retType, 0);
             } else if (retType && LLVMGetTypeKind(retType) == LLVMArrayTypeKind) {
                 retType = LLVMPointerType(retType, 0);
+            }
+        }
+        if (!retType) {
+            const ParsedType* inferredReturn =
+                cg_refine_function_call_result_type(ctx, node);
+            if (!inferredReturn) {
+                inferredReturn = cg_resolve_expression_type(ctx, node);
+            }
+            if (inferredReturn) {
+                retType = cg_type_from_parsed(ctx, inferredReturn);
+                if (retType && LLVMGetTypeKind(retType) == LLVMFunctionTypeKind) {
+                    retType = LLVMPointerType(retType, 0);
+                } else if (retType && LLVMGetTypeKind(retType) == LLVMArrayTypeKind) {
+                    retType = LLVMPointerType(retType, 0);
+                }
             }
         }
         if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
@@ -598,6 +646,22 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                     LLVMValueRef val = args[i];
                     if (i >= fixedParams) {
                         val = cg_apply_default_promotion(ctx, val, node->functionCall.arguments[i]);
+                        if (val) {
+                            LLVMTypeRef valTy = LLVMTypeOf(val);
+                            if (cg_variadic_aggregate_uses_indirect_slot(ctx, valTy)) {
+                                val = cg_prepare_variadic_aggregate_arg(ctx,
+                                                                        val,
+                                                                        "call.vararg.agg.indirect");
+                            } else {
+                                LLVMTypeRef abiTy = cg_external_abi_coerce_param_type(ctx, valTy);
+                                if (abiTy && abiTy != valTy) {
+                                val = cg_pack_aggregate_for_external_abi(ctx,
+                                                                         val,
+                                                                         abiTy,
+                                                                         "call.vararg.abi.pack");
+                                }
+                            }
+                        }
                     }
                     promotedArgs[i] = val;
                 }
@@ -766,7 +830,10 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
-    const ParsedType* semanticReturnParsed = cg_resolve_expression_type(ctx, node);
+    const ParsedType* semanticReturnParsed = cg_refine_function_call_result_type(ctx, node);
+    if (!semanticReturnParsed) {
+        semanticReturnParsed = cg_resolve_expression_type(ctx, node);
+    }
     LLVMTypeRef semanticReturnTy = NULL;
     if (semanticReturnParsed) {
         semanticReturnTy = cg_type_from_parsed(ctx, semanticReturnParsed);
@@ -774,6 +841,22 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
         } else if (semanticReturnTy && LLVMGetTypeKind(semanticReturnTy) == LLVMArrayTypeKind) {
             semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
+        }
+    }
+    LLVMTypeRef signatureReturnTy = LLVMGetReturnType(calleeType);
+    if (signatureReturnTy) {
+        LLVMTypeKind signatureReturnKind = LLVMGetTypeKind(signatureReturnTy);
+        LLVMTypeKind semanticReturnKind = semanticReturnTy
+            ? LLVMGetTypeKind(semanticReturnTy)
+            : LLVMVoidTypeKind;
+        bool signatureReturnsAggregate =
+            signatureReturnKind == LLVMStructTypeKind ||
+            signatureReturnKind == LLVMArrayTypeKind;
+        bool semanticReturnsAggregate =
+            semanticReturnKind == LLVMStructTypeKind ||
+            semanticReturnKind == LLVMArrayTypeKind;
+        if (signatureReturnsAggregate && !semanticReturnsAggregate) {
+            semanticReturnTy = signatureReturnTy;
         }
     }
 

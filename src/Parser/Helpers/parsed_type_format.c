@@ -110,7 +110,12 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
         if (!sb_append(b, ")(")) return false;
         const ParsedType* fpParams = NULL;
         size_t fpParamCount = 0;
-        parsedTypeGetEffectiveFunctionPointerSignature(pt, &fpParams, &fpParamCount, NULL);
+        bool fpHasPrototype = false;
+        parsedTypeGetEffectiveFunctionPointerSignature(
+            pt, &fpParams, &fpParamCount, NULL, &fpHasPrototype);
+        if (fpHasPrototype && fpParamCount == 0) {
+            if (!sb_append(b, "void")) return false;
+        }
         for (size_t i = 0; i < fpParamCount; i++) {
             if (i && !sb_append(b, ", ")) return false;
             if (!append_parsed_type(b, &fpParams[i])) return false;
@@ -160,6 +165,11 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
                     break;
                 }
                 if (!sb_append(b, " (")) return false;
+                if (deriv->as.function.hasPrototype &&
+                    deriv->as.function.paramCount == 0 &&
+                    !deriv->as.function.isVariadic) {
+                    if (!sb_append(b, "void")) return false;
+                }
                 for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
                     if (p && !sb_append(b, ", ")) return false;
                     if (!append_parsed_type(b, &deriv->as.function.params[p])) return false;

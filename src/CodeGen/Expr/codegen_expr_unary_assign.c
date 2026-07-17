@@ -40,7 +40,7 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         }
         if (LLVMGetTypeKind(targetType) == LLVMPointerTypeKind) {
             LLVMValueRef one = LLVMConstInt(cg_get_intptr_type(ctx), 1, 0);
-            LLVMValueRef updated = cg_build_pointer_offset(ctx, current, one, targetParsed, NULL, !isIncrement);
+            LLVMValueRef updated = cg_build_pointer_offset(ctx, current, one, targetParsed, NULL, NULL, !isIncrement);
             if (!updated) {
                 return NULL;
             }
@@ -200,10 +200,15 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         }
         if (baseExpr) {
             const ParsedType* baseType = NULL;
+            LLVMTypeRef capturedElementType = NULL;
             if (baseExpr->type == AST_IDENTIFIER && ctx && ctx->currentScope) {
                 NamedValue* entry = cg_scope_lookup(ctx->currentScope, baseExpr->valueNode.value);
                 if (entry && entry->parsedType) {
                     baseType = entry->parsedType;
+                }
+                if (entry && entry->elementType &&
+                    LLVMGetTypeKind(entry->elementType) == LLVMStructTypeKind) {
+                    capturedElementType = entry->elementType;
                 }
             }
             if (!baseType) {
@@ -217,7 +222,18 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
                 chain = next;
                 ok = chain.kind != TYPE_INVALID;
             }
-            if (ok) {
+            if (ok && derefCount == 1 && capturedElementType) {
+                elemType = capturedElementType;
+            } else if (ok) {
+                const ParsedType* resolvedChain = cg_resolve_typedef_parsed_type(ctx, &chain);
+                if (resolvedChain &&
+                    resolvedChain->kind != TYPE_INVALID &&
+                    parsedTypeIsDirectArray(resolvedChain)) {
+                    parsedTypeFree(&chain);
+                    parsedTypeFree(&operandParsedCopy);
+                    if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
+                    return operand;
+                }
                 elemType = cg_type_from_parsed(ctx, &chain);
             }
             parsedTypeFree(&chain);
@@ -341,8 +357,9 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
                 node->assignment.value->type == AST_FUNCTION_CALL &&
                 callReturnType &&
                 callReturnType == targetType &&
-                cg_should_lower_indirect_aggregate_return(ctx, callReturnType) &&
-                cg_aggregate_type_contains_union(ctx, callReturnParsed, callReturnType)) {
+                cg_should_direct_aggregate_result_to_destination(ctx,
+                                                                 callReturnParsed,
+                                                                 callReturnType)) {
                 LLVMValueRef previousDestPtr = ctx->aggregateCallResultDestPtr;
                 LLVMTypeRef previousDestType = ctx->aggregateCallResultDestType;
                 ASTNode* previousDestCall = ctx->aggregateCallResultDestCall;
@@ -376,7 +393,19 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         }
         uint64_t bytes = 0;
         uint32_t align = 0;
-        cg_size_align_for_type(ctx, targetParsed, targetType, &bytes, &align);
+        /* The destination LLVM aggregate is the storage being copied. Use its
+           materialized ABI layout directly: an array-element lvalue can carry
+           a stale or partially resolved semantic ParsedType even though
+           codegen has the exact record type. Using that semantic size here
+           previously truncated large nested-union struct assignments. */
+        LLVMTargetDataRef targetData =
+            ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        if (targetData && targetType && LLVMTypeIsSized(targetType)) {
+            bytes = LLVMABISizeOfType(targetData, targetType);
+            align = (uint32_t)LLVMABIAlignmentOfType(targetData, targetType);
+        } else {
+            cg_size_align_for_type(ctx, targetParsed, targetType, &bytes, &align);
+        }
         LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
         LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, targetPtr, i8Ptr, "agg.dst");
         LLVMValueRef srcCast = LLVMBuildBitCast(ctx->builder, srcPtr, i8Ptr, "agg.src");
@@ -433,7 +462,7 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         bool targetIsFloat = cg_is_float_type(LLVMTypeOf(current));
         if (targetIsPointer && (strcmp(op, "+=") == 0 || strcmp(op, "-=") == 0)) {
             bool isSubtract = (strcmp(op, "-=") == 0);
-            storedValue = cg_build_pointer_offset(ctx, current, value, targetParsed, valueParsed, isSubtract);
+            storedValue = cg_build_pointer_offset(ctx, current, value, targetParsed, NULL, valueParsed, isSubtract);
             if (!storedValue) {
                 return NULL;
             }

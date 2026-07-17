@@ -16,6 +16,108 @@ static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type);
 static void hashAstNode(uint64_t* hash, const ASTNode* node);
 static void hashFieldDeclaration(uint64_t* hash, ASTNode* field);
 
+static bool prototypeParamsSurviveDefaultPromotions(const ParsedType* params,
+                                                    size_t count,
+                                                    bool isVariadic,
+                                                    Scope* scope) {
+    if (isVariadic || (count > 0 && !params)) {
+        return false;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        TypeInfo declared = typeInfoFromParsedType(&params[i], scope);
+        TypeInfo promoted = defaultArgumentPromotion(declared);
+        if (!typesAreEqual(&declared, &promoted)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool canonicalFunctionSignaturesCompatibleInScope(const ParsedType* lhsEffective,
+                                                         const ParsedType* rhsEffective,
+                                                         Scope* scope) {
+    const ParsedType* lhsParams = NULL;
+    const ParsedType* rhsParams = NULL;
+    size_t lhsCount = 0;
+    size_t rhsCount = 0;
+    bool lhsVariadic = false;
+    bool rhsVariadic = false;
+    bool lhsPrototype = false;
+    bool rhsPrototype = false;
+    bool lhsHasFunction = parsedTypeGetEffectiveFunctionPointerSignature(
+        lhsEffective, &lhsParams, &lhsCount, &lhsVariadic, &lhsPrototype);
+    bool rhsHasFunction = parsedTypeGetEffectiveFunctionPointerSignature(
+        rhsEffective, &rhsParams, &rhsCount, &rhsVariadic, &rhsPrototype);
+
+    if (lhsHasFunction != rhsHasFunction) {
+        return false;
+    }
+    if (!lhsHasFunction) {
+        return true;
+    }
+    ParsedType lhsReturn = parsedTypeFunctionReturnType(lhsEffective);
+    ParsedType rhsReturn = parsedTypeFunctionReturnType(rhsEffective);
+    bool returnsCompatible =
+        lhsReturn.kind != TYPE_INVALID &&
+        rhsReturn.kind != TYPE_INVALID &&
+        parsedTypesStructurallyCompatibleInScope(&lhsReturn, &rhsReturn, scope);
+    parsedTypeFree(&lhsReturn);
+    parsedTypeFree(&rhsReturn);
+    if (!returnsCompatible) {
+        return false;
+    }
+
+    if (lhsPrototype != rhsPrototype) {
+        return lhsPrototype
+            ? prototypeParamsSurviveDefaultPromotions(
+                  lhsParams, lhsCount, lhsVariadic, scope)
+            : prototypeParamsSurviveDefaultPromotions(
+                  rhsParams, rhsCount, rhsVariadic, scope);
+    }
+    if (!lhsPrototype) {
+        return true;
+    }
+    if (lhsCount != rhsCount || lhsVariadic != rhsVariadic) {
+        return false;
+    }
+
+    for (size_t i = 0; i < lhsCount; ++i) {
+        if (!parsedTypesStructurallyCompatibleInScope(
+                &lhsParams[i], &rhsParams[i], scope)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool effectiveFunctionSignaturesCompatibleInScope(const ParsedType* a,
+                                                         const ParsedType* b,
+                                                         Scope* scope) {
+    if (!a || !b || !scope) {
+        return false;
+    }
+
+    ParsedType lhs = parsedTypeClone(a);
+    ParsedType rhs = parsedTypeClone(b);
+    if ((lhs.kind == TYPE_INVALID && a->kind != TYPE_INVALID) ||
+        (rhs.kind == TYPE_INVALID && b->kind != TYPE_INVALID)) {
+        parsedTypeFree(&lhs);
+        parsedTypeFree(&rhs);
+        return false;
+    }
+
+    /* Resolve the complete typedef surface, composing every alias layer's
+     * derivations. Chasing only the named base can skip an outer factory
+     * function and compare its nested callback instead. */
+    canonicalizeParsedTypeAliases(scope, &lhs, 0);
+    canonicalizeParsedTypeAliases(scope, &rhs, 0);
+    bool compatible = canonicalFunctionSignaturesCompatibleInScope(
+        &lhs, &rhs, scope);
+    parsedTypeFree(&lhs);
+    parsedTypeFree(&rhs);
+    return compatible;
+}
+
 static bool isSyntheticAnonymousAggregateName(const char* name) {
     return name && strncmp(name, "__anon_", 7) == 0;
 }
@@ -81,9 +183,15 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
     }
 
     if (type->kind == TYPE_NAMED && type->userTypeName) {
-        const ParsedType* resolved = resolveTypedefBase(scope, type, 0);
-        if (resolved && resolved != type) {
-            char* resolvedNameCopy = NULL;
+        Symbol* alias = resolveInScopeChain(scope, type->userTypeName);
+        if (alias && alias->kind == SYMBOL_TYPEDEF) {
+            ParsedType resolvedStorage = parsedTypeClone(&alias->type);
+            if (resolvedStorage.kind == TYPE_INVALID) {
+                return;
+            }
+            canonicalizeParsedTypeAliases(scope, &resolvedStorage, depth + 1);
+            const ParsedType* resolved = &resolvedStorage;
+            const char* resolvedNameCopy = NULL;
             bool preserveAggregateAliasName =
                 (resolved->kind == TYPE_STRUCT ||
                  resolved->kind == TYPE_UNION ||
@@ -96,12 +204,44 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
             bool isUnsigned = type->isUnsigned;
             bool isShort = type->isShort;
             bool isLong = type->isLong;
-            if (resolved->userTypeName && !preserveAggregateAliasName) {
-                resolvedNameCopy = strdup(resolved->userTypeName);
-                if (!resolvedNameCopy) {
+            bool isComplex = type->isComplex;
+            bool isImaginary = type->isImaginary;
+            int surfacePointerDepth = type->pointerDepth;
+            bool surfaceIsVLA = type->isVLA;
+            size_t surfaceDerivationCount = type->derivationCount;
+            size_t resolvedDerivationCount = resolved->derivationCount;
+            TypeDerivation* mergedDerivations = NULL;
+            if (surfaceDerivationCount + resolvedDerivationCount > 0) {
+                mergedDerivations = calloc(surfaceDerivationCount + resolvedDerivationCount,
+                                           sizeof(TypeDerivation));
+                if (!mergedDerivations) {
+                    parsedTypeFree(&resolvedStorage);
                     return;
                 }
+                if (surfaceDerivationCount > 0) {
+                    memcpy(mergedDerivations,
+                           type->derivations,
+                           surfaceDerivationCount * sizeof(TypeDerivation));
+                }
+                if (resolvedDerivationCount > 0) {
+                    memcpy(mergedDerivations + surfaceDerivationCount,
+                           resolvedStorage.derivations,
+                           resolvedDerivationCount * sizeof(TypeDerivation));
+                }
             }
+            if (resolved->userTypeName && !preserveAggregateAliasName) {
+                resolvedNameCopy = resolved->userTypeName;
+            }
+
+            /* The merged array adopts the nested function-parameter storage
+             * from both inputs. Free only the old containers before replacing
+             * them; parsedTypeFree would also destroy the adopted children. */
+            free(type->derivations);
+            type->derivations = mergedDerivations;
+            type->derivationCount = surfaceDerivationCount + resolvedDerivationCount;
+            free(resolvedStorage.derivations);
+            resolvedStorage.derivations = NULL;
+            resolvedStorage.derivationCount = 0;
 
             type->kind = resolved->kind;
             type->primitiveType = resolved->primitiveType;
@@ -123,6 +263,25 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
             type->isUnsigned = isUnsigned || resolved->isUnsigned;
             type->isShort = isShort || resolved->isShort;
             type->isLong = isLong || resolved->isLong;
+            type->isComplex = isComplex || resolved->isComplex;
+            type->isImaginary = isImaginary || resolved->isImaginary;
+            type->pointerDepth = surfacePointerDepth + resolved->pointerDepth;
+            type->isVLA = surfaceIsVLA || resolved->isVLA || parsedTypeHasVLA(type);
+            parsedTypeRefreshFunctionFlags(type);
+            parsedTypeFree(&resolvedStorage);
+        }
+    }
+
+    if ((type->kind == TYPE_STRUCT || type->kind == TYPE_UNION) &&
+        type->userTypeName &&
+        !type->inlineStructOrUnionDef) {
+        Symbol* tag = resolveTagInScopeChain(scope, type->userTypeName);
+        ASTNode* definition = tag ? tag->definition : NULL;
+        if (definition &&
+            (definition->type == AST_STRUCT_DEFINITION ||
+             definition->type == AST_UNION_DEFINITION) &&
+            definition->structDef.fieldCount > 0) {
+            type->inlineStructOrUnionDef = definition;
         }
     }
 
@@ -147,13 +306,61 @@ void canonicalizeParsedTypeInScope(ParsedType* type, Scope* scope) {
     canonicalizeParsedTypeAliases(scope, type, 0);
 }
 
-bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
-                                              const ParsedType* b,
-                                              Scope* scope) {
-    if (!a || !b) {
-        return false;
+void freezeAggregateAliasesAtDeclaration(ParsedType* type, Scope* scope, int depth) {
+    if (!type || !scope || depth > 32) {
+        return;
+    }
+    if (type->kind == TYPE_NAMED && type->userTypeName) {
+        Symbol* alias = resolveInScopeChain(scope, type->userTypeName);
+        if (alias && alias->kind == SYMBOL_TYPEDEF &&
+            alias->type.derivationCount == 0 &&
+            alias->type.pointerDepth == 0 &&
+            (alias->type.kind == TYPE_STRUCT ||
+             alias->type.kind == TYPE_UNION ||
+             alias->type.kind == TYPE_ENUM)) {
+            const char* resolvedName = alias->type.userTypeName;
+            bool preserveAggregateAliasName =
+                isSyntheticAnonymousAggregateName(resolvedName);
+            type->kind = alias->type.kind;
+            type->tag = alias->type.tag;
+            type->primitiveType = alias->type.primitiveType;
+            if (!preserveAggregateAliasName) {
+                type->userTypeName = alias->type.userTypeName;
+            }
+            type->inlineStructOrUnionDef = alias->type.inlineStructOrUnionDef;
+            type->inlineEnumDef = alias->type.inlineEnumDef;
+        }
     }
 
+    if ((type->kind == TYPE_STRUCT || type->kind == TYPE_UNION) &&
+        type->userTypeName &&
+        !type->inlineStructOrUnionDef) {
+        Symbol* tag = resolveTagInScopeChain(scope, type->userTypeName);
+        ASTNode* definition = tag ? tag->definition : NULL;
+        if (definition &&
+            (definition->type == AST_STRUCT_DEFINITION ||
+             definition->type == AST_UNION_DEFINITION) &&
+            definition->structDef.fieldCount > 0) {
+            type->inlineStructOrUnionDef = definition;
+        }
+    }
+
+    for (size_t i = 0; i < type->fpParamCount; ++i) {
+        freezeAggregateAliasesAtDeclaration(&type->fpParams[i], scope, depth + 1);
+    }
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        TypeDerivation* deriv = &type->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_FUNCTION) {
+            continue;
+        }
+        for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
+            freezeAggregateAliasesAtDeclaration(
+                &deriv->as.function.params[p], scope, depth + 1);
+        }
+    }
+}
+
+static bool parsedArrayBoundsCompatible(const ParsedType* a, const ParsedType* b) {
     size_t lhsArrayCount = parsedTypeCountDerivationsOfKind(a, TYPE_DERIVATION_ARRAY);
     size_t rhsArrayCount = parsedTypeCountDerivationsOfKind(b, TYPE_DERIVATION_ARRAY);
     bool arrayBoundsCompatible = true;
@@ -167,11 +374,6 @@ bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
                 arrayBoundsCompatible = false;
                 break;
             }
-            if (lhsArr->as.array.isVLA != rhsArr->as.array.isVLA) {
-                arrayBoundsCompatible = false;
-                break;
-            }
-
             bool lhsKnown = lhsArr->as.array.hasConstantSize && !lhsArr->as.array.isVLA;
             bool rhsKnown = rhsArr->as.array.hasConstantSize && !rhsArr->as.array.isVLA;
             bool lhsIncomplete =
@@ -190,15 +392,34 @@ bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
                 arrayBoundsCompatible = false;
                 break;
             }
-            if (lhsKnown != rhsKnown && !(lhsIncomplete || rhsIncomplete)) {
+            if (lhsKnown != rhsKnown &&
+                !(lhsIncomplete || rhsIncomplete ||
+                  lhsArr->as.array.isVLA || rhsArr->as.array.isVLA)) {
                 arrayBoundsCompatible = false;
                 break;
             }
         }
     }
 
+    return arrayBoundsCompatible;
+}
+
+bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
+                                              const ParsedType* b,
+                                              Scope* scope) {
+    if (!a || !b) {
+        return false;
+    }
+
     if (parsedTypesStructurallyEqual(a, b)) {
-        return arrayBoundsCompatible;
+        if (!parsedArrayBoundsCompatible(a, b)) {
+            return false;
+        }
+        /* Structural equality intentionally ignores array bounds.  Function
+           parameters can contain arrays below another function derivation, so
+           validate the effective signature recursively before taking this
+           fast path. */
+        return !scope || effectiveFunctionSignaturesCompatibleInScope(a, b, scope);
     }
     if (!scope) {
         return false;
@@ -208,6 +429,12 @@ bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
     ParsedType rhs = parsedTypeClone(b);
     canonicalizeParsedTypeAliases(scope, &lhs, 0);
     canonicalizeParsedTypeAliases(scope, &rhs, 0);
+    bool arrayBoundsCompatible = parsedArrayBoundsCompatible(&lhs, &rhs);
+    if (!effectiveFunctionSignaturesCompatibleInScope(&lhs, &rhs, scope)) {
+        parsedTypeFree(&lhs);
+        parsedTypeFree(&rhs);
+        return false;
+    }
     bool ok = parsedTypesStructurallyEqual(&lhs, &rhs) && arrayBoundsCompatible;
     if (!ok && arrayBoundsCompatible) {
         TypeInfo lhsInfo = typeInfoFromParsedType(&lhs, scope);

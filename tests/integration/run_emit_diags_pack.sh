@@ -20,7 +20,13 @@ json_path="$tmpdir/diag.json"
 inspector_c="$tmpdir/inspect_pack.c"
 inspector_bin="$tmpdir/inspect_pack"
 
-"$BIN" --emit-diags-pack "$pack_path" --emit-diags-json "$json_path" "$SRC" >/dev/null 2>&1
+compiler_status=0
+"$BIN" --emit-diags-pack "$pack_path" --emit-diags-json "$json_path" "$SRC" \
+  >/dev/null 2>&1 || compiler_status=$?
+if [ "$compiler_status" -ne 1 ]; then
+  echo "expected diagnostics fixture to exit 1, got $compiler_status" >&2
+  exit 1
+fi
 
 if [ ! -s "$pack_path" ]; then
   echo "expected diagnostics pack to be created: $pack_path" >&2

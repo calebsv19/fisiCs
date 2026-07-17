@@ -22,6 +22,10 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
     if (cg_named_type_has_surface_derivations(type)) {
         return type;
     }
+    const ParsedType* scoped = cg_scope_lookup_typedef(ctx->currentScope, type->userTypeName);
+    if (scoped) {
+        return scoped;
+    }
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     if (!cache) return type;
     CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
@@ -29,6 +33,30 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
         return &info->parsedType;
     }
     return type;
+}
+
+static bool cg_resolve_plain_named_typedef_inplace(CodegenContext* ctx, ParsedType* type) {
+    if (!ctx || !type) return false;
+    int guard = 0;
+    while (type->kind == TYPE_NAMED &&
+           type->userTypeName &&
+           type->derivationCount == 0 &&
+           type->pointerDepth == 0 &&
+           !type->isFunctionPointer &&
+           guard < 32) {
+        const ParsedType* resolved = cg_resolve_typedef_parsed(ctx, type);
+        if (!resolved || resolved == type || resolved->kind == TYPE_INVALID) {
+            break;
+        }
+        ParsedType next = parsedTypeClone(resolved);
+        if (next.kind == TYPE_INVALID) {
+            return false;
+        }
+        parsedTypeFree(type);
+        *type = next;
+        guard++;
+    }
+    return type->kind != TYPE_INVALID;
 }
 
 static bool cg_parsed_type_is_pointer_like(const ParsedType* type) {
@@ -197,11 +225,16 @@ static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType
     if (!ctx || !type) return NULL;
     LLVMValueRef total = NULL;
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+    ParsedType cursor = parsedTypeClone(type);
+    if (cursor.kind == TYPE_INVALID) {
+        return NULL;
+    }
+    cg_resolve_plain_named_typedef_inplace(ctx, &cursor);
 
-    for (size_t i = 0; i < type->derivationCount; ++i) {
-        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+    while (parsedTypeIsDirectArray(&cursor)) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(&cursor, 0);
         if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) {
-            continue;
+            break;
         }
 
         LLVMValueRef dimValue = NULL;
@@ -214,6 +247,7 @@ static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType
             dimValue = LLVMConstInt(intptrTy, 1, 0);
         }
         if (!dimValue) {
+            parsedTypeFree(&cursor);
             return NULL;
         }
         if (!total) {
@@ -221,7 +255,13 @@ static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType
         } else {
             total = LLVMBuildMul(ctx->builder, total, dimValue, "vla.total");
         }
+
+        ParsedType next = parsedTypeArrayElementType(&cursor);
+        parsedTypeFree(&cursor);
+        cursor = next;
+        cg_resolve_plain_named_typedef_inplace(ctx, &cursor);
     }
+    parsedTypeFree(&cursor);
     return total;
 }
 
@@ -243,6 +283,20 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         ASTNode* varNameNode = node->varDecl.varNames[i];
         const ParsedType* varParsed = astVarDeclTypeAt(node, i);
         const ParsedType* effectiveParsed = varParsed ? varParsed : &node->varDecl.declaredType;
+        ParsedType resolvedDeclarator = parsedTypeClone(effectiveParsed);
+        cg_resolve_plain_named_typedef_inplace(ctx, &resolvedDeclarator);
+        if (resolvedDeclarator.derivationCount > 0 &&
+            resolvedDeclarator.derivations &&
+            resolvedDeclarator.derivations[0].kind == TYPE_DERIVATION_FUNCTION) {
+            const char* functionName =
+                (varNameNode && varNameNode->type == AST_IDENTIFIER)
+                    ? varNameNode->valueNode.value
+                    : NULL;
+            declareFunctionFromParsedType(ctx, functionName, &resolvedDeclarator);
+            parsedTypeFree(&resolvedDeclarator);
+            continue;
+        }
+        parsedTypeFree(&resolvedDeclarator);
         DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (effectiveParsed && init && init->expression) {
             cg_complete_local_array_bound_from_initializer((ParsedType*)effectiveParsed,
@@ -255,6 +309,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         bool isArray = arrayParsed ? parsedTypeIsDirectArray(arrayParsed) : false;
         bool hasVLA = arrayParsed ? parsedTypeHasVLA(arrayParsed) : false;
         bool isStaticStorage = effectiveParsed && effectiveParsed->isStatic;
+        bool isExternDecl = effectiveParsed && effectiveParsed->isExtern;
 
         if (varParsed && varParsed->inlineStructOrUnionDef) {
             codegenStructDefinition(ctx, varParsed->inlineStructOrUnionDef);
@@ -263,6 +318,49 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         LLVMValueRef storage = NULL;
         LLVMTypeRef storageType = NULL;
         LLVMTypeRef elementLLVM = NULL;
+
+        if (isExternDecl) {
+            const char* varName = (varNameNode && varNameNode->type == AST_IDENTIFIER)
+                ? varNameNode->valueNode.value
+                : NULL;
+            if (!varName) {
+                continue;
+            }
+
+            LLVMValueRef global = LLVMGetNamedGlobal(ctx->module, varName);
+            if (!global) {
+                LLVMTypeRef globalType = cg_type_from_parsed(ctx, effectiveParsed);
+                if (!globalType || LLVMGetTypeKind(globalType) == LLVMVoidTypeKind) {
+                    globalType = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+                global = LLVMAddGlobal(ctx->module, globalType, varName);
+                LLVMSetLinkage(global, LLVMExternalLinkage);
+            }
+
+            LLVMTypeRef globalValueType = LLVMGlobalGetValueType(global);
+            if (!globalValueType || LLVMGetTypeKind(globalValueType) == LLVMVoidTypeKind) {
+                globalValueType = cg_type_from_parsed(ctx, effectiveParsed);
+            }
+            if (isArray) {
+                ParsedType element = parsedTypeArrayElementType(arrayParsed);
+                elementLLVM = cg_type_from_parsed(ctx, &element);
+                parsedTypeFree(&element);
+                if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+                    elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+            } else {
+                elementLLVM = cg_element_type_from_pointer_parsed(ctx, effectiveParsed);
+            }
+            cg_scope_insert(ctx->currentScope,
+                            varName,
+                            global,
+                            globalValueType,
+                            true,
+                            false,
+                            elementLLVM,
+                            arrayParsed ? arrayParsed : effectiveParsed);
+            continue;
+        }
 
         if (isStaticStorage) {
             const char* varName = (varNameNode && varNameNode->type == AST_IDENTIFIER)
@@ -333,10 +431,12 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                     continue;
                 }
                 ParsedType base = parsedTypeClone(arrayParsed);
+                cg_resolve_plain_named_typedef_inplace(ctx, &base);
                 while (parsedTypeIsDirectArray(&base)) {
                     ParsedType next = parsedTypeArrayElementType(&base);
                     parsedTypeFree(&base);
                     base = next;
+                    cg_resolve_plain_named_typedef_inplace(ctx, &base);
                 }
                 elementLLVM = cg_type_from_parsed(ctx, &base);
                 parsedTypeFree(&base);
@@ -417,7 +517,17 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         const ParsedType* alignParsed = varParsed ? varParsed : &node->varDecl.declaredType;
         uint64_t szDummy = 0;
         uint32_t alignVal = 0;
-        if (cg_size_align_for_type(ctx, alignParsed, storageType, &szDummy, &alignVal) && alignVal > 0) {
+        (void)cg_size_align_for_type(ctx, alignParsed, storageType, &szDummy, &alignVal);
+        if (hasVLA && elementLLVM && ctx->module && LLVMTypeIsSized(elementLLVM)) {
+            LLVMTargetDataRef targetData = LLVMGetModuleDataLayout(ctx->module);
+            uint32_t elementAlign = targetData
+                ? (uint32_t)LLVMABIAlignmentOfType(targetData, elementLLVM)
+                : 0;
+            if (elementAlign > alignVal) {
+                alignVal = elementAlign;
+            }
+        }
+        if (alignVal > 0) {
             LLVMSetAlignment(storage, alignVal);
         }
 
@@ -437,7 +547,8 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 if (!cg_store_compound_literal_into_ptr(ctx,
                                                         storage,
                                                         valueType,
-                                                        isArray ? arrayParsed : effectiveParsed,
+                                                        isArray ? arrayParsed :
+                                                            (resolvedParsed ? resolvedParsed : effectiveParsed),
                                                         init->expression)) {
                     fprintf(stderr, "Error: Failed to emit initializer for variable\n");
                 }
@@ -446,7 +557,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                     if (!cg_store_initializer_expression(ctx,
                                                          storage,
                                                          valueType,
-                                                         effectiveParsed,
+                                                         resolvedParsed ? resolvedParsed : effectiveParsed,
                                                          init->expression)) {
                         fprintf(stderr, "Error: Failed to emit initializer for variable\n");
                     }

@@ -55,6 +55,12 @@ typedef struct CGTypedefBinding {
     ParsedType parsedType;
 } CGTypedefBinding;
 
+typedef struct CGTagBinding {
+    char* name;
+    const ASTNode* definition;
+    bool isUnion;
+} CGTagBinding;
+
 typedef struct CGScope {
     NamedValue* entries;
     size_t count;
@@ -62,6 +68,9 @@ typedef struct CGScope {
     CGTypedefBinding* typedefs;
     size_t typedefCount;
     size_t typedefCapacity;
+    CGTagBinding* tags;
+    size_t tagCount;
+    size_t tagCapacity;
     struct CGScope* parent;
 } CGScope;
 
@@ -77,13 +86,17 @@ typedef struct NamedType {
 
 typedef struct StructFieldInfo {
     char* name;
+    /* Declaration-order index in the C aggregate. */
     unsigned index;
+    /* Element index in the lowered LLVM struct body. */
+    unsigned llvmIndex;
     LLVMTypeRef type;
     ParsedType parsedType;
 } StructFieldInfo;
 
 typedef struct StructInfo {
     char* name;
+    const ASTNode* definition;
     StructFieldInfo* fields;
     size_t fieldCount;
     bool isUnion;
@@ -114,6 +127,17 @@ typedef struct LabelBinding {
     bool defined;
 } LabelBinding;
 
+typedef struct CGSwitchCaseBinding {
+    ASTNode* node;
+    LLVMBasicBlockRef block;
+} CGSwitchCaseBinding;
+
+typedef struct CGSwitchCaseContext {
+    CGSwitchCaseBinding* bindings;
+    size_t count;
+    struct CGSwitchCaseContext* parent;
+} CGSwitchCaseContext;
+
 struct CodegenContext {
     LLVMContextRef llvmContext;
     LLVMModuleRef module;
@@ -136,6 +160,8 @@ struct CodegenContext {
     LabelBinding* labels;
     size_t labelCount;
     size_t labelCapacity;
+
+    CGSwitchCaseContext* switchCaseContext;
 
     const SemanticModel* semanticModel;
     CGTypeCache* typeCache;
@@ -173,6 +199,11 @@ void cg_scope_insert(CGScope* scope,
 NamedValue* cg_scope_lookup(CGScope* scope, const char* name);
 void cg_scope_insert_typedef(CGScope* scope, const char* name, const ParsedType* parsedType);
 const ParsedType* cg_scope_lookup_typedef(CGScope* scope, const char* name);
+void cg_scope_insert_tag(CGScope* scope,
+                         const char* name,
+                         const ASTNode* definition,
+                         bool isUnion);
+const ASTNode* cg_scope_lookup_tag(CGScope* scope, const char* name, bool isUnion);
 
 void cg_loop_push(CodegenContext* ctx, LLVMBasicBlockRef breakBB, LLVMBasicBlockRef continueBB);
 void cg_loop_pop(CodegenContext* ctx);
@@ -191,6 +222,7 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
                                      LLVMValueRef basePtr,
                                      LLVMValueRef offsetValue,
                                      const ParsedType* pointerParsed,
+                                     LLVMTypeRef elementTypeHint,
                                      const ParsedType* offsetParsed,
                                      bool isSubtract);
 LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
@@ -201,6 +233,7 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
 const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node);
 const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNode* callNode);
 const ParsedType* cg_resolve_typedef_parsed_type(CodegenContext* ctx, const ParsedType* type);
+bool cg_expand_surface_typedef_parsed_type(CodegenContext* ctx, const ParsedType* type, ParsedType* out);
 LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed);
 bool cg_is_volatile_object(const ParsedType* parsed);
 LLVMValueRef cg_build_load(CodegenContext* ctx, LLVMTypeRef type, LLVMValueRef ptr, const char* name, const ParsedType* parsed);
@@ -245,6 +278,9 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
 LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef returnType);
 LLVMTypeRef cg_external_abi_coerce_param_type(CodegenContext* ctx, LLVMTypeRef paramType);
 bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef returnType);
+bool cg_should_direct_aggregate_result_to_destination(CodegenContext* ctx,
+                                                      const ParsedType* parsedType,
+                                                      LLVMTypeRef returnType);
 bool cg_should_lower_variadic_sret(CodegenContext* ctx,
                                    LLVMTypeRef returnType,
                                    bool isVariadicFunction);
@@ -328,6 +364,9 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node);
 void predeclareGlobals(CodegenContext* ctx, ASTNode* program);
 void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym);
 void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym);
+void declareFunctionFromParsedType(CodegenContext* ctx,
+                                   const char* name,
+                                   const ParsedType* functionType);
 
 LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenProgram(CodegenContext* ctx, ASTNode* node);
@@ -364,6 +403,7 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenAlignof(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node);
+LLVMValueRef codegenCase(CodegenContext* ctx, ASTNode* node);
 LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenHeapAllocation(CodegenContext* ctx, ASTNode* node);

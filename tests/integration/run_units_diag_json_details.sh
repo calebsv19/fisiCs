@@ -82,12 +82,22 @@ int main(void) {
 }
 SRC
 
-FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$assign_json" "$assign_src" >/dev/null 2>&1 || true
-FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$convert_json" "$convert_src" >/dev/null 2>&1 || true
-FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$implicit_json" "$implicit_src" >/dev/null 2>&1 || true
-FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$add_json" "$add_src" >/dev/null 2>&1 || true
-FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$sub_json" "$sub_src" >/dev/null 2>&1 || true
-FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$compare_json" "$compare_src" >/dev/null 2>&1 || true
+for fixture in \
+  "$assign_json:$assign_src" \
+  "$convert_json:$convert_src" \
+  "$implicit_json:$implicit_src" \
+  "$add_json:$add_src" \
+  "$sub_json:$sub_src" \
+  "$compare_json:$compare_src"; do
+  json_path="${fixture%%:*}"
+  src_path="${fixture#*:}"
+  compiler_status=0
+  FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --emit-diags-json "$json_path" "$src_path" >/dev/null 2>&1 || compiler_status=$?
+  if [ "$compiler_status" -ne 1 ]; then
+    echo "expected compiler exit 1 for units diagnostic fixture $src_path; got $compiler_status" >&2
+    exit 1
+  fi
+done
 
 python3 - "$assign_json" "$convert_json" "$implicit_json" "$add_json" "$sub_json" "$compare_json" <<'PY'
 import json

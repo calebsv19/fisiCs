@@ -617,6 +617,140 @@ bool compiler_diagnostics_copy(const struct CompilerContext* ctx,
     return true;
 }
 
+static char* diag_strdup_nullable(const char* value) {
+    return value ? strdup(value) : NULL;
+}
+
+static bool diag_include_stack_clone(FisicsDiagnosticIncludeStack* out,
+                                     const FisicsDiagnosticIncludeStack* src) {
+    memset(out, 0, sizeof(*out));
+    if (!src || src->count == 0u) return true;
+    out->frames = calloc(src->count, sizeof(*out->frames));
+    if (!out->frames) return false;
+    for (size_t i = 0; i < src->count; ++i) {
+        out->frames[i] = src->frames[i];
+        out->frames[i].file = diag_strdup_nullable(src->frames[i].file);
+        out->frames[i].origin = diag_strdup_nullable(src->frames[i].origin);
+        if ((src->frames[i].file && !out->frames[i].file) ||
+            (src->frames[i].origin && !out->frames[i].origin)) {
+            out->count = i + 1u;
+            diag_include_stack_clear(out);
+            return false;
+        }
+    }
+    out->count = src->count;
+    return true;
+}
+
+static bool diag_macro_trace_clone(FisicsDiagnosticMacroTrace* out,
+                                   const FisicsDiagnosticMacroTrace* src) {
+    memset(out, 0, sizeof(*out));
+    if (!src || src->count == 0u) return true;
+    out->frames = calloc(src->count, sizeof(*out->frames));
+    if (!out->frames) return false;
+    for (size_t i = 0; i < src->count; ++i) {
+        out->frames[i] = src->frames[i];
+        out->frames[i].role = diag_strdup_nullable(src->frames[i].role);
+        out->frames[i].macro = diag_strdup_nullable(src->frames[i].macro);
+        out->frames[i].file = diag_strdup_nullable(src->frames[i].file);
+        if ((src->frames[i].role && !out->frames[i].role) ||
+            (src->frames[i].macro && !out->frames[i].macro) ||
+            (src->frames[i].file && !out->frames[i].file)) {
+            out->count = i + 1u;
+            diag_macro_trace_clear(out);
+            return false;
+        }
+    }
+    out->count = src->count;
+    return true;
+}
+
+static bool diag_unit_detail_clone(FisicsDiagnosticUnitDetail* out,
+                                   const FisicsDiagnosticUnitDetail* src) {
+    *out = *src;
+    out->name = diag_strdup_nullable(src->name);
+    out->symbol = diag_strdup_nullable(src->symbol);
+    out->family = diag_strdup_nullable(src->family);
+    out->dim_text = diag_strdup_nullable(src->dim_text);
+    if ((src->name && !out->name) ||
+        (src->symbol && !out->symbol) ||
+        (src->family && !out->family) ||
+        (src->dim_text && !out->dim_text)) {
+        diag_unit_detail_clear(out);
+        return false;
+    }
+    return true;
+}
+
+static bool diag_details_clone(FisicsDiagnosticDetails* out,
+                               const FisicsDiagnosticDetails* src) {
+    *out = *src;
+    out->lhs_dim_text = diag_strdup_nullable(src->lhs_dim_text);
+    out->rhs_dim_text = diag_strdup_nullable(src->rhs_dim_text);
+    out->context = diag_strdup_nullable(src->context);
+    memset(&out->source_unit, 0, sizeof(out->source_unit));
+    memset(&out->target_unit, 0, sizeof(out->target_unit));
+    if ((src->lhs_dim_text && !out->lhs_dim_text) ||
+        (src->rhs_dim_text && !out->rhs_dim_text) ||
+        (src->context && !out->context) ||
+        !diag_unit_detail_clone(&out->source_unit, &src->source_unit) ||
+        !diag_unit_detail_clone(&out->target_unit, &src->target_unit)) {
+        diag_details_clear(out);
+        return false;
+    }
+    return true;
+}
+
+bool compiler_diagnostics_append(struct CompilerContext* dst,
+                                 const struct CompilerContext* src) {
+    CompilerDiagnostics* dst_buf = ctx_buffer(dst);
+    const CompilerDiagnostics* src_buf = ctx_buffer_const(src);
+    if (dst == src) return false;
+    if (!dst_buf || !src_buf || src_buf->count == 0u) return dst_buf != NULL;
+    if (src_buf->count > SIZE_MAX - dst_buf->count) return false;
+    if (!diag_buffer_reserve(dst_buf, src_buf->count)) return false;
+
+    size_t original_count = dst_buf->count;
+    for (size_t i = 0; i < src_buf->count; ++i) {
+        size_t out_index = dst_buf->count;
+        FisicsDiagnostic* out = &dst_buf->items[out_index];
+        const FisicsDiagnostic* in = &src_buf->items[i];
+        *out = *in;
+        out->file_path = diag_strdup_nullable(in->file_path);
+        out->message = diag_strdup_nullable(in->message);
+        out->hint = diag_strdup_nullable(in->hint);
+        if ((in->file_path && !out->file_path) ||
+            (in->message && !out->message) ||
+            (in->hint && !out->hint) ||
+            !diag_include_stack_clone(&dst_buf->includeStacks[out_index],
+                                      src_buf->includeStacks
+                                          ? &src_buf->includeStacks[i]
+                                          : NULL) ||
+            !diag_macro_trace_clone(&dst_buf->macroTraces[out_index],
+                                    src_buf->macroTraces
+                                        ? &src_buf->macroTraces[i]
+                                        : NULL) ||
+            !diag_details_clone(&dst_buf->details[out_index],
+                                src_buf->details ? &src_buf->details[i] :
+                                                   &(FisicsDiagnosticDetails){0})) {
+            dst_buf->count = out_index + 1u;
+            while (dst_buf->count > original_count) {
+                size_t rollback = --dst_buf->count;
+                free((void*)dst_buf->items[rollback].file_path);
+                free(dst_buf->items[rollback].message);
+                free(dst_buf->items[rollback].hint);
+                memset(&dst_buf->items[rollback], 0, sizeof(dst_buf->items[rollback]));
+                diag_include_stack_clear(&dst_buf->includeStacks[rollback]);
+                diag_macro_trace_clear(&dst_buf->macroTraces[rollback]);
+                diag_details_clear(&dst_buf->details[rollback]);
+            }
+            return false;
+        }
+        dst_buf->count += 1u;
+    }
+    return true;
+}
+
 void compiler_diagnostics_clear(struct CompilerContext* ctx) {
     CompilerDiagnostics* buf = ctx_buffer(ctx);
     if (!buf) return;

@@ -5,11 +5,41 @@
 #include "codegen_types.h"
 #include "Syntax/const_eval.h"
 #include "Syntax/scope.h"
+#include "Syntax/type_checker.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
+static void cg_apply_old_style_parameter_promotion(CodegenContext* ctx,
+                                                   ParsedType* type) {
+    if (!ctx || !type || type->pointerDepth > 0 || type->derivationCount > 0) {
+        return;
+    }
+    Scope* scope = ctx->semanticModel
+                       ? semanticModelGetGlobalScope(ctx->semanticModel)
+                       : NULL;
+    TypeInfo declared = typeInfoFromParsedType(type, scope);
+    TypeInfo promoted = defaultArgumentPromotion(declared);
+    if (typesAreEqual(&declared, &promoted)) {
+        return;
+    }
+
+    parsedTypeFree(type);
+    memset(type, 0, sizeof(*type));
+    type->kind = TYPE_PRIMITIVE;
+    if (promoted.category == TYPEINFO_FLOAT && !promoted.isComplex &&
+        !promoted.isImaginary) {
+        type->primitiveType = TOKEN_DOUBLE;
+        return;
+    }
+    if (promoted.category == TYPEINFO_INTEGER || promoted.category == TYPEINFO_ENUM) {
+        type->primitiveType = TOKEN_INT;
+        type->isUnsigned = !promoted.isSigned;
+        type->isSigned = promoted.isSigned;
+    }
+}
 
 static const ParsedType* cg_stmt_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
     if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
@@ -91,7 +121,7 @@ static bool cg_add_eval_const_symbol(Scope* scope, const char* name, long long v
         free(sym);
         return false;
     }
-    sym->kind = SYMBOL_VARIABLE;
+    sym->kind = SYMBOL_ENUM;
     sym->hasConstValue = true;
     sym->constValue = value;
     sym->type.kind = TYPE_PRIMITIVE;
@@ -171,7 +201,8 @@ static bool cg_builder_block_terminated(const CodegenContext* ctx) {
 }
 
 static bool cg_statement_can_reopen_block(const ASTNode* stmt) {
-    return stmt && stmt->type == AST_LABEL_DECLARATION;
+    return stmt &&
+           (stmt->type == AST_LABEL_DECLARATION || stmt->type == AST_CASE);
 }
 
 static bool cg_should_emit_statement_in_current_block(const CodegenContext* ctx, const ASTNode* stmt) {
@@ -370,14 +401,27 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                 if (!cg_prepare_parameter_type_for_lowering(ctx, paramType, &adjustedParamTypes[i])) {
                     adjustedParamTypes[i] = parsedTypeClone(paramType);
                 }
+                ParsedType abiType = parsedTypeClone(&adjustedParamTypes[i]);
+                if (!node->functionDef.hasPrototype) {
+                    cg_apply_old_style_parameter_promotion(ctx, &abiType);
+                }
                 bool passIndirect = false;
                 LLVMTypeRef valueType = NULL;
                 LLVMTypeRef inferred = cg_lower_parameter_type(ctx,
-                                                               &adjustedParamTypes[i],
+                                                               &abiType,
                                                                &passIndirect,
                                                                &valueType);
+                parsedTypeFree(&abiType);
                 if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
                     inferred = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+                if (!node->functionDef.hasPrototype && !passIndirect) {
+                    LLVMTypeRef storedLLVM =
+                        cg_type_from_parsed(ctx, &adjustedParamTypes[i]);
+                    if (storedLLVM && LLVMGetTypeKind(storedLLVM) != LLVMVoidTypeKind &&
+                        storedLLVM != inferred) {
+                        valueType = storedLLVM;
+                    }
                 }
                 paramTypes[i] = inferred;
                 paramValueTypes[i] = valueType;
@@ -576,8 +620,16 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                                                                                "param.abi.unpack");
                     LLVMBuildStore(ctx->builder, unpacked, allocaInst);
                 } else {
-                    allocaInst = cg_build_entry_alloca(ctx, paramType, label);
-                    LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
+                    allocaInst = cg_build_entry_alloca(ctx, valueTy, label);
+                    LLVMValueRef converted = cg_cast_value(ctx,
+                                                           incomingParam,
+                                                           valueTy,
+                                                           NULL,
+                                                           NULL,
+                                                           "param.oldstyle.cast");
+                    LLVMBuildStore(ctx->builder,
+                                   converted ? converted : incomingParam,
+                                   allocaInst);
                 }
             } else {
                 allocaInst = cg_build_entry_alloca(ctx, paramType, label);
@@ -587,7 +639,9 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
             cg_scope_insert(ctx->currentScope,
                             label,
                             allocaInst,
-                            (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i])
+                            (paramValueTypes && paramValueTypes[i] &&
+                             ((paramPassIndirect && paramPassIndirect[i]) ||
+                              !node->functionDef.hasPrototype))
                                 ? paramValueTypes[i]
                                 : paramType,
                             false,
@@ -799,10 +853,8 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
             declaredReturnLLVM &&
             (LLVMGetTypeKind(declaredReturnLLVM) == LLVMStructTypeKind ||
              LLVMGetTypeKind(declaredReturnLLVM) == LLVMArrayTypeKind) &&
-            cg_should_lower_indirect_aggregate_return(ctx, declaredReturnLLVM) &&
-            cg_aggregate_type_contains_union(ctx,
-                                             ctx->currentFunctionReturnType,
-                                             declaredReturnLLVM)) {
+            cg_should_direct_aggregate_result_to_destination(
+                ctx, ctx->currentFunctionReturnType, declaredReturnLLVM)) {
             LLVMValueRef sretPtr = ctx->currentFunctionVariadicSRetPtr;
             LLVMTypeRef expectedPtrTy = LLVMPointerType(declaredReturnLLVM, 0);
             if (LLVMTypeOf(sretPtr) != expectedPtrTy) {
@@ -836,10 +888,7 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
             ctx->currentFunctionVariadicSRetPtr &&
             declaredReturnLLVM &&
             (LLVMGetTypeKind(declaredReturnLLVM) == LLVMStructTypeKind ||
-             LLVMGetTypeKind(declaredReturnLLVM) == LLVMArrayTypeKind) &&
-            cg_aggregate_type_contains_union(ctx,
-                                             ctx->currentFunctionReturnType,
-                                             declaredReturnLLVM)) {
+             LLVMGetTypeKind(declaredReturnLLVM) == LLVMArrayTypeKind)) {
             LLVMValueRef srcPtr = NULL;
             LLVMTypeRef srcType = NULL;
             const ParsedType* srcParsed = NULL;

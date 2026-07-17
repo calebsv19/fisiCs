@@ -57,6 +57,7 @@ typedef struct TypeInfo {
     bool isLValue;
     bool isComplete;
     const ParsedType* originalType;
+    const struct ASTNode* recordDefinition;
     bool isBitfield;
     const struct CCTagFieldLayout* bitfieldLayout;
 } TypeInfo;
@@ -75,6 +76,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, struct Scope* scope);
 TypeInfo typeInfoFromSymbolCached(struct Symbol* sym, struct Scope* scope);
 void invalidateSymbolTypeInfoCache(struct Symbol* sym);
 void primeSymbolTypeInfoCache(struct Symbol* sym, struct Scope* scope);
+bool parsedTypeResolvePlainNamedTypedefInScope(ParsedType* type, struct Scope* scope);
 
 bool typeInfoIsInteger(const TypeInfo* info);
 bool typeInfoIsFloating(const TypeInfo* info);

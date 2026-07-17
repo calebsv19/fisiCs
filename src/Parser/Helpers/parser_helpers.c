@@ -148,12 +148,14 @@ static bool isSystemHeaderPath(const char* file) {
            (strncmp(file, kXcode, strlen(kXcode)) == 0);
 }
 
-void printParseError(const char* expected, Parser* parser) {
+static void printParseErrorImpl(const char* expected,
+                                Parser* parser,
+                                bool preferTokenSpelling) {
     if (!parser) return;
     if (parser->suppressErrors) return;
     const Token* tok = &parser->currentToken;
     const SourceRange* loc = tok ? &tok->location : NULL;
-    if (tok && tok->macroCallSite.start.file) {
+    if (!preferTokenSpelling && tok && tok->macroCallSite.start.file) {
         loc = &tok->macroCallSite;
     }
     const char* got = tok && tok->value ? tok->value : "<eof>";
@@ -181,6 +183,14 @@ void printParseError(const char* expected, Parser* parser) {
             file,
             line,
             got);
+}
+
+void printParseError(const char* expected, Parser* parser) {
+    printParseErrorImpl(expected, parser, false);
+}
+
+void printParseErrorAtTokenSpelling(const char* expected, Parser* parser) {
+    printParseErrorImpl(expected, parser, true);
 }
 
 void markParserFatalError(Parser* parser) {

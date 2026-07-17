@@ -181,12 +181,14 @@ const StructInfo* cg_init_lookup_legacy_struct_info(CodegenContext* ctx,
     if (!ctx) {
         return NULL;
     }
-    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
-        if (aggregateType &&
-            ctx->structInfos[i].llvmType &&
-            ctx->structInfos[i].llvmType == aggregateType) {
-            return &ctx->structInfos[i];
+    if (aggregateType) {
+        for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+            if (ctx->structInfos[i].llvmType == aggregateType) {
+                return &ctx->structInfos[i];
+            }
         }
+    }
+    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
         if (structName &&
             ctx->structInfos[i].name &&
             strcmp(ctx->structInfos[i].name, structName) == 0) {

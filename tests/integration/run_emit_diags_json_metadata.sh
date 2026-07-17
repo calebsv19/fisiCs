@@ -32,8 +32,18 @@ int main(void) {
 }
 SRC
 
-"$BIN" --emit-diags-json "$parser_json" "$parser_src" >/dev/null 2>&1 || true
-"$BIN" --emit-diags-json "$semantic_json" "$semantic_src" >/dev/null 2>&1 || true
+parser_status=0
+"$BIN" --emit-diags-json "$parser_json" "$parser_src" >/dev/null 2>&1 || parser_status=$?
+if [ "$parser_status" -ne 1 ]; then
+  echo "expected compiler exit 1 for parser diagnostic; got $parser_status" >&2
+  exit 1
+fi
+semantic_status=0
+"$BIN" --emit-diags-json "$semantic_json" "$semantic_src" >/dev/null 2>&1 || semantic_status=$?
+if [ "$semantic_status" -ne 1 ]; then
+  echo "expected compiler exit 1 for semantic diagnostic; got $semantic_status" >&2
+  exit 1
+fi
 
 python3 - "$parser_json" "$semantic_json" <<'PY'
 import json

@@ -11,7 +11,15 @@ fi
 TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
-"$BIN" tests/syntax/semantic_struct_inline_declarator.c > "$TMP_OUTPUT" 2>&1 || true
+set +e
+"$BIN" tests/syntax/semantic_struct_inline_declarator.c > "$TMP_OUTPUT" 2>&1
+status=$?
+set -e
+if [ "$status" -ne 0 ]; then
+  echo "Expected compiler exit 0, got $status" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
 
 if grep -Fq "Error" "$TMP_OUTPUT"; then
   echo "Unexpected errors for inline struct declarator test" >&2

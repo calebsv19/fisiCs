@@ -49,6 +49,55 @@ static LLVMTypeRef makeIntegerType(CodegenContext* ctx, unsigned bits) {
     }
 }
 
+static LLVMTypeRef unionStorageTypeForLayout(CodegenContext* ctx, uint64_t size, uint32_t align) {
+    LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
+    if (size == 0) size = 1;
+    if (align == 0) align = 1;
+
+    LLVMTypeRef alignTy = NULL;
+    uint64_t alignTySize = 1;
+    if (align >= 8) {
+        alignTy = LLVMInt64TypeInContext(llvmCtx);
+        alignTySize = 8;
+    } else if (align >= 4) {
+        alignTy = LLVMInt32TypeInContext(llvmCtx);
+        alignTySize = 4;
+    } else if (align >= 2) {
+        alignTy = LLVMInt16TypeInContext(llvmCtx);
+        alignTySize = 2;
+    } else {
+        alignTy = LLVMInt8TypeInContext(llvmCtx);
+        alignTySize = 1;
+    }
+
+    LLVMModuleRef module = cg_context_get_module(ctx);
+    LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
+    LLVMTypeRef members[3];
+    unsigned used = 0;
+    uint32_t carrierAlign = td
+        ? (uint32_t)LLVMABIAlignmentOfType(td, alignTy)
+        : (uint32_t)alignTySize;
+    if (td && align > carrierAlign) {
+        LLVMTypeRef alignVector = LLVMVectorType(LLVMInt8TypeInContext(llvmCtx), align);
+        LLVMTypeRef alignAnchor = LLVMArrayType(alignVector, 0);
+        if (LLVMABISizeOfType(td, alignAnchor) == 0 &&
+            LLVMABIAlignmentOfType(td, alignAnchor) == align) {
+            members[used++] = alignAnchor;
+        }
+    }
+    members[used++] = alignTy;
+    if (size > alignTySize) {
+        members[used++] = LLVMArrayType(LLVMInt8TypeInContext(llvmCtx),
+                                       (unsigned)(size - alignTySize));
+    }
+    LLVMTypeRef storage = LLVMStructTypeInContext(llvmCtx, members, used, false);
+    if (td && (LLVMABISizeOfType(td, storage) != size ||
+               LLVMABIAlignmentOfType(td, storage) != align)) {
+        return NULL;
+    }
+    return storage;
+}
+
 static bool cg_is_builtin_int128_alias(const char* name, bool* outIsUnsigned) {
     if (!name) return false;
     if (strcmp(name, "__int128_t") == 0 || strcmp(name, "__int128") == 0) {
@@ -81,11 +130,30 @@ static bool cg_parsed_type_has_uncacheable_array_expr(const ParsedType* type) {
     return false;
 }
 
-static bool cg_type_cacheable_key_allowed(const ParsedType* type) {
+static bool cg_type_cacheable_key_allowed(CodegenContext* ctx, const ParsedType* type) {
     if (!type) {
         return false;
     }
     if (type->inlineStructOrUnionDef || type->inlineEnumDef) {
+        return false;
+    }
+    if (ctx &&
+        (type->kind == TYPE_NAMED || type->kind == TYPE_STRUCT || type->kind == TYPE_UNION) &&
+        type->userTypeName &&
+        cg_scope_lookup_typedef(ctx->currentScope, type->userTypeName)) {
+        /* A lexical typedef can shadow a file-scope alias with the same spelling.
+           The parsed-type cache key is textual, so reusing it here would return
+           the outer LLVM type before scoped typedef resolution runs. */
+        return false;
+    }
+    if (ctx &&
+        (type->kind == TYPE_STRUCT || type->kind == TYPE_UNION) &&
+        type->userTypeName &&
+        cg_scope_lookup_tag(ctx->currentScope,
+                            type->userTypeName,
+                            type->kind == TYPE_UNION)) {
+        /* Named tag cache keys are also textual and cannot distinguish a
+           lexical same-name tag definition from its outer binding. */
         return false;
     }
     if (type->attributeCount > 0 || type->hasAlignOverride) {
@@ -178,6 +246,13 @@ static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type
 static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type);
 static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type, size_t derivationIndex);
 
+static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
+    if (!type || type->kind != TYPE_NAMED) {
+        return false;
+    }
+    return type->derivationCount > 0 || type->pointerDepth > 0 || type->isFunctionPointer;
+}
+
 static bool cg_constant_array_length(CodegenContext* ctx,
                                      const TypeDerivation* deriv,
                                      unsigned* outLen) {
@@ -246,7 +321,10 @@ static LLVMTypeRef applyPointerDepth(CodegenContext* ctx, LLVMTypeRef base, int 
 static LLVMTypeRef functionPointerType(CodegenContext* ctx, const ParsedType* type, LLVMTypeRef returnType) {
     const ParsedType* fpParams = NULL;
     size_t count = 0;
-    parsedTypeGetEffectiveFunctionPointerSignature(type, &fpParams, &count, NULL);
+    bool isVariadic = false;
+    bool hasPrototype = false;
+    parsedTypeGetEffectiveFunctionPointerSignature(
+        type, &fpParams, &count, &isVariadic, &hasPrototype);
     LLVMTypeRef* params = NULL;
     if (count > 0) {
         params = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * count);
@@ -259,7 +337,10 @@ static LLVMTypeRef functionPointerType(CodegenContext* ctx, const ParsedType* ty
         }
     }
 
-    LLVMTypeRef fnType = LLVMFunctionType(returnType, params, (unsigned)count, 0);
+    LLVMTypeRef fnType = LLVMFunctionType(returnType,
+                                          params,
+                                          (unsigned)count,
+                                          (isVariadic || !hasPrototype) ? 1 : 0);
     free(params);
     return LLVMPointerType(fnType, 0);
 }
@@ -309,7 +390,8 @@ static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type,
                     return LLVMFunctionType(returnType ? returnType : LLVMVoidTypeInContext(cg_context_get_llvm_context(ctx)),
                                             NULL,
                                             0,
-                                            deriv->as.function.isVariadic ? 1 : 0);
+                                            (deriv->as.function.isVariadic ||
+                                             !deriv->as.function.hasPrototype) ? 1 : 0);
                 }
                 for (size_t i = 0; i < paramCount; ++i) {
                     params[i] = cg_lower_parameter_type(ctx,
@@ -324,7 +406,8 @@ static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type,
             LLVMTypeRef fnType = LLVMFunctionType(returnType ? returnType : LLVMVoidTypeInContext(cg_context_get_llvm_context(ctx)),
                                                   params,
                                                   (unsigned)paramCount,
-                                                  deriv->as.function.isVariadic ? 1 : 0);
+                                                  (deriv->as.function.isVariadic ||
+                                                   !deriv->as.function.hasPrototype) ? 1 : 0);
             free(params);
             return fnType;
         }
@@ -338,7 +421,7 @@ LLVMTypeRef cg_type_from_parsed(CodegenContext* ctx, const ParsedType* type) {
     profiler_record_value("codegen_count_type_from_parsed", 1);
     CGTypeCache* cache = ctx ? cg_context_get_type_cache(ctx) : NULL;
     char* cacheKey = NULL;
-    if (cache && cg_type_cacheable_key_allowed(type)) {
+    if (cache && cg_type_cacheable_key_allowed(ctx, type)) {
         cacheKey = parsed_type_to_string(type);
         if (cacheKey) {
             LLVMTypeRef cached = cg_type_cache_lookup_parsed(cache, cacheKey);
@@ -396,8 +479,12 @@ static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* i
         return LLVMPointerType(LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx)), 0);
     }
 
-    if (info->llvmType) {
+    if (info->llvmType && !LLVMIsOpaqueStruct(info->llvmType)) {
         return info->llvmType;
+    }
+
+    if (info->llvmType && info->definition) {
+        return codegenStructDefinition(ctx, (ASTNode*)info->definition);
     }
 
     LLVMTypeRef existing = cg_context_lookup_named_type(ctx, info->name);
@@ -406,6 +493,10 @@ static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* i
     } else {
         info->llvmType = LLVMStructCreateNamed(cg_context_get_llvm_context(ctx), info->name);
         cg_context_cache_named_type(ctx, info->name, info->llvmType);
+    }
+
+    if (info->definition) {
+        return codegenStructDefinition(ctx, (ASTNode*)info->definition);
     }
 
     if (info->fieldCount == 0) {
@@ -425,6 +516,25 @@ static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* i
             LLVMTypeRef fieldTy = cg_type_from_parsed(ctx, &info->fields[i].parsedType);
             if (!fieldTy || LLVMGetTypeKind(fieldTy) == LLVMVoidTypeKind) {
                 fieldTy = LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
+            }
+            uint64_t semanticSize = 0;
+            uint32_t semanticAlign = 0;
+            if (cg_size_align_for_type(ctx,
+                                       &info->fields[i].parsedType,
+                                       fieldTy,
+                                       &semanticSize,
+                                       &semanticAlign) &&
+                semanticSize > 0) {
+                uint64_t llvmSize = td ? LLVMABISizeOfType(td, fieldTy) : semanticSize;
+                uint32_t llvmAlign = td ? (uint32_t)LLVMABIAlignmentOfType(td, fieldTy) : semanticAlign;
+                if (semanticSize != llvmSize ||
+                    (semanticAlign > 0 && llvmAlign > 0 && semanticAlign != llvmAlign)) {
+                    LLVMTypeRef exactStorage =
+                        unionStorageTypeForLayout(ctx, semanticSize, semanticAlign);
+                    if (exactStorage) {
+                        fieldTy = exactStorage;
+                    }
+                }
             }
             uint64_t sz = td ? LLVMABISizeOfType(td, fieldTy) : 0;
             uint32_t al = td ? (uint32_t)LLVMABIAlignmentOfType(td, fieldTy) : 1;
@@ -484,11 +594,45 @@ static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type
     const char* typeName = (type && type->userTypeName) ? type->userTypeName : "<anon>";
     CG_TRACE("[TRACE] structOrUnionType name=%s kind=%d\n", typeName, type ? type->kind : -1);
 
-    /* If we have the defining AST handy (inline def), force materialization before fallback. */
+    /* A declaration-frozen inline definition is an exact identity and must
+       win over any later lexical tag with the same spelling. */
     if (ctx && type && type->inlineStructOrUnionDef) {
         LLVMTypeRef forced = codegenStructDefinition(ctx, type->inlineStructOrUnionDef);
         if (forced) {
             return forced;
+        }
+    }
+
+    /* A same-name typedef/tag declaration can introduce a lexical tag that
+       shadows a file-scope tag. Preserve that definition identity when a
+       later `struct T`/`union T` surface reaches codegen. */
+    if (ctx && type && type->userTypeName) {
+        const ASTNode* lexicalTag =
+            cg_scope_lookup_tag(ctx->currentScope,
+                                type->userTypeName,
+                                type->kind == TYPE_UNION);
+        if (lexicalTag) {
+            for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+                if (ctx->structInfos[i].definition == lexicalTag &&
+                    ctx->structInfos[i].llvmType) {
+                    return ctx->structInfos[i].llvmType;
+                }
+            }
+            LLVMTypeRef scoped = codegenStructDefinition(ctx, (ASTNode*)lexicalTag);
+            if (scoped) {
+                return scoped;
+            }
+        }
+        const ParsedType* lexical =
+            cg_scope_lookup_typedef(ctx->currentScope, type->userTypeName);
+        if (lexical && lexical->inlineStructOrUnionDef &&
+            ((type->kind == TYPE_STRUCT && lexical->kind == TYPE_STRUCT) ||
+             (type->kind == TYPE_UNION && lexical->kind == TYPE_UNION))) {
+            LLVMTypeRef scoped =
+                codegenStructDefinition(ctx, lexical->inlineStructOrUnionDef);
+            if (scoped) {
+                return scoped;
+            }
         }
     }
 
@@ -585,6 +729,49 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
         if (resolved) {
             CG_TRACE("[TRACE] namedAliasType scoped typedef resolved=%p\n", (void*)resolved);
             return resolved;
+        }
+    }
+    if (cg_named_type_has_surface_derivations(type)) {
+        ParsedType bare = parsedTypeClone(type);
+        if (bare.kind != TYPE_INVALID) {
+            parsedTypeResetDerivations(&bare);
+            bare.pointerDepth = 0;
+            bare.isFunctionPointer = false;
+
+            const ParsedType* scopedSurfaceAlias = cg_resolve_typedef_parsed_type(ctx, &bare);
+            if (scopedSurfaceAlias && scopedSurfaceAlias != &bare) {
+                LLVMTypeRef resolved = cg_type_from_parsed(ctx, scopedSurfaceAlias);
+                parsedTypeFree(&bare);
+                if (resolved) {
+                    CG_TRACE("[TRACE] namedAliasType scoped surface base resolved=%p\n", (void*)resolved);
+                    return resolved;
+                }
+            } else {
+                parsedTypeFree(&bare);
+            }
+        }
+    }
+
+    if (cg_named_type_has_surface_derivations(type)) {
+        const ParsedType* globalSurfaceAlias = NULL;
+        CGTypeCache* surfaceCache = cg_context_get_type_cache(ctx);
+        CGNamedLLVMType* surfaceInfo =
+            surfaceCache ? cg_type_cache_get_typedef_info(surfaceCache, aliasName) : NULL;
+        if (surfaceInfo) {
+            globalSurfaceAlias = &surfaceInfo->parsedType;
+        }
+        if (!globalSurfaceAlias && ctx->semanticModel) {
+            const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel, aliasName);
+            if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                globalSurfaceAlias = &sym->type;
+            }
+        }
+        if (globalSurfaceAlias) {
+            LLVMTypeRef resolved = cg_type_from_parsed(ctx, globalSurfaceAlias);
+            if (resolved) {
+                CG_TRACE("[TRACE] namedAliasType global surface base resolved=%p\n", (void*)resolved);
+                return resolved;
+            }
         }
     }
 

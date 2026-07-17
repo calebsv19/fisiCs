@@ -32,6 +32,7 @@ typedef struct ParsedArrayInfo {
 struct ParsedType;
 
 typedef struct ParsedFunctionSignature {
+    bool hasPrototype;
     bool isVariadic;
     size_t paramCount;
     struct ParsedType* params;
@@ -139,21 +140,28 @@ void parsedTypeFree(ParsedType* t);  // free fpParams if set (call in your globa
 
 bool parsedTypeAppendPointer(ParsedType* t);
 bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA);
-bool parsedTypeAppendFunction(ParsedType* t, const ParsedType* params, size_t paramCount, bool isVariadic);
+bool parsedTypeAppendFunction(ParsedType* t,
+                              const ParsedType* params,
+                              size_t paramCount,
+                              bool isVariadic,
+                              bool hasPrototype);
 void parsedTypeResetDerivations(ParsedType* t);
 ParsedType parsedTypeClone(const ParsedType* src);
 void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count);
 bool parsedTypeIsDirectArray(const ParsedType* t);
 bool parsedTypeAdjustArrayParameter(ParsedType* t);
+bool parsedTypeAdjustFunctionParameter(ParsedType* t);
 ParsedType parsedTypeArrayElementType(const ParsedType* t);
 ParsedType parsedTypePointerTargetType(const ParsedType* t);
 ParsedType parsedTypeFunctionReturnType(const ParsedType* t);
 ParsedType parsedTypeDeclaredFunctionReturnType(const ParsedType* t);
 void parsedTypeNormalizeFunctionPointer(ParsedType* t);
+void parsedTypeRefreshFunctionFlags(ParsedType* t);
 bool parsedTypeGetEffectiveFunctionPointerSignature(const ParsedType* t,
                                                     const ParsedType** params,
                                                     size_t* count,
-                                                    bool* isVariadic);
+                                                    bool* isVariadic,
+                                                    bool* hasPrototype);
 bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b);
 const TypeDerivation* parsedTypeGetDerivation(const ParsedType* t, size_t index);
 const TypeDerivation* parsedTypeGetArrayDerivation(const ParsedType* t, size_t dimensionIndex);

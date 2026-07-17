@@ -29,9 +29,11 @@ TypeInfo defaultArgumentPromotion(TypeInfo info) {
         info.isLValue = false;
         return info;
     }
-    if (typeInfoIsFloating(&info) && info.bitWidth < 64) {
-        TypeInfo promoted = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, info.isComplex, NULL);
-        promoted.isImaginary = info.isImaginary && !info.isComplex;
+    if (typeInfoIsFloating(&info) &&
+        !info.isComplex &&
+        !info.isImaginary &&
+        info.bitWidth < 64) {
+        TypeInfo promoted = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, false, NULL);
         promoted.isLValue = false;
         return promoted;
     }

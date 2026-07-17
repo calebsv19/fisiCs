@@ -34,13 +34,28 @@ static bool parsedTypeIsPlainVoidType(const ParsedType* type) {
     return true;
 }
 
-static bool functionDerivationHasPrototypeParams(const TypeDerivation* fn) {
-    if (!fn || fn->kind != TYPE_DERIVATION_FUNCTION) return false;
-    if (fn->as.function.isVariadic) return true;
-    if (fn->as.function.paramCount == 0) return false;
-    if (fn->as.function.paramCount == 1 &&
-        parsedTypeIsPlainVoidType(&fn->as.function.params[0])) {
+static bool functionDerivationHasPrototype(const TypeDerivation* fn) {
+    return fn && fn->kind == TYPE_DERIVATION_FUNCTION &&
+           fn->as.function.hasPrototype;
+}
+
+static bool functionPrototypeParamsSurviveDefaultPromotions(
+    const TypeDerivation* fn,
+    Scope* scope) {
+    if (!fn || fn->kind != TYPE_DERIVATION_FUNCTION ||
+        fn->as.function.isVariadic) {
         return false;
+    }
+    if (fn->as.function.paramCount > 0 && !fn->as.function.params) {
+        return false;
+    }
+    for (size_t i = 0; i < fn->as.function.paramCount; ++i) {
+        TypeInfo declared =
+            typeInfoFromParsedType(&fn->as.function.params[i], scope);
+        TypeInfo promoted = defaultArgumentPromotion(declared);
+        if (!typesAreEqual(&declared, &promoted)) {
+            return false;
+        }
     }
     return true;
 }
@@ -143,14 +158,17 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
         return false;
     }
 
-    bool destHasParams = functionDerivationHasPrototypeParams(destFn);
-    bool srcHasParams = functionDerivationHasPrototypeParams(srcFn);
-    if (destHasParams != srcHasParams) {
+    bool destHasPrototype = functionDerivationHasPrototype(destFn);
+    bool srcHasPrototype = functionDerivationHasPrototype(srcFn);
+    if (destHasPrototype != srcHasPrototype) {
+        const TypeDerivation* prototype = destHasPrototype ? destFn : srcFn;
+        bool compatible =
+            functionPrototypeParamsSurviveDefaultPromotions(prototype, scope);
         parsedTypeFree(&destTarget);
         parsedTypeFree(&srcTarget);
-        return false;
+        return compatible;
     }
-    if (destHasParams) {
+    if (destHasPrototype) {
         if (destFn->as.function.paramCount != srcFn->as.function.paramCount ||
             destFn->as.function.isVariadic != srcFn->as.function.isVariadic) {
             parsedTypeFree(&destTarget);
@@ -245,13 +263,28 @@ static bool functionDesignatorInitializerCompatible(const ParsedType* destType,
         return false;
     }
 
-    bool destHasParams = functionDerivationHasPrototypeParams(destFn);
-    bool srcHasParams = sym->signature.paramCount > 0 || sym->signature.isVariadic;
-    if (destHasParams != srcHasParams) {
+    bool destHasPrototype = functionDerivationHasPrototype(destFn);
+    bool srcHasPrototype = sym->signature.hasPrototype;
+    if (destHasPrototype != srcHasPrototype) {
+        bool compatible = false;
+        if (destHasPrototype) {
+            compatible = functionPrototypeParamsSurviveDefaultPromotions(destFn, scope);
+        } else if (!sym->signature.isVariadic) {
+            compatible = true;
+            for (size_t i = 0; i < sym->signature.paramCount; ++i) {
+                TypeInfo declared =
+                    typeInfoFromParsedType(&sym->signature.params[i], scope);
+                TypeInfo promoted = defaultArgumentPromotion(declared);
+                if (!typesAreEqual(&declared, &promoted)) {
+                    compatible = false;
+                    break;
+                }
+            }
+        }
         parsedTypeFree(&destTarget);
-        return false;
+        return compatible;
     }
-    if (destHasParams) {
+    if (destHasPrototype) {
         if (destFn->as.function.paramCount != sym->signature.paramCount ||
             destFn->as.function.isVariadic != sym->signature.isVariadic) {
                 parsedTypeFree(&destTarget);
@@ -323,13 +356,13 @@ static bool arrayInnerBlockSize(const ParsedType* type, size_t* outSize) {
     return true;
 }
 
-static void validateArrayInitializerEntries(ParsedType* type,
-                                            const char* arrayName,
-                                            DesignatedInit** values,
-                                            size_t valueCount,
-                                            Scope* scope,
-                                            ASTNode* contextNode,
-                                            long long* outInferredLength) {
+void validateArrayInitializerEntries(ParsedType* type,
+                                     const char* arrayName,
+                                     DesignatedInit** values,
+                                     size_t valueCount,
+                                     Scope* scope,
+                                     ASTNode* contextNode,
+                                     long long* outInferredLength) {
     if (!type || !scope) return;
 
     TypeDerivation* topArray = parsedTypeGetMutableArrayDerivation(type, 0);
@@ -341,6 +374,7 @@ static void validateArrayInitializerEntries(ParsedType* type,
     if (elementParsed.kind == TYPE_INVALID) {
         return;
     }
+    parsedTypeResolvePlainNamedTypedefInScope(&elementParsed, scope);
     profiler_record_value("semantic_count_type_info_site_decl", 1);
     TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
     bool elementIsArray = parsedTypeIsDirectArray(&elementParsed);
@@ -541,16 +575,6 @@ static void validateArrayInitializerEntries(ParsedType* type,
             rhs = decayToRValue(rhs);
             if (rhs.category != TYPEINFO_INVALID) {
                 AssignmentCheckResult assign = canAssignTypesInScope(&elementInfo, &rhs, scope);
-                if (assign == ASSIGN_INCOMPATIBLE &&
-                    elementInfo.originalType &&
-                    rhs.originalType &&
-                    parsedTypeIsFunctionPointerLike(elementInfo.originalType) &&
-                    parsedTypeIsFunctionPointerLike(rhs.originalType) &&
-                    functionPointerTypesCompatibleForInitializer(elementInfo.originalType,
-                                                                 rhs.originalType,
-                                                                 scope)) {
-                    assign = ASSIGN_OK;
-                }
                 if (assign == ASSIGN_INCOMPATIBLE &&
                     elementInfo.originalType &&
                     parsedTypeIsFunctionPointerLike(elementInfo.originalType) &&

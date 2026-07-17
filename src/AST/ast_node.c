@@ -260,7 +260,12 @@ ASTNode* createBinaryExprNode(const char* op, ASTNode* left, ASTNode* right) {
 
     node->expr.left  = left;
     node->expr.right = right;
-    inherit_line_from_pair(node, left, right);
+    ASTNode* locationLeft = left;
+    if (locationLeft && locationLeft->type == AST_CAST_EXPRESSION &&
+        locationLeft->castExpr.expression) {
+        locationLeft = locationLeft->castExpr.expression;
+    }
+    inherit_line_from_pair(node, locationLeft, right);
     return node;
 }
 
@@ -708,7 +713,8 @@ ASTNode* createFunctionDeclarationNode(ParsedType returnType,
                                        ASTNode* funcName,
                                        ASTNode** paramList,
                                        size_t paramCount,
-                                       bool isVariadic) {
+                                       bool isVariadic,
+                                       bool hasPrototype) {
     ASTNode* node = new_node(AST_FUNCTION_DECLARATION);
     if (!node) return NULL;
 
@@ -717,6 +723,7 @@ ASTNode* createFunctionDeclarationNode(ParsedType returnType,
     node->functionDecl.parameters = paramList;
     node->functionDecl.paramCount = paramCount;
     node->functionDecl.isVariadic = isVariadic;
+    node->functionDecl.hasPrototype = hasPrototype;
     inherit_line_from_node(node, node->functionDecl.funcName);
     return node;
 }
@@ -727,7 +734,8 @@ ASTNode* createFunctionDefinitionNode(ParsedType returnType,
                                       ASTNode** paramList,
                                       ASTNode* body,
                                       size_t paramCount,
-                                      bool isVariadic) {
+                                      bool isVariadic,
+                                      bool hasPrototype) {
     ASTNode* node = new_node(AST_FUNCTION_DEFINITION);
     if (!node) return NULL;
 
@@ -737,6 +745,7 @@ ASTNode* createFunctionDefinitionNode(ParsedType returnType,
     node->functionDef.paramCount = paramCount;
     node->functionDef.body       = body;         // block or single statement node
     node->functionDef.isVariadic = isVariadic;
+    node->functionDef.hasPrototype = hasPrototype;
     inherit_line_from_node(node, funcName);
     inherit_line_from_array(node, paramList, paramCount);
     inherit_line_from_node(node, body);

@@ -130,7 +130,9 @@ static bool parseOldStyleParamDeclarations(Parser* parser, KNRParam* params, siz
             params[idx].type = decl.type;
             params[idx].declared = true;
             params[idx].nameNode = decl.identifier;
+            memset(&decl.type, 0, sizeof(decl.type));
             decl.type.kind = TYPE_INVALID;
+            decl.type.tag = TAG_NONE;
             decl.identifier = NULL;
             parserDeclaratorDestroy(&decl);
 
@@ -235,6 +237,25 @@ static bool currentTokenIsTransparentGroupedIdentifier(Parser* parser) {
     return transparent;
 }
 
+static void parserPushFunctionParameterScope(Parser* parser,
+                                             ASTNode** params,
+                                             size_t paramCount) {
+    parserPushOrdinaryScope(parser);
+    for (size_t i = 0; i < paramCount; ++i) {
+        ASTNode* param = params ? params[i] : NULL;
+        if (!param || param->type != AST_VARIABLE_DECLARATION ||
+            !param->varDecl.varNames) {
+            continue;
+        }
+        for (size_t k = 0; k < param->varDecl.varCount; ++k) {
+            ASTNode* name = param->varDecl.varNames[k];
+            if (name && name->type == AST_IDENTIFIER && name->valueNode.value) {
+                parserRecordOrdinaryIdentifier(parser, name->valueNode.value);
+            }
+        }
+    }
+}
+
 
 
 ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
@@ -254,6 +275,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         ASTNode** paramList = decl.functionParameters;
         size_t paramCount = decl.functionParamCount;
         bool isVariadic = decl.functionIsVariadic;
+        bool hasPrototype = decl.functionHasPrototype;
         size_t funcAttrCount = 0;
         ASTAttribute** funcAttrs = parserParseAttributeSpecifiers(parser, &funcAttrCount);
 
@@ -263,7 +285,8 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
                                                               funcName,
                                                               paramList,
                                                               paramCount,
-                                                              isVariadic);
+                                                              isVariadic,
+                                                              hasPrototype);
             if (declNode) {
                 astNodeCloneTypeAttributes(declNode, &funcReturnType);
                 astNodeAppendAttributes(declNode, funcAttrs, funcAttrCount);
@@ -277,7 +300,9 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         }
 
         if (parser->currentToken.type == TOKEN_LBRACE) {
+            parserPushFunctionParameterScope(parser, paramList, paramCount);
             ASTNode* body = parseBlock(parser);
+            parserPopOrdinaryScope(parser);
             if (!body) {
                 printf("Error: Failed to parse function body at line %d\n", parser->currentToken.line);
                 parsedTypeFree(&decl.type);
@@ -290,7 +315,8 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
                                                         paramList,
                                                         body,
                                                         paramCount,
-                                                        isVariadic);
+                                                        isVariadic,
+                                                        hasPrototype);
             if (def) {
                 astNodeCloneTypeAttributes(def, &funcReturnType);
                 astNodeAppendAttributes(def, funcAttrs, funcAttrCount);
@@ -370,6 +396,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     size_t paramCount = 0;
     bool isVariadic = false;
     bool isKNR = false;
+    bool hasPrototype = parser->currentToken.type != TOKEN_RPAREN;
     KNRParam* knrParams = NULL;
     size_t knrCount = 0;
 
@@ -427,7 +454,9 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     // Determine next step: declaration or definition
     if (parser->currentToken.type == TOKEN_SEMICOLON) {
         advance(parser);  // Consume ';'
-        ASTNode* decl = createFunctionDeclarationNode(funcReturnType, funcName, paramList, paramCount, isVariadic);
+        ASTNode* decl = createFunctionDeclarationNode(funcReturnType, funcName, paramList,
+                                                      paramCount, isVariadic,
+                                                      hasPrototype && !isKNR);
         if (decl && decl->functionDecl.funcName) {
             decl->functionDecl.funcName->line = funcName->line;
             astNodeCloneTypeAttributes(decl, &funcReturnType);
@@ -439,12 +468,16 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     }
 
     if (parser->currentToken.type == TOKEN_LBRACE) {
+        parserPushFunctionParameterScope(parser, paramList, paramCount);
         ASTNode* body = parseBlock(parser);  // Definition path
+        parserPopOrdinaryScope(parser);
         if (!body) {
             printf("Error: Failed to parse function body at line %d\n", parser->currentToken.line);
             return NULL;
         }
-        ASTNode* def = createFunctionDefinitionNode(funcReturnType, funcName, paramList, body, paramCount, isVariadic);
+        ASTNode* def = createFunctionDefinitionNode(funcReturnType, funcName, paramList, body,
+                                                    paramCount, isVariadic,
+                                                    hasPrototype && !isKNR);
         if (def) {
         astNodeCloneTypeAttributes(def, &funcReturnType);
         astNodeAppendAttributes(def, funcAttrs, funcAttrCount);
@@ -464,6 +497,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
 
 ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadic) {
     PARSER_DEBUG_PRINTF("DEBUG: Entering parseParameterList() at line %d\n", parser->currentToken.line);
+    parserPushOrdinaryScope(parser);
             
     *paramCount = 0;
     if (isVariadic) {
@@ -471,6 +505,10 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
     }
     size_t paramCapacity = 4;
     ASTNode** paramList = malloc(paramCapacity * sizeof(ASTNode*));
+    if (!paramList) {
+        parserPopOrdinaryScope(parser);
+        return NULL;
+    }
     size_t unnamedIndex = 0;
     
     while (parser->currentToken.type != TOKEN_RPAREN && parser->currentToken.type != TOKEN_EOF) {
@@ -495,6 +533,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
                                    &decl)) {
             printParseError("Invalid parameter declarator", parser);
             free(paramList);
+            parserPopOrdinaryScope(parser);
             return NULL;
         }
         parsedTypeFree(&paramBase);
@@ -505,6 +544,9 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         parsedTypeAdjustArrayParameter(&decl.type);
 
         ASTNode* paramName = decl.identifier;
+        if (paramName && paramName->type == AST_IDENTIFIER && paramName->valueNode.value) {
+            parserRecordOrdinaryIdentifier(parser, paramName->valueNode.value);
+        }
         if (!paramName) {
             char buffer[32];
             snprintf(buffer, sizeof(buffer), "__unnamed_param%zu", unnamedIndex++);
@@ -539,9 +581,14 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         // Handle ',' or error
         if (parser->currentToken.type == TOKEN_COMMA) {
             advance(parser);
+            if (parser->currentToken.type == TOKEN_RPAREN) {
+                printParseError("Expected identifier", parser);
+                break;
+            }
         } else if (parser->currentToken.type != TOKEN_RPAREN && parser->currentToken.type != TOKEN_ELLIPSIS) {
             printParseError("Expected ',' or ')' in parameter list", parser);
             free(paramList);  
+            parserPopOrdinaryScope(parser);
             return NULL;
         }
     }   
@@ -549,16 +596,19 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' to close parameter list", parser);
         free(paramList);
+        parserPopOrdinaryScope(parser);
         return NULL;
     }
     if (isVariadic && *isVariadic && *paramCount == 0) {
         printParseError("Variadic parameter list requires at least one named parameter", parser);
         free(paramList);
+        parserPopOrdinaryScope(parser);
         return NULL;
     }
                     
     // advance(parser);  // consume ')'
     PARSER_DEBUG_PRINTF("DEBUG: Successfully parsed %zu function parameters\n", *paramCount);
+    parserPopOrdinaryScope(parser);
     return paramList;
 }
 

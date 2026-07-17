@@ -166,7 +166,9 @@ struct ASTNode {
             ASTNode *caseValue;
             ASTNode **caseBody;
             ASTNode *nextCase;
-	    size_t caseBodySize;
+            size_t caseBodySize;
+            long long analyzedConstValue;
+            bool hasAnalyzedConstValue;
         } caseStmt;
 
 
@@ -178,6 +180,7 @@ struct ASTNode {
 	    ASTNode** parameters;
 	    size_t paramCount;
             bool isVariadic;
+            bool hasPrototype;
 	} functionDecl;
 
 
@@ -188,6 +191,7 @@ struct ASTNode {
             ASTNode *body;
 	    size_t paramCount;
             bool isVariadic;
+            bool hasPrototype;
         } functionDef;
 
         struct {
@@ -258,6 +262,7 @@ struct ASTNode {
 	    struct DesignatedInit** entries;
 	    size_t entryCount;
             bool isStaticStorage;   // true when the literal has static storage duration (file scope)
+	    bool hadParserRecovery;  // malformed element was discarded after a primary parser diagnostic
 	} compoundLiteral;
 
 
@@ -390,13 +395,15 @@ ASTNode* createFunctionDeclarationNode(ParsedType returnType,
                                        ASTNode* funcName,
                                        ASTNode** paramList,
                                        size_t paramCount,
-                                       bool isVariadic);
+                                       bool isVariadic,
+                                       bool hasPrototype);
 ASTNode* createFunctionDefinitionNode(ParsedType returnType,
                                       ASTNode* funcName,
                                       ASTNode** paramList,
-				      ASTNode* body,
+                                      ASTNode* body,
                                       size_t paramCount,
-                                      bool isVariadic);
+                                      bool isVariadic,
+                                      bool hasPrototype);
 ASTNode *createFunctionCallNode(ASTNode *callee, ASTNode **arguments, size_t argumentCount);
 ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
                                               ASTNode* name,

@@ -10,7 +10,15 @@ fi
 TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
-"$BIN" tests/syntax/sizeof_alignof_vla.c >"$TMP_OUTPUT" 2>&1 || true
+set +e
+"$BIN" tests/syntax/sizeof_alignof_vla.c >"$TMP_OUTPUT" 2>&1
+status=$?
+set -e
+if [ "$status" -ne 1 ]; then
+  echo "Expected compiler exit 1, got $status" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
 
 if ! grep -q "alignof requires type-name operand" "$TMP_OUTPUT"; then
   echo "Expected strict _Alignof(type-name) diagnostic for _Alignof(vla) operand" >&2

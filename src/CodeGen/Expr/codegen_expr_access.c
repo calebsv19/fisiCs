@@ -63,6 +63,21 @@ static LLVMValueRef cg_memcheck_allocator_function_value(CodegenContext* ctx, co
     return function;
 }
 
+static bool cg_compound_literal_is_top_level_const(const ParsedType* type) {
+    if (!type) return false;
+
+    if (type->derivationCount > 0 && type->derivations) {
+        for (size_t i = 0; i < type->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+            if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+                return deriv->as.pointer.isConst;
+            }
+        }
+    }
+
+    return type->pointerDepth == 0 && type->isConst;
+}
+
 LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_ARRAY_ACCESS) {
         fprintf(stderr, "Error: Invalid node type for codegenArrayAccess\n");
@@ -83,6 +98,18 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     /* For pointer variables (not true arrays), arrayPtr currently holds the address of the
        pointer object (e.g., an alloca of `int*`). Load the pointer value so we index the
        pointee rather than the stack slot. */
+    if (!arrayParsed) {
+        arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
+    }
+    const ParsedType* arrayParsedResolved = cg_resolve_typedef_parsed_type(ctx, arrayParsed);
+    if (arrayParsedResolved && arrayParsedResolved->kind != TYPE_INVALID) {
+        arrayParsed = arrayParsedResolved;
+    }
+    static ParsedType expandedArrayParsed;
+    parsedTypeFree(&expandedArrayParsed);
+    if (cg_expand_surface_typedef_parsed_type(ctx, arrayParsed, &expandedArrayParsed)) {
+        arrayParsed = &expandedArrayParsed;
+    }
     bool baseIsDirectArray = (arrayParsed && parsedTypeIsDirectArray(arrayParsed)) ||
                              (arrayType && LLVMGetTypeKind(arrayType) == LLVMArrayTypeKind);
     bool baseNeedsLoad = haveLVal && arrayPtr && !baseIsDirectArray;
@@ -112,9 +139,6 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         if (atStr) LLVMDisposeMessage(atStr);
     }
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
-    if (!arrayParsed) {
-        arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
-    }
     const ParsedType* refinedCallParsed =
         cg_refine_function_call_result_type(ctx, node->arrayAccess.array);
     if (refinedCallParsed) {
@@ -363,9 +387,17 @@ LLVMValueRef codegenPointerDereference(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
     LLVMTypeRef elemType = NULL;
+    if (node->pointerDeref.pointer &&
+        node->pointerDeref.pointer->type == AST_IDENTIFIER) {
+        const char* name = node->pointerDeref.pointer->valueNode.value;
+        NamedValue* entry = cg_scope_lookup(ctx->currentScope, name);
+        if (entry && entry->elementType) {
+            elemType = entry->elementType;
+        }
+    }
     /* Prefer semantic type information if available. */
     const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->pointerDeref.pointer);
-    if (ptrParsed && ptrParsed->pointerDepth > 0) {
+    if (!elemType && ptrParsed && ptrParsed->pointerDepth > 0) {
         elemType = cg_element_type_from_pointer_parsed(ctx, ptrParsed);
         if (elemType && LLVMGetTypeKind(elemType) == LLVMPointerTypeKind) {
             ParsedType base = parsedTypeClone(ptrParsed);
@@ -434,9 +466,10 @@ static LLVMValueRef cg_materialize_compound_literal(CodegenContext* ctx,
             snprintf(name, sizeof(name), ".compound.static.%u", counter++);
             LLVMValueRef global = LLVMAddGlobal(ctx->module, literalType, name);
             LLVMSetLinkage(global, LLVMPrivateLinkage);
-            LLVMSetGlobalConstant(global, 1);
+            LLVMSetGlobalConstant(
+                global,
+                cg_compound_literal_is_top_level_const(&node->compoundLiteral.literalType));
             LLVMSetInitializer(global, constInit);
-            LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
             return global;
         }
         if (!hasInsertBlock) {

@@ -49,6 +49,14 @@ static bool emit_builtin_literal(PPTokenBuffer* dest,
     return true;
 }
 
+static int token_builtin_spelling_line(const Token* tok, const SourceRange* loc) {
+    if (tok && range_is_initialized(&tok->macroCallSite)) {
+        return loc ? loc->start.line : tok->macroCallSite.start.line;
+    }
+    if (tok && tok->spellingLine > 0) return tok->spellingLine;
+    return loc ? loc->start.line : 0;
+}
+
 static bool handle_builtin_identifier(MacroExpander* expander,
                                       const Token* tok,
                                       PPTokenBuffer* out) {
@@ -69,7 +77,7 @@ static bool handle_builtin_identifier(MacroExpander* expander,
     }
     if (strcmp(name, "__LINE__") == 0) {
         char buffer[32];
-        int line = loc->start.line;
+        int line = token_builtin_spelling_line(tok, loc);
         if (expander->builtins.lineRemapActive &&
             *expander->builtins.lineRemapActive &&
             expander->builtins.lineOffset) {
@@ -120,6 +128,8 @@ static Token make_simple_token(TokenType type, const char* text, SourceRange ori
     tok.type = type;
     tok.value = text ? pp_strdup(text) : NULL;
     tok.line = origin.start.line;
+    tok.spellingLine = origin.start.line;
+    tok.spellingColumn = origin.start.column;
     tok.location = origin;
     tok.macroCallSite = empty_range();
     tok.macroDefinition = empty_range();
@@ -258,6 +268,8 @@ static bool relex_single_token(const char* text, SourceRange origin, Token* out)
     }
     first.location = origin;
     first.line = origin.start.line;
+    first.spellingLine = origin.start.line;
+    first.spellingColumn = origin.start.column;
     first.macroCallSite = empty_range();
     first.macroDefinition = empty_range();
     *out = first;
@@ -303,14 +315,20 @@ static bool apply_token_paste(PPTokenBuffer* buffer, SourceRange origin) {
             }
             snprintf(combined, len, "%s%s", leftText, rightText);
 
+            SourceRange pasteOrigin = range_is_initialized(&pending.macroCallSite)
+                ? pending.macroCallSite
+                : (range_is_initialized(&rightTok->macroCallSite)
+                    ? rightTok->macroCallSite
+                    : origin);
             Token relexed;
-            if (!relex_single_token(combined, origin, &relexed)) {
+            if (!relex_single_token(combined, pasteOrigin, &relexed)) {
                 free(combined);
                 if (hasPending) token_free(&pending);
                 pp_token_buffer_release(&result);
                 return false;
             }
             free(combined);
+            relexed.macroCallSite = pasteOrigin;
             token_free(&pending);
             pending = relexed;
             hasPending = true;
@@ -493,7 +511,9 @@ static bool substitute_macro(MacroExpander* expander,
     }
 
     for (size_t i = 0; i < working.count; ++i) {
-        working.tokens[i].macroCallSite = callSite;
+        if (!range_is_initialized(&working.tokens[i].macroCallSite)) {
+            working.tokens[i].macroCallSite = callSite;
+        }
         if (!range_is_initialized(&working.tokens[i].macroDefinition)) {
             working.tokens[i].macroDefinition = def->definitionRange;
         }
@@ -524,10 +544,10 @@ static bool try_expand_function_like_alias_boundary(MacroExpander* expander,
     if (handled) *handled = false;
     if (consumedIndex) *consumedIndex = currentIndex;
     if (!expander || !expander->table || !expandedObjectLike || !outTokens) return true;
-    if (expandedObjectLike->count != 1) return true;
+    if (expandedObjectLike->count == 0) return true;
     if (currentIndex + 1 >= count || input[currentIndex + 1].type != TOKEN_LPAREN) return true;
 
-    const Token* callee = &expandedObjectLike->tokens[0];
+    const Token* callee = &expandedObjectLike->tokens[expandedObjectLike->count - 1];
     if (callee->type != TOKEN_IDENTIFIER || !callee->value) return true;
 
     const MacroDefinition* def = macro_table_lookup(expander->table, callee->value);
@@ -562,7 +582,12 @@ static bool try_expand_function_like_alias_boundary(MacroExpander* expander,
             PPTokenBuffer nested = {0};
             ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
             if (ok) {
-                ok = append_buffer(outTokens, &nested);
+                for (size_t i = 0; ok && i + 1 < expandedObjectLike->count; ++i) {
+                    ok = pp_token_buffer_append_clone(outTokens, &expandedObjectLike->tokens[i]);
+                }
+                if (ok) {
+                    ok = append_buffer(outTokens, &nested);
+                }
             }
             pp_token_buffer_release(&nested);
         }
@@ -576,6 +601,41 @@ static bool try_expand_function_like_alias_boundary(MacroExpander* expander,
     if (handled) *handled = true;
     if (consumedIndex) *consumedIndex = cursor - 1;
     return true;
+}
+
+static bool try_expand_accumulated_function_boundary(MacroExpander* expander,
+                                                     const Token* input,
+                                                     size_t count,
+                                                     size_t currentIndex,
+                                                     PPTokenBuffer* outTokens,
+                                                     bool* handled,
+                                                     size_t* consumedIndex) {
+    if (handled) *handled = false;
+    if (!outTokens || outTokens->count == 0) return true;
+
+    PPTokenBuffer tail = {
+        .tokens = &outTokens->tokens[outTokens->count - 1],
+        .count = 1,
+        .capacity = 1,
+    };
+    PPTokenBuffer expanded = {0};
+    bool boundaryHandled = false;
+    bool ok = try_expand_function_like_alias_boundary(expander,
+                                                       input,
+                                                       count,
+                                                       currentIndex,
+                                                       &tail,
+                                                       &expanded,
+                                                       &boundaryHandled,
+                                                       consumedIndex);
+    if (ok && boundaryHandled) {
+        token_free(&outTokens->tokens[outTokens->count - 1]);
+        outTokens->count--;
+        ok = append_buffer(outTokens, &expanded);
+    }
+    pp_token_buffer_release(&expanded);
+    if (handled) *handled = boundaryHandled;
+    return ok;
 }
 
 void macro_expander_init(MacroExpander* expander, MacroTable* table) {
@@ -668,7 +728,9 @@ bool macro_expander_expand(MacroExpander* expander,
             continue;
         }
         if (def && !macro_table_is_expanding(expander->table, tok->value)) {
-            SourceRange callRange = tok->location;
+            SourceRange callRange = range_is_initialized(&tok->macroCallSite)
+                ? tok->macroCallSite
+                : tok->location;
             if (def->kind == MACRO_OBJECT) {
                 PPTokenBuffer replaced = {0};
                 if (!macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
@@ -722,17 +784,47 @@ bool macro_expander_expand(MacroExpander* expander,
                             if (expand_macro_arguments(expander, &pack) &&
                                 macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
                                 PPTokenBuffer replaced = {0};
+                                bool crossedExternalBoundary = false;
                                 bool ok = substitute_macro(expander, def, &pack, callRange, &replaced);
                                 if (ok) {
                                     PPTokenBuffer nested = {0};
                                     ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
                                     if (ok) {
-                                        ok = append_buffer(outTokens, &nested);
+                                        bool handledCallBoundary = false;
+                                        size_t consumedIndex = cursor - 1;
+                                        ok = try_expand_function_like_alias_boundary(expander,
+                                                                                     input,
+                                                                                     count,
+                                                                                     cursor - 1,
+                                                                                     &nested,
+                                                                                     outTokens,
+                                                                                     &handledCallBoundary,
+                                                                                     &consumedIndex);
+                                        if (ok && handledCallBoundary) {
+                                            crossedExternalBoundary = true;
+                                            cursor = consumedIndex + 1;
+                                        } else if (ok) {
+                                            ok = append_buffer(outTokens, &nested);
+                                        }
                                     }
                                     pp_token_buffer_release(&nested);
                                 }
                                 macro_table_pop_expansion(expander->table, def);
                                 pp_token_buffer_release(&replaced);
+                                while (ok && crossedExternalBoundary &&
+                                       cursor < count && input[cursor].type == TOKEN_LPAREN) {
+                                    bool handledCallBoundary = false;
+                                    size_t consumedIndex = cursor - 1;
+                                    ok = try_expand_accumulated_function_boundary(expander,
+                                                                                  input,
+                                                                                  count,
+                                                                                  cursor - 1,
+                                                                                  outTokens,
+                                                                                  &handledCallBoundary,
+                                                                                  &consumedIndex);
+                                    if (!ok || !handledCallBoundary) break;
+                                    cursor = consumedIndex + 1;
+                                }
                                 if (ok) {
                                     expanded = true;
                                     i = cursor - 1;

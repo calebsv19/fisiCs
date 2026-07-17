@@ -12,7 +12,13 @@ fi
 TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
-"$BIN" "$SRC" > "$TMP_OUTPUT" 2>&1 || true
+compiler_status=0
+"$BIN" "$SRC" > "$TMP_OUTPUT" 2>&1 || compiler_status=$?
+if [ "$compiler_status" -ne 0 ]; then
+  echo "Expected compiler exit 0 for stringized include; got $compiler_status" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
 
 if grep -Fq "could not resolve include" "$TMP_OUTPUT"; then
   echo "Unexpected include resolution failure for stringized header" >&2

@@ -11,6 +11,7 @@
 typedef struct Scope {
     struct Scope* parent;
     SymbolTable table;
+    SymbolTable tagTable;
     int depth;
     CompilerContext* ctx;
     bool hasReturnType;
@@ -25,5 +26,7 @@ Scope* createScope(Scope* parent);
 void destroyScope(Scope* scope);
 bool addToScope(Scope* scope, Symbol* sym);
 Symbol* resolveInScopeChain(Scope* scope, const char* name);
+bool addTagToScope(Scope* scope, Symbol* sym);
+Symbol* resolveTagInScopeChain(Scope* scope, const char* name);
 
 #endif // SCOPE_H

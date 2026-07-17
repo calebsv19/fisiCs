@@ -450,10 +450,30 @@ static bool cross_tu_function_signatures_match(const FunctionSignature* lhs,
                                                const FunctionSignature* rhs,
                                                Scope* scope) {
     if (!lhs || !rhs) return true;
+    if (!lhs->hasPrototype || !rhs->hasPrototype) {
+        if (!lhs->hasPrototype && !rhs->hasPrototype) {
+            return true;
+        }
+        const FunctionSignature* prototype = lhs->hasPrototype ? lhs : rhs;
+        if (prototype->isVariadic ||
+            (prototype->paramCount > 0 && !prototype->params)) {
+            return false;
+        }
+        for (size_t i = 0; i < prototype->paramCount; ++i) {
+            TypeInfo declared = typeInfoFromParsedType(&prototype->params[i], scope);
+            TypeInfo promoted = defaultArgumentPromotion(declared);
+            if (!typesAreEqual(&declared, &promoted)) {
+                return false;
+            }
+        }
+        return true;
+    }
     if (lhs->paramCount != rhs->paramCount) return false;
     if (lhs->isVariadic != rhs->isVariadic) return false;
     for (size_t i = 0; i < lhs->paramCount; ++i) {
-        if (!parsedTypesStructurallyCompatibleInScope(&lhs->params[i], &rhs->params[i], scope)) {
+        if (!parsedTypesStructurallyCompatibleInScope(&lhs->params[i],
+                                                      &rhs->params[i],
+                                                      scope)) {
             return false;
         }
     }

@@ -639,8 +639,18 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         bool hasTypeModifiers =
             type.isUnsigned || type.isSigned || type.isShort || type.isLong;
         bool known = (!hasTypeModifiers) && identifierMatchesKnownType(parser, ident);
+        bool hiddenTypedef = parser->ctx &&
+                             cc_is_typedef(parser->ctx, ident) &&
+                             !parserIsTypedefVisible(parser, ident);
 
         if (!known) {
+            if (hiddenTypedef) {
+                if (ctx == TYPECTX_Declaration) {
+                    printParseError("type name hidden by ordinary identifier", parser);
+                    markParserFatalError(parser);
+                }
+                return parsedTypeDefault();
+            }
             if (ctx == TYPECTX_Strict) {
                 return parsedTypeDefault();
             }

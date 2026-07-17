@@ -2011,14 +2011,14 @@ PROGRAM
     IDENTIFIER atexit
     PARAMETERS:
       VAR_DECL
-        TYPE: void (*)()
+        TYPE: void (*)(void)
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
     RETURN TYPE: int
     IDENTIFIER at_quick_exit
     PARAMETERS:
       VAR_DECL
-        TYPE: void (*)()
+        TYPE: void (*)(void)
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
     RETURN TYPE: double

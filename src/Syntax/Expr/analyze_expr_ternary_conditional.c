@@ -24,81 +24,36 @@ static bool typeInfoIsFunctionPointerLike(const TypeInfo* info) {
     return hasFunction;
 }
 
-static bool pointerTargetsCompatibleForConditional(const TypeInfo* a, const TypeInfo* b) {
+static bool functionPointerTypeHasPrototypeParameters(const TypeInfo* info) {
+    if (!typeInfoIsFunctionPointerLike(info) || !info->originalType) {
+        return false;
+    }
+    const ParsedType* params = NULL;
+    size_t count = 0;
+    bool isVariadic = false;
+    bool hasPrototype = false;
+    if (!parsedTypeGetEffectiveFunctionPointerSignature(info->originalType,
+                                                        &params,
+                                                        &count,
+                                                        &isVariadic,
+                                                        &hasPrototype)) {
+        return false;
+    }
+    return hasPrototype;
+}
+
+static bool pointerTargetsCompatibleForConditional(const TypeInfo* a,
+                                                   const TypeInfo* b,
+                                                   Scope* scope) {
     if (!a || !b) return false;
     if (a->pointerDepth != b->pointerDepth) return false;
     if (typeInfoIsFunctionPointerLike(a) && typeInfoIsFunctionPointerLike(b)) {
-        if (!a->originalType || !b->originalType) {
-            return false;
-        }
-        ParsedType aTarget = parsedTypePointerTargetType(a->originalType);
-        ParsedType bTarget = parsedTypePointerTargetType(b->originalType);
-        if (aTarget.kind == TYPE_INVALID || bTarget.kind == TYPE_INVALID) {
-            parsedTypeFree(&aTarget);
-            parsedTypeFree(&bTarget);
-            return false;
-        }
-
-        const TypeDerivation* aFn = NULL;
-        const TypeDerivation* bFn = NULL;
-        for (size_t i = 0; i < aTarget.derivationCount; ++i) {
-            const TypeDerivation* d = parsedTypeGetDerivation(&aTarget, i);
-            if (d && d->kind == TYPE_DERIVATION_FUNCTION) {
-                aFn = d;
-                break;
-            }
-        }
-        for (size_t i = 0; i < bTarget.derivationCount; ++i) {
-            const TypeDerivation* d = parsedTypeGetDerivation(&bTarget, i);
-            if (d && d->kind == TYPE_DERIVATION_FUNCTION) {
-                bFn = d;
-                break;
-            }
-        }
-        if (!aFn || !bFn) {
-            parsedTypeFree(&aTarget);
-            parsedTypeFree(&bTarget);
-            return false;
-        }
-
-        ParsedType aRet = parsedTypeFunctionReturnType(&aTarget);
-        ParsedType bRet = parsedTypeFunctionReturnType(&bTarget);
-        bool retCompat = parsedTypesStructurallyEqual(&aRet, &bRet);
-        parsedTypeFree(&aRet);
-        parsedTypeFree(&bRet);
-        if (!retCompat) {
-            parsedTypeFree(&aTarget);
-            parsedTypeFree(&bTarget);
-            return false;
-        }
-
-        bool aHasParams = aFn->as.function.paramCount > 0 || aFn->as.function.isVariadic;
-        bool bHasParams = bFn->as.function.paramCount > 0 || bFn->as.function.isVariadic;
-        if (!aHasParams || !bHasParams) {
-            parsedTypeFree(&aTarget);
-            parsedTypeFree(&bTarget);
-            return true;
-        }
-
-        if (aFn->as.function.isVariadic != bFn->as.function.isVariadic ||
-            aFn->as.function.paramCount != bFn->as.function.paramCount) {
-            parsedTypeFree(&aTarget);
-            parsedTypeFree(&bTarget);
-            return false;
-        }
-
-        for (size_t i = 0; i < aFn->as.function.paramCount; ++i) {
-            if (!parsedTypesStructurallyEqual(&aFn->as.function.params[i],
-                                              &bFn->as.function.params[i])) {
-                parsedTypeFree(&aTarget);
-                parsedTypeFree(&bTarget);
-                return false;
-            }
-        }
-
-        parsedTypeFree(&aTarget);
-        parsedTypeFree(&bTarget);
-        return true;
+        return canAssignTypesInScope(a, b, scope) == ASSIGN_OK &&
+               canAssignTypesInScope(b, a, scope) == ASSIGN_OK;
+    }
+    if (a->recordDefinition && b->recordDefinition &&
+        a->recordDefinition != b->recordDefinition) {
+        return false;
     }
     if (a->primitive != b->primitive) return false;
     if (a->tag != b->tag) return false;
@@ -129,11 +84,27 @@ static const Symbol* resolveFunctionDesignatorSymbol(ASTNode* expr, Scope* scope
     return NULL;
 }
 
-static bool functionSymbolsCompatibleForConditional(const Symbol* a, const Symbol* b) {
+static bool functionSymbolTypeCompatibleForConditional(const ParsedType* a,
+                                                       const ParsedType* b,
+                                                       Scope* scope) {
+    if (!a || !b) return false;
+    TypeInfo aInfo = typeInfoFromParsedType(a, scope);
+    TypeInfo bInfo = typeInfoFromParsedType(b, scope);
+    if (typeInfoIsFunctionPointerLike(&aInfo) &&
+        typeInfoIsFunctionPointerLike(&bInfo)) {
+        return canAssignTypesInScope(&aInfo, &bInfo, scope) == ASSIGN_OK &&
+               canAssignTypesInScope(&bInfo, &aInfo, scope) == ASSIGN_OK;
+    }
+    return parsedTypesStructurallyEqual(a, b);
+}
+
+static bool functionSymbolsCompatibleForConditional(const Symbol* a,
+                                                     const Symbol* b,
+                                                     Scope* scope) {
     if (!a || !b || a->kind != SYMBOL_FUNCTION || b->kind != SYMBOL_FUNCTION) {
         return false;
     }
-    if (!parsedTypesStructurallyEqual(&a->type, &b->type)) {
+    if (!functionSymbolTypeCompatibleForConditional(&a->type, &b->type, scope)) {
         return false;
     }
     bool aHasParams = a->signature.paramCount > 0 || a->signature.isVariadic;
@@ -146,7 +117,8 @@ static bool functionSymbolsCompatibleForConditional(const Symbol* a, const Symbo
         return false;
     }
     for (size_t i = 0; i < a->signature.paramCount; ++i) {
-        if (!parsedTypesStructurallyEqual(&a->signature.params[i], &b->signature.params[i])) {
+        if (!functionSymbolTypeCompatibleForConditional(
+                &a->signature.params[i], &b->signature.params[i], scope)) {
             return false;
         }
     }
@@ -189,7 +161,7 @@ TypeInfo analyzeTernaryExpression(ASTNode* node, Scope* scope) {
     const Symbol* trueFnSym = resolveFunctionDesignatorSymbol(node->ternaryExpr.trueExpr, scope);
     const Symbol* falseFnSym = resolveFunctionDesignatorSymbol(node->ternaryExpr.falseExpr, scope);
     if (trueFnSym && falseFnSym) {
-        bool fnCompat = functionSymbolsCompatibleForConditional(trueFnSym, falseFnSym);
+        bool fnCompat = functionSymbolsCompatibleForConditional(trueFnSym, falseFnSym, scope);
         if (!fnCompat &&
             conditionValid &&
             trueInfo.category != TYPEINFO_INVALID &&
@@ -244,21 +216,11 @@ TypeInfo analyzeTernaryExpression(ASTNode* node, Scope* scope) {
     TypeInfo truePtrInfo = trueInfo;
     TypeInfo falsePtrInfo = falseInfo;
 
-    if (truePtr && falsePtr) {
-        if ((truePtrInfo.primitive == TOKEN_VOID && truePtrInfo.pointerDepth == falsePtrInfo.pointerDepth) ||
-            (falsePtrInfo.primitive == TOKEN_VOID && truePtrInfo.pointerDepth == falsePtrInfo.pointerDepth)) {
-            TypeInfo v = (truePtrInfo.primitive == TOKEN_VOID) ? truePtrInfo : falsePtrInfo;
-            TypeInfo other = (truePtrInfo.primitive == TOKEN_VOID) ? falsePtrInfo : truePtrInfo;
-            return mergePointerConditionalType(v, other);
-        }
-        if (typesAreEqual(&truePtrInfo, &falsePtrInfo)) {
-            return mergePointerConditionalType(truePtrInfo, falsePtrInfo);
-        }
-        if (pointerTargetsCompatibleForConditional(&truePtrInfo, &falsePtrInfo)) {
-            return mergePointerConditionalType(truePtrInfo, falsePtrInfo);
-        }
-    }
-
+    /*
+     * A null pointer constant written as (void *)0 is itself pointer-like.
+     * Select the non-null operand's type before the general two-pointer merge
+     * so function-pointer conditionals retain their callable type.
+     */
     if (truePtr && falseNull) {
         truePtrInfo.isLValue = false;
         return truePtrInfo;
@@ -266,6 +228,35 @@ TypeInfo analyzeTernaryExpression(ASTNode* node, Scope* scope) {
     if (falsePtr && trueNull) {
         falsePtrInfo.isLValue = false;
         return falsePtrInfo;
+    }
+
+    if (truePtr && falsePtr) {
+        bool bothFunctionPointers =
+            typeInfoIsFunctionPointerLike(&truePtrInfo) &&
+            typeInfoIsFunctionPointerLike(&falsePtrInfo);
+        if ((truePtrInfo.primitive == TOKEN_VOID && truePtrInfo.pointerDepth == falsePtrInfo.pointerDepth) ||
+            (falsePtrInfo.primitive == TOKEN_VOID && truePtrInfo.pointerDepth == falsePtrInfo.pointerDepth)) {
+            TypeInfo v = (truePtrInfo.primitive == TOKEN_VOID) ? truePtrInfo : falsePtrInfo;
+            TypeInfo other = (truePtrInfo.primitive == TOKEN_VOID) ? falsePtrInfo : truePtrInfo;
+            return mergePointerConditionalType(v, other);
+        }
+        if (!bothFunctionPointers && typesAreEqual(&truePtrInfo, &falsePtrInfo)) {
+            return mergePointerConditionalType(truePtrInfo, falsePtrInfo);
+        }
+        if (pointerTargetsCompatibleForConditional(&truePtrInfo, &falsePtrInfo, scope)) {
+            if (bothFunctionPointers) {
+                bool trueHasPrototype =
+                    functionPointerTypeHasPrototypeParameters(&truePtrInfo);
+                bool falseHasPrototype =
+                    functionPointerTypeHasPrototypeParameters(&falsePtrInfo);
+                if (trueHasPrototype != falseHasPrototype) {
+                    return trueHasPrototype
+                        ? mergePointerConditionalType(truePtrInfo, falsePtrInfo)
+                        : mergePointerConditionalType(falsePtrInfo, truePtrInfo);
+                }
+            }
+            return mergePointerConditionalType(truePtrInfo, falsePtrInfo);
+        }
     }
 
     if (conditionValid &&

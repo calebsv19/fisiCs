@@ -120,7 +120,14 @@ int main(void) {
 }
 EOF
 
-"$BIN" --emit-build-graph-json "$BAD_JSON" "$BAD_SRC" >/dev/null 2>&1 || true
+set +e
+"$BIN" --emit-build-graph-json "$BAD_JSON" "$BAD_SRC" >/dev/null 2>&1
+status=$?
+set -e
+if [ "$status" -ne 1 ]; then
+  echo "Expected malformed source compiler exit 1, got $status" >&2
+  exit 1
+fi
 
 python3 - "$BAD_JSON" <<'PY'
 import json

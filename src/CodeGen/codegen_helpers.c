@@ -175,6 +175,10 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
     if (cg_named_type_has_surface_derivations(type)) {
         return type;
     }
+    const ParsedType* scoped = cg_scope_lookup_typedef(ctx->currentScope, type->userTypeName);
+    if (scoped) {
+        return scoped;
+    }
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     if (!cache) return type;
     CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
@@ -659,6 +663,13 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         }
         case AST_COMPOUND_LITERAL:
             return &node->compoundLiteral.literalType;
+        case AST_COMMA_EXPRESSION: {
+            if (!node->commaExpr.expressions || node->commaExpr.exprCount == 0) {
+                return NULL;
+            }
+            return cg_resolve_expression_type(ctx,
+                                              node->commaExpr.expressions[node->commaExpr.exprCount - 1]);
+        }
         case AST_UNARY_EXPRESSION: {
             const char* op = node->expr.op;
             if (!op) return cg_resolve_expression_type(ctx, node->expr.left);
@@ -667,23 +678,39 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             }
             if (strcmp(op, "*") == 0) {
                 const ParsedType* operand = cg_resolve_expression_type(ctx, node->expr.left);
+                ParsedType expandedOperand;
+                memset(&expandedOperand, 0, sizeof(expandedOperand));
+                expandedOperand.kind = TYPE_INVALID;
+                const ParsedType* operandForTarget = operand;
+                if (cg_expand_surface_typedef_parsed_type(ctx, operand, &expandedOperand)) {
+                    operandForTarget = &expandedOperand;
+                }
                 if (operand &&
-                    !cg_parsed_type_has_pointer_layer(operand) &&
-                    parsedTypeIsDirectArray(operand)) {
+                    !cg_parsed_type_has_pointer_layer(operandForTarget) &&
+                    parsedTypeIsDirectArray(operandForTarget)) {
                     static ParsedType arrayElement;
                     parsedTypeFree(&arrayElement);
-                    arrayElement = parsedTypeArrayElementType(operand);
+                    arrayElement = parsedTypeArrayElementType(operandForTarget);
+                    parsedTypeFree(&expandedOperand);
                     if (arrayElement.kind != TYPE_INVALID) {
                         return &arrayElement;
                     }
                     parsedTypeFree(&arrayElement);
                 }
-                ParsedType operandCopy = parsedTypeClone(operand);
+                ParsedType operandCopy = parsedTypeClone(operandForTarget);
                 static ParsedType pointed;
                 parsedTypeFree(&pointed);
                 pointed = parsedTypePointerTargetType(&operandCopy);
                 parsedTypeFree(&operandCopy);
+                parsedTypeFree(&expandedOperand);
                 if (pointed.kind != TYPE_INVALID) {
+                    const ParsedType* resolvedPointed = cg_resolve_typedef_parsed_type(ctx, &pointed);
+                    if (resolvedPointed && resolvedPointed != &pointed &&
+                        resolvedPointed->kind != TYPE_INVALID) {
+                        ParsedType resolvedCopy = parsedTypeClone(resolvedPointed);
+                        parsedTypeFree(&pointed);
+                        pointed = resolvedCopy;
+                    }
                     return &pointed;
                 }
                 parsedTypeFree(&pointed);
@@ -798,10 +825,25 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         }
         case AST_POINTER_DEREFERENCE: {
             const ParsedType* base = cg_resolve_expression_type(ctx, node->pointerDeref.pointer);
+            ParsedType expandedBase;
+            memset(&expandedBase, 0, sizeof(expandedBase));
+            expandedBase.kind = TYPE_INVALID;
+            const ParsedType* baseForTarget = base;
+            if (cg_expand_surface_typedef_parsed_type(ctx, base, &expandedBase)) {
+                baseForTarget = &expandedBase;
+            }
             static ParsedType pointed;
             parsedTypeFree(&pointed);
-            pointed = parsedTypePointerTargetType(base);
+            pointed = parsedTypePointerTargetType(baseForTarget);
+            parsedTypeFree(&expandedBase);
             if (pointed.kind != TYPE_INVALID) {
+                const ParsedType* resolvedPointed = cg_resolve_typedef_parsed_type(ctx, &pointed);
+                if (resolvedPointed && resolvedPointed != &pointed &&
+                    resolvedPointed->kind != TYPE_INVALID) {
+                    ParsedType resolvedCopy = parsedTypeClone(resolvedPointed);
+                    parsedTypeFree(&pointed);
+                    pointed = resolvedCopy;
+                }
                 return &pointed;
             }
             parsedTypeFree(&pointed);
@@ -852,13 +894,38 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             parsedTypeFree(cached);
             cached->kind = TYPE_INVALID;
             if (!base) return NULL;
-            if (parsedTypeIsDirectArray(base)) {
-                *cached = parsedTypeArrayElementType(base);
+            ParsedType expandedBase;
+            memset(&expandedBase, 0, sizeof(expandedBase));
+            expandedBase.kind = TYPE_INVALID;
+            const ParsedType* baseForElement = base;
+            if (cg_expand_surface_typedef_parsed_type(ctx, base, &expandedBase)) {
+                baseForElement = &expandedBase;
+            }
+            const ParsedType* arraySurface = baseForElement;
+            if (!parsedTypeIsDirectArray(arraySurface)) {
+                arraySurface = cg_resolve_typedef_chain(ctx, baseForElement);
+            }
+            if (parsedTypeIsDirectArray(arraySurface)) {
+                *cached = parsedTypeArrayElementType(arraySurface);
+                const ParsedType* resolvedCached = cg_resolve_typedef_parsed_type(ctx, cached);
+                if (resolvedCached && resolvedCached != cached && resolvedCached->kind != TYPE_INVALID) {
+                    parsedTypeFree(cached);
+                    *cached = parsedTypeClone(resolvedCached);
+                }
+                parsedTypeFree(&expandedBase);
                 return cached;
             }
-            ParsedType pointed = parsedTypePointerTargetType(base);
+            const ParsedType* baseSurface = arraySurface;
+            ParsedType pointed = parsedTypePointerTargetType(baseSurface ? baseSurface : base);
+            parsedTypeFree(&expandedBase);
             if (pointed.kind != TYPE_INVALID) {
-                *cached = pointed;
+                const ParsedType* resolvedPointed = cg_resolve_typedef_chain(ctx, &pointed);
+                if (resolvedPointed && resolvedPointed != &pointed) {
+                    *cached = parsedTypeClone(resolvedPointed);
+                    parsedTypeFree(&pointed);
+                } else {
+                    *cached = pointed;
+                }
                 return cached;
             }
             parsedTypeFree(&pointed);

@@ -133,6 +133,197 @@ static ConstEvalResult constEvalInternal(ASTNode* expr,
                                          Scope* scope,
                                          bool allowEnumRefs);
 
+static bool parseFloatingLiteralValue(const char* text, long double* out) {
+    if (!text || !*text || !out) return false;
+
+    char* end = NULL;
+    long double value = strtold(text, &end);
+    if (end == text) return false;
+    if (*end == 'f' || *end == 'F' || *end == 'l' || *end == 'L') {
+        ++end;
+    }
+    if (*end != '\0') return false;
+
+    /* An integer token must not be reclassified as floating merely because
+     * strtold can consume it. */
+    IntegerLiteralInfo integerInfo;
+    if (parse_integer_literal_info(text, currentLayout(NULL), &integerInfo) &&
+        integerInfo.ok) {
+        return false;
+    }
+
+    *out = value;
+    return true;
+}
+
+static bool identifierIsIntegerConstantOperand(ASTNode* expr, Scope* scope) {
+    if (!expr || expr->type != AST_IDENTIFIER || !scope ||
+        !expr->valueNode.value) {
+        return false;
+    }
+    Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+    if (!sym) return false;
+    if (sym->kind == SYMBOL_ENUM) return true;
+
+    /* These are compiler-provided spellings of the stdbool macro values. */
+    return sym->kind == SYMBOL_VARIABLE &&
+           sym->definition == NULL &&
+           sym->hasConstValue &&
+           (strcmp(expr->valueNode.value, "true") == 0 ||
+            strcmp(expr->valueNode.value, "false") == 0);
+}
+
+static bool sizeofOperandHasVariablyModifiedType(ASTNode* operand,
+                                                 Scope* scope) {
+    if (!operand || !scope) return false;
+    if (operand->type == AST_PARSED_TYPE) {
+        return parsedTypeHasVLA(&operand->parsedTypeNode.parsed);
+    }
+    if (operand->type == AST_COMPOUND_LITERAL) {
+        return parsedTypeHasVLA(&operand->compoundLiteral.literalType);
+    }
+    if (operand->type == AST_IDENTIFIER && operand->valueNode.value) {
+        Symbol* sym = resolveInScopeChain(scope, operand->valueNode.value);
+        return sym && parsedTypeHasVLA(&sym->type);
+    }
+
+    TypeInfo info = analyzeExpression(operand, scope);
+    return info.isVLA ||
+           (info.originalType && parsedTypeHasVLA(info.originalType));
+}
+
+static bool hasIntegerConstantExpressionOperands(ASTNode* expr,
+                                                  Scope* scope,
+                                                  bool evaluated) {
+    if (!expr) return false;
+
+    switch (expr->type) {
+        case AST_NUMBER_LITERAL: {
+            long long value = 0;
+            unsigned bits = 0;
+            bool isUnsigned = false;
+            return parseIntegerLiteral(expr->valueNode.value,
+                                       scope,
+                                       &value,
+                                       &bits,
+                                       &isUnsigned);
+        }
+        case AST_CHAR_LITERAL:
+            return true;
+        case AST_IDENTIFIER:
+            return identifierIsIntegerConstantOperand(expr, scope);
+
+        case AST_CAST_EXPRESSION: {
+            TypeInfo target = typeInfoFromParsedType(&expr->castExpr.castType, scope);
+            if (!typeInfoIsInteger(&target)) {
+                return false;
+            }
+
+            ASTNode* operand = expr->castExpr.expression;
+            if (operand && operand->type == AST_NUMBER_LITERAL) {
+                long double ignored = 0.0L;
+                if (parseFloatingLiteralValue(operand->valueNode.value, &ignored)) {
+                    /* C99 6.6 permits a floating constant only when it is the
+                     * immediate operand of a cast to integer type. */
+                    return true;
+                }
+            }
+            return hasIntegerConstantExpressionOperands(operand, scope, evaluated);
+        }
+
+        case AST_UNARY_EXPRESSION:
+            return expr->expr.op &&
+                   (strcmp(expr->expr.op, "+") == 0 ||
+                    strcmp(expr->expr.op, "-") == 0 ||
+                    strcmp(expr->expr.op, "!") == 0 ||
+                    strcmp(expr->expr.op, "~") == 0) &&
+                   hasIntegerConstantExpressionOperands(expr->expr.left,
+                                                        scope,
+                                                        evaluated);
+
+        case AST_BINARY_EXPRESSION: {
+            if (!hasIntegerConstantExpressionOperands(expr->expr.left,
+                                                      scope,
+                                                      evaluated)) {
+                return false;
+            }
+            if (!expr->expr.op ||
+                (strcmp(expr->expr.op, "&&") != 0 &&
+                 strcmp(expr->expr.op, "||") != 0)) {
+                return hasIntegerConstantExpressionOperands(expr->expr.right,
+                                                            scope,
+                                                            evaluated);
+            }
+
+            ConstEvalResult lhs = constEvalInternal(expr->expr.left, scope, true);
+            if (!lhs.isConst) return false;
+            bool rhsEvaluated = evaluated;
+            if (strcmp(expr->expr.op, "&&") == 0 && lhs.value == 0) {
+                rhsEvaluated = false;
+            } else if (strcmp(expr->expr.op, "||") == 0 && lhs.value != 0) {
+                rhsEvaluated = false;
+            }
+            return hasIntegerConstantExpressionOperands(expr->expr.right,
+                                                        scope,
+                                                        rhsEvaluated);
+        }
+
+        case AST_TERNARY_EXPRESSION: {
+            if (!hasIntegerConstantExpressionOperands(expr->ternaryExpr.condition,
+                                                      scope,
+                                                      evaluated)) {
+                return false;
+            }
+            ConstEvalResult condition =
+                constEvalInternal(expr->ternaryExpr.condition, scope, true);
+            if (!condition.isConst) return false;
+            bool trueEvaluated = evaluated && condition.value != 0;
+            bool falseEvaluated = evaluated && condition.value == 0;
+            return hasIntegerConstantExpressionOperands(expr->ternaryExpr.trueExpr,
+                                                        scope,
+                                                        trueEvaluated) &&
+                   hasIntegerConstantExpressionOperands(expr->ternaryExpr.falseExpr,
+                                                        scope,
+                                                        falseEvaluated);
+        }
+
+        case AST_SIZEOF:
+            return !sizeofOperandHasVariablyModifiedType(expr->expr.left, scope);
+        case AST_ALIGNOF:
+            // The operand is unevaluated. constEvalInternal separately proves
+            // that the resulting size/alignment is an integer constant.
+            return true;
+
+        case AST_FUNCTION_CALL:
+            // fisiCs represents the supported offsetof spelling as a builtin
+            // call even though the C contract makes its result an ICE.
+            if (expr->functionCall.callee &&
+                expr->functionCall.callee->type == AST_IDENTIFIER) {
+                const char* name = expr->functionCall.callee->valueNode.value;
+                return name &&
+                       (strcmp(name, "__builtin_offsetof") == 0 ||
+                        strcmp(name, "offsetof") == 0);
+            }
+            return false;
+
+        case AST_COMMA_EXPRESSION:
+            if (evaluated || !expr->commaExpr.expressions ||
+                expr->commaExpr.exprCount == 0) {
+                return false;
+            }
+            for (size_t i = 0; i < expr->commaExpr.exprCount; ++i) {
+                if (!hasIntegerConstantExpressionOperands(
+                        expr->commaExpr.expressions[i], scope, false)) {
+                    return false;
+                }
+            }
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 static bool sizeFromParsedType(const ParsedType* type, Scope* scope, long long* out) {
     if (!type || !out) return false;
 
@@ -481,13 +672,17 @@ static bool evalIdentifier(ASTNode* expr, Scope* scope, long long* out, bool all
         return true;
     }
 
-    if (!allowEnumRefs || sym->kind != SYMBOL_ENUM || !sym->definition) {
+    if (!allowEnumRefs || sym->kind != SYMBOL_ENUM) {
         return false;
     }
 
     if (sym->hasConstValue) {
         *out = sym->constValue;
         return true;
+    }
+
+    if (!sym->definition) {
+        return false;
     }
 
     // Find the enumerator inside the defining enum AST to derive its ordinal.
@@ -582,7 +777,19 @@ static ConstEvalResult constEvalInternal(ASTNode* expr,
         }
         case AST_CAST_EXPRESSION: {
             long long inner = 0;
-            ConstEvalResult innerRes = constEvalInternal(expr->castExpr.expression, scope, allowEnumRefs);
+            ConstEvalResult innerRes =
+                constEvalInternal(expr->castExpr.expression, scope, allowEnumRefs);
+            if (!innerRes.isConst && expr->castExpr.expression &&
+                expr->castExpr.expression->type == AST_NUMBER_LITERAL) {
+                long double floatingValue = 0.0L;
+                TypeInfo target = typeInfoFromParsedType(&expr->castExpr.castType, scope);
+                if (typeInfoIsInteger(&target) &&
+                    parseFloatingLiteralValue(
+                        expr->castExpr.expression->valueNode.value,
+                        &floatingValue)) {
+                    innerRes = makeConst((long long)floatingValue);
+                }
+            }
             if (!innerRes.isConst) {
                 return makeNonConst();
             }
@@ -719,13 +926,22 @@ ConstEvalResult constEval(ASTNode* expr,
     return constEvalInternal(expr, scope, allowEnumRefs);
 }
 
+ConstEvalResult constEvalIntegerResult(ASTNode* expr,
+                                       Scope* scope,
+                                       bool allowEnumRefs) {
+    if (!hasIntegerConstantExpressionOperands(expr, scope, true)) {
+        return makeNonConst();
+    }
+    return constEvalInternal(expr, scope, allowEnumRefs);
+}
+
 bool constEvalInteger(ASTNode* expr,
                       Scope* scope,
                       long long* out,
                       bool allowEnumRefs) {
     ProfilerScope constScope = profiler_begin("semantic_const_eval_integer");
     profiler_record_value("semantic_count_const_eval_integer", 1);
-    ConstEvalResult res = constEvalInternal(expr, scope, allowEnumRefs);
+    ConstEvalResult res = constEvalIntegerResult(expr, scope, allowEnumRefs);
     if (res.isConst && out) {
         *out = res.value;
     }
