@@ -59,20 +59,33 @@ into a judge-testable developer tool:
   builds, physics-units diagnostics, and build-graph output
 - a clean install, package verification, and short public test path
 
-The submission candidate is version `0.3.0`. Its eligible work begins after
-the frozen baseline above and ends at the `v0.3.0` release tag. The principal
-Codex `/feedback` Session ID is
-`019f6486-6fc5-79b2-91dd-4ecab0b34118`, covering the GPT-5.6 Stage-G
-operational differential flow, monitored final suite, and promotion audit.
+The first public submission candidate was version `0.3.0`, ending at the
+immutable `v0.3.0` release tag. The submission-facing stabilization line now
+continues through commit
+[`3256df3555af09772a41079dd9357ac0120e7ba2`](https://github.com/calebsv19/fisiCs/commit/3256df3555af09772a41079dd9357ac0120e7ba2)
+and is released separately as `0.4.0` so the published `0.3.0` source and
+artifact identities remain unchanged. The principal Codex `/feedback` Session
+ID is `019f6486-6fc5-79b2-91dd-4ecab0b34118`.
 
 ### How Codex and GPT-5.6 contributed
 
-The project was developed iteratively with Codex and GPT-5.6. Codex accelerated
-repository inspection, focused compiler fixes, regression-test generation,
-Clang-versus-`fisiCs` differential runs, real-project validation, release
-planning, and documentation reconciliation. The maintainer selected the
-product direction, compatibility boundaries, extension policy, acceptance
-criteria, and which generated changes were kept or rejected.
+The project was developed iteratively with Codex and GPT-5.6. In the principal
+session, GPT-5.6 helped turn the existing real-project harness into a reusable
+Stage-G operational-differential system, then used it across DAW, the CodeWork
+IDE, and `fisiCs` itself. That work isolated compiler defects from stale
+goldens and fixture-oracle problems, produced focused compiler repairs and
+permanent regressions, and verified repeated Clang-versus-`fisiCs` trace and
+artifact parity instead of treating matching exit codes as sufficient proof.
+
+The final `fisiCs` checkpoint closes four repeated Stage-G workflows at
+`4 both_pass / 0 blockers`, records `3478` promoted tests with no missing,
+critical, or ambiguous entries, and completes the monitored suite at `4893`
+passes, `0` failures, and `36` expected skips across `4929` outcomes. Codex
+also assisted with repository inspection, change grouping, release planning,
+package/readback verification, and documentation reconciliation. The
+maintainer selected the product direction, compatibility boundaries,
+extension policy, acceptance criteria, release authority, and which generated
+changes were kept or rejected.
 
 For the shortest judge-facing path, use the
 [Build Week judge guide](docs/build_week_judge_guide.md), followed by the
