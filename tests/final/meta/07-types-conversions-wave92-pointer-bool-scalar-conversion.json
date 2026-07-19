@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime__wave92_pointer_bool_scalar_conversion",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_wave92_pointer_bool_scalar_conversion_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "bool", "pointer", "scalar-conversion", "return", "real-project", "ide", "runtime", "wave92"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diag__wave92_aggregate_bool_return_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_wave92_aggregate_bool_return_reject.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["types-conversions", "bool", "aggregate", "return", "incompatible-types", "negative", "wave92"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

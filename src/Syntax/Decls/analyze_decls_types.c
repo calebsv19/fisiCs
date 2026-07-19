@@ -191,7 +191,7 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
             }
             canonicalizeParsedTypeAliases(scope, &resolvedStorage, depth + 1);
             const ParsedType* resolved = &resolvedStorage;
-            const char* resolvedNameCopy = NULL;
+            char* resolvedNameCopy = NULL;
             bool preserveAggregateAliasName =
                 (resolved->kind == TYPE_STRUCT ||
                  resolved->kind == TYPE_UNION ||
@@ -618,6 +618,7 @@ static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type) {
     hash_bool(hash, type->isExtern);
     hash_bool(hash, type->isRegister);
     hash_bool(hash, type->isAuto);
+    hash_bool(hash, type->isThreadLocal);
     hash_u64(hash, (uint64_t)type->pointerDepth);
     hash_bool(hash, type->isVLA);
 }

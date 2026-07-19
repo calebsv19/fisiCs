@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from run_project_operational_differential_tests import (
     build_run_environment,
+    expand_target_inputs,
     select_targets,
     stage_runtime_fixtures,
 )
@@ -16,6 +17,50 @@ class OperationalDifferentialRunnerContractTests(unittest.TestCase):
     def test_zero_selection_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "zero Stage-G targets selected"):
             select_targets([{"id": "bite_1"}], "missing")
+
+    def test_input_globs_are_sorted_and_deduplicated(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            sources = root / "src"
+            sources.mkdir()
+            first = sources / "a.c"
+            second = sources / "b.c"
+            first.write_text("int a;\n", encoding="utf-8")
+            second.write_text("int b;\n", encoding="utf-8")
+            expanded = expand_target_inputs(
+                root,
+                {"inputs": ["src/b.c"], "input_globs": ["src/*.c"]},
+            )
+            self.assertEqual(expanded, [second.resolve(), first.resolve()])
+
+    def test_input_exclusions_apply_after_glob_expansion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            sources = root / "src"
+            generated = sources / "generated"
+            generated.mkdir(parents=True)
+            keep = sources / "keep.c"
+            main = sources / "main.c"
+            generated_source = generated / "table.c"
+            for path in (keep, main, generated_source):
+                path.write_text("int value;\n", encoding="utf-8")
+            expanded = expand_target_inputs(
+                root,
+                {
+                    "input_globs": ["src/**/*.c"],
+                    "exclude_inputs": ["src/main.c"],
+                    "exclude_globs": ["src/generated/*.c"],
+                },
+            )
+            self.assertEqual(expanded, [keep.resolve()])
+
+    def test_input_expansion_can_report_zero_for_compile_fail_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.assertEqual(
+                expand_target_inputs(root, {"input_globs": ["src/**/*.c"]}),
+                [],
+            )
 
     def test_missing_fixture_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:

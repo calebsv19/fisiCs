@@ -44,6 +44,7 @@ static void printParsedType_inner(const ParsedType* pt) {
     if (pt->isExtern)   printf("extern ");
     if (pt->isRegister) printf("register ");
     if (pt->isAuto)     printf("auto ");
+    if (pt->isThreadLocal) printf("__thread ");
 
     /* Qualifiers / modifiers */
     if (pt->isConst)    printf("const ");

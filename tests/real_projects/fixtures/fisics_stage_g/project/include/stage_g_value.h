@@ -1,0 +1,1 @@
+#define STAGE_G_VALUE 42

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime__wave91_enum_typedef_member_array_decay",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_wave91_enum_typedef_member_array_decay_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "array-decay", "typedef", "anonymous-enum", "member", "function-argument", "real-project", "ide", "runtime", "wave91"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diag__wave91_distinct_enum_member_array_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_wave91_distinct_enum_member_array_reject.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["types-conversions", "array-decay", "typedef", "anonymous-enum", "member", "incompatible-types", "negative", "wave91"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

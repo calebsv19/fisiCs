@@ -15,6 +15,19 @@ static bool isStaticStorageObjectAddressConstant(ASTNode* expr, Scope* scope);
 static bool isStaticStorageObjectLvalue(ASTNode* expr, Scope* scope);
 static bool aggregateStaticInitializerIsConstant(ASTNode* expr, Scope* scope);
 
+static bool typeInfoIsVoidPointerNullForm(const TypeInfo* info) {
+    if (!info || !typeInfoIsPointerLike(info)) return false;
+    if (info->originalType) {
+        ParsedType target = parsedTypePointerTargetType(info->originalType);
+        bool isVoid = target.kind == TYPE_PRIMITIVE &&
+                      target.primitiveType == TOKEN_VOID &&
+                      target.derivationCount == 0;
+        parsedTypeFree(&target);
+        return isVoid;
+    }
+    return !info->isFunction && info->pointerDepth == 1 && info->primitive == TOKEN_VOID;
+}
+
 void reportErrorAtAstNode(ASTNode* node,
                           int fallbackLine,
                           const char* message,
@@ -284,11 +297,9 @@ void validateVariableInitializer(ParsedType* type,
             AssignmentCheckResult assign = canAssignTypesInScope(&info, &rhs, scope);
             if (assign == ASSIGN_INCOMPATIBLE &&
                 typeInfoIsPointerLike(&info) &&
-                typeInfoIsInteger(&rhs)) {
-                long long zero = 1;
-                if (constEvalInteger(init->expression, scope, &zero, true) && zero == 0) {
-                    assign = ASSIGN_OK;
-                }
+                (typeInfoIsInteger(&rhs) || typeInfoIsVoidPointerNullForm(&rhs)) &&
+                isNullPointerConstant(init->expression, scope)) {
+                assign = ASSIGN_OK;
             }
             if (assign == ASSIGN_INCOMPATIBLE) {
                 char buffer[256];

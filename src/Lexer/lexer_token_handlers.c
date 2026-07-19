@@ -891,7 +891,7 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "static") == 0) return TOKEN_STATIC;
     if (strcmp(word, "auto") == 0) return TOKEN_AUTO;
     if (strcmp(word, "register") == 0) return TOKEN_REGISTER;
-    if (strcmp(word, "_Thread_local") == 0) return TOKEN_THREAD_LOCAL;
+    if (strcmp(word, "_Thread_local") == 0 || strcmp(word, "__thread") == 0) return TOKEN_THREAD_LOCAL;
     if (strcmp(word, "const") == 0) return TOKEN_CONST;
     if (strcmp(word, "__const") == 0 || strcmp(word, "__const__") == 0) return TOKEN_CONST;
     if (strcmp(word, "volatile") == 0) return TOKEN_VOLATILE;

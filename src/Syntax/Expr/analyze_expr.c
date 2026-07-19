@@ -259,6 +259,15 @@ static void validateStringLiteral(ASTNode* node, Scope* scope, const TypeInfo* b
 
 TypeInfo decayToRValue(TypeInfo info) {
     if (info.isArray) {
+        if (info.originalType) {
+            ParsedType pointerType = parsedTypeArrayElementType(info.originalType);
+            if (pointerType.kind != TYPE_INVALID && parsedTypePrependPointer(&pointerType)) {
+                typeInfoAdoptParsedType(&info, &pointerType);
+            } else {
+                parsedTypeFree(&pointerType);
+                info.originalType = NULL;
+            }
+        }
         info.category = TYPEINFO_POINTER;
         // C array-to-pointer decay yields "pointer to element type"; qualifiers
         // from the array object itself do not become qualifiers on the new pointer.

@@ -6,7 +6,7 @@
 - Promoted stable coverage: `3478`
 - Intentional probe-only coverage: `15`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `4885`
+- Stable final tests scanned: `4893`
 - Critical integrity errors: `0`
 - Ambiguous stem matches: `0`
 - Multi-owner best-rank matches: `558`
@@ -24,7 +24,7 @@
 - Ambiguous stem ownership requiring review: `0`
 - Multi-owner best-rank matches requiring explicit-owner migration: `558`
 - Duplicate stable semantic shapes: `12`
-- Probe assets `stable-only`: `3`
+- Probe assets `stable-only`: `11`
 - Probe assets `inventory-only`: `608`
 - Probe assets `unowned`: `8`
 

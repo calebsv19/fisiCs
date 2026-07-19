@@ -64,6 +64,7 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
     if (pt->isExtern)   if (!sb_append(b, "extern ")) return false;
     if (pt->isRegister) if (!sb_append(b, "register ")) return false;
     if (pt->isAuto)     if (!sb_append(b, "auto ")) return false;
+    if (pt->isThreadLocal) if (!sb_append(b, "__thread ")) return false;
 
     if (pt->isConst)    if (!sb_append(b, "const ")) return false;
     if (pt->isSigned)   if (!sb_append(b, "signed ")) return false;

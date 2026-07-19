@@ -108,6 +108,7 @@ typedef struct ParsedType {
     bool isExtern;
     bool isRegister;
     bool isAuto;
+    bool isThreadLocal;
 
     int pointerDepth;
     bool isVLA;

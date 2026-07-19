@@ -70,6 +70,52 @@ def resolve_input(project_root: Path, value: str) -> Path:
     return (WORKSPACE_ROOT / raw).resolve()
 
 
+def expand_target_inputs(project_root: Path, target: dict[str, Any]) -> list[Path]:
+    ordered: list[Path] = []
+    seen: set[Path] = set()
+
+    def add_path(path: Path) -> None:
+        resolved = path.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            ordered.append(resolved)
+
+    for value in target.get("inputs", []):
+        add_path(resolve_input(project_root, value))
+    for pattern in target.get("input_globs", []):
+        for match in sorted(project_root.glob(str(pattern))):
+            if match.is_file():
+                add_path(match)
+
+    excluded = {
+        resolve_input(project_root, value).resolve()
+        for value in target.get("exclude_inputs", [])
+    }
+    for pattern in target.get("exclude_globs", []):
+        excluded.update(
+            match.resolve()
+            for match in sorted(project_root.glob(str(pattern)))
+            if match.is_file()
+        )
+    return [path for path in ordered if path not in excluded]
+
+
+def llvm_core_link_args() -> list[str]:
+    completed = subprocess.run(
+        ["llvm-config", "--ldflags", "--libs", "core"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip()
+        raise RuntimeError(
+            "failed to query llvm-config for link flags"
+            + (f": {detail}" if detail else "")
+        )
+    return shlex.split(completed.stdout)
+
+
 def run(
     cmd: list[str],
     cwd: Path,
@@ -265,8 +311,12 @@ def compile_lane(
     objects: list[Path] = []
     results: list[dict[str, Any]] = []
     extras = stage_cfg.get("fisics_extra_args" if lane == "fisics" else "clang_extra_args", [])
-    for index, value in enumerate(target.get("inputs", [])):
-        source = resolve_input(project_root, value)
+    inputs = expand_target_inputs(project_root, target)
+    if not inputs:
+        return {"ok": False, "phase": "zero_inputs", "commands": [], "executable": None}
+    for index, source in enumerate(inputs):
+        if not source.is_file():
+            return {"ok": False, "phase": "missing_input", "commands": results, "executable": None}
         obj = build_root / lane / f"{index:02d}_{source.stem}.o"
         obj.parent.mkdir(parents=True, exist_ok=True)
         cmd = [str(compiler), *preprocessor, *extras, "-c", str(source), "-o", str(obj)]
@@ -280,7 +330,10 @@ def compile_lane(
     link_cmd = ["clang", *(str(obj) for obj in objects)]
     for value in target.get("link_inputs", []):
         link_cmd.append(str(resolve_input(project_root, value)))
-    link_cmd += stage_cfg.get("link_args", []) + target.get("link_args", []) + ["-o", str(executable)]
+    link_args = list(stage_cfg.get("link_args", [])) + list(target.get("link_args", []))
+    if target.get("use_llvm_core_link_args", False):
+        link_args += llvm_core_link_args()
+    link_cmd += link_args + ["-o", str(executable)]
     link_result = run(link_cmd, project_root, timeout, dry_run)
     save_result(artifact_root / lane, "link", link_cmd, link_result)
     return {

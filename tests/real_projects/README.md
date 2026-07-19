@@ -12,16 +12,16 @@ Current scope in this scaffold:
 - Stage `G_operational_differential` (deterministic production-shaped workflow,
   semantic trace, exit, artifact, and repeat parity; completed programs:
   `drawing_program`, `map_forge`, `datalab`, `workspace_sandbox`,
-  `line_drawing`, `ray_tracing`, `physics_sim`, and `mem_console`)
-- projects with A-F scaffold coverage: `datalab`, `workspace_sandbox`,
-  `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`,
-  `ide`, and `daw`; treat each latest report as dated evidence and refresh the
-  required stages before claiming current closure
-- self-host compiler canary: `fisiCs` (Stage A clean; Stage B widened to utility + frontend contract subsets; two Stage C CLI lanes closed; twenty-one Stage D runtime-smoke targets closed; nineteen Stage E golden-behavior targets closed; refreshed Stage F telemetry snapshot closed)
+  `line_drawing`, `ray_tracing`, `physics_sim`, `mem_console`, `daw`, `ide`,
+  and `fisiCs`)
+- projects with A-F scaffold coverage: `fisiCs`, `datalab`,
+  `workspace_sandbox`, `mem_console`, `line_drawing`, `drawing_program`,
+  `ray_tracing`, `physics_sim`, `map_forge`, `ide`, and `daw`; treat each
+  latest report as dated evidence and refresh the required stages before
+  claiming current closure
+- self-host compiler lane: `fisiCs` (fresh A-F eligibility plus four repeat-2
+  Stage-G operational targets are closed; see the canonical latest reports)
 - active compiler-owned real-project blocker ledger: none
-  - `map_forge` now uses the real headless viewport canary and the old strict-pure `app_run_legacy` compiler mitigation has been removed after the native strict-pure build path reclosed
-  - MapForge's refreshed Stage E has a symmetric sandbox/oracle failure after
-    both lanes compile, link, run, and exit `0`; it is not a fisiCs blocker
 
 ## Layout
 
@@ -93,6 +93,12 @@ Targets that need disk inputs may declare `runtime_fixtures`, `run_env`, and
 `scrub_env_prefixes`; the runner copies fixtures independently per
 compiler/repeat, expands `{project_root}` / `{run_root}` / `{fixture_root}` in
 environment values, and saves fixture/environment provenance.
+Production-sized targets may combine explicit `inputs` with sorted
+`input_globs`, then remove CLI-only or otherwise ineligible sources through
+`exclude_inputs` and `exclude_globs`. A target that expands to zero or contains
+a missing explicit input fails closed. `use_llvm_core_link_args` adds the host
+`llvm-config --ldflags --libs core` result when the selected production sources
+need the compiler library's LLVM core boundary.
 Each target supplies one deterministic driver/source set, exact checkpoint
 names, expected exit, and any allowed artifacts. The same configured scenario,
 arguments, and seed are compiled and run in the Clang and fisiCs lanes.
@@ -131,6 +137,18 @@ python3 tests/real_projects/runners/run_project_operational_differential_tests.p
 # eighth completed onboarding: state transfer, preferences, graph/pane interaction, DB workflow
 python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
   --project mem_console --repeat 2
+
+# ninth completed onboarding: MIDI state, session persistence, timeline interaction, export workflow
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project daw --repeat 2
+
+# tenth completed onboarding: analysis transfer, persistence, editor/tree interaction, diagnostics workflow
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project ide --repeat 2
+
+# eleventh completed onboarding: compiler contract, manifest persistence, options, frontend workflow
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project fisiCs --repeat 2
 
 # filtered investigation; writes only to the noncanonical report/artifact lane
 python3 tests/real_projects/runners/run_project_operational_differential_tests.py \

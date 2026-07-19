@@ -1076,6 +1076,17 @@ AssignmentCheckResult canAssignTypesInScope(const TypeInfo* dest,
                                             Scope* scope) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
 
+    /* C converts every scalar value to _Bool by comparison with zero. This
+     * includes object and function pointers; aggregates are not scalar and
+     * continue through the ordinary incompatibility path below. */
+    if (dest->category == TYPEINFO_INTEGER &&
+        dest->primitive == TOKEN_BOOL &&
+        dest->pointerDepth == 0 &&
+        !dest->isArray &&
+        (typeInfoIsArithmetic(src) || typeInfoIsPointerLike(src))) {
+        return ASSIGN_OK;
+    }
+
     if (typeInfoIsPointerLike(dest) && typeInfoIsPointerLike(src)) {
         bool destVoidPtr = typeInfoIsVoidPointer(dest);
         bool srcVoidPtr = typeInfoIsVoidPointer(src);

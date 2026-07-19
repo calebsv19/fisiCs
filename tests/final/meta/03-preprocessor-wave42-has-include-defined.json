@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime__wave42_has_include_defined",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_wave42_has_include_defined_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["preprocessor", "has-include", "defined", "real-project", "ide", "runtime", "wave42"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

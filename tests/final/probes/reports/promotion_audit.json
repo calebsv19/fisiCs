@@ -1,7 +1,7 @@
 {
   "summary": {
     "total_probes": 3493,
-    "total_final_tests": 4885,
+    "total_final_tests": 4893,
     "promoted": 3478,
     "probe_only": 15,
     "missing_promotion_candidate": 0,
@@ -26752,6 +26752,14 @@
         "classification": "inventory-only"
       },
       {
+        "path": "probes/diagnostics/07__probe_wave91_distinct_enum_member_array_reject.c",
+        "classification": "stable-only"
+      },
+      {
+        "path": "probes/diagnostics/07__probe_wave92_aggregate_bool_return_reject.c",
+        "classification": "stable-only"
+      },
+      {
         "path": "probes/diagnostics/08__probe_diag_line_directive_designator_array_index_negative_spelling_strict.c",
         "classification": "inventory-only"
       },
@@ -26830,6 +26838,10 @@
       {
         "path": "probes/diagnostics/08__probe_diagjson_line_directive_union_flex_member_rich_presence.c",
         "classification": "inventory-only"
+      },
+      {
+        "path": "probes/diagnostics/08__probe_wave93_fnptr_nonnull_void_pointer_reject.c",
+        "classification": "stable-only"
       },
       {
         "path": "probes/diagnostics/09__probe_case_label_before_decl_reject.c",
@@ -27220,12 +27232,20 @@
         "classification": "inventory-only"
       },
       {
+        "path": "probes/runtime/03__probe_wave42_has_include_defined_runtime.c",
+        "classification": "stable-only"
+      },
+      {
         "path": "probes/runtime/04__probe_deep_declarator_typedef_factory_assignment_runtime.c",
         "classification": "inventory-only"
       },
       {
         "path": "probes/runtime/04__probe_deep_declarator_typedef_factory_runtime.c",
         "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/04__probe_wave51_gnu_thread_local_runtime.c",
+        "classification": "stable-only"
       },
       {
         "path": "probes/runtime/05__probe_compound_literal_array_runtime.c",
@@ -27396,6 +27416,14 @@
         "classification": "inventory-only"
       },
       {
+        "path": "probes/runtime/07__probe_wave91_enum_typedef_member_array_decay_runtime.c",
+        "classification": "stable-only"
+      },
+      {
+        "path": "probes/runtime/07__probe_wave92_pointer_bool_scalar_conversion_runtime.c",
+        "classification": "stable-only"
+      },
+      {
         "path": "probes/runtime/08__probe_runtime_anonymous_union_layout_reseed_wave73.c",
         "classification": "unowned"
       },
@@ -27410,6 +27438,10 @@
       {
         "path": "probes/runtime/08__probe_runtime_wave80_file_scope_compound_literal_payload.c",
         "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/08__probe_wave93_fnptr_null_initializer_runtime.c",
+        "classification": "stable-only"
       },
       {
         "path": "probes/runtime/09__probe_runtime_switch_default_fallthrough_continue_break_mesh_xiv_current_sparse_pass.c",

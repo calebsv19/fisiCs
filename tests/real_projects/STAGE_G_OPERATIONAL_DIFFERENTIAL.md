@@ -38,6 +38,33 @@ canonical closure is four targets, two runs per compiler, with exact trace and
 canonical-artifact parity; raw pack and SQLite containers are existence-only
 artifacts rather than byte-level semantic oracles.
 
+DAW is the completed ninth onboarding. It adds production MIDI/tempo state
+transfer, session JSON persistence, timeline geometry and coordinate/clamp
+interaction boundaries, and a composed session-edit/reload/diagnostics-export
+workflow. Its canonical closure is four targets, two runs per compiler, with
+exact trace and canonical-artifact parity; the CoreTrace pack is existence-only
+because its decoded semantic state is represented in the trace and canonical
+workflow projection.
+
+IDE is the completed tenth onboarding. It adds completed-result and event
+state transfer, analysis-token JSON persistence, ControlPanel/editor/tree
+interaction boundaries, and a composed diagnostics save/reload/filter/publish
+workflow. Its canonical closure is four targets, two runs per compiler, with
+exact trace and canonical-artifact parity. The trace explicitly records the
+application-owned analysis-store recency reversal found during round trips;
+path-sorted logical projections prevent that known defect from becoming a
+false compiler oracle.
+
+fisiCs itself is the completed eleventh onboarding. It proves a non-circular
+self-host boundary by compiling the same production compiler-library sources
+and deterministic drivers with Clang and fisiCs. Its four targets cover
+diagnostic contract state, build-manifest persistence, frontend option and
+extension-policy transitions, and a composed multi-input analyze/reload/export
+workflow. The production-sized targets use sorted manifest input globs,
+explicit CLI/object-emission exclusions, fixed virtual source names, and LLVM
+core link flags; canonical closure is four targets, two runs per compiler,
+with exact trace and artifact parity.
+
 ## Sources Of Truth
 
 - runner:
@@ -66,6 +93,12 @@ artifacts rather than byte-level semantic oracles.
   `docs/private_program_docs/fisiCs/active/physics_sim_operational_differential_bites_plan.md`
   and
   `docs/private_program_docs/fisiCs/active/mem_console_operational_differential_bites_plan.md`
+  and
+  `docs/private_program_docs/fisiCs/active/daw_operational_differential_bites_plan.md`
+  and
+  `docs/private_program_docs/fisiCs/active/ide_operational_differential_bites_plan.md`
+  and
+  `docs/private_program_docs/fisiCs/active/fisics_operational_differential_bites_plan.md`
 
 RayTracing's in-repository executable contract is also fully represented by
 its four manifest targets and the fixtures under
@@ -178,8 +211,12 @@ The current stable fields are:
 {
   "id": "project_bite_name",
   "inputs": ["driver.c", "production_source.c"],
+  "input_globs": ["src/**/*.c"],
+  "exclude_inputs": ["src/main.c"],
+  "exclude_globs": ["src/generated/**/*.c"],
   "link_inputs": ["path/to/library.a"],
   "link_args": ["-lm"],
+  "use_llvm_core_link_args": false,
   "run_args": ["--bite", "1", "--seed", "1701"],
   "scrub_env_prefixes": ["PROJECT_"],
   "run_env": {
@@ -197,6 +234,14 @@ The current stable fields are:
   ]
 }
 ```
+
+`inputs` and sorted `input_globs` are combined and deduplicated before
+`exclude_inputs` and sorted `exclude_globs` are applied. Explicit inputs must
+exist, and the final input set must be non-empty. Use glob expansion for a
+production-owned library boundary whose source count would make a copied list
+fragile; keep exclusions explicit and semantic. When
+`use_llvm_core_link_args` is true, failure to query `llvm-config` is a closed
+build failure rather than an implicit link-policy change.
 
 `run_env` supports `{project_root}`, `{run_root}`, and `{fixture_root}`.
 Fixture destinations must be non-empty relative paths without `..`; duplicate
@@ -310,10 +355,10 @@ An onboarding plan is ready for one uninterrupted goal only if it includes:
 - durable checkpoint locations,
 - explicit terminal conditions and material-stop conditions.
 
-The completed DrawingProgram, MapForge, DataLab, Workspace Sandbox, and
-LineDrawing plans satisfy this checklist and provide five onboarding examples
-with materially different state, persistence, interaction, and lifecycle
-boundaries.
+The completed DrawingProgram, MapForge, DataLab, Workspace Sandbox,
+LineDrawing, RayTracing, PhysicsSim, MemConsole, DAW, IDE, and fisiCs plans
+satisfy this checklist and provide eleven onboarding examples with materially
+different state, persistence, interaction, and lifecycle boundaries.
 
 RayTracing provides the sixth example and a reusable template for programs
 whose operational boundary is a job handoff rather than an editor model. Its
@@ -358,6 +403,19 @@ prove:
 4. Memory DB open/seed, rename/pin, relationship creation/kind cycling,
    preference save, DB close/reopen, semantic query comparison, invalid
    self-link rejection, canonical output, and shutdown.
+
+DAW provides the ninth example for timeline-oriented media applications, and
+IDE provides the tenth example for analysis-driven interactive tools. IDE's
+four bites prove cross-queue ordering and bounded event transfer, token-store
+save/destroy/reload semantics, control/editor/tree coordinate boundaries, and
+diagnostics persistence plus live/stale publication behavior. Its documented
+recency-order defect is deliberately separated from compiler parity.
+
+fisiCs provides the eleventh example and the reusable pattern for a program
+whose operational boundary is itself a production library with many source
+files. It demonstrates glob-expanded inputs, explicit frontend-library
+exclusions, stable virtual paths for semantic ids, and a non-circular oracle:
+both compilers build and run the same source-level workflow.
 
 For the next one-goal onboarding, keep the same structure: refresh every A-F
 eligibility lane first, choose four production-owned semantic seams, declare

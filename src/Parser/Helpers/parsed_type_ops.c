@@ -269,6 +269,7 @@ static bool parsedTypeCloneInto(ParsedType* dst, const ParsedType* src) {
     dst->isExtern = src->isExtern;
     dst->isRegister = src->isRegister;
     dst->isAuto = src->isAuto;
+    dst->isThreadLocal = src->isThreadLocal;
     dst->pointerDepth = src->pointerDepth;
     dst->isVLA = src->isVLA;
     dst->directlyDeclaresFunction = src->directlyDeclaresFunction;

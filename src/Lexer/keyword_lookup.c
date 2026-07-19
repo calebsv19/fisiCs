@@ -40,6 +40,7 @@ static const KeywordEntry kKeywords[] = {
     {"auto", 4},
     {"register", 8},
     {"_Thread_local", 13},
+    {"__thread", 8},
     {"const", 5},
     {"volatile", 8},
     {"restrict", 8},

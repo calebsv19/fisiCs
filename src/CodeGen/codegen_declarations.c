@@ -516,6 +516,9 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
             LLVMSetInitializer(existing, LLVMConstNull(varType));
         }
     }
+    if (storedParsed->isThreadLocal) {
+        LLVMSetThreadLocal(existing, 1);
+    }
 
     if (externDeclOnly) {
         LLVMSetLinkage(existing, LLVMExternalLinkage);
@@ -749,6 +752,9 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
         bool isArray = arrayParsed ? parsedTypeIsDirectArray(arrayParsed) : false;
         LLVMValueRef existing = LLVMGetNamedGlobal(ctx->module, name);
         if (existing) {
+            if (effectiveParsed && effectiveParsed->isThreadLocal) {
+                LLVMSetThreadLocal(existing, 1);
+            }
             LLVMTypeRef existingType = cg_dereference_ptr_type(ctx, LLVMTypeOf(existing), "global variable");
             if (!existingType || LLVMGetTypeKind(existingType) == LLVMVoidTypeKind) {
                 existingType = varType;
@@ -795,6 +801,9 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
         }
 
         LLVMValueRef global = LLVMAddGlobal(ctx->module, varType, name);
+        if (effectiveParsed && effectiveParsed->isThreadLocal) {
+            LLVMSetThreadLocal(global, 1);
+        }
         if (cg_is_builtin_const_name(name)) {
             LLVMSetLinkage(global, LLVMInternalLinkage);
         }

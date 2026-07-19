@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime__wave93_fnptr_null_initializer",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave93_fnptr_null_initializer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["initializer", "function-pointer", "null-pointer-constant", "real-project", "ide", "runtime", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__wave93_fnptr_nonnull_void_pointer_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_wave93_fnptr_nonnull_void_pointer_reject.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["initializer", "function-pointer", "void-pointer", "negative", "wave93"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

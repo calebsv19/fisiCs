@@ -9,6 +9,7 @@
 
 TypeInfo analyzeExpression(ASTNode* node, Scope* scope);
 TypeInfo decayToRValue(TypeInfo info);
+bool isNullPointerConstant(ASTNode* expr, Scope* scope);
 bool evalOffsetofFieldPath(const ParsedType* baseType,
                            const char* fieldPath,
                            Scope* scope,

@@ -533,7 +533,7 @@
                 "-o",
                 "/private/tmp/fisics_stage_e_small_project_dump_sema.out"
               ],
-              "expected_stdout_sha256": "dc23590483dabb3f1a29a6e6c5d7bda5e419eafd872c95d35d7cd35febcb7d6d",
+                                            "expected_stdout_sha256": "35e7e58b228746973c1e3ad7b8b88f0e9541edecc4924053569b1cdf749d65f6",
               "expected_stdout_contains": [
                 "SemanticModel: 0 error(s)",
                 "  - function: a_value",
@@ -555,7 +555,7 @@
                 "-o",
                 "/private/tmp/fisics_stage_e_shadow_profile_dump_sema.o"
               ],
-              "expected_stdout_sha256": "0e55f292345bd61cdcc1728611cf21d44bf7ef1d9102351192ac1701ce901f5a",
+                                            "expected_stdout_sha256": "1adcd446c71d2227635e7e876ebea335f6d9d1ef3f5e734b4b416b449db344d6",
               "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
               "expected_stdout_contains": [
                 "SemanticModel: 0 error(s)",
@@ -599,7 +599,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_parse_format.o"
                                             ],
-                                            "expected_stdout_sha256": "6e0241195e7062a2564ac652efdca523e749a7353fd1795fdb68bf0cc7850279",
+                                            "expected_stdout_sha256": "df7e6428805ddd61ccb43917f5fc9e2256f498eca7465366185254e6348bb39b",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -618,7 +618,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_qsort_bsearch_assert.o"
                                             ],
-                                            "expected_stdout_sha256": "95061c7e1eeb93ff8ae890f2d3f36305126b5b053646767df8be4ff1dcfb312b",
+                                            "expected_stdout_sha256": "a5130b542af876d52a94d5a0da181fe3107c556a53aeef2811d949b223bf7f94",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -637,7 +637,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_locale_time.o"
                                             ],
-                                            "expected_stdout_sha256": "91fac68961eed4b03fee3e7f197692e8fe7c0f6271810d57034167cf8c7b3f11",
+                                            "expected_stdout_sha256": "8e4b1b9b88d9c61e0463f99dca621b4b783fc5c515702c6eed90bb3469b08bcb",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -656,7 +656,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_locale_ctype_errno.o"
                                             ],
-                                            "expected_stdout_sha256": "1a2b9f2ae2f506017d4a4bb86bd9b7f69ae3a7a06ea4cece1fe9f338e3f95e21",
+                                            "expected_stdout_sha256": "df6364e30a43bd44043a5e0a52ca95954777bd40713819954076eb2d939729f3",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -675,7 +675,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_stdbool_stddef.o"
                                             ],
-                                            "expected_stdout_sha256": "cf81d77978ce6028af373f236667534af2632ef84c83412e52ba2b56807fab28",
+                                            "expected_stdout_sha256": "283f8355f4b684b105f60b3dbed3732eee3d2bb911bc452a0248b2263d055c48",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -694,7 +694,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_inttypes.o"
                                             ],
-                                            "expected_stdout_sha256": "7aa74a21d840457ff7414dc0e2ce8fd00583942d983cb89ac6a7f8b264288073",
+                                            "expected_stdout_sha256": "b345dd1e0a62203553ede4284d2d7fbb8beaaadd9fc9709cd4a746734621cf4c",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -713,7 +713,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_stdio_signal.o"
                                             ],
-                                            "expected_stdout_sha256": "48549756d2ebf8e51054b05957ff74f3f065d603e7192e8a83cd82bcfc070c85",
+                                            "expected_stdout_sha256": "0dadea433ae83f42c190ddf5027e9f34d31dc7ea03e2fa6269314eadff24e112",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -732,7 +732,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_stdlib_numeric.o"
                                             ],
-                                            "expected_stdout_sha256": "fd39a63b94f7fe7395e111b7486a916f64c53c7133b96adbcf7c0fa0a476adb0",
+                                            "expected_stdout_sha256": "f5df3d6387d96b09d648d32973feb0de5522abae5cf2e10308814f21296c6486",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -751,7 +751,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_float_math.o"
                                             ],
-                                            "expected_stdout_sha256": "849a3fd39a26d787400de3002ba7c33163c81c5334886a1e1f1c741dfe191ea3",
+                                            "expected_stdout_sha256": "59f114e262de4c5ec2dee829151f2db69bd905656445d6e14d9c00c6474e3081",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -770,7 +770,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_complex.o"
                                             ],
-                                            "expected_stdout_sha256": "2ed42d4110aff604f583a7967ac205ab2c92d0a1e56f3e637c5a5b2ce3054597",
+                                            "expected_stdout_sha256": "4286d85ad77a94a058ebd85c9e7dae952c74688d62a683f9bf61d74162ced7f7",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -789,7 +789,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_wchar_wctype.o"
                                             ],
-                                            "expected_stdout_sha256": "0901bec68e26a785f18c3dbe804ea60a3599554801abcbb4a12987faf2833b51",
+                                            "expected_stdout_sha256": "a456a1b0074d3b109500ed6e7689b397adf4881d0fce08fcce471a84c6834604",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -808,7 +808,7 @@
                                               "-o",
                                               "/private/tmp/fisics_stage_e_header_corpus_fenv.o"
                                             ],
-                                            "expected_stdout_sha256": "1714ec56e7abaeea6f39227be37e306b82b47b56474eb698bd1df2651b3df19d",
+                                            "expected_stdout_sha256": "29f69da94fb13b8cf3304c37febdeb065520f7e147b457948ccb031469154f4e",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                             "expected_stdout_contains": [
                                               "SemanticModel: 0 error(s)",
@@ -834,7 +834,7 @@
                                               "  - function: header_corpus_wave13_stdatomic_summary",
                                               "  - function: main"
                                             ],
-                                            "expected_stdout_sha256": "eb486e863c5704d4ccb69d00c4556f2df712258f9bcf467f5deaaeb1a1971ceb",
+                                            "expected_stdout_sha256": "69873867944abaa04cec51a66c9e1ae05a36794d17c0452596d21593348d9e55",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                                           },
                                           {
@@ -854,7 +854,7 @@
                                               "  - function: main",
                                               "  - function: sqrt"
                                             ],
-                                            "expected_stdout_sha256": "4414ae08a2cae00569ede47a37e3c2e8e51f740b78fd180cf69b8dc0288e6acc",
+                                            "expected_stdout_sha256": "c02595840edc6af3f794967e0449eb7a68f3812aa764bba0ba7fb3fe9b16cd69",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                                           },
                                           {
@@ -873,7 +873,7 @@
                                               "  - function: header_corpus_wave15_stdalign_summary",
                                               "  - function: main"
                                             ],
-                                            "expected_stdout_sha256": "75a5516c09a3bb1cd5677d1de7ccc03817f70c0cb40f58648a53eb3f99f1b85a",
+                                            "expected_stdout_sha256": "38f1861c0f8920a87ac1022af2923cea785337f91b0d5023c37e4010c8ca5393",
                                             "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                                           }
                                         ]
@@ -893,6 +893,134 @@
           "ratio_warn": 20.0,
           "binary_candidates": [
             "fisics"
+          ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 30,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "FISICS_STAGE_G_"
+          ],
+          "run_env": {
+            "FISICS_STAGE_G_SCENARIO": "fisics-self",
+            "FISICS_STAGE_G_SEED": "424242"
+          },
+          "targets": [
+            {
+              "id": "fisics_stage_g_bite1_diagnostic_contract_state",
+              "inputs": [
+                "tests/real_projects/fixtures/fisics_stage_g/fisics_stage_g_bite1_driver.c",
+                "src/Compiler/diagnostic_metadata.c"
+              ],
+              "expected_checkpoints": [
+                "boot",
+                "taxonomy",
+                "lookup",
+                "shutdown"
+              ]
+            },
+            {
+              "id": "fisics_stage_g_bite2_manifest_round_trip",
+              "inputs": [
+                "tests/real_projects/fixtures/fisics_stage_g/fisics_stage_g_bite2_driver.c",
+                "src/Compiler/build_manifest.c"
+              ],
+              "runtime_fixtures": [
+                {
+                  "source": "tests/real_projects/fixtures/fisics_stage_g/project",
+                  "path": "project"
+                }
+              ],
+              "expected_checkpoints": [
+                "boot",
+                "loaded",
+                "persisted",
+                "reloaded",
+                "invalid",
+                "shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "artifacts/manifest_summary.txt",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "fisics_stage_g_bite3_frontend_option_boundaries",
+              "inputs": [
+                "tests/real_projects/fixtures/fisics_stage_g/fisics_stage_g_bite3_driver.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true,
+              "expected_checkpoints": [
+                "boot",
+                "profiles",
+                "macro",
+                "overlay",
+                "shutdown"
+              ]
+            },
+            {
+              "id": "fisics_stage_g_bite4_composed_frontend_workflow",
+              "inputs": [
+                "tests/real_projects/fixtures/fisics_stage_g/fisics_stage_g_bite4_driver.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true,
+              "expected_checkpoints": [
+                "bootstrap",
+                "project",
+                "analyzed_valid",
+                "analyzed_invalid",
+                "analyzed_units",
+                "reloaded",
+                "exported",
+                "shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "artifacts/workflow_summary.txt",
+                  "compare": "sha256"
+                }
+              ]
+            }
           ]
         }
       }
@@ -3242,18 +3370,21 @@
         "third_party/codework_shared/core/core_data/include",
         "third_party/codework_shared/core/core_pack/include",
         "third_party/codework_shared/core/core_time/include",
-        "third_party/codework_shared/core/core_theme/include",
-        "third_party/codework_shared/core/core_font/include",
-        "third_party/codework_shared/core/core_queue/include",
+      "third_party/codework_shared/core/core_theme/include",
+      "third_party/codework_shared/core/core_font/include",
+      "third_party/codework_shared/core/core_pane/include",
+      "third_party/codework_shared/core/core_queue/include",
         "third_party/codework_shared/core/core_sched/include",
         "third_party/codework_shared/core/core_jobs/include",
         "third_party/codework_shared/core/core_workers/include",
         "third_party/codework_shared/core/core_wake/include",
         "third_party/codework_shared/core/core_kernel/include",
         "third_party/codework_shared/core/core_trace/include",
-        "third_party/codework_shared/kit/kit_render/include",
-        "third_party/codework_shared/kit/kit_viz/include",
-        "/usr/local/include"
+      "third_party/codework_shared/kit/kit_render/include",
+      "third_party/codework_shared/kit/kit_viz/include",
+      "third_party/codework_shared/kit/kit_ui/include",
+      "third_party/codework_shared/kit/kit_workspace_authoring/include",
+      "/usr/local/include"
       ],
       "defines": [
         "VK_RENDERER_SHADER_ROOT=\"third_party/codework_shared/vk_renderer\""
@@ -3458,6 +3589,125 @@
           "regression_warn_pct": 30,
           "regression_warn_min_ms": 250,
           "ratio_warn": 20.0
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 300,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": ["--extensions=gnu"],
+          "clang_extra_args": ["-std=c11", "-Wall", "-Wextra", "-Wpedantic"],
+          "link_args": ["-L/opt/homebrew/lib", "-lm", "-lpthread"],
+          "scrub_env_prefixes": ["DAW_"],
+          "targets": [
+            {
+              "id": "daw_bite_1_timeline_midi_state_transfer",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/daw_stage_g/daw_stage_g_bite1_driver.c",
+                "src/engine/midi.c",
+                "src/time/tempo.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_bootstrap", "b1_seeded", "b1_edited", "b1_invalid",
+                "b1_tempo", "b1_canonical", "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "state_transfer.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "daw_bite_2_session_persistence_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/daw_stage_g/daw_stage_g_bite2_driver.c",
+                "tests/test_session_engine_stubs.c",
+                "src/session/session_document.c",
+                "src/session/session_validation.c",
+                "src/session/session_io_write.c",
+                "src/session/session_io_read.c",
+                "src/session/session_io_json.c",
+                "src/session/session_io_read_parse.c",
+                "src/session/session_io_read_parse_document.c",
+                "src/session/session_io_read_parse_engine.c",
+                "src/session/session_io_read_parse_effects_panel.c",
+                "src/session/session_io_read_parse_master_fx.c",
+                "src/session/session_io_read_parse_track_clips.c",
+                "src/session/session_io_read_parse_track_fx.c",
+                "src/engine/midi.c",
+                "src/config/config.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_io/build/libcore_io.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": ["-lSDL2"],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_mutated", "b2_saved", "b2_destroyed", "b2_reloaded",
+                "b2_compared", "b2_canonical", "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "runtime/session.json", "compare": "sha256"},
+                {"path": "persistence.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "daw_bite_3_timeline_interaction_boundaries",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/daw_stage_g/daw_stage_g_bite3_driver.c",
+                "../fisiCs/tests/real_projects/fixtures/daw_stage_g/daw_stage_g_geometry_stubs.c",
+                "src/input/timeline/timeline_geometry.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_begin", "b3_coordinate", "b3_move_forward", "b3_move_reverse",
+                "b3_resize_clamp", "b3_invalid", "b3_canonical", "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "interaction.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "daw_bite_4_scripted_session_export_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/daw_stage_g/daw_stage_g_bite4_driver.c",
+                "tests/test_session_engine_stubs.c",
+                "src/session/session_document.c",
+                "src/session/session_validation.c",
+                "src/session/session_io_write.c",
+                "src/session/session_io_read.c",
+                "src/session/session_io_json.c",
+                "src/session/session_io_read_parse.c",
+                "src/session/session_io_read_parse_document.c",
+                "src/session/session_io_read_parse_engine.c",
+                "src/session/session_io_read_parse_effects_panel.c",
+                "src/session/session_io_read_parse_master_fx.c",
+                "src/session/session_io_read_parse_track_clips.c",
+                "src/session/session_io_read_parse_track_fx.c",
+                "src/engine/midi.c",
+                "src/config/config.c",
+                "src/export/daw_trace_export.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_trace/build/libcore_trace.a",
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_io/build/libcore_io.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": ["-lSDL2"],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap", "b4_project", "b4_draw", "b4_edit",
+                "b4_saved_destroyed", "b4_reloaded", "b4_exported", "b4_invalid",
+                "b4_canonical", "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "runtime/workflow_session.json", "compare": "sha256"},
+                {"path": "runtime/workflow_trace.pack", "compare": "exists"},
+                {"path": "workflow.canonical", "compare": "sha256"}
+              ]
+            }
+          ]
         }
       }
     },
@@ -3487,6 +3737,8 @@
         "third_party/codework_shared/core/core_io/include",
         "third_party/codework_shared/core/core_data/include",
         "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/core/core_pane/include",
+        "third_party/codework_shared/core/core_viewport2d/include",
         "third_party/codework_shared/core/core_theme/include",
         "third_party/codework_shared/core/core_font/include",
         "third_party/codework_shared/core/core_time/include",
@@ -3496,7 +3748,12 @@
         "third_party/codework_shared/core/core_workers/include",
         "third_party/codework_shared/core/core_wake/include",
         "third_party/codework_shared/core/core_kernel/include",
+        "third_party/codework_shared/kit/kit_render/include",
+        "third_party/codework_shared/kit/kit_ui/include",
+        "third_party/codework_shared/kit/kit_graph_struct/include",
+        "third_party/codework_shared/kit/kit_workspace_authoring/include",
         "../fisiCs/src",
+        "../fisiCs/src/Lexer",
         "third_party/codework_shared/timer_hud/external",
         "/usr/local/include"
       ],
@@ -3605,6 +3862,13 @@
                 "src/core/Analysis/analysis_symbols_store.c",
                 "src/core/Analysis/analysis_token_store.c",
                 "src/core/Analysis/library_index.c",
+                "src/core/Analysis/analysis_artifact_io.c",
+                "src/core/Analysis/analysis_build_graph_store.c",
+                "src/core/Analysis/analysis_memory_report_store.c",
+                "src/core/Analysis/analysis_units_store.c",
+                "src/core/Diagnostics/diagnostic_context.c",
+                "src/core/Diagnostics/diagnostic_explanations.c",
+                "../fisiCs/src/Compiler/diagnostic_metadata.c",
                 "src/core/LoopKernel/mainthread_context.c",
                 "src/app/GlobalInfo/workspace_prefs.c"
               ]
@@ -3682,6 +3946,136 @@
           "regression_warn_pct": 30,
           "regression_warn_min_ms": 250,
           "ratio_warn": 20.0
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lm",
+            "-lSDL2",
+            "-ljson-c",
+            "-lpthread"
+          ],
+          "scrub_env_prefixes": [
+            "IDE_"
+          ],
+          "targets": [
+            {
+              "id": "ide_bite_1_analysis_result_state_transfer",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ide_stage_g/ide_stage_g_bite1_driver.c",
+                "src/core/LoopResults/completed_results_queue.c",
+                "src/core/LoopEvents/event_queue.c",
+                "src/core/LoopKernel/mainthread_context.c",
+                "third_party/codework_shared/core/core_queue/src/core_queue.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_bootstrap",
+                "b1_events_seeded",
+                "b1_events_bounded",
+                "b1_events_drained",
+                "b1_results_seeded",
+                "b1_results_transferred",
+                "b1_invalid",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "state_transfer.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "ide_bite_2_analysis_persistence_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ide_stage_g/ide_stage_g_bite2_driver.c",
+                "src/core/Analysis/analysis_token_store.c",
+                "src/core/Analysis/analysis_artifact_io.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_mutated",
+                "b2_saved",
+                "b2_destroyed",
+                "b2_reloaded",
+                "b2_removed_reloaded",
+                "b2_invalid",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "runtime/workspace/ide_files/analysis_tokens.json", "compare": "sha256"},
+                {"path": "persistence.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "ide_bite_3_editor_tree_interaction_boundaries",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ide_stage_g/ide_stage_g_bite3_driver.c",
+                "src/ide/Panes/ControlPanel/control_panel_search_filters_helpers.c",
+                "src/ide/Panes/Editor/editor_state.c",
+                "src/ide/UI/Trees/tree_row_metrics.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_begin",
+                "b3_control_focus",
+                "b3_control_transfer",
+                "b3_move_forward",
+                "b3_move_reverse",
+                "b3_resize_clamp",
+                "b3_coordinate",
+                "b3_invalid",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "interaction.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "ide_bite_4_scripted_diagnostics_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ide_stage_g/ide_stage_g_bite4_driver.c",
+                "src/core/Analysis/analysis_store.c",
+                "src/core/Analysis/analysis_artifact_io.c",
+                "src/core/Diagnostics/diagnostics_engine.c",
+                "src/core/LoopResults/completed_results_queue.c",
+                "src/core/LoopEvents/event_queue.c",
+                "src/core/LoopKernel/mainthread_context.c",
+                "src/ide/Panes/ToolPanels/Errors/errors_filter.c",
+                "../fisiCs/src/Compiler/diagnostic_metadata.c",
+                "third_party/codework_shared/core/core_queue/src/core_queue.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_project",
+                "b4_saved_destroyed",
+                "b4_reloaded_filtered",
+                "b4_published",
+                "b4_stale",
+                "b4_invalid",
+                "b4_canonical",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "runtime/workspace/ide_files/analysis_diagnostics.json", "compare": "sha256"},
+                {"path": "workflow.canonical", "compare": "sha256"}
+              ]
+            }
+          ]
         }
       }
     },

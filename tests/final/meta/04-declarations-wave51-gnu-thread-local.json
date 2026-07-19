@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave51_gnu_thread_local",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave51_gnu_thread_local_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "gnu-extension", "thread-local", "real-project", "ide", "runtime", "wave51"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

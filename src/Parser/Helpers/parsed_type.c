@@ -384,6 +384,13 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;
         }
+        if (parser->currentToken.type == TOKEN_THREAD_LOCAL &&
+            parser->currentToken.value &&
+            strcmp(parser->currentToken.value, "__thread") == 0) {
+            type.isThreadLocal = true;
+            advance(parser);
+            continue;
+        }
         if (parser->currentToken.type == TOKEN_THREAD_LOCAL) {
             if (!reportedThreadLocalUnsupported) {
                 printParseError("_Thread_local is not supported yet", parser);

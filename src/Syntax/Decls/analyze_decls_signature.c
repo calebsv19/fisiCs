@@ -867,7 +867,7 @@ bool validateStorageUsage(const ParsedType* type,
     }
 
     if (isTypedef) {
-        if (storageCount > 0) {
+        if (storageCount > 0 || type->isThreadLocal) {
             addError(line,
                      0,
                      "Typedef cannot combine with other storage class specifiers",
@@ -878,6 +878,20 @@ bool validateStorageUsage(const ParsedType* type,
     }
 
     StorageClass storage = deduceStorageClass(type);
+    if (type->isThreadLocal) {
+        if (isFunction) {
+            addError(line, 0, "Thread-local storage is not valid on a function", nameHint);
+            return false;
+        }
+        if (storage == STORAGE_AUTO || storage == STORAGE_REGISTER) {
+            addError(line, 0, "Thread-local storage requires static or external linkage", nameHint);
+            return false;
+        }
+        if (!fileScope && storage != STORAGE_STATIC && storage != STORAGE_EXTERN) {
+            addError(line, 0, "Function-scope thread-local object requires static or extern", nameHint);
+            return false;
+        }
+    }
     if (!isFunction && fileScope && (storage == STORAGE_AUTO || storage == STORAGE_REGISTER)) {
         addError(line, 0, "Invalid storage class at file scope", nameHint);
         return false;

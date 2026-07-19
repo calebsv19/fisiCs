@@ -316,7 +316,8 @@ bool isModifierToken(TokenType type) {
 }
  
 bool isStorageSpecifier(TokenType type) {
-    return type == TOKEN_STATIC || type == TOKEN_EXTERN || type == TOKEN_AUTO || type == TOKEN_REGISTER;  
+    return type == TOKEN_STATIC || type == TOKEN_EXTERN || type == TOKEN_AUTO ||
+           type == TOKEN_REGISTER || type == TOKEN_THREAD_LOCAL;
 }
 
 

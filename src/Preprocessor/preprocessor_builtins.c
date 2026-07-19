@@ -236,6 +236,11 @@ static void define_default_builtins(Preprocessor* pp) {
         define_builtin_function(pp, "__has_declspec_attribute", params, 1, false, "0");
         define_builtin_function(pp, "__has_warning", params, 1, false, "0");
         define_builtin_function(pp, "__is_identifier", params, 1, false, "1");
+        /* These operators are evaluated directly by pp_prepare_expr_tokens.
+         * Register their builtin identity as well so defined(...) and #ifdef
+         * match Clang before the operator-specific evaluation runs. */
+        define_builtin_function(pp, "__has_include", params, 1, false, "0");
+        define_builtin_function(pp, "__has_include_next", params, 1, false, "0");
     }
 }
 

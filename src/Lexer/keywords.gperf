@@ -44,6 +44,7 @@ static
 auto
 register
 _Thread_local
+__thread
 const
 volatile
 restrict

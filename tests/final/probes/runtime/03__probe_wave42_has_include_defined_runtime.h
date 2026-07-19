@@ -1,0 +1,1 @@
+#define WAVE42_PRESENT_VALUE 42

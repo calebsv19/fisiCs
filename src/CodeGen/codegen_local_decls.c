@@ -336,6 +336,9 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 global = LLVMAddGlobal(ctx->module, globalType, varName);
                 LLVMSetLinkage(global, LLVMExternalLinkage);
             }
+            if (effectiveParsed && effectiveParsed->isThreadLocal) {
+                LLVMSetThreadLocal(global, 1);
+            }
 
             LLVMTypeRef globalValueType = LLVMGlobalGetValueType(global);
             if (!globalValueType || LLVMGetTypeKind(globalValueType) == LLVMVoidTypeKind) {
@@ -377,6 +380,9 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
             }
             LLVMValueRef global = LLVMAddGlobal(ctx->module, varType, globalName);
             LLVMSetLinkage(global, LLVMInternalLinkage);
+            if (effectiveParsed && effectiveParsed->isThreadLocal) {
+                LLVMSetThreadLocal(global, 1);
+            }
             LLVMSetInitializer(global, LLVMConstNull(varType));
 
             LLVMTypeRef elementLLVM = NULL;
