@@ -1,6 +1,6 @@
 # OpenAI Build Week Judge Guide
 
-This is the shortest installation and testing path for the `fisiCs` 0.3.0
+This is the shortest installation and testing path for the `fisiCs` 0.4.0
 OpenAI Build Week submission. It is designed to let a judge run the compiler
 without rebuilding the project or setting up the full development test suite.
 
@@ -21,21 +21,21 @@ GitHub's macOS runner with Homebrew LLVM.
 ## Install Without Rebuilding
 
 1. Open the [fisiCs program page](https://ecosystem.calebsv.tech/suite/program/?repo=fisiCs).
-2. Download the macOS `arm64` 0.3.0 `.tar.gz` or `.zip` archive.
+2. Download the macOS `arm64` 0.4.0 `.tar.gz` or `.zip` archive.
 3. Compare the archive's SHA-256 with the checksum shown on the program page.
 4. Extract the archive. No installer or administrator access is required.
 
 Terminal example for a downloaded tarball:
 
 ```bash
-shasum -a 256 fisiCs-0.3.0-macOS-arm64-stable.tar.gz
-tar -xzf fisiCs-0.3.0-macOS-arm64-stable.tar.gz
-cd fisiCs-0.3.0-macOS-arm64-stable
+shasum -a 256 fisiCs-0.4.0-macOS-arm64-stable.tar.gz
+tar -xzf fisiCs-0.4.0-macOS-arm64-stable.tar.gz
+cd fisiCs-0.4.0-macOS-arm64-stable
 bin/fisics --version
 bin/fisics --help
 ```
 
-Expected version output includes `0.3.0`. The archive includes the compiler,
+Expected version output includes `0.4.0`. The archive includes the compiler,
 documentation, examples, and the small compile/link fixtures used below.
 
 ## Five-Minute Test
@@ -118,5 +118,6 @@ That GPT-5.6 Codex thread exercised the reusable runner through RayTracing's
 four production-shaped workflow bites, repeated each Clang and `fisiCs` path,
 verified trace and artifact parity, and then ran the monitored final and
 promotion-audit gates. The repository's Build Week evidence boundary starts
-after commit `aa4b3268ce552fd3ead88fa9b6bd8df52842b3df` and ends at the `v0.3.0`
-release tag.
+after commit `aa4b3268ce552fd3ead88fa9b6bd8df52842b3df`, includes the stabilized compiler
+checkpoint `3256df3555af09772a41079dd9357ac0120e7ba2`, and is published as the
+immutable `v0.4.0` release.
