@@ -12,6 +12,12 @@ Run from the `fisiCs/` repo root.
 3. `make release-verify`
 4. `make release-sign APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)"`
 5. `make release-notarize APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)" APPLE_NOTARY_PROFILE="<profile>"`
+6. `make release-verify`
+
+`release-verify` only inspects the existing staged tree and archives; it does
+not rebuild or replace them. Use `release-archive` (or `release-sign`) first
+whenever new package bytes are required. This keeps the final verification
+from silently replacing signed or notarized artifacts.
 
 Optional installer lane:
 
@@ -74,9 +80,11 @@ archive bytes.
   - the macOS binary has no Homebrew- or machine-local dynamic-library paths;
     LLVM is linked into the release binary and only system-relative dynamic
     dependencies are accepted
-  - `codesign --verify` (passes once signed)
+  - strict `codesign --verify` for the staged macOS binary
   - `spctl --assess` is informational for CLI binaries and may report non-app rejection even when signing/notarization are correct
   - archive checksum matches recorded `.sha256`
+  - both archives extract successfully, retain the exact staged binary bytes,
+    pass strict signature and portability checks, and run `--version`/`--help`
 - `release-notarize` fails closed unless Apple's JSON response reports
   `Accepted`; a completed submission with `Invalid` status is not a successful
   release gate

@@ -317,15 +317,26 @@ release-notarize: release-sign
 	@python3 scripts/verify_notary_response.py "$(RELEASE_NOTARY_LOG)"
 	@echo "Notarization response saved to $(RELEASE_NOTARY_LOG)"
 
-release-verify: release-archive
+release-verify:
 	@echo "Verifying release bundle..."
 	@test -x "$(RELEASE_BIN)"
+	@test -f "$(RELEASE_ARTIFACT_ZIP)"
+	@test -f "$(RELEASE_ARTIFACT_TGZ)"
+	@test -f "$(RELEASE_SHA256)"
+	@test -f "$(RELEASE_TGZ_SHA256)"
 	@bash scripts/verify_release_portability.sh "$(RELEASE_BIN)" "$(RELEASE_PLATFORM)"
-	@codesign --verify --verbose=2 "$(RELEASE_BIN)" || true
+	@if [ "$(RELEASE_PLATFORM)" = "macOS" ]; then \
+		codesign --verify --deep --strict --verbose=2 "$(RELEASE_BIN)"; \
+	fi
 	@spctl --assess --type execute --verbose=4 "$(RELEASE_BIN)" || \
 		echo "note: spctl may reject raw CLI binaries as non-app; use notarization status + codesign verification for release gate."
 	@shasum -a 256 -c "$(RELEASE_SHA256)"
 	@shasum -a 256 -c "$(RELEASE_TGZ_SHA256)"
+	@bash scripts/verify_release_archives.sh \
+		"$(RELEASE_STAGE_DIR)" \
+		"$(RELEASE_ARTIFACT_ZIP)" \
+		"$(RELEASE_ARTIFACT_TGZ)" \
+		"$(RELEASE_PLATFORM)"
 	@echo "release-verify complete."
 
 release-pkg: release-sign
@@ -349,7 +360,7 @@ release-pkg: release-sign
 
 release-all: release-contract release-archive release-verify
 
-release-bridge-prepare: release-verify
+release-bridge-prepare: release-archive release-verify
 	@RELEASE_ROOT="$(RELEASE_ROOT)" \
 	RELEASE_BASENAME="$(RELEASE_BASENAME)" \
 	RELEASE_VERSION="$(RELEASE_VERSION)" \
