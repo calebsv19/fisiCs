@@ -67,6 +67,13 @@ and is released separately as `0.4.0` so the published `0.3.0` source and
 artifact identities remain unchanged. The principal Codex `/feedback` Session
 ID is `019f6486-6fc5-79b2-91dd-4ecab0b34118`.
 
+The recorded Build Week compiler demonstration uses that immutable `0.4.0`
+package. The current release line advances to `0.5.0` with explicit
+freestanding `x86_64-unknown-none` ELF64 object emission. Archive names and
+SHA-256 values are version-specific, so use the current program page or the
+matching GitHub Release rather than copying the filename or checksum shown in
+the recorded demonstration.
+
 ### How Codex and GPT-5.6 contributed
 
 The project was developed iteratively with Codex and GPT-5.6. In the principal

@@ -46,6 +46,7 @@ compiler-usability pass.
 | `./fisics a.c b.c -o app` | supported |
 | Include-path and library-path forwarding | supported through normal CLI flags such as `-I`, `-L`, and link args like `-lm` |
 | LLVM-backed object generation | required part of the normal build |
+| Freestanding x86-64 object emission | `--target x86_64-unknown-none -c` emits deterministic System V ELF64 relocatable objects with static relocations, the small code model, and function-level `noredzone`; the lane is compile-only and does not claim a bundled freestanding linker or runtime |
 | Final linking | supported for normal CLI flows; external system linkers may still be used for environment-specific cases such as SDL setup |
 
 ## Build Graph / Tooling Surface
