@@ -50,6 +50,6 @@ entry:
 }
 
 ; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: readwrite)
-declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly %0, ptr noalias nocapture readonly %1, i64 %2, i1 immarg %3) #0
+declare void @llvm.memcpy.p0.p0.i64(ptr noalias writeonly captures(none) %0, ptr noalias readonly captures(none) %1, i64 %2, i1 immarg %3) #0
 
 attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: readwrite) }
