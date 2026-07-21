@@ -6,7 +6,8 @@
 
 #include <llvm-c/Core.h>
 
-// Initialize native target + asm printer once per process.
+// Initialize the native target plus the compiler-owned x86 cross target and
+// their asm printers once per process.
 bool compiler_init_llvm_native(void);
 
 // Emit an object file for the given module. Will set the module's target triple

@@ -140,7 +140,45 @@ bool compiler_init_llvm_native(void) {
         fprintf(stderr, "Error: LLVMInitializeNativeAsmPrinter failed\n");
         return false;
     }
+
+    /*
+     * The compiler's explicit freestanding x86-64 target must remain
+     * available when the host target is Apple Silicon.  These registrations
+     * are idempotent, and the build links the x86 code generator explicitly,
+     * so native emission continues to use LLVM's native target unchanged.
+     */
+    LLVMInitializeX86TargetInfo();
+    LLVMInitializeX86Target();
+    LLVMInitializeX86TargetMC();
+    LLVMInitializeX86AsmPrinter();
+
     initialized = true;
+    return true;
+}
+
+static bool target_is_x86_64_unknown_none(const char* triple) {
+    return triple && strcmp(triple, "x86_64-unknown-none") == 0;
+}
+
+static bool apply_freestanding_x86_64_function_attributes(LLVMModuleRef module,
+                                                           char** errorOut) {
+    unsigned noRedZoneKind = LLVMGetEnumAttributeKindForName("noredzone", 9);
+    if (noRedZoneKind == 0) {
+        set_error(errorOut,
+                  "LLVM does not expose the required noredzone attribute",
+                  NULL);
+        return false;
+    }
+
+    LLVMContextRef context = LLVMGetModuleContext(module);
+    LLVMAttributeRef noRedZone = LLVMCreateEnumAttribute(context,
+                                                          noRedZoneKind,
+                                                          0);
+    for (LLVMValueRef fn = LLVMGetFirstFunction(module);
+         fn;
+         fn = LLVMGetNextFunction(fn)) {
+        LLVMAddAttributeAtIndex(fn, LLVMAttributeFunctionIndex, noRedZone);
+    }
     return true;
 }
 
@@ -203,6 +241,17 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     LLVMCodeModel codeModel = LLVMCodeModelDefault;
     const char* cpu = "";
     const char* features = "";
+    bool freestandingX86_64 = target_is_x86_64_unknown_none(triple);
+    if (freestandingX86_64) {
+        cpu = "x86-64";
+        reloc = LLVMRelocStatic;
+        codeModel = LLVMCodeModelSmall;
+        if (!apply_freestanding_x86_64_function_attributes(module, errorOut)) {
+            if (tripleNeedsDispose) LLVMDisposeMessage(triple);
+            if (tripleNeedsFree) free(triple);
+            return false;
+        }
+    }
     int requestedOptLevel = 0;
     const char* optEnv = getenv("FISICS_LLVM_OPT_LEVEL");
     if (optEnv && optEnv[0]) {

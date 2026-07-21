@@ -173,6 +173,18 @@ Useful flags:
 - `--target=<triple>`
 - `--data-layout=<layout>`
 
+The explicit `--target x86_64-unknown-none` compile-only lane emits
+freestanding System V ELF64 x86-64 relocatable objects on supported build
+hosts, including Apple Silicon. It selects the x86-64 backend directly, uses
+static relocations and the small code model, derives the data layout from that
+target machine, and marks every function `noredzone`; it does not reuse the
+host's Mach-O format or native target defaults. The focused object-contract
+gate is:
+
+```bash
+make integration-x86_64-freestanding-object
+```
+
 Overlay-specific flags:
 
 - `--overlay=physics-units`

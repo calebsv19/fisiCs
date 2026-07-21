@@ -5,7 +5,7 @@ LLVM_CONFIG := llvm-config
 
 LLVM_CFLAGS := $(shell $(LLVM_CONFIG) --cflags)
 LLVM_LDFLAGS := $(shell $(LLVM_CONFIG) --ldflags)
-LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs core)
+LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs core native nativecodegen x86codegen passes)
 
 CODEGEN_DEBUG ?= 0
 CODEGEN_TRACE ?= 0
@@ -84,7 +84,7 @@ RELEASE_CHANNEL ?= stable
 RELEASE_PLATFORM ?= macOS
 RELEASE_ARCH ?= arm64
 ifeq ($(RELEASE_PLATFORM),macOS)
-RELEASE_LLVM_LIBS_RAW := $(shell $(LLVM_CONFIG) --link-static --libs core native nativecodegen passes --system-libs)
+RELEASE_LLVM_LIBS_RAW := $(shell $(LLVM_CONFIG) --link-static --libs core native nativecodegen x86codegen passes --system-libs)
 RELEASE_ZSTD_STATIC := $(shell brew --prefix zstd 2>/dev/null)/lib/libzstd.a
 RELEASE_LLVM_LIBS := $(subst -lzstd,$(RELEASE_ZSTD_STATIC),$(RELEASE_LLVM_LIBS_RAW))
 RELEASE_LINK_FLAGS := -lc++ -Wl,-dead_strip_dylibs
@@ -463,11 +463,14 @@ integration-build-manifest-execute: $(BIN)
 integration-cli-metadata: $(BIN)
 	@bash ./tests/integration/run_cli_metadata.sh ./$(BIN)
 
+integration-x86_64-freestanding-object: $(BIN)
+	@bash ./tests/integration/run_x86_64_unknown_none_freestanding.sh ./$(BIN)
+
 dev-smoke: $(BIN)
 	@mkdir -p build/examples
 	@FISICS_MAX_PROCS=0 ./$(BIN) -c include/test.txt -o build/examples/include_test_smoke.o
 
-integration: integration-cli-metadata integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
+integration: integration-cli-metadata integration-compile-only integration-compile-link integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -1097,7 +1100,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-x86_64-freestanding-object integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1294,7 +1297,7 @@ tests: test frontend-api-test
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-header test-binary-header-shadow test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
+        integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
         runtime-memory-check runtime-clean examples-memory-check \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate
