@@ -93,13 +93,15 @@ RELEASE_LLVM_LIBS := $(LLVM_LIBS)
 RELEASE_LINK_FLAGS :=
 endif
 RELEASE_BASENAME := fisiCs-$(RELEASE_VERSION)-$(RELEASE_PLATFORM)-$(RELEASE_ARCH)-$(RELEASE_CHANNEL)
-RELEASE_ROOT := build/release
+RELEASE_ROOT ?= build/release
 RELEASE_STAGE_ROOT := $(RELEASE_ROOT)/stage
 RELEASE_STAGE_DIR := $(RELEASE_STAGE_ROOT)/$(RELEASE_BASENAME)
 RELEASE_BIN := $(RELEASE_STAGE_DIR)/bin/fisics
 RELEASE_ARTIFACT_ZIP := $(RELEASE_ROOT)/$(RELEASE_BASENAME).zip
 RELEASE_ARTIFACT_TGZ := $(RELEASE_ROOT)/$(RELEASE_BASENAME).tar.gz
 RELEASE_MANIFEST := $(RELEASE_ROOT)/$(RELEASE_BASENAME).manifest.txt
+RELEASE_ZIP_MANIFEST := $(RELEASE_ARTIFACT_ZIP).manifest.txt
+RELEASE_TGZ_MANIFEST := $(RELEASE_ARTIFACT_TGZ).manifest.txt
 RELEASE_SHA256 := $(RELEASE_ROOT)/$(RELEASE_BASENAME).sha256
 RELEASE_TGZ_SHA256 := $(RELEASE_ARTIFACT_TGZ).sha256
 RELEASE_NOTARY_LOG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).notary.json
@@ -177,27 +179,27 @@ $(BIN): $(LIB_FRONTEND) $(BUILD_DIR)/main.o $(BACKEND_OBJS)
 	$(CC) $(BUILD_DIR)/main.o $(BACKEND_OBJS) $(LIB_FRONTEND) -o $@ $(LDFLAGS)
 
 # === Compile each .c file into .o only if changed ===
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(RELEASE_VERSION_FILE)
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD_DIR)/core_base/%.o: $(CORE_BASE_DIR)/src/%.c
+$(BUILD_DIR)/core_base/%.o: $(CORE_BASE_DIR)/src/%.c $(RELEASE_VERSION_FILE)
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD_DIR)/core_io/%.o: $(CORE_IO_DIR)/src/%.c
+$(BUILD_DIR)/core_io/%.o: $(CORE_IO_DIR)/src/%.c $(RELEASE_VERSION_FILE)
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD_DIR)/core_data/%.o: $(CORE_DATA_DIR)/src/%.c
+$(BUILD_DIR)/core_data/%.o: $(CORE_DATA_DIR)/src/%.c $(RELEASE_VERSION_FILE)
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c
+$(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c $(RELEASE_VERSION_FILE)
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
@@ -240,8 +242,17 @@ release-contract:
 	@echo "  tgz artifact: $(RELEASE_ARTIFACT_TGZ)"
 	@echo "  notary log:   $(RELEASE_NOTARY_LOG)"
 
+release-adapter-contract-test:
+	@python3 tests/integration/test_release_adapter_contract.py
+
+release-build-clean:
+	@echo "Cleaning compiler outputs while preserving retained release evidence..."
+	@rm -rf "build/unsanitized" "build/sanitized"
+	@rm -f fisics fisics_shim_shadow libfisics_frontend.a \
+		libfisics_frontend_unsanitized.a libfisics_frontend_sanitized.a
+
 release-build:
-	@$(MAKE) clean
+	@$(MAKE) release-build-clean
 	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off \
 		LLVM_LIBS='$(RELEASE_LLVM_LIBS)' \
 		PROFILE_LDFLAGS='$(RELEASE_LINK_FLAGS)' all
@@ -315,6 +326,20 @@ release-notarize: release-sign
 	@echo "Submitting archive for notarization..."
 	@xcrun notarytool submit "$(RELEASE_ARTIFACT_ZIP)" --keychain-profile "$(APPLE_NOTARY_PROFILE)" --wait --output-format json > "$(RELEASE_NOTARY_LOG)"
 	@python3 scripts/verify_notary_response.py "$(RELEASE_NOTARY_LOG)"
+	@python3 scripts/finalize_authenticated_cli_release.py \
+		--stage-dir "$(RELEASE_STAGE_DIR)" \
+		--zip "$(RELEASE_ARTIFACT_ZIP)" \
+		--tar-gz "$(RELEASE_ARTIFACT_TGZ)" \
+		--zip-checksum "$(RELEASE_SHA256)" \
+		--tar-gz-checksum "$(RELEASE_TGZ_SHA256)" \
+		--zip-manifest "$(RELEASE_ZIP_MANIFEST)" \
+		--tar-gz-manifest "$(RELEASE_TGZ_MANIFEST)" \
+		--compat-manifest "$(RELEASE_MANIFEST)" \
+		--notary-json "$(RELEASE_NOTARY_LOG)" \
+		--version "$(RELEASE_VERSION)" \
+		--platform "$(RELEASE_PLATFORM)" \
+		--arch "$(RELEASE_ARCH)" \
+		--channel "$(RELEASE_CHANNEL)"
 	@echo "Notarization response saved to $(RELEASE_NOTARY_LOG)"
 
 release-verify:
@@ -338,6 +363,23 @@ release-verify:
 		"$(RELEASE_ARTIFACT_TGZ)" \
 		"$(RELEASE_PLATFORM)"
 	@echo "release-verify complete."
+
+release-verify-authenticated: release-verify
+	@python3 scripts/finalize_authenticated_cli_release.py \
+		--verify-only \
+		--stage-dir "$(RELEASE_STAGE_DIR)" \
+		--zip "$(RELEASE_ARTIFACT_ZIP)" \
+		--tar-gz "$(RELEASE_ARTIFACT_TGZ)" \
+		--zip-checksum "$(RELEASE_SHA256)" \
+		--tar-gz-checksum "$(RELEASE_TGZ_SHA256)" \
+		--zip-manifest "$(RELEASE_ZIP_MANIFEST)" \
+		--tar-gz-manifest "$(RELEASE_TGZ_MANIFEST)" \
+		--compat-manifest "$(RELEASE_MANIFEST)" \
+		--notary-json "$(RELEASE_NOTARY_LOG)" \
+		--version "$(RELEASE_VERSION)" \
+		--platform "$(RELEASE_PLATFORM)" \
+		--arch "$(RELEASE_ARCH)" \
+		--channel "$(RELEASE_CHANNEL)"
 
 release-pkg: release-sign
 	@if [ -z "$(APPLE_INSTALLER_IDENTITY)" ]; then \
@@ -1303,9 +1345,9 @@ tests: test frontend-api-test
 
 # === Phony Targets ===
 .PHONY: all clean run dev-smoke examples examples-hello examples-sdl examples-physics-units examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
-        release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
+        release-clean release-contract release-adapter-contract-test release-build-clean release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
-        release-sign release-notarize release-verify release-pkg release-all \
+        release-sign release-notarize release-verify release-verify-authenticated release-pkg release-all \
         release-bridge-prepare release-bridge-verify release-bridge \
         union-decl initializer-expr typedef-chain designated-init control-flow \
         cast-grouped for_typedef function-pointer pointer-arith switch-flow \

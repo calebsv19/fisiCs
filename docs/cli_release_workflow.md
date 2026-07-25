@@ -12,12 +12,20 @@ Run from the `fisiCs/` repo root.
 3. `make release-verify`
 4. `make release-sign APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)"`
 5. `make release-notarize APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)" APPLE_NOTARY_PROFILE="<profile>"`
-6. `make release-verify`
+6. `make release-verify-authenticated`
 
 `release-verify` only inspects the existing staged tree and archives; it does
 not rebuild or replace them. Use `release-archive` (or `release-sign`) first
 whenever new package bytes are required. This keeps the final verification
 from silently replacing signed or notarized artifacts.
+
+`release-notarize` now finalizes one exact manifest for each downloadable
+artifact only after Apple returns `Accepted`. `release-verify-authenticated`
+then independently requires the Developer ID signature, accepted notary
+submission, archive-byte parity, checksums, and both format-specific manifests.
+Raw CLI archives are notarized as submitted containers; unlike `.app` or
+installer bundles, the CLI binary has no stapling surface, so its manifest
+records `stapling=not_applicable`.
 
 Optional installer lane:
 
@@ -31,7 +39,9 @@ All release artifacts are written under `build/release/`.
 - Zip archive: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.zip`
 - Tarball: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.tar.gz`
 - Checksums: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.sha256`
-- Manifest: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.manifest.txt`
+- ZIP manifest: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.zip.manifest.txt`
+- Tarball manifest: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.tar.gz.manifest.txt`
+- Compatibility manifest: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.manifest.txt`
 - Notary response JSON: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.notary.json`
 
 ## Required Variables
@@ -88,8 +98,31 @@ archive bytes.
 - `release-notarize` fails closed unless Apple's JSON response reports
   `Accepted`; a completed submission with `Invalid` status is not a successful
   release gate
+- authenticated manifests bind exactly one format, artifact basename, SHA-256,
+  Developer ID identity/team, and notary submission identity
 - generated `examples/**/build/` outputs are pruned from the release stage so
   stale unsigned demo binaries cannot enter the notarized archive
+
+## Production Registry Broker Handoff
+
+Decision-bound local preparation creates fresh unsigned ZIP and tar.gz
+evidence first under
+`build/release-preparations/<preparation-id>/`; this prevents a repaired intent
+from overwriting an earlier failed artifact with the same public version.
+A credential-bearing Release Control operator then runs the
+named `codework-apple-release` signing/notary profile, retains both
+authenticated artifacts as an exact replacement proof, and schedules the
+authentication service against those replacement bytes. The allowlisted
+`codework-apple-release-v1` broker independently re-extracts and verifies each
+CLI archive, emits a sanitized attestation, and signs only that attestation
+under the `codework-release-artifact-authentication-v1` namespace. Registry
+retains no Apple credential, signing-key path, or command output.
+
+Authenticated ZIP/tar.gz replacements must be written under
+`build/release-authenticated/<preparation-id>/`, outside the immutable
+package-evidence root. Retain their exact replacement proof before scheduling
+authentication so each authenticated archive remains bound to the original
+artifact shape and digest.
 
 ## CI Guardrail Lane
 
