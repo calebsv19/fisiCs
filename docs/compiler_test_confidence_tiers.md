@@ -30,7 +30,7 @@ The intended model is simple:
 | `Tier 0` | Buildable Tree | confirm the compiler still builds | `make` | lowest | any code change before deeper validation |
 | `Tier 1` | Fast Sanity | catch broad front-end and legacy regressions quickly | `make test` | low | most parser, semantic, and infrastructure edits |
 | `Tier 2` | Focused Owner Lane | prove the owning stable lane for the exact behavior you changed | `make final-id ID=<test_id>`, `make final-bucket BUCKET=<bucket>`, `make final-manifest MANIFEST=<manifest>.json`, `make test-binary-id ID=<test_id>` | low to medium | one bucket, one runtime case, one binary case, or one stable regression fix |
-| `Tier 3` | Runtime Truth | catch wrong-code, ABI, runtime-output, and link/runtime surface regressions | `make final-runtime`, `make test-binary` | medium | runtime, codegen, ABI, multi-TU, or binary-surface changes |
+| `Tier 3` | Runtime Truth | catch wrong-code, ABI, runtime-output, and link/runtime surface regressions | `make final-runtime`, `make test-binary`, `make os-policy` when the change affects freestanding policy | medium | runtime, codegen, ABI, multi-TU, binary-surface, or OS-policy changes |
 | `Tier 4` | Regression Frontier | work an unstable or newly discovered failure before stable promotion | `PROBE_FILTER=<id> python3 tests/final/probes/run_probes.py`, plus the source canary rerun | medium | new blocker reduction, probe work, or real-project-derived bug reduction |
 | `Tier 5` | Canary Program | confirm practical readiness on a real project stage | run the matching `tests/real_projects/runners/run_project_*_tests.py` stage | medium to high | project-adoption work, real-world regression fixes, or canary validation after a stable repro is added |
 | `Tier 6` | Full Trust Run | checkpoint the stable compiler behavior suite before handoff or larger merge points | `make final-monitored` plus any relevant `make test-binary` and/or real-project stage | high | before merge, before switching back to normal project work, or after broad compiler fixes |
@@ -44,6 +44,7 @@ Use these default stopping points unless the change or failure says otherwise.
 |---|---|
 | parser, syntax, or non-runtime semantic fix | `Tier 2` |
 | codegen, ABI, linkage, or runtime behavior fix | `Tier 3` |
+| freestanding target or OS-policy behavior change | `Tier 3` plus the affected OS-P tier |
 | probe-only blocker reduction or unstable repro work | `Tier 4` |
 | real-project-derived regression fix | `Tier 5` |
 | broader trust checkpoint before handoff or merge | `Tier 6` |
@@ -147,6 +148,19 @@ Use this when you want a durable trust and timing checkpoint.
 
 Use this pattern for milestone captures, not normal inner-loop iteration.
 
+### Pattern E: OS-Policy Regression
+
+Use this when the behavior comes from freestanding kernel/user policy C.
+
+1. run the focused OS-P case and tier
+2. preserve the explicit expected result, object contract, and guest
+   serial/exit/parity contract when QEMU evidence applies
+3. reduce compiler-local behavior into its numbered owner bucket
+4. enter fix mode only after the active blocker ledger is coherent
+5. rerun `make os-policy`
+6. use `make final-monitored` only when the reduced owner case is ready for a
+   broad promotion checkpoint
+
 ## Cost Guidance
 
 These labels are intentionally rough. They are for workflow choice, not for
@@ -166,6 +180,8 @@ benchmark claims.
 - `docs/compiler_test_regression_intake.md` explains how real failures become permanent regressions
 - `docs/compiler_test_workflow_guide.md` explains the general contributor flow
 - `docs/make_final_timing_log.md` explains the timing-capture policy behind `Tier 7`
+- `docs/os_policy_validation.md` explains the OS-P authority, evidence, and
+  promotion boundary
 
 ## Related References
 

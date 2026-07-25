@@ -49,6 +49,7 @@ The test system exists to do four things reliably:
 | `tests/final/` | canonical bucketed compiler behavior suite | tokens, AST, diagnostics, IR, runtime stdout/stderr/exit | main behavior validation and bucket-level promotion | `make final`, `make final-bucket`, `make final-manifest`, `make final-id` |
 | `tests/binary/` | compile/link/runtime validation with runtime artifacts and differential checks | compile result, link result, stdout, stderr, exit, runtime files | runtime truth checks and binary-surface regression work | `make test-binary`, `make test-binary-id` |
 | `tests/final/probes/` | high-risk repros and pre-promotion exploration | blocked/resolved probe status vs compiler and reference behavior | probe mode, blocker collection, reduced-threshold exploration | `python3 tests/final/probes/run_probes.py` |
+| `tests/os_policy/` | freestanding OS-policy composition and cross-target invariants | explicit vectors, Clang/runtime parity, repeated ELF object inspection, repeated QEMU serial/exit parity | OS-policy C hardening and downstream OS regression reduction | `make os-policy-object`, `make os-policy-runtime`, `make os-policy-guest`, `make os-policy` |
 | `tests/real_projects/` | staged canary validation against full programs | parity reports, build success, runtime smoke, golden behavior, telemetry | practical compiler adoption and real-world regression intake | stage runners `A` through `F` |
 
 ## Confidence Layers
@@ -64,6 +65,7 @@ of tests.
 | Layer D: Multi-TU / Linkage Checks | validate symbol resolution, translation-unit interaction, and link-stage behavior | `tests/final/` multi-input cases, `tests/binary/`, real-project Stage B and C |
 | Layer E: Runtime Truth Checks | detect wrong-code and runtime mismatches | `tests/final/` runtime cases, `tests/binary/`, real-project Stage D and E |
 | Layer F: Real Program / Canary Checks | validate practical readiness on actual projects | `tests/real_projects/` Stage A through F |
+| Layer G: Freestanding Policy Checks | validate hardware-blind OS-policy semantics and x86 freestanding object invariants | `tests/os_policy/`, downstream `os-dev` canaries |
 
 ## The Canonical Bucket Suite
 
@@ -108,6 +110,12 @@ the narrowest oracle that proves the behavior.
 | runtime file artifacts | validating file-producing binaries or side-effecting runs |
 | differential comparison | validating that runtime behavior matches a trusted host compiler |
 | staged canary parity | validating practical readiness on real programs |
+
+Stable runtime tests may use `expected_stdout_variants` when an ABI-sensitive
+fixture has a small, reviewed set of target-dependent transcripts. Each entry
+names a checked-in `.stdout` file, all variants remain exact, and the runner
+rejects output that matches none of them. Do not use variants to admit
+nondeterminism or to weaken compiler/reference agreement.
 
 ## Shared Failure Vocabulary
 
@@ -195,6 +203,9 @@ Use this routing rule:
 5. If the bug was found in a real program, add the permanent minimized
    regression to the owning stable lane and keep the real-project stage only as
    an additional canary.
+6. If the behavior composes freestanding OS-policy semantics with target object
+   invariants, keep the scenario in `tests/os_policy/` and promote its minimized
+   compiler defect into the owning numbered bucket.
 
 ## Command Ladder
 
@@ -211,6 +222,7 @@ Use the smallest command that proves the change, then widen outward.
 | one binary/runtime test | `make test-binary-id ID=<test_id>` |
 | broader binary/runtime pass | `make test-binary` |
 | probe-only blocker collection | `python3 tests/final/probes/run_probes.py` |
+| OS-policy object/runtime/guest composition | `make os-policy-object`, `make os-policy-runtime`, `make os-policy-guest`, or `make os-policy` |
 | real-project canary stage | run the matching `tests/real_projects/runners/run_project_*_tests.py` stage |
 | checkpoint integration run | `make final-monitored` plus any relevant binary or real-project lane |
 
@@ -226,6 +238,9 @@ At a high level:
 - `binary` failure usually points to compile, link, runtime, ABI, or host-environment interaction
 - probe `BLOCKED` status means the repro still captures a real gap or unstable frontier
 - real-project stage failure means the compiler is not yet trustworthy for that practical integration level
+- OS-P object failure means the cross-target object violates a declared
+  freestanding invariant; OS-P runtime failure means policy semantics, the
+  explicit oracle, or the compiler/reference parity disagrees
 
 For exact contribution workflow and expected evidence, use
 `docs/compiler_test_workflow_guide.md` and
@@ -254,4 +269,6 @@ Private maintainer docs are the correct place for:
 - `docs/validation_workflow.md`
 - `tests/final/README.md`
 - `tests/final/00-harness.md`
+- `docs/os_policy_validation.md`
+- `tests/os_policy/README.md`
 - `tests/real_projects/README.md`

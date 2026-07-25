@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-06-08.
+Last audited: 2026-07-23.
 
 ## Repository Entry
 
@@ -32,6 +32,8 @@ Last audited: 2026-06-08.
 - `compiler_test_confidence_tiers.md`: canonical day-to-day command ladder from fast sanity through full trust and timing checkpoints
 - `compiler_test_coverage_blueprint.md`: coverage map and harness structure for compiler validation
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
+- `os_policy_validation.md`: freestanding OS-policy semantic, object-invariant,
+  future QEMU, and downstream-canary contract
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
 - `extension_overlays.md`: public reference for opt-in overlay lanes, including
@@ -55,6 +57,10 @@ Public compile/link smoke fixtures also live under `compilation/`:
 Additional public testing references live outside `docs/` under `tests/final/`:
 - bucket scope references (for example `tests/final/11-functions-calls.md`, `tests/final/12-diagnostics-recovery.md`)
 - probe lane references (`tests/final/probes/README.md`, `tests/final/probes/run_probes.py`)
+
+Freestanding operating-system policy validation lives under
+`tests/os_policy/`; its focused command surface is `make os-policy-object`,
+`make os-policy-runtime`, and `make os-policy`.
 
 Real-project validation references live under `tests/real_projects/`:
 - scaffold overview and stage contracts: `tests/real_projects/README.md`

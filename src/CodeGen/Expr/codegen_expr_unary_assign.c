@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+static bool cg_assignment_requires_inline_memory_ops(CodegenContext* ctx) {
+    const char* triple = (ctx && ctx->module) ? LLVMGetTarget(ctx->module) : NULL;
+    return triple && strstr(triple, "-none") != NULL;
+}
+
 LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_UNARY_EXPRESSION) {
         fprintf(stderr, "Error: Invalid node type for codegenUnaryExpression\n");
@@ -411,6 +416,23 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         LLVMValueRef srcCast = LLVMBuildBitCast(ctx->builder, srcPtr, i8Ptr, "agg.src");
         LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
         unsigned alignVal = align ? align : 1;
+        if (cg_assignment_requires_inline_memory_ops(ctx)) {
+            LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+            LLVMTypeRef indexType = LLVMInt64TypeInContext(ctx->llvmContext);
+            for (uint64_t index = 0; index < bytes; index++) {
+                LLVMValueRef offset = LLVMConstInt(indexType, index, 0);
+                LLVMValueRef srcByte = LLVMBuildGEP2(ctx->builder, i8Type,
+                                                     srcCast, &offset, 1,
+                                                     "agg.src.byte");
+                LLVMValueRef dstByte = LLVMBuildGEP2(ctx->builder, i8Type,
+                                                     dstCast, &offset, 1,
+                                                     "agg.dst.byte");
+                LLVMValueRef byte = LLVMBuildLoad2(ctx->builder, i8Type,
+                                                   srcByte, "agg.copy.byte");
+                LLVMBuildStore(ctx->builder, byte, dstByte);
+            }
+            return value ? value : targetPtr;
+        }
         LLVMBuildMemCpy(ctx->builder,
                         dstCast,
                         alignVal,

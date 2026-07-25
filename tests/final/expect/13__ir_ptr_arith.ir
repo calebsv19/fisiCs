@@ -15,7 +15,7 @@ entry:
   %arr = alloca [3 x i32], align 4
   call void @llvm.memset.p0.i64(ptr align 4 %arr, i8 0, i64 12, i1 false)
   %init.elem = getelementptr [3 x i32], ptr %arr, i32 0, i32 0
-  call void @llvm.memset.p0.i64(ptr align 4 %init.elem, i8 0, i64 4, i1 false)
+  store i32 0, ptr %init.elem, align 4
   store ptr %arr, ptr %p, align 8
   %p1 = load ptr, ptr %p, align 8
   %ptr.arith = getelementptr i8, ptr %p1, i64 8

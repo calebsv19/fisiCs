@@ -1238,6 +1238,7 @@
     "04-declarations-wave45-composite-signature-accumulation.json",
     "13-codegen-ir-physics-sim-large-aggregate-ternary.json",
     "13-codegen-ir-wave68-compound-diagnostic-dominance.json",
+    "13-codegen-ir-wave69-scalar-zero-store.json",
     "04-declarations-wave46-nested-composite-signatures.json",
     "04-declarations-wave47-promotion-closure-controls.json",
     "04-declarations-wave48-typedef-wrapped-nested-composite-signatures.json",

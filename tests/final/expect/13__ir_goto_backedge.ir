@@ -12,8 +12,8 @@ define i32 @main() {
 entry:
   %acc = alloca i32, align 4
   %i = alloca i32, align 4
-  call void @llvm.memset.p0.i64(ptr align 4 %i, i8 0, i64 4, i1 false)
-  call void @llvm.memset.p0.i64(ptr align 4 %acc, i8 0, i64 4, i1 false)
+  store i32 0, ptr %i, align 4
+  store i32 0, ptr %acc, align 4
   br label %start
 
 start:                                            ; preds = %ifcont, %entry
@@ -44,8 +44,3 @@ goto.sink:                                        ; No predecessors!
 goto.cont:                                        ; No predecessors!
   ret i32 0
 }
-
-; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
-declare void @llvm.memset.p0.i64(ptr writeonly captures(none) %0, i8 %1, i64 %2, i1 immarg %3) #0
-
-attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

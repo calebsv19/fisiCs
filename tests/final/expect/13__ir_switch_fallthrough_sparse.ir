@@ -13,7 +13,7 @@ entry:
   %out = alloca i32, align 4
   %x = alloca i32, align 4
   store i32 2, ptr %x, align 4
-  call void @llvm.memset.p0.i64(ptr align 4 %out, i8 0, i64 4, i1 false)
+  store i32 0, ptr %out, align 4
   %x1 = load i32, ptr %x, align 4
   switch i32 %x1, label %switch.default [
     i32 0, label %switch.case
@@ -49,8 +49,3 @@ switch.default:                                   ; preds = %switch.case3, %entr
   store i32 %compound.add9, ptr %out, align 4
   br label %switch.end
 }
-
-; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
-declare void @llvm.memset.p0.i64(ptr writeonly captures(none) %0, i8 %1, i64 %2, i1 immarg %3) #0
-
-attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

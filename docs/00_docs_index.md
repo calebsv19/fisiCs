@@ -1,7 +1,7 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-06-08.
+Last audited: 2026-07-23.
 
 ## Start Here
 
@@ -85,6 +85,13 @@ Coverage architecture and harness organization plan.
 ### `docs/compiler_test_workflow_guide.md`
 
 Operational guide for bucket-by-bucket compiler test execution.
+
+### `docs/os_policy_validation.md`
+
+Compiler-owned OS Policy (`OS-P`) contract covering deterministic host
+differential semantics, repeated `x86_64-unknown-none` object invariants,
+repeated fisiCs-versus-Clang QEMU guest proof, bounded policy-family expansion,
+and downstream `os-dev` canary boundaries.
 
 ### `docs/validation_workflow.md`
 

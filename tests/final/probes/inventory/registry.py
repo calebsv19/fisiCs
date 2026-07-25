@@ -167,6 +167,8 @@ RUNTIME_PROBES = (
     + bucket_12_diagnostics_recovery_wave45.RUNTIME_PROBES
 )
 
+OBJECT_PROBES = bucket_15_torture_differential.OBJECT_PROBES
+
 DIAG_PROBES = (
     bucket_01_translation_phases.DIAG_PROBES +
     bucket_02_lexer.DIAG_PROBES +

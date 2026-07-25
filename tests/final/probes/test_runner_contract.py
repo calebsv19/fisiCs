@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from lib.models import DiagnosticExpectation, DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
+from lib.models import DiagnosticExpectation, DiagnosticJsonProbe, DiagnosticProbe, ObjectProbe, RuntimeProbe
 from lib.runner import (
     compile_output_substrings,
     diagnostic_record_matches,
@@ -15,11 +15,14 @@ from lib.runner import (
     mixed_object_path,
     run_diag_json_probe,
     run_diag_probe,
+    run_object_probe,
     run_runtime_probe,
+    runtime_stdout_oracle_mismatch,
     stable_json_identity_expectations,
     stable_oracle_path_for_probe,
     stable_text_identity_markers,
 )
+from lib.taxonomy import classify_blocked_probe
 
 
 class ProbeRunnerContractTests(unittest.TestCase):
@@ -161,6 +164,90 @@ class ProbeRunnerContractTests(unittest.TestCase):
         self.assertEqual(status, "BLOCKED")
         self.assertEqual(summary, "probe input missing")
         self.assertIn("runtime.c", detail)
+
+    def test_object_probe_fails_closed_on_missing_input(self):
+        probe = ObjectProbe(
+            probe_id="contract__missing_object",
+            source=Path("/definitely/missing/object.c"),
+            note="contract canary",
+            required_exports=("object_policy",),
+        )
+        status, summary, detail = run_object_probe(
+            probe,
+            "/usr/bin/clang",
+            Path("/unused/fisics"),
+            Path("/unused/llvm-readobj"),
+            Path("/unused/llvm-objdump"),
+        )
+        self.assertEqual(status, "BLOCKED")
+        self.assertEqual(summary, "probe input missing")
+        self.assertIn("object.c", detail)
+
+    def test_object_probe_blocker_classification_uses_object_contract(self):
+        probe = ObjectProbe(
+            probe_id="15__probe_contract_object",
+            source=Path("/unused/object.c"),
+            note="contract canary",
+            required_exports=("object_policy",),
+        )
+        failure_kind, severity, trust_layer, owner_lane = classify_blocked_probe(
+            probe, "object", "fisics object mismatch"
+        )
+        self.assertEqual(failure_kind, "runtime_helper_or_object_contract")
+        self.assertEqual(severity, "high")
+        self.assertEqual(trust_layer, "Layer C")
+        self.assertEqual(owner_lane, "torture-differential")
+
+    def test_runtime_probe_fails_closed_on_explicit_oracle_mismatch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "oracle.c"
+            source.write_text("int main(void) { return 0; }\n", encoding="utf-8")
+            probe = RuntimeProbe(
+                probe_id="contract__runtime_oracle",
+                source=source,
+                note="contract canary",
+                expected_exit_code=0,
+                expected_stdout="expected\n",
+                expected_stderr="",
+            )
+            with patch(
+                "lib.runner.run_cmd",
+                return_value=(0, "", False),
+            ), patch(
+                "lib.runner.run_binary",
+                return_value=(0, "actual\n", "", False),
+            ):
+                status, summary, detail = run_runtime_probe(
+                    probe, "/usr/bin/clang", Path("/unused/fisics")
+                )
+        self.assertEqual(status, "BLOCKED")
+        self.assertEqual(summary, "runtime oracle mismatch for fisics")
+        self.assertIn("stdout expected=expected actual=actual", detail)
+
+    def test_runtime_stdout_variants_accept_only_enumerated_transcripts(self):
+        probe = RuntimeProbe(
+            probe_id="contract__runtime_variants",
+            source=Path("/unused/runtime.c"),
+            note="contract canary",
+            expected_stdout_variants=("abi-a\n", "abi-b\n"),
+        )
+        self.assertIsNone(runtime_stdout_oracle_mismatch(probe, "abi-b\n"))
+        mismatch = runtime_stdout_oracle_mismatch(probe, "abi-c\n")
+        self.assertIn("expected one of", mismatch)
+        self.assertIn("actual=abi-c", mismatch)
+
+    def test_runtime_stdout_contract_rejects_exact_plus_variants(self):
+        probe = RuntimeProbe(
+            probe_id="contract__runtime_invalid_oracle",
+            source=Path("/unused/runtime.c"),
+            note="contract canary",
+            expected_stdout="exact\n",
+            expected_stdout_variants=("variant\n",),
+        )
+        self.assertIn(
+            "invalid probe contract",
+            runtime_stdout_oracle_mismatch(probe, "exact\n"),
+        )
 
     def test_text_diagnostic_probe_fails_closed_on_timeout(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -374,6 +461,7 @@ class ProbeRunnerContractTests(unittest.TestCase):
         )
         with patch("lib.runner.stage_bin_copy", return_value=staged), \
              patch("lib.runner.RUNTIME_PROBES", ()), \
+             patch("lib.runner.OBJECT_PROBES", ()), \
              patch("lib.runner.DIAG_PROBES", (probe,)), \
              patch("lib.runner.DIAG_JSON_PROBES", ()), \
              patch("lib.runner.parse_probe_filters", return_value=()), \

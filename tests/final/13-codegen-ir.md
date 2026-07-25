@@ -48,6 +48,13 @@ Lowering semantics once IR/codegen is enabled.
 ## Expected Outputs
 - IR expectations (`.ir`) for codegen output.
 
+## Wave 69 Scalar Zero-Store Closure
+- `13__ir_scalar_zero_init_no_memset` locks scalar integer, floating, and
+  pointer zero initializers to typed stores.
+- The fixture forbids `llvm.memset`, preventing small scalar locals from
+  introducing an unexpected libc helper in freestanding objects.
+- Aggregate zero-fill remains on the existing byte-wise initializer path.
+
 ## Wave 0 Baseline Snapshot
 - Active-suite targeted sweep for `13__*` and `14__*`:
   - selected: `33`

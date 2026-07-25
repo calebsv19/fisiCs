@@ -1,0 +1,659 @@
+{
+  "schema_version": 2,
+  "lane_id": "os-policy",
+  "lane_version": "OS-P2",
+  "target": "x86_64-unknown-none",
+  "guest_harness": {
+    "boot_source": "guest/boot.asm",
+    "entry_source": "guest/entry.asm",
+    "linker_script": "guest/linker.ld",
+    "kernel_load_address": 65536,
+    "max_kernel_sectors": 64,
+    "qemu_machine": "pc,accel=tcg",
+    "qemu_cpu": "qemu64",
+    "memory_mb": 16,
+    "smp": 1
+  },
+  "cases": [
+    {
+      "id": "osp0_core_policy",
+      "description": "Unsigned range admission, little-endian decoding, lock-rank ordering, and generation-token validation.",
+      "source": "cases/osp0_core_policy.c",
+      "runtime_driver": "cases/osp0_core_policy_driver.c",
+      "expected_stdout": "expect/osp0_core_policy.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P0",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "7a05edd",
+        "policy_families": [
+          "process_kernel.c",
+          "storage_kernel.c",
+          "sync_kernel.c",
+          "pmm_extent_kernel.c",
+          "kobj_kernel.c"
+        ],
+        "derivation": "Compiler-owned reduced policy kernel; not a source copy."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp0_checked_span",
+          "osp0_generation_accept",
+          "osp0_lock_order",
+          "osp0_read_le64"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp0_core_policy_guest.c",
+        "expected_serial": "expect/osp0_core_policy.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_storage_admission",
+      "description": "Filesystem header, bounded extent, and durable-result transition admission policy.",
+      "source": "cases/osp2_storage_admission.c",
+      "runtime_driver": "cases/osp2_storage_admission_driver.c",
+      "expected_stdout": "expect/osp2_storage_admission.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "7a05edd",
+        "policy_families": [
+          "storage_kernel.c",
+          "pmm_extent_kernel.c",
+          "job_kernel.c"
+        ],
+        "derivation": "Compiler-owned reduced filesystem/result admission kernel; not a source copy."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_extent_admit",
+          "osp2_result_transition_admit",
+          "osp2_storage_header_admit"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_storage_admission_guest.c",
+        "expected_serial": "expect/osp2_storage_admission.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_elf_admission",
+      "description": "ELF64 header, load-segment, permission, range, and bounded load-count admission policy.",
+      "source": "cases/osp2_elf_admission.c",
+      "runtime_driver": "cases/osp2_elf_admission_driver.c",
+      "expected_stdout": "expect/osp2_elf_admission.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "78778f21ba53955aaa16fcd607a32e61d75c755d",
+        "origin_tag": "edu-19-protected-process-lifecycle",
+        "origin_path": "process_kernel.c",
+        "origin_sha256": "59f0bab8ad13ba4b8dffecafe9a7616057354e110d19a72953629c18cb57edb0",
+        "policy_families": [
+          "process_kernel.c",
+          "process64.asm",
+          "docs/contracts/USER_PROCESS_V4.md"
+        ],
+        "derivation": "Compiler-owned reduced ELF field-admission kernel; not a source copy."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_elf_header_admit",
+          "osp2_elf_load_count_admit",
+          "osp2_elf_load_segment_admit"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_elf_admission_guest.c",
+        "expected_serial": "expect/osp2_elf_admission.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_job_admission",
+      "description": "Typed simulation-job identity, result, compiler, resource, and failure-precedence admission policy.",
+      "source": "cases/osp2_job_admission.c",
+      "runtime_driver": "cases/osp2_job_admission_driver.c",
+      "expected_stdout": "expect/osp2_job_admission.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "f7c2c27d9cd94b18d7ef446058e2af70bebdcb2a",
+        "origin_tag": "edu-13-simulation-job-appliance",
+        "origin_path": "job_kernel.c",
+        "origin_sha256": "1c6da396539406cb1a465c32b9d3d5487c7eb17c76df96a3d6ec28376a1c9c67",
+        "policy_families": [
+          "job_kernel.c",
+          "job64.asm",
+          "docs/contracts/JOB_APPLIANCE_V1.md"
+        ],
+        "derivation": "Compiler-owned reduced typed job and resource-admission kernel; not a source copy."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_job_admit"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_job_admission_guest.c",
+        "expected_serial": "expect/osp2_job_admission.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_queue_transition",
+      "description": "Raw queue metadata and entry admission plus persisted-state and terminal transition/recovery policy.",
+      "source": "cases/osp2_queue_transition.c",
+      "runtime_driver": "cases/osp2_queue_transition_driver.c",
+      "expected_stdout": "expect/osp2_queue_transition.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "83c51d451ea60d004cdd7a375e96b68beb7d60c2",
+        "origin_tag": "edu-15-bounded-job-queue",
+        "origin_path": "queue_kernel.c",
+        "origin_sha256": "96d6781fe835116d52651d7368cd767eb1cc4adff461771c5ed64f8bcd208e6e",
+        "policy_families": [
+          "queue_kernel.c",
+          "queue64.asm",
+          "docs/history/edu-15-bounded-job-queue.md"
+        ],
+        "derivation": "Compiler-owned raw-record queue admission and reduced transition/recovery policy; storage, leases, compute, and writes remain assembly-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_queue_entry_action",
+          "osp2_queue_existing_transition",
+          "osp2_queue_meta_admit",
+          "osp2_queue_terminal_transition"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_queue_transition_guest.c",
+        "expected_serial": "expect/osp2_queue_transition.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_scheduler_transition",
+      "description": "Two-task runnable, sleeping, wake, yield, timer, exit, fault, reactivation, selection, and counter policy.",
+      "source": "cases/osp2_scheduler_transition.c",
+      "runtime_driver": "cases/osp2_scheduler_transition_driver.c",
+      "expected_stdout": "expect/osp2_scheduler_transition.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "78778f21ba53955aaa16fcd607a32e61d75c755d",
+        "origin_tag": "edu-19-protected-process-lifecycle",
+        "origin_path": "scheduler_kernel.c",
+        "origin_sha256": "f7e253e91df2fdd0edce35c035dc3d58b9aef3824b057fd4b1e6d29789dbe8f3",
+        "policy_families": [
+          "scheduler_kernel.c",
+          "scheduler64.asm",
+          "docs/contracts/SCHEDULER_V1.md"
+        ],
+        "derivation": "Compiler-owned two-task scheduler state policy derived from the EDU-09 contract plus immutable EDU-19 exit/fault extensions; frames, stacks, interrupts, and IRETQ remain assembly-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_scheduler_choose",
+          "osp2_scheduler_init",
+          "osp2_scheduler_preemption_count",
+          "osp2_scheduler_reactivate",
+          "osp2_scheduler_sleep_count",
+          "osp2_scheduler_state",
+          "osp2_scheduler_switch_count",
+          "osp2_scheduler_yield_count"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32",
+          "R_X86_64_32S"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_scheduler_transition_guest.c",
+        "expected_serial": "expect/osp2_scheduler_transition.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_sync_rank",
+      "description": "Two-CPU contention observation validation, exact failure precedence, and strict queue-to-PMM-to-device lock-rank ordering.",
+      "source": "cases/osp2_sync_rank.c",
+      "runtime_driver": "cases/osp2_sync_rank_driver.c",
+      "expected_stdout": "expect/osp2_sync_rank.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "6844e8abe4697a659271182c2207b46d548150b4",
+        "origin_tag": "edu-16-kernel-synchronization",
+        "origin_path": "sync_kernel.c",
+        "origin_sha256": "0644c21c263fe0a93fb4c5b1237c2e04d623601c8b8e738182373fcdd02f5a1f",
+        "policy_families": [
+          "sync_kernel.c",
+          "sync64.asm",
+          "docs/contracts/KERNEL_SYNCHRONIZATION_V1.md"
+        ],
+        "derivation": "Compiler-owned exact observation and rank policy from immutable EDU-16; atomics, interrupt state, IPI delivery, lock mutation, and ownership enforcement remain assembly-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_sync_lock_order",
+          "osp2_sync_validate"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_sync_rank_guest.c",
+        "expected_serial": "expect/osp2_sync_rank.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_pmm_extent",
+      "description": "PMM extent request admission, transaction observation, release/reuse rollback invariants, and fixed geometry policy.",
+      "source": "cases/osp2_pmm_extent.c",
+      "runtime_driver": "cases/osp2_pmm_extent_driver.c",
+      "expected_stdout": "expect/osp2_pmm_extent.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "7813cb3ef11653fad0ce724787a719a471d4e780",
+        "origin_tag": "edu-17-physical-memory-extents",
+        "origin_path": "pmm_extent_kernel.c",
+        "origin_sha256": "4817b4ccff65b0991b756f0e4f2b49ece27a4ddd49fa3f69442426fbeaa7e4c7",
+        "policy_families": [
+          "pmm_extent_kernel.c",
+          "pmm64.asm",
+          "docs/contracts/PHYSICAL_MEMORY_V2.md"
+        ],
+        "derivation": "Compiler-owned exact request, observation, final-state, and geometry policy from immutable EDU-17; allocator mutation, page state, token publication, zeroing, locking, and rollback execution remain assembly-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_extent_final_admit",
+          "osp2_extent_geometry",
+          "osp2_extent_observation_admit",
+          "osp2_extent_request_admit"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_pmm_extent_guest.c",
+        "expected_serial": "expect/osp2_pmm_extent.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_kernel_object",
+      "description": "Fixed kernel-object cache request, live observation, teardown/reuse, generation, poison/IRQ, and geometry policy.",
+      "source": "cases/osp2_kernel_object.c",
+      "runtime_driver": "cases/osp2_kernel_object_driver.c",
+      "expected_stdout": "expect/osp2_kernel_object.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "6871a6270b1b2ec5f0b0559cefa3e30d4043df20",
+        "origin_tag": "edu-18-bounded-kernel-object-cache",
+        "origin_path": "kobj_kernel.c",
+        "origin_sha256": "446251be77b25b13df2a55313e69bedb2bfe30d3dd86fbd5ac12909d210f0de5",
+        "policy_families": [
+          "kobj_kernel.c",
+          "kobj64.asm",
+          "docs/contracts/KERNEL_OBJECT_CACHE_V1.md"
+        ],
+        "derivation": "Compiler-owned exact request, observation, final-state, and geometry policy from immutable EDU-18; bitmap/generation mutation, token encoding, pointer authority, zeroing, poisoning, locking, and allocation/free execution remain assembly-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_kobj_final_admit",
+          "osp2_kobj_geometry",
+          "osp2_kobj_observation_admit",
+          "osp2_kobj_request_admit"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_kernel_object_guest.c",
+        "expected_serial": "expect/osp2_kernel_object.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    },
+    {
+      "id": "osp2_simulation_abi",
+      "description": "Scalar-double partition ABI, exact dyadic integration, fixed-order unsigned reduction, wraparound, and repeated canonical result policy.",
+      "source": "cases/osp2_simulation_abi.c",
+      "runtime_driver": "cases/osp2_simulation_abi_driver.c",
+      "expected_stdout": "expect/osp2_simulation_abi.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "61018571c66340ea8a5d71bef7cd5641e96cd9e5",
+        "origin_tag": "edu-12-smp-simulation-compute",
+        "origin_path": "simulation_kernel.c",
+        "origin_sha256": "7a9464dfeb16891875866feb932ccf19236f76c0a0f4404f6be0f743e7a8f45d",
+        "policy_families": [
+          "simulation_kernel.c",
+          "smp64.asm",
+          "docs/contracts/COMPILED_SIMULATION_ABI_V1.md",
+          "docs/contracts/SIMULATION_COMPUTE_V1.md"
+        ],
+        "derivation": "Compiler-owned exact scalar-double partition and fixed-order reduction policy from immutable EDU-12; FPU/SIMD enablement, XSAVE, AP dispatch, interrupts, persistence, and cross-hardware equivalence remain assembly- or OS-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_reduce_result",
+          "osp2_simulate_partition"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_simulation_abi_guest.c",
+        "expected_serial": "expect/osp2_simulation_abi.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript",
+        "scalar_sse2": true
+      }
+    },
+    {
+      "id": "osp2_simulation_abi_reduced",
+      "description": "Current-threshold scalar-double companion using a countdown loop to avoid the strict probe's unexpected freestanding memset helper.",
+      "source": "cases/osp2_simulation_abi_reduced.c",
+      "runtime_driver": "cases/osp2_simulation_abi_driver.c",
+      "expected_stdout": "expect/osp2_simulation_abi.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "61018571c66340ea8a5d71bef7cd5641e96cd9e5",
+        "origin_tag": "edu-12-smp-simulation-compute",
+        "origin_path": "simulation_kernel.c",
+        "origin_sha256": "7a9464dfeb16891875866feb932ccf19236f76c0a0f4404f6be0f743e7a8f45d",
+        "policy_families": [
+          "simulation_kernel.c",
+          "docs/contracts/COMPILED_SIMULATION_ABI_V1.md"
+        ],
+        "derivation": "Reduced current-threshold companion preserving the public ABI and arithmetic order while replacing local zero-initialization with countdown from the input step count."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_reduce_result",
+          "osp2_simulate_partition"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_simulation_abi_guest.c",
+        "expected_serial": "expect/osp2_simulation_abi.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript",
+        "scalar_sse2": true
+      }
+    },
+    {
+      "id": "osp2_process_lifecycle",
+      "description": "One-slot process create/destroy admission, opaque authority matching, stale replay rejection, exact reclaim totals, and final lifecycle observation policy.",
+      "source": "cases/osp2_process_lifecycle.c",
+      "runtime_driver": "cases/osp2_process_lifecycle_driver.c",
+      "expected_stdout": "expect/osp2_process_lifecycle.stdout",
+      "expected_exit": 0,
+      "introduced_in": "OS-P2",
+      "provenance": {
+        "origin_repo": "os-dev",
+        "origin_snapshot": "78778f21ba53955aaa16fcd607a32e61d75c755d",
+        "origin_tag": "edu-19-protected-process-lifecycle",
+        "origin_path": "process_kernel.c",
+        "origin_sha256": "59f0bab8ad13ba4b8dffecafe9a7616057354e110d19a72953629c18cb57edb0",
+        "policy_families": [
+          "process_kernel.c",
+          "process64.asm",
+          "docs/contracts/USER_PROCESS_V4.md",
+          "docs/decisions/0019-one-reclaimable-process-slot.md"
+        ],
+        "derivation": "Compiler-owned reduced lifecycle, authority, stale-replay, reclaim, and final-observation policy from immutable EDU-19; allocation, mapping, scheduler mutation, teardown execution, and CPL-3 behavior remain assembly- or OS-owned."
+      },
+      "object_contract": {
+        "required_exports": [
+          "osp2_process_authority_check",
+          "osp2_process_lifecycle_validate",
+          "osp2_process_transition_admit"
+        ],
+        "allowed_undefined": [],
+        "allowed_relocations": [
+          "R_X86_64_PC32"
+        ],
+        "forbidden_instructions": [
+          "cli",
+          "hlt",
+          "in",
+          "iretq",
+          "out",
+          "sti",
+          "syscall",
+          "sysretq"
+        ],
+        "forbid_red_zone": true
+      },
+      "guest_contract": {
+        "adapter_source": "cases/osp2_process_lifecycle_guest.c",
+        "expected_serial": "expect/osp2_process_lifecycle.serial",
+        "expected_exit": 85,
+        "debug_exit_value": 42,
+        "timeout_seconds": 10,
+        "repeat_runs": 2,
+        "parity_artifact": "serial_transcript"
+      }
+    }
+  ]
+}

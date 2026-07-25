@@ -757,7 +757,10 @@
       "expects": [],
       "run": true,
       "expect_exit": 0,
-      "expected_stdout": "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge.stdout",
+      "expected_stdout_variants": [
+        "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge.stdout",
+        "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_darwin_arm64.stdout"
+      ],
       "expected_stderr": "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge.stderr",
       "differential": true,
       "differential_compiler": "cc",

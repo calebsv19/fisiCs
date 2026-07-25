@@ -12,6 +12,11 @@
 #include <ctype.h>
 #include <string.h>
 
+static bool cg_stmt_requires_inline_memory_ops(CodegenContext* ctx) {
+    const char* triple = (ctx && ctx->module) ? LLVMGetTarget(ctx->module) : NULL;
+    return triple && strstr(triple, "-none") != NULL;
+}
+
 static void cg_apply_old_style_parameter_promotion(CodegenContext* ctx,
                                                    ParsedType* type) {
     if (!ctx || !type || type->pointerDepth > 0 || type->derivationCount > 0) {
@@ -926,6 +931,41 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
                 }
                 LLVMValueRef sizeVal =
                     LLVMConstInt(cg_get_intptr_type(ctx), (unsigned long long)bytes, 0);
+                if (cg_stmt_requires_inline_memory_ops(ctx)) {
+                    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+                    LLVMTypeRef i8Ptr = LLVMPointerType(i8Type, 0);
+                    LLVMTypeRef indexType = cg_get_intptr_type(ctx);
+                    LLVMValueRef dstBytes = LLVMBuildBitCast(ctx->builder,
+                                                            sretPtr,
+                                                            i8Ptr,
+                                                            "return.sret.dst.bytes");
+                    LLVMValueRef srcBytes = LLVMBuildBitCast(ctx->builder,
+                                                            srcPtr,
+                                                            i8Ptr,
+                                                            "return.sret.src.bytes");
+                    for (uint64_t index = 0; index < bytes; index++) {
+                        LLVMValueRef offset = LLVMConstInt(indexType, index, 0);
+                        LLVMValueRef srcByte = LLVMBuildGEP2(ctx->builder,
+                                                             i8Type,
+                                                             srcBytes,
+                                                             &offset,
+                                                             1,
+                                                             "return.sret.src.byte");
+                        LLVMValueRef dstByte = LLVMBuildGEP2(ctx->builder,
+                                                             i8Type,
+                                                             dstBytes,
+                                                             &offset,
+                                                             1,
+                                                             "return.sret.dst.byte");
+                        LLVMValueRef byte = LLVMBuildLoad2(ctx->builder,
+                                                           i8Type,
+                                                           srcByte,
+                                                           "return.sret.byte");
+                        LLVMBuildStore(ctx->builder, byte, dstByte);
+                    }
+                    CG_DEBUG("[CG] Return emitting inline aggregate sret copy\n");
+                    return LLVMBuildRetVoid(ctx->builder);
+                }
                 LLVMBuildMemCpy(ctx->builder,
                                 sretPtr,
                                 align,

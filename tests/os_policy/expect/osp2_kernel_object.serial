@@ -1,0 +1,1 @@
+OS-P2 guest case=osp2_kernel_object corpus=kobj51-v1 vectors=51 result=PASS

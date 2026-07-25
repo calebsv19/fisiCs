@@ -1,6 +1,6 @@
-from .models import DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
+from .models import DiagnosticJsonProbe, DiagnosticProbe, ObjectProbe, RuntimeProbe
 
-ProbeLike = RuntimeProbe | DiagnosticProbe | DiagnosticJsonProbe
+ProbeLike = RuntimeProbe | ObjectProbe | DiagnosticProbe | DiagnosticJsonProbe
 
 
 PROBE_OWNER_LANES = {
@@ -27,6 +27,8 @@ def probe_owner_lane(probe_id):
 
 
 def classify_probe_trust_layer(probe_family, owner_lane, input_count):
+    if probe_family == "object":
+        return "Layer C"
     if probe_family == "runtime":
         return "Layer E"
     if input_count > 1 or owner_lane == "scopes-linkage":
@@ -36,20 +38,32 @@ def classify_probe_trust_layer(probe_family, owner_lane, input_count):
 
 def classify_blocked_probe(probe: ProbeLike, probe_family, summary):
     owner_lane = probe_owner_lane(probe.probe_id)
-    input_count = len(probe.inputs) if probe.inputs else 1
+    inputs = getattr(probe, "inputs", None)
+    input_count = len(inputs) if inputs else 1
     trust_layer = classify_probe_trust_layer(probe_family, owner_lane, input_count)
     lowered = summary.lower()
 
     if probe_family == "runtime":
         if lowered.startswith("fisics runtime timeout"):
             return ("runtime_crash", "critical", trust_layer, owner_lane)
-        if lowered.startswith("runtime mismatch vs"):
+        if lowered.startswith("runtime mismatch vs") or lowered.startswith("runtime oracle mismatch"):
             return ("runtime_mismatch", "critical", trust_layer, owner_lane)
         if lowered.startswith("fisics compile timeout") or lowered.startswith("fisics compile failed"):
             return ("ir_or_codegen_fail", "high", trust_layer, owner_lane)
         if lowered.startswith("clang ") or lowered.startswith("gcc "):
             return ("harness_error", "medium", trust_layer, owner_lane)
         return ("harness_error", "medium", trust_layer, owner_lane)
+
+    if probe_family == "object":
+        if lowered.startswith("fisics compile timeout"):
+            return ("ir_or_codegen_fail", "high", trust_layer, owner_lane)
+        if lowered.startswith("fisics compile failed"):
+            return ("ir_or_codegen_fail", "high", trust_layer, owner_lane)
+        if lowered.startswith("fisics object mismatch"):
+            return ("runtime_helper_or_object_contract", "high", trust_layer, owner_lane)
+        if lowered.startswith("clang "):
+            return ("harness_error", "medium", trust_layer, owner_lane)
+        return ("runtime_helper_or_object_contract", "high", trust_layer, owner_lane)
 
     if probe_family == "diagnostic":
         return ("wrong_diagnostics", "medium", trust_layer, owner_lane)

@@ -1251,6 +1251,7 @@ REAL_PROJECTS_STAGE_C_RUNNER := tests/real_projects/runners/run_project_full_bui
 REAL_PROJECTS_STAGE_D_RUNNER := tests/real_projects/runners/run_project_runtime_smoke_tests.py
 REAL_PROJECTS_STAGE_E_RUNNER := tests/real_projects/runners/run_project_golden_behavior_tests.py
 REAL_PROJECTS_STAGE_F_RUNNER := tests/real_projects/runners/run_project_perf_telemetry_tests.py
+OS_POLICY_RUNNER := tests/os_policy/run_os_policy.py
 REAL_PROJECT ?= datalab
 REAL_PROJECT_RUNS ?= 5
 
@@ -1283,6 +1284,21 @@ realproj-stage-e:
 realproj-stage-f:
 	@python3 $(REAL_PROJECTS_STAGE_F_RUNNER) --project $(REAL_PROJECT)
 
+os-policy-object: $(BIN)
+	@python3 $(OS_POLICY_RUNNER) --tier object
+
+os-policy-runtime: $(BIN)
+	@python3 $(OS_POLICY_RUNNER) --tier runtime
+
+os-policy-guest: $(BIN)
+	@python3 $(OS_POLICY_RUNNER) --tier guest
+
+os-policy-contract:
+	@python3 tests/os_policy/test_runner_contract.py
+
+os-policy: $(BIN) os-policy-contract
+	@python3 $(OS_POLICY_RUNNER) --tier all --continue-on-failure
+
 tests: test frontend-api-test
 
 # === Phony Targets ===
@@ -1311,4 +1327,5 @@ tests: test frontend-api-test
         integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
         runtime-memory-check runtime-clean examples-memory-check \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
+        os-policy-contract os-policy-object os-policy-runtime os-policy-guest os-policy \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_scalar_zero_init_no_memset",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_scalar_zero_init_no_memset.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "ir_contains": [
+        "store i64 0, ptr %step",
+        "store double 0.000000e+00, ptr %correction",
+        "store ptr null, ptr %optional_value"
+      ],
+      "ir_forbids": [
+        "llvm.memset"
+      ],
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "scalar",
+        "zero-initializer",
+        "freestanding",
+        "runtime-helper",
+        "os-policy",
+        "wave69"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

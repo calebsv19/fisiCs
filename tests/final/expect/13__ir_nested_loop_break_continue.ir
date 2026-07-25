@@ -13,8 +13,8 @@ entry:
   %j = alloca i32, align 4
   %i = alloca i32, align 4
   %acc = alloca i32, align 4
-  call void @llvm.memset.p0.i64(ptr align 4 %acc, i8 0, i64 4, i1 false)
-  call void @llvm.memset.p0.i64(ptr align 4 %i, i8 0, i64 4, i1 false)
+  store i32 0, ptr %acc, align 4
+  store i32 0, ptr %i, align 4
   br label %forcond
 
 forcond:                                          ; preds = %forinc, %entry
@@ -25,7 +25,7 @@ forcond:                                          ; preds = %forinc, %entry
   br i1 %forcond2, label %forbody, label %forend
 
 forbody:                                          ; preds = %forcond
-  call void @llvm.memset.p0.i64(ptr align 4 %j, i8 0, i64 4, i1 false)
+  store i32 0, ptr %j, align 4
   br label %forcond3
 
 forinc:                                           ; preds = %forend6
@@ -90,8 +90,3 @@ ifcont20:                                         ; preds = %ifcont
   store i32 %compound.add, ptr %acc, align 4
   br label %forinc5
 }
-
-; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
-declare void @llvm.memset.p0.i64(ptr writeonly captures(none) %0, i8 %1, i64 %2, i1 immarg %3) #0
-
-attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

@@ -5,7 +5,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from inventory.registry import DIAG_JSON_PROBES, DIAG_PROBES, RUNTIME_PROBES
+from inventory.registry import DIAG_JSON_PROBES, DIAG_PROBES, OBJECT_PROBES, RUNTIME_PROBES
 
 FINAL_ROOT = Path(__file__).resolve().parents[2]
 if str(FINAL_ROOT) not in sys.path:
@@ -21,6 +21,12 @@ from .taxonomy import emit_probe_blocked_classification
 
 PROBE_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = PROBE_DIR.parent.parent.parent
+OS_POLICY_ROOT = REPO_ROOT / "tests" / "os_policy"
+if str(OS_POLICY_ROOT) not in sys.path:
+    sys.path.insert(0, str(OS_POLICY_ROOT))
+
+from verify_object import verify_object
+
 COMPILE_TIMEOUT_SEC = 20
 RUN_TIMEOUT_SEC = 8
 
@@ -208,6 +214,171 @@ def missing_probe_inputs(sources):
     return [source for source in sources if not source.is_file()]
 
 
+def llvm_inspection_tools():
+    llvm_config = shutil.which("llvm-config")
+    if not llvm_config:
+        return None, None, "llvm-config not found"
+    exit_code, output, timed_out = run_cmd(
+        [llvm_config, "--bindir"], COMPILE_TIMEOUT_SEC
+    )
+    if timed_out:
+        return None, None, "llvm-config --bindir timeout"
+    if exit_code != 0:
+        return None, None, f"llvm-config --bindir failed ({exit_code})"
+    bindir = Path(output.strip())
+    readobj = bindir / "llvm-readobj"
+    objdump = bindir / "llvm-objdump"
+    if not readobj.is_file() or not objdump.is_file():
+        return None, None, f"LLVM inspection tools missing under {bindir}"
+    return readobj, objdump, ""
+
+
+def object_contract(probe, *, clang_reference=False):
+    allowed_undefined = probe.allowed_undefined
+    allowed_relocations = probe.allowed_relocations
+    if clang_reference and probe.clang_allowed_undefined is not None:
+        allowed_undefined = probe.clang_allowed_undefined
+    if clang_reference and probe.clang_allowed_relocations is not None:
+        allowed_relocations = probe.clang_allowed_relocations
+    return {
+        "required_exports": list(probe.required_exports),
+        "allowed_undefined": list(allowed_undefined),
+        "allowed_relocations": list(allowed_relocations),
+        "forbidden_instructions": list(probe.forbidden_instructions),
+        "forbid_red_zone": probe.forbid_red_zone,
+    }
+
+
+def run_object_probe(probe, clang_path, fisics_bin, readobj, objdump):
+    if not probe.source.is_file():
+        return ("BLOCKED", "probe input missing", str(probe.source))
+    with tempfile.TemporaryDirectory(prefix=f"probe-object-{probe.probe_id}-") as tmp:
+        tmp_dir = Path(tmp)
+        fisics_a = tmp_dir / "fisics-a.o"
+        fisics_b = tmp_dir / "fisics-b.o"
+        clang_a = tmp_dir / "clang-a.o"
+        clang_b = tmp_dir / "clang-b.o"
+        fisics_base = [
+            str(fisics_bin),
+            "--target",
+            "x86_64-unknown-none",
+            *(str(arg) for arg in (probe.fisics_args or [])),
+            "-c",
+            str(probe.source),
+        ]
+        fisics_env = compile_env(None)
+        for output in (fisics_a, fisics_b):
+            exit_code, compile_output, timed_out = run_cmd(
+                [*fisics_base, "-o", str(output)],
+                COMPILE_TIMEOUT_SEC,
+                env=fisics_env,
+            )
+            if timed_out:
+                return (
+                    "BLOCKED",
+                    f"fisics compile timeout ({COMPILE_TIMEOUT_SEC}s)",
+                    compile_output.strip(),
+                )
+            if exit_code != 0:
+                return (
+                    "BLOCKED",
+                    f"fisics compile failed ({exit_code})",
+                    compile_output.strip(),
+                )
+        if fisics_a.read_bytes() != fisics_b.read_bytes():
+            return (
+                "BLOCKED",
+                "fisics object mismatch across identical replay",
+                "",
+            )
+        try:
+            fisics_facts = verify_object(
+                object_path=fisics_a,
+                readobj=readobj,
+                objdump=objdump,
+                contract=object_contract(probe),
+            )
+        except Exception as exc:
+            return ("BLOCKED", "fisics object mismatch", str(exc))
+
+        if not clang_path:
+            return (
+                "SKIP",
+                "clang not found; object reference unavailable",
+                f"fisics object bytes={len(fisics_a.read_bytes())}",
+            )
+        clang_base = [
+            clang_path,
+            "--target=x86_64-unknown-none",
+            "-std=c99",
+            "-O0",
+            "-ffreestanding",
+            "-fno-builtin",
+            "-fno-stack-protector",
+            "-fno-pic",
+            "-fno-pie",
+            "-fno-asynchronous-unwind-tables",
+            "-mno-red-zone",
+            "-mno-mmx",
+            "-msse2" if probe.scalar_sse2 else "-mno-sse",
+            *(str(arg) for arg in (probe.clang_args or [])),
+            "-c",
+            str(probe.source),
+        ]
+        for output in (clang_a, clang_b):
+            exit_code, compile_output, timed_out = run_cmd(
+                [*clang_base, "-o", str(output)], COMPILE_TIMEOUT_SEC
+            )
+            if timed_out:
+                return (
+                    "BLOCKED",
+                    f"clang compile timeout ({COMPILE_TIMEOUT_SEC}s)",
+                    compile_output.strip(),
+                )
+            if exit_code != 0:
+                return (
+                    "BLOCKED",
+                    f"clang compile failed ({exit_code})",
+                    compile_output.strip(),
+                )
+        if clang_a.read_bytes() != clang_b.read_bytes():
+            return (
+                "BLOCKED",
+                "clang object mismatch across identical replay",
+                "",
+            )
+        try:
+            clang_facts = verify_object(
+                object_path=clang_a,
+                readobj=readobj,
+                objdump=objdump,
+                contract=object_contract(probe, clang_reference=True),
+            )
+        except Exception as exc:
+            return ("BLOCKED", "clang object mismatch", str(exc))
+
+        detail = (
+            f"fisics_bytes={len(fisics_a.read_bytes())} "
+            f"clang_bytes={len(clang_a.read_bytes())} "
+            f"exports={','.join(fisics_facts['required_exports'])} "
+            f"undefined={','.join(fisics_facts['undefined_global_symbols']) or '<none>'} "
+            f"relocations={','.join(fisics_facts['relocations']) or '<none>'}"
+        )
+        if (
+            fisics_facts["undefined_global_symbols"]
+            != clang_facts["undefined_global_symbols"]
+        ):
+            detail += (
+                " reference_undefined="
+                + (",".join(clang_facts["undefined_global_symbols"]) or "<none>")
+            )
+        return (
+            "RESOLVED",
+            "deterministic fisiCs/Clang objects satisfy contract",
+            detail,
+        )
+
+
 def compile_exit_allowed(exit_code, allowed_exit_codes):
     return exit_code in tuple(allowed_exit_codes or ())
 
@@ -273,6 +444,27 @@ def match_expected_diagnostics(diagnostics, expectations):
 def mixed_object_path(directory, source, ordinal):
     """Return a per-input object path even when source basenames collide."""
     return Path(directory) / f"{ordinal:03d}_{Path(source).stem}.clang.o"
+
+
+def runtime_stdout_oracle_mismatch(probe, actual_stdout):
+    if probe.expected_stdout is not None:
+        if probe.expected_stdout_variants is not None:
+            return "invalid probe contract: exact and variant stdout are both set"
+        if actual_stdout != probe.expected_stdout:
+            return (
+                f"stdout expected={probe.expected_stdout.strip()} "
+                f"actual={actual_stdout.strip()}"
+            )
+        return None
+    if (
+        probe.expected_stdout_variants is not None
+        and actual_stdout not in tuple(probe.expected_stdout_variants)
+    ):
+        expected = " | ".join(
+            value.strip() for value in probe.expected_stdout_variants
+        )
+        return f"stdout expected one of=[{expected}] actual={actual_stdout.strip()}"
+    return None
 
 
 def run_runtime_probe(probe, clang_path, fisics_bin):
@@ -344,6 +536,34 @@ def run_runtime_probe(probe, clang_path, fisics_bin):
                 "",
             )
 
+        oracle_mismatches = []
+        if (
+            probe.expected_exit_code is not None
+            and fisics_run_exit != probe.expected_exit_code
+        ):
+            oracle_mismatches.append(
+                f"exit expected={probe.expected_exit_code} actual={fisics_run_exit}"
+            )
+        fisics_stdout_mismatch = runtime_stdout_oracle_mismatch(
+            probe, fisics_stdout
+        )
+        if fisics_stdout_mismatch:
+            oracle_mismatches.append(fisics_stdout_mismatch)
+        if (
+            probe.expected_stderr is not None
+            and fisics_stderr != probe.expected_stderr
+        ):
+            oracle_mismatches.append(
+                f"stderr expected={probe.expected_stderr.strip()} "
+                f"actual={fisics_stderr.strip()}"
+            )
+        if oracle_mismatches:
+            return (
+                "BLOCKED",
+                "runtime oracle mismatch for fisics",
+                "; ".join(oracle_mismatches),
+            )
+
         if not clang_path:
             return (
                 "SKIP",
@@ -377,6 +597,34 @@ def run_runtime_probe(probe, clang_path, fisics_bin):
                 "BLOCKED",
                 f"clang runtime timeout ({RUN_TIMEOUT_SEC}s)",
                 "",
+            )
+
+        clang_oracle_mismatches = []
+        if (
+            probe.expected_exit_code is not None
+            and clang_run_exit != probe.expected_exit_code
+        ):
+            clang_oracle_mismatches.append(
+                f"exit expected={probe.expected_exit_code} actual={clang_run_exit}"
+            )
+        clang_stdout_mismatch = runtime_stdout_oracle_mismatch(
+            probe, clang_stdout
+        )
+        if clang_stdout_mismatch:
+            clang_oracle_mismatches.append(clang_stdout_mismatch)
+        if (
+            probe.expected_stderr is not None
+            and clang_stderr != probe.expected_stderr
+        ):
+            clang_oracle_mismatches.append(
+                f"stderr expected={probe.expected_stderr.strip()} "
+                f"actual={clang_stderr.strip()}"
+            )
+        if clang_oracle_mismatches:
+            return (
+                "BLOCKED",
+                "runtime oracle mismatch for clang",
+                "; ".join(clang_oracle_mismatches),
             )
 
         same = (
@@ -647,6 +895,40 @@ def main():
             print(f"         note: {probe.note}")
             if status == "BLOCKED":
                 emit_probe_blocked_classification(probe, "runtime", summary)
+            if detail:
+                print(f"         detail: {detail}")
+            if status == "BLOCKED":
+                blocked += 1
+            elif status == "RESOLVED":
+                resolved += 1
+            else:
+                skipped += 1
+
+        print("")
+        print("[object probes]")
+        readobj, objdump, tool_error = llvm_inspection_tools()
+        for probe in OBJECT_PROBES:
+            if not probe_selected(probe.probe_id, filters):
+                continue
+            selected += 1
+            if tool_error:
+                status, summary, detail = (
+                    "BLOCKED",
+                    "LLVM inspection tools unavailable",
+                    tool_error,
+                )
+            else:
+                status, summary, detail = run_object_probe(
+                    probe,
+                    clang_path,
+                    staged_bin.staged_path,
+                    readobj,
+                    objdump,
+                )
+            print(f"{status:8s} {probe.probe_id} - {summary}")
+            print(f"         note: {probe.note}")
+            if status == "BLOCKED":
+                emit_probe_blocked_classification(probe, "object", summary)
             if detail:
                 print(f"         detail: {detail}")
             if status == "BLOCKED":

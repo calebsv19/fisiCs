@@ -39,6 +39,7 @@ SUPPORTED_TEST_FIELDS = frozenset(
         "expect_exit",
         "expected_stderr",
         "expected_stdout",
+        "expected_stdout_variants",
         "expects",
         "expect_compile_exit",
         "id",
@@ -186,6 +187,9 @@ def test_oracle_extensions(test):
         path = test.get(field)
         if isinstance(path, str) and path:
             extensions.add(Path(path).suffix)
+    for path in test.get("expected_stdout_variants", []):
+        if isinstance(path, str) and path:
+            extensions.add(Path(path).suffix)
     return extensions
 
 
@@ -247,6 +251,35 @@ def validate_test_definition(test):
             "unsupported expectation extension(s): " + ", ".join(unsupported)
         )
 
+    stdout_variants = test.get("expected_stdout_variants")
+    if stdout_variants is not None:
+        if (
+            not isinstance(stdout_variants, list)
+            or not stdout_variants
+            or any(not isinstance(path, str) or not path for path in stdout_variants)
+        ):
+            errors.append(
+                "expected_stdout_variants must be a non-empty list of paths"
+            )
+        else:
+            if any(Path(path).suffix != ".stdout" for path in stdout_variants):
+                errors.append(
+                    "expected_stdout_variants entries must use the .stdout extension"
+                )
+            if any(
+                not is_confined_relative_path(path, ROOT, ROOT)
+                for path in stdout_variants
+            ):
+                errors.append(
+                    "expected_stdout_variants entries must remain inside the final suite"
+                )
+            if len(stdout_variants) != len(set(stdout_variants)):
+                errors.append("expected_stdout_variants entries must be unique")
+        if "expected_stdout" in test:
+            errors.append(
+                "expected_stdout cannot be combined with expected_stdout_variants"
+            )
+
     has_ir_markers = bool(test.get("ir_contains") or test.get("ir_forbids"))
     has_compile_exit_oracle = "expect_compile_exit" in test
     if (
@@ -263,6 +296,7 @@ def validate_test_definition(test):
         for field in (
             "expect_exit",
             "expected_stdout",
+            "expected_stdout_variants",
             "expected_stderr",
             "run_args",
             "run_env",
@@ -785,8 +819,12 @@ def main():
             standard = str(test.get("standard", "c99"))
 
             expected_stdout_rel = test.get("expected_stdout")
+            expected_stdout_variant_rels = test.get("expected_stdout_variants", [])
             expected_stderr_rel = test.get("expected_stderr")
             expected_stdout_path = ROOT / expected_stdout_rel if expected_stdout_rel else None
+            expected_stdout_variant_paths = [
+                ROOT / relative_path for relative_path in expected_stdout_variant_rels
+            ]
             expected_stderr_path = ROOT / expected_stderr_rel if expected_stderr_rel else None
             run_args = [str(a) for a in test.get("run_args", [])]
             run_stdin = test.get("run_stdin")
@@ -1339,6 +1377,50 @@ def main():
                                     print(diff_text(expected_stdout, run_stdout, expected_stdout_path))
                                     failures += 1
                                     test_failed = True
+
+                    if expected_stdout_variant_paths:
+                        missing_variant_paths = [
+                            path
+                            for path in expected_stdout_variant_paths
+                            if not path.exists()
+                        ]
+                        if missing_variant_paths:
+                            emit_final_failure(
+                                "missing expectation variant(s): "
+                                + ", ".join(str(path) for path in missing_variant_paths),
+                                failure_kind="harness_error",
+                                severity="medium",
+                                test_id=test_id,
+                                test_bucket=test_bucket,
+                                input_count=input_count,
+                                run_enabled=run_enabled,
+                                differential=differential,
+                            )
+                            failures += 1
+                            test_failed = True
+                        else:
+                            expected_stdout_variants = [
+                                path.read_text(encoding="utf-8")
+                                for path in expected_stdout_variant_paths
+                            ]
+                            if run_stdout not in expected_stdout_variants:
+                                emit_final_failure(
+                                    "stdout did not match any enumerated expectation variant",
+                                    failure_kind="runtime_mismatch",
+                                    severity="critical",
+                                    test_id=test_id,
+                                    test_bucket=test_bucket,
+                                    input_count=input_count,
+                                    run_enabled=run_enabled,
+                                    differential=differential,
+                                )
+                                for path, expected_stdout in zip(
+                                    expected_stdout_variant_paths,
+                                    expected_stdout_variants,
+                                ):
+                                    print(diff_text(expected_stdout, run_stdout, path))
+                                failures += 1
+                                test_failed = True
 
                     if expected_stderr_path:
                         if update and should_update_expectation(

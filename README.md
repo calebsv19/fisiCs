@@ -192,6 +192,26 @@ gate is:
 make integration-x86_64-freestanding-object
 ```
 
+The compiler-owned OS Policy lane composes that target contract with bounded
+hardware-blind policy semantics:
+
+```bash
+make os-policy-object
+make os-policy-runtime
+make os-policy-guest
+make os-policy
+```
+
+See [`docs/os_policy_validation.md`](docs/os_policy_validation.md). OS-P1 now
+proves repeated fisiCs-versus-Clang execution in a shared minimal QEMU guest,
+and OS-P2 now includes storage/result, a shared 31-vector ELF field-admission
+corpus, a shared 27-vector job-admission corpus, and a shared 44-vector raw
+queue-record/transition corpus, plus a shared 60-vector stateful scheduler
+transition corpus and a shared 51-assertion synchronization/rank corpus. This
+does not claim downstream `os-dev` kernel, complete ELF-loader, durable queue
+storage, assembly-owned atomics/context switching, interrupt delivery, lock
+fairness, or real-hardware correctness.
+
 Overlay-specific flags:
 
 - `--overlay=physics-units`
@@ -242,6 +262,9 @@ make dev-smoke
 
 # focused probe lane (outside make final)
 python3 tests/final/probes/run_probes.py
+
+# freestanding OS-policy lane
+make os-policy
 
 # binary lanes
 make test-binary

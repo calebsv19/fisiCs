@@ -386,6 +386,27 @@ class FinalHarnessContractTests(unittest.TestCase):
             ),
             (
                 {
+                    "id": "wrong-runtime-variant-suffix",
+                    "expects": [],
+                    "run": True,
+                    "expected_stdout_variants": ["expect/value.txt"],
+                },
+                "must use the .stdout extension",
+            ),
+            (
+                {
+                    "id": "ambiguous-runtime-stdout",
+                    "expects": [],
+                    "run": True,
+                    "expected_stdout": "expect/value.stdout",
+                    "expected_stdout_variants": [
+                        "expect/value-darwin.stdout"
+                    ],
+                },
+                "cannot be combined",
+            ),
+            (
+                {
                     "id": "unknown-field",
                     "expects": ["expect/value.diag"],
                     "expected_stdut": "expect/value.stdout",
@@ -493,6 +514,15 @@ class FinalHarnessContractTests(unittest.TestCase):
             {"id": "marker", "expects": [], "ir_contains": ["define i32"]},
             {"id": "runtime", "expects": [], "run": True},
             {
+                "id": "runtime-stdout-variants",
+                "expects": [],
+                "run": True,
+                "expected_stdout_variants": [
+                    "expect/value.stdout",
+                    "expect/value-darwin.stdout",
+                ],
+            },
+            {
                 "id": "link-failure",
                 "expects": [],
                 "link": True,
@@ -518,6 +548,10 @@ class FinalHarnessContractTests(unittest.TestCase):
         test = {
             "expects": ["expect/value.diag"],
             "expected_stdout": "expect/value.stdout",
+            "expected_stdout_variants": [
+                "expect/value-darwin.stdout",
+                "expect/value-linux.stdout",
+            ],
             "expected_stderr": "expect/value.stderr",
         }
         self.assertEqual(
@@ -539,6 +573,7 @@ class FinalHarnessContractTests(unittest.TestCase):
             for field in ("expected_stdout", "expected_stderr"):
                 if test.get(field):
                     paths.append(test[field])
+            paths.extend(test.get("expected_stdout_variants", []))
             for relative_path in paths:
                 expectation_count += 1
                 relative = Path(relative_path)

@@ -14,7 +14,7 @@ entry:
   %c = alloca i32, align 4
   %b = alloca i32, align 4
   %a = alloca i32, align 4
-  call void @llvm.memset.p0.i64(ptr align 4 %a, i8 0, i64 4, i1 false)
+  store i32 0, ptr %a, align 4
   store i32 1, ptr %b, align 4
   store i32 2, ptr %c, align 4
   %a1 = load i32, ptr %a, align 4
@@ -61,8 +61,3 @@ ternaryMerge10:                                   ; preds = %ternaryFalse9, %ter
   %out13 = load i32, ptr %out, align 4
   ret i32 %out13
 }
-
-; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
-declare void @llvm.memset.p0.i64(ptr writeonly captures(none) %0, i8 %1, i64 %2, i1 immarg %3) #0
-
-attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

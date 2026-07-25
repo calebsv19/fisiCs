@@ -13,6 +13,11 @@
 
 #include <llvm-c/Target.h>
 
+static bool cg_target_requires_inline_memory_ops(CodegenContext* ctx) {
+    const char* triple = (ctx && ctx->module) ? LLVMGetTarget(ctx->module) : NULL;
+    return triple && strstr(triple, "-none") != NULL;
+}
+
 static bool cg_zero_initialize_storage(CodegenContext* ctx,
                                        LLVMValueRef destPtr,
                                        LLVMTypeRef destType,
@@ -44,8 +49,24 @@ static bool cg_zero_initialize_storage(CodegenContext* ctx,
         return false;
     }
 
-    LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+    LLVMTypeRef i8Ptr = LLVMPointerType(i8Type, 0);
     LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, destPtr, i8Ptr, "init.zero.dst");
+    if (cg_target_requires_inline_memory_ops(ctx)) {
+        LLVMValueRef zero = LLVMConstInt(i8Type, 0, 0);
+        LLVMTypeRef indexType = LLVMInt64TypeInContext(ctx->llvmContext);
+        for (uint64_t index = 0; index < bytes; index++) {
+            LLVMValueRef offset = LLVMConstInt(indexType, index, 0);
+            LLVMValueRef bytePtr = LLVMBuildGEP2(ctx->builder,
+                                                i8Type,
+                                                dstCast,
+                                                &offset,
+                                                1,
+                                                "init.zero.byte");
+            LLVMBuildStore(ctx->builder, zero, bytePtr);
+        }
+        return true;
+    }
     LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
     LLVMBuildMemSet(ctx->builder,
                     dstCast,
@@ -77,8 +98,18 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
     LLVMTypeKind storeKind = LLVMGetTypeKind(storeType);
     bool isAggregateStore = (storeKind == LLVMStructTypeKind || storeKind == LLVMArrayTypeKind);
 
-    // Zero initializer to memset if possible
+    /*
+     * Keep scalar zero initialization as a typed store. Lowering even a small
+     * scalar through llvm.memset lets the object backend introduce a libc
+     * dependency, which is invalid for freestanding targets. Aggregates still
+     * use the byte-wise path below so C's recursive zero-fill semantics remain
+     * centralized in cg_zero_initialize_storage().
+     */
     if (expr->type == AST_NUMBER_LITERAL && expr->valueNode.value && strcmp(expr->valueNode.value, "0") == 0) {
+        if (!isAggregateStore) {
+            LLVMBuildStore(ctx->builder, LLVMConstNull(storeType), destPtr);
+            CG_STORE_INIT_RETURN(true);
+        }
         if (!cg_zero_initialize_storage(ctx, destPtr, storeType, destParsed)) {
             CG_STORE_INIT_RETURN(false);
         }
@@ -188,6 +219,31 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
             LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
             LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, destPtr, i8Ptr, "init.agg.dst");
             LLVMValueRef srcCast = LLVMBuildBitCast(ctx->builder, srcPtr, i8Ptr, "init.agg.src");
+            if (cg_target_requires_inline_memory_ops(ctx)) {
+                LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+                LLVMTypeRef indexType = LLVMInt64TypeInContext(ctx->llvmContext);
+                for (uint64_t index = 0; index < bytes; index++) {
+                    LLVMValueRef offset = LLVMConstInt(indexType, index, 0);
+                    LLVMValueRef srcBytePtr = LLVMBuildGEP2(ctx->builder,
+                                                           i8Type,
+                                                           srcCast,
+                                                           &offset,
+                                                           1,
+                                                           "init.copy.src.byte");
+                    LLVMValueRef dstBytePtr = LLVMBuildGEP2(ctx->builder,
+                                                           i8Type,
+                                                           dstCast,
+                                                           &offset,
+                                                           1,
+                                                           "init.copy.dst.byte");
+                    LLVMValueRef byteValue = LLVMBuildLoad2(ctx->builder,
+                                                            i8Type,
+                                                            srcBytePtr,
+                                                            "init.copy.byte");
+                    LLVMBuildStore(ctx->builder, byteValue, dstBytePtr);
+                }
+                CG_STORE_INIT_RETURN(true);
+            }
             LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
             LLVMBuildMemCpy(ctx->builder, dstCast, alignVal, srcCast, alignVal, sizeVal);
             CG_STORE_INIT_RETURN(true);
