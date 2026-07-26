@@ -23,6 +23,13 @@ from silently replacing signed or notarized artifacts.
 artifact only after Apple returns `Accepted`. `release-verify-authenticated`
 then independently requires the Developer ID signature, accepted notary
 submission, archive-byte parity, checksums, and both format-specific manifests.
+Run identity discovery, signing, notarization, and authenticated signature
+verification only in the credential-bearing host stage selected by the
+repository-owned `codework-apple-release` profile. A sandbox result of
+`0 valid identities found`, or a sandbox-only signature-verification failure,
+is non-authoritative and must automatically route to the host profile/status
+check; neither result is durable evidence that the host credential or signature
+is absent.
 Raw CLI archives are notarized as submitted containers; unlike `.app` or
 installer bundles, the CLI binary has no stapling surface, so its manifest
 records `stapling=not_applicable`.
@@ -136,6 +143,11 @@ authentication service against those replacement bytes. The allowlisted
 CLI archive, emits a sanitized attestation, and signs only that attestation
 under the `codework-release-artifact-authentication-v1` namespace. Registry
 retains no Apple credential, signing-key path, or command output.
+
+The host stage binds the public identity label and fingerprint plus the named
+`cosm-notary` profile. The control plane receives only that sanitized identity,
+Apple `Accepted` status and submission ID, archive/checksum/manifest parity,
+`stapling=not_applicable`, and the detached broker attestation/signature.
 
 Authenticated ZIP/tar.gz replacements must be written under
 `build/release-authenticated/<preparation-id>/`, outside the immutable
