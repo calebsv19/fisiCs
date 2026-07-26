@@ -244,6 +244,12 @@ make release-sign APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID
 make release-notarize APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)" APPLE_NOTARY_PROFILE="<profile>"
 ```
 
+For Decision-bound release-control runs, sandbox keychain output is
+non-authoritative. A sandbox result of `0 valid identities found` routes to the
+host `codework-apple-release` named-profile status check; it does not prove that
+the Developer ID credential is absent. See
+[`docs/cli_release_workflow.md`](docs/cli_release_workflow.md).
+
 ## Testing
 
 Primary entrypoints:

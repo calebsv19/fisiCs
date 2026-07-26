@@ -105,6 +105,25 @@ archive bytes.
 
 ## Production Registry Broker Handoff
 
+Credential visibility is execution-context-sensitive. A `security
+find-identity` result produced by a sandboxed agent is informational only:
+`0 valid identities found` is **not** evidence that the host credential is
+absent and must not create a durable missing-identity blocker. The release
+adapter automatically routes that state to the repository-owned host
+named-profile status check. Only a host-context status that binds the configured
+Developer ID label and fingerprint may authorize signing.
+
+The current repository-owned host profile binds:
+
+- release profile: `codework-apple-release`
+- notary keychain profile: `cosm-notary`
+- broker: `codework-apple-release-v1`
+
+Host status and execution retain only the public certificate label/fingerprint,
+the `Accepted` notary result and submission ID, exact artifact/checksum/manifest
+bindings, and the sanitized detached broker attestation. They never retain a
+credential path, private key, notary credential, or raw command output.
+
 Decision-bound local preparation creates fresh unsigned ZIP and tar.gz
 evidence first under
 `build/release-preparations/<preparation-id>/`; this prevents a repaired intent
