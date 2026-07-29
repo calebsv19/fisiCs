@@ -6,7 +6,12 @@ from unittest.mock import patch
 from lib.promotion_audit import _family_id_variants, build_audit
 
 
-def probe_row(probe_id="04__probe_contract", missing_inputs=None, promoted_test_id=None):
+def probe_row(
+    probe_id="04__probe_contract",
+    missing_inputs=None,
+    promoted_test_id=None,
+    promotion_disposition=None,
+):
     return {
         "family": "runtime",
         "probe_id": probe_id,
@@ -17,6 +22,7 @@ def probe_row(probe_id="04__probe_contract", missing_inputs=None, promoted_test_
         "missing_inputs": list(missing_inputs or []),
         "note": "contract canary",
         "promoted_test_id": promoted_test_id,
+        "promotion_disposition": promotion_disposition,
     }
 
 
@@ -160,6 +166,19 @@ class PromotionAuditContractTests(unittest.TestCase):
             len(audit["integrity"]["ambiguous_best_rank_matches"]),
             1,
         )
+
+    def test_explicit_probe_only_disposition_precedes_shared_input_match(self):
+        probe = probe_row(
+            probe_id="04__probe_temporal_frontier",
+            promotion_disposition="probe-only",
+        )
+        probe["source"] = "probes/runtime/04__temporal_frontier.c"
+        probe["inputs"] = ["probes/runtime/04__probe_contract.c"]
+        audit = self.build([probe], [final_row()])
+        record = audit["records"][0]
+        self.assertEqual(record["classification"], "probe-only")
+        self.assertEqual(record["reason"], "explicit probe-only disposition")
+        self.assertEqual(record["matched_final_tests"], [])
 
 
 if __name__ == "__main__":

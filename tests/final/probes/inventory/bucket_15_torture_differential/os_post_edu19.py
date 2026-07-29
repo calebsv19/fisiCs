@@ -152,6 +152,14 @@ DURABLE_OWNER_CHAIN_MODEL_SOURCE = (
 DURABLE_OWNER_CHAIN_MATRIX_SOURCE = (
     PROBE_DIR / "runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
 )
+TEMPORAL_FAULT_SEQUENCE_MODEL_SOURCE = (
+    PROBE_DIR
+    / "runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c"
+)
+TEMPORAL_FAULT_SEQUENCE_MATRIX_SOURCE = (
+    PROBE_DIR
+    / "runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c"
+)
 
 RUNTIME_PROBES = [
     RuntimeProbe(
@@ -247,6 +255,39 @@ RUNTIME_PROBES = [
             "vectors=46 digest=1751309697 result=PASS\n"
         ),
         expected_stderr="",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_os_post_edu19_temporal_fault_sequence_matrix",
+        source=TEMPORAL_FAULT_SEQUENCE_MATRIX_SOURCE,
+        inputs=(
+            POLICY_SOURCE,
+            EDU26_REUSE_POLICY_SOURCE,
+            EDU35_POLICY_SOURCE,
+            EDU37_MODEL_SOURCE,
+            EDU39_PHASE_OWNER_MODEL_SOURCE,
+            EDU40_MAILBOX_OWNER_MODEL_SOURCE,
+            EDU41_TWO_ACTIVE_MODEL_SOURCE,
+            DURABLE_OWNER_CHAIN_MODEL_SOURCE,
+            TEMPORAL_FAULT_SEQUENCE_MODEL_SOURCE,
+            TEMPORAL_FAULT_SEQUENCE_MATRIX_SOURCE,
+        ),
+        note=(
+            "Frontier lane: hardware-blind temporal composition over the frozen "
+            "EDU-26/35/37/39/40/41 contracts and durable-owner chain: "
+            "pre-ACK interruption blocks generation reuse, post-checkpoint "
+            "restart distinguishes an overwrite destination from restored "
+            "record identity, mid-phase owner loss preserves the peer, and "
+            "post-completion retirement blocks stale redispatch. This is "
+            "compiler-probe evidence, not an EDU-44 OS implementation claim"
+        ),
+        expected_exit_code=0,
+        expected_stdout=(
+            "OS-POST-EDU19 temporal-fault-sequence "
+            "basis=durable-owner-chain-v1 vectors=20 digest=3207911626 "
+            "result=PASS\n"
+        ),
+        expected_stderr="",
+        promotion_disposition="probe-only",
     ),
     RuntimeProbe(
         probe_id="15__probe_os_post_edu19_edu23_parallelism_matrix",
@@ -706,6 +747,38 @@ OBJECT_PROBES = [
             "edu41_mailbox_phase_owner",
             "edu41_retirement_preserves_peer",
             "edu41_running_owner_valid",
+        ),
+        allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
+        forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,
+    ),
+    ObjectProbe(
+        probe_id="15__probe_os_post_edu19_temporal_fault_sequence_object",
+        source=TEMPORAL_FAULT_SEQUENCE_MODEL_SOURCE,
+        note=(
+            "Temporal fault-sequence composition must remain deterministic, "
+            "freestanding, hardware-blind, no-red-zone, and limited to the "
+            "exact frozen ownership and durable-chain helper imports"
+        ),
+        required_exports=(
+            "edu44_mid_phase_owner_loss_preserves_peer",
+            "edu44_post_checkpoint_restart_rejects_stale",
+            "edu44_post_completion_retirement_blocks_redispatch",
+            "edu44_pre_ack_interruption_blocks_reuse",
+        ),
+        allowed_undefined=(
+            "edu26_ack_identity_valid",
+            "edu39_phase_owner_matches",
+            "edu39_phase_owner_pair_valid",
+            "edu40_mailbox_completion_valid",
+            "edu40_mailbox_dispatch_valid",
+            "edu40_mailbox_retired_valid",
+            "edu41_active_count",
+            "edu41_mailbox_phase_owner",
+            "edu41_retirement_preserves_peer",
+            "edu41_running_owner_valid",
+            "edu43_checkpoint_owner_valid",
+            "edu43_generation_reuse_owner_valid",
+            "edu43_phase_owner_active_valid",
         ),
         allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
         forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,

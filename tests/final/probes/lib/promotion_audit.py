@@ -78,6 +78,14 @@ def _probe_rows():
                     ],
                     "note": probe.note,
                     "promoted_test_id": getattr(probe, "promoted_test_id", None),
+                    **(
+                        {
+                            "promotion_disposition":
+                                probe.promotion_disposition
+                        }
+                        if getattr(probe, "promotion_disposition", None)
+                        else {}
+                    ),
                 }
             )
     return rows
@@ -262,6 +270,8 @@ def _match_promoted_final(probe_row, by_id, by_path, by_stem):
 
 
 def _probe_only_reason(probe_row):
+    if probe_row.get("promotion_disposition") == "probe-only":
+        return "explicit probe-only disposition"
     note = probe_row["note"].strip().lower()
     prefix = note.split(":", 1)[0].strip() if ":" in note else ""
     for marker in PROBE_ONLY_PREFIX_MARKERS:
@@ -283,6 +293,19 @@ def build_audit():
 
     records = []
     for probe_row in probe_rows:
+        probe_only_reason = _probe_only_reason(probe_row)
+        if probe_only_reason == "explicit probe-only disposition":
+            records.append(
+                {
+                    **probe_row,
+                    "classification": "probe-only",
+                    "reason": probe_only_reason,
+                    "match_kind": None,
+                    "matched_final_tests": [],
+                }
+            )
+            continue
+
         match = _match_promoted_final(probe_row, by_id, by_path, by_stem)
         if match:
             records.append(
@@ -296,7 +319,6 @@ def build_audit():
             )
             continue
 
-        probe_only_reason = _probe_only_reason(probe_row)
         if probe_only_reason:
             records.append(
                 {

@@ -20,6 +20,7 @@ class RuntimeProbe:
     expected_stdout_variants: Sequence[str] | None = None
     expected_stderr: str | None = None
     promoted_test_id: str | None = None
+    promotion_disposition: str | None = None
 
 
 @dataclass
@@ -51,6 +52,7 @@ class DiagnosticProbe:
     fisics_args: Sequence[str] | None = None
     fisics_env: Mapping[str, str] | None = None
     promoted_test_id: str | None = None
+    promotion_disposition: str | None = None
     allowed_exit_codes: Sequence[int] = (0, 1)
 
 
@@ -81,5 +83,6 @@ class DiagnosticJsonProbe:
     fisics_args: Sequence[str] | None = None
     fisics_env: Mapping[str, str] | None = None
     promoted_test_id: str | None = None
+    promotion_disposition: str | None = None
     expected_diagnostics: Sequence[DiagnosticExpectation] | None = None
     allowed_exit_codes: Sequence[int] = (0, 1)

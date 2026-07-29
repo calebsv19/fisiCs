@@ -1,9 +1,9 @@
 {
   "summary": {
-    "total_probes": 3596,
+    "total_probes": 3597,
     "total_final_tests": 4984,
     "promoted": 3577,
-    "probe_only": 19,
+    "probe_only": 20,
     "missing_promotion_candidate": 0,
     "promoted_match_kinds": {
       "explicit-id": 495,
@@ -12,6 +12,7 @@
       "stem": 2
     },
     "probe_only_reasons": {
+      "explicit probe-only disposition": 1,
       "explicit probe-only family marker: corpus": 6,
       "explicit probe-only family marker: pathological": 3,
       "explicit probe-only family marker: policy": 4,
@@ -106,7 +107,7 @@
       {
         "bucket": "15",
         "promoted": 628,
-        "probe_only": 18,
+        "probe_only": 19,
         "missing_promotion_candidate": 0
       }
     ],
@@ -126,7 +127,7 @@
       {
         "family": "runtime",
         "promoted": 1878,
-        "probe_only": 5,
+        "probe_only": 6,
         "missing_promotion_candidate": 0
       }
     ]
@@ -29361,6 +29362,14 @@
         "classification": "inventory-only"
       },
       {
+        "path": "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "classification": "inventory-only"
+      },
+      {
         "path": "probes/runtime/15__probe_os_post_edu19_workload_v1_matrix.c",
         "classification": "inventory-only"
       },
@@ -29789,6 +29798,33 @@
       "promoted_test_id": null,
       "classification": "probe-only",
       "reason": "explicit probe-only family marker: policy",
+      "match_kind": null,
+      "matched_final_tests": []
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_temporal_fault_sequence_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Frontier lane: hardware-blind temporal composition over the frozen EDU-26/35/37/39/40/41 contracts and durable-owner chain: pre-ACK interruption blocks generation reuse, post-checkpoint restart distinguishes an overwrite destination from restored record identity, mid-phase owner loss preserves the peer, and post-completion retirement blocks stale redispatch. This is compiler-probe evidence, not an EDU-44 OS implementation claim",
+      "promoted_test_id": null,
+      "promotion_disposition": "probe-only",
+      "classification": "probe-only",
+      "reason": "explicit probe-only disposition",
       "match_kind": null,
       "matched_final_tests": []
     },

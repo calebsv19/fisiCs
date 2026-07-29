@@ -2,9 +2,9 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `3596`
+- Total resolved probe inventory audited: `3597`
 - Promoted stable coverage: `3577`
-- Intentional probe-only coverage: `19`
+- Intentional probe-only coverage: `20`
 - Missing promotion candidates: `0`
 - Stable final tests scanned: `4984`
 - Critical integrity errors: `0`
@@ -25,7 +25,7 @@
 - Multi-owner best-rank matches requiring explicit-owner migration: `567`
 - Duplicate stable semantic shapes: `12`
 - Probe assets `stable-only`: `13`
-- Probe assets `inventory-only`: `619`
+- Probe assets `inventory-only`: `621`
 - Probe assets `unowned`: `21`
 
 ### Promoted Match Evidence
@@ -37,6 +37,7 @@
 
 ### Explicit Probe-Only Reasons
 
+- `1`: explicit probe-only disposition
 - `6`: explicit probe-only family marker: corpus
 - `3`: explicit probe-only family marker: pathological
 - `4`: explicit probe-only family marker: policy
@@ -59,7 +60,7 @@
 - Bucket `12`: promoted `247`, probe-only `0`, missing `0`
 - Bucket `13`: promoted `184`, probe-only `0`, missing `0`
 - Bucket `14`: promoted `587`, probe-only `1`, missing `0`
-- Bucket `15`: promoted `628`, probe-only `18`, missing `0`
+- Bucket `15`: promoted `628`, probe-only `19`, missing `0`
 
 ## Missing Promotion Candidates
 
@@ -101,6 +102,10 @@
 - `15__probe_os_post_edu19_edu34_deadline_entry_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_matrix.c` - OS post-EDU-19 policy intake from immutable EDU-34: exact durable queue-entry validation for state-dependent deadline placement, timeout/budget/cancellation terminal evidence, preserved phase prefixes, bounds, unaligned input, and recomputed-checksum contradictions
 - `15__probe_os_post_edu19_edu36_resume_entry_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_matrix.c` - OS post-EDU-19 policy intake from immutable EDU-36: exact Entry-v8 and Trace-v3 checkpoint-resume validation for resumed running/complete/interrupted/timeout/cancel states, restored phase-three evidence, ordinary-path separation, unaligned input, fail-closed contradictions, and the frozen validator's current compact-trace flag admission
 - `15__probe_os_post_edu19_result_v1_policy_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_result_v1_matrix.c` - OS post-EDU-19 policy intake from immutable EDU-33: exact Result-v1 sector structure, identity bounds, nested and whole checksums, zero padding, unaligned input, opaque result bits, and fail-closed identity contradictions
+
+### explicit probe-only disposition
+
+- `15__probe_os_post_edu19_temporal_fault_sequence_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c` - Frontier lane: hardware-blind temporal composition over the frozen EDU-26/35/37/39/40/41 contracts and durable-owner chain: pre-ACK interruption blocks generation reuse, post-checkpoint restart distinguishes an overwrite destination from restored record identity, mid-phase owner loss preserves the peer, and post-completion retirement blocks stale redispatch. This is compiler-probe evidence, not an EDU-44 OS implementation claim
 
 ## Promoted Coverage Sample
 
