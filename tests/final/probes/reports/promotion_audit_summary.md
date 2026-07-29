@@ -2,16 +2,16 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `3493`
-- Promoted stable coverage: `3478`
-- Intentional probe-only coverage: `15`
+- Total resolved probe inventory audited: `3596`
+- Promoted stable coverage: `3577`
+- Intentional probe-only coverage: `19`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `4893`
+- Stable final tests scanned: `4984`
 - Critical integrity errors: `0`
 - Ambiguous stem matches: `0`
-- Multi-owner best-rank matches: `558`
+- Multi-owner best-rank matches: `567`
 - Duplicate stable semantic shapes: `12`
-- Probe assets outside both lanes: `8`
+- Probe assets outside both lanes: `21`
 
 ## Integrity
 
@@ -22,23 +22,24 @@
 - Missing explicit promotion owners: `0`
 - Promoted non-ok matches: `0`
 - Ambiguous stem ownership requiring review: `0`
-- Multi-owner best-rank matches requiring explicit-owner migration: `558`
+- Multi-owner best-rank matches requiring explicit-owner migration: `567`
 - Duplicate stable semantic shapes: `12`
-- Probe assets `stable-only`: `11`
-- Probe assets `inventory-only`: `608`
-- Probe assets `unowned`: `8`
+- Probe assets `stable-only`: `13`
+- Probe assets `inventory-only`: `619`
+- Probe assets `unowned`: `21`
 
 ### Promoted Match Evidence
 
-- `explicit-id`: `407`
+- `explicit-id`: `495`
 - `id`: `1507`
-- `path`: `1562`
+- `path`: `1573`
 - `stem`: `2`
 
 ### Explicit Probe-Only Reasons
 
 - `6`: explicit probe-only family marker: corpus
 - `3`: explicit probe-only family marker: pathological
+- `4`: explicit probe-only family marker: policy
 - `5`: explicit probe-only family marker: seeded
 - `1`: explicit probe-only note prefix: axis3 wave19 reduced
 
@@ -58,7 +59,7 @@
 - Bucket `12`: promoted `247`, probe-only `0`, missing `0`
 - Bucket `13`: promoted `184`, probe-only `0`, missing `0`
 - Bucket `14`: promoted `587`, probe-only `1`, missing `0`
-- Bucket `15`: promoted `529`, probe-only `14`, missing `0`
+- Bucket `15`: promoted `628`, probe-only `18`, missing `0`
 
 ## Missing Promotion Candidates
 
@@ -93,6 +94,13 @@
 - `15__probe_diag_pathological_initializer_rewrite_surface_reject` (`diagnostic`) from `probes/diagnostics/15__probe_diag_pathological_initializer_rewrite_surface_reject.c` - pathological initializer rewrite surface lane should fail closed with deterministic diagnostics
 - `15__probe_diag_pathological_initializer_shape_reject` (`diagnostic`) from `probes/diagnostics/15__probe_diag_pathological_initializer_shape_reject.c` - pathological designated-initializer shape should fail closed with deterministic diagnostics
 - `15__probe_diag_pathological_switch_case_surface_reject` (`diagnostic`) from `probes/diagnostics/15__probe_diag_pathological_switch_case_surface_reject.c` - pathological switch case surface lane should reject non-constant case labels
+
+### explicit probe-only family marker: policy
+
+- `15__probe_os_post_edu19_edu23_parallelism_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_edu23_parallelism_matrix.c` - Immutable EDU-23 generated-C policy mirror: bounded worker admission, grants, deterministic partition values, path evidence, terminal state, and fail-closed identity conflicts
+- `15__probe_os_post_edu19_edu34_deadline_entry_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_matrix.c` - OS post-EDU-19 policy intake from immutable EDU-34: exact durable queue-entry validation for state-dependent deadline placement, timeout/budget/cancellation terminal evidence, preserved phase prefixes, bounds, unaligned input, and recomputed-checksum contradictions
+- `15__probe_os_post_edu19_edu36_resume_entry_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_matrix.c` - OS post-EDU-19 policy intake from immutable EDU-36: exact Entry-v8 and Trace-v3 checkpoint-resume validation for resumed running/complete/interrupted/timeout/cancel states, restored phase-three evidence, ordinary-path separation, unaligned input, fail-closed contradictions, and the frozen validator's current compact-trace flag admission
+- `15__probe_os_post_edu19_result_v1_policy_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_result_v1_matrix.c` - OS post-EDU-19 policy intake from immutable EDU-33: exact Result-v1 sector structure, identity bounds, nested and whole checksums, zero padding, unaligned input, opaque result bits, and fail-closed identity contradictions
 
 ## Promoted Coverage Sample
 

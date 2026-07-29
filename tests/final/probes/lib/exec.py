@@ -1,10 +1,16 @@
 import subprocess
 
 
+def _timeout_text(value):
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
+
+
 def _merge_timeout_output(exc):
-    stdout = exc.stdout or ""
-    stderr = exc.stderr or ""
-    return stdout + stderr
+    return _timeout_text(exc.stdout) + _timeout_text(exc.stderr)
 
 
 def run_cmd(cmd, timeout_sec, env=None):
@@ -38,7 +44,7 @@ def run_binary(path, timeout_sec, env=None):
             env=env,
         )
     except subprocess.TimeoutExpired as exc:
-        out = exc.stdout or ""
-        err = exc.stderr or ""
+        out = _timeout_text(exc.stdout)
+        err = _timeout_text(exc.stderr)
         return 124, out, err, True
     return proc.returncode, proc.stdout, proc.stderr, False

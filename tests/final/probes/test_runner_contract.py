@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from lib.exec import _merge_timeout_output
 from lib.models import DiagnosticExpectation, DiagnosticJsonProbe, DiagnosticProbe, ObjectProbe, RuntimeProbe
 from lib.runner import (
     compile_output_substrings,
@@ -26,6 +27,16 @@ from lib.taxonomy import classify_blocked_probe
 
 
 class ProbeRunnerContractTests(unittest.TestCase):
+    def test_timeout_output_normalizes_mixed_bytes_and_text(self):
+        timeout = SimpleNamespace(
+            stdout=b"partial stdout \xff\n",
+            stderr="partial stderr\n",
+        )
+        self.assertEqual(
+            _merge_timeout_output(timeout),
+            "partial stdout \ufffd\npartial stderr\n",
+        )
+
     def test_diagnostic_identity_rejects_wrong_file_message_or_trace_order(self):
         expectation = DiagnosticExpectation(
             code=3000,

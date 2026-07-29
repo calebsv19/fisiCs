@@ -1,19 +1,20 @@
 {
   "summary": {
-    "total_probes": 3493,
-    "total_final_tests": 4893,
-    "promoted": 3478,
-    "probe_only": 15,
+    "total_probes": 3596,
+    "total_final_tests": 4984,
+    "promoted": 3577,
+    "probe_only": 19,
     "missing_promotion_candidate": 0,
     "promoted_match_kinds": {
-      "explicit-id": 407,
+      "explicit-id": 495,
       "id": 1507,
-      "path": 1562,
+      "path": 1573,
       "stem": 2
     },
     "probe_only_reasons": {
       "explicit probe-only family marker: corpus": 6,
       "explicit probe-only family marker: pathological": 3,
+      "explicit probe-only family marker: policy": 4,
       "explicit probe-only family marker: seeded": 5,
       "explicit probe-only note prefix: axis3 wave19 reduced": 1
     },
@@ -104,8 +105,8 @@
       },
       {
         "bucket": "15",
-        "promoted": 529,
-        "probe_only": 14,
+        "promoted": 628,
+        "probe_only": 18,
         "missing_promotion_candidate": 0
       }
     ],
@@ -124,8 +125,8 @@
       },
       {
         "family": "runtime",
-        "promoted": 1779,
-        "probe_only": 1,
+        "promoted": 1878,
+        "probe_only": 5,
         "missing_promotion_candidate": 0
       }
     ]
@@ -25368,6 +25369,402 @@
         ]
       },
       {
+        "probe_id": "15__probe_os_post_edu19_edu35_checkpoint_snapshot_matrix",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_os_post_edu19_workload_v1_policy_matrix",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__os_post_edu19_edu39_phase_owner_matrix",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_entry_membership",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_header_truncation",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_mutation_base",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_overflow_geometry",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_segment_overlap",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_state_reset",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "probe_id": "15__probe_osp3_raw_elf_valid_topology",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+              "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
         "probe_id": "15__probe_units_runtime_branch_conversion_mesh",
         "match_kind": "path",
         "matches": [
@@ -27428,6 +27825,14 @@
         "classification": "unowned"
       },
       {
+        "path": "probes/runtime/08__probe_runtime_file_scope_const_struct_array_mixed_scalars.c",
+        "classification": "stable-only"
+      },
+      {
+        "path": "probes/runtime/08__probe_runtime_unsized_singleton_pointer_array_aggregate.c",
+        "classification": "stable-only"
+      },
+      {
         "path": "probes/runtime/08__probe_runtime_wave76_union_row_designator_overrides_current.c",
         "classification": "inventory-only"
       },
@@ -28916,6 +29321,102 @@
         "classification": "inventory-only"
       },
       {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu23_parallelism_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu23_parallelism_policy.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_policy.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_policy.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_result_v1_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_result_v1_policy.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_os_post_edu19_workload_v1_matrix.c",
+        "classification": "inventory-only"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_admission_many_args.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_callback_external.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_large_copy_strict.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_large_zero_strict.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_manual_zero_current.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_nested_struct_return.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_one_word_zero_minimized.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_pair_return_reduced.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_pointer_window.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_scalar_double.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_small_copy_reduced.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_small_zero_strict.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_osp3_object_switch_transition.c",
+        "classification": "unowned"
+      },
+      {
         "path": "probes/runtime/15__probe_path_decl_nested_runtime.c",
         "classification": "inventory-only"
       },
@@ -29216,6 +29717,78 @@
       "promoted_test_id": null,
       "classification": "probe-only",
       "reason": "explicit probe-only family marker: pathological",
+      "match_kind": null,
+      "matched_final_tests": []
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu23_parallelism_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu23_parallelism_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu23_parallelism_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu23_parallelism_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Immutable EDU-23 generated-C policy mirror: bounded worker admission, grants, deterministic partition values, path evidence, terminal state, and fail-closed identity conflicts",
+      "promoted_test_id": null,
+      "classification": "probe-only",
+      "reason": "explicit probe-only family marker: policy",
+      "match_kind": null,
+      "matched_final_tests": []
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu34_deadline_entry_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu34_deadline_entry_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS post-EDU-19 policy intake from immutable EDU-34: exact durable queue-entry validation for state-dependent deadline placement, timeout/budget/cancellation terminal evidence, preserved phase prefixes, bounds, unaligned input, and recomputed-checksum contradictions",
+      "promoted_test_id": null,
+      "classification": "probe-only",
+      "reason": "explicit probe-only family marker: policy",
+      "match_kind": null,
+      "matched_final_tests": []
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu36_resume_entry_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu36_resume_entry_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS post-EDU-19 policy intake from immutable EDU-36: exact Entry-v8 and Trace-v3 checkpoint-resume validation for resumed running/complete/interrupted/timeout/cancel states, restored phase-three evidence, ordinary-path separation, unaligned input, fail-closed contradictions, and the frozen validator's current compact-trace flag admission",
+      "promoted_test_id": null,
+      "classification": "probe-only",
+      "reason": "explicit probe-only family marker: policy",
+      "match_kind": null,
+      "matched_final_tests": []
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_result_v1_policy_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_result_v1_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_result_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_result_v1_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS post-EDU-19 policy intake from immutable EDU-33: exact Result-v1 sector structure, identity bounds, nested and whole checksums, zero padding, unaligned input, opaque result bits, and fail-closed identity contradictions",
+      "promoted_test_id": null,
+      "classification": "probe-only",
+      "reason": "explicit probe-only family marker: policy",
       "match_kind": null,
       "matched_final_tests": []
     },
@@ -157214,6 +157787,3591 @@
             "token",
             "wraparound",
             "churn"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_durable_owner_chain_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Hardware-blind composition of immutable EDU-26/35/37/39/40/41 contracts: generation reuse after exact acknowledged retirement with peer preservation, exact checkpoint-lane and running-owner correlation, phase-owner/mailbox/runner correlation, and a full metadata-to-dispatch durable owner chain. The EDU-26 generation action alone binds request identity only for a prepared ACK; the full chain supplies request binding through checkpoint, phase, runner, and mailbox correlation. Authoritative execution and persistence remain OS-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu21_control_v1_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Exact immutable EDU-21 control_kernel.c: original Wire-v1 operations one through six, operation-three payload geometry, reserved fields, checksum/error precedence, unsupported operation rejection, maximum request identity, and unaligned frames",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu21_control_v1_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu21_control_v1_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu22_queue_v2_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Exact immutable EDU-22 queue_kernel.c: Queue metadata v3, Entry-v2 and Trace-v1 structure, event ordering, state-specific terminal and resource evidence, unused/padding zeroing, unaligned sectors, action/resource precedence, and the exact caller-owned requirement to validate before action selection",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu22_queue_v2_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu22_queue_v2_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu24_31_wire_history_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Exact immutable generated-C Wire-v2 through Wire-v7 history for EDU-24..31: version boundaries, operation payloads, reserved bytes, checksum/error precedence, and fail-closed cross-version or malformed frames",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu24_31_wire_history_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu24_31_wire_history_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu24_artifact_exchange_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-24 result-artifact contract: complete-entry and exact-identity admission, bounded cursor, 512-byte chunk geometry, final markers, and fail-closed misrepresented request and response shapes",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu24_artifact_exchange_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu24_artifact_exchange_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu25_loader_geometry_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-25 bounded-loader contract: disk geometry, kernel capacity, EDD availability, bounded 64-sector transfer decomposition, destination/LBA progress, and fail-closed malformed plans",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu25_loader_geometry_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu25_loader_geometry_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu26_generation_reuse_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Immutable EDU-26 generated-C generation-safe reuse policy: metadata, generation actions, tombstones, reservability, ACK identity, wrap rejection, and stale or contradictory inputs",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu27_phase_execution_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Immutable EDU-27 phase-aware execution mirror: legal event advance, exact phase values, prefix and trace evidence, monotonic ordering, and fail-closed impossible histories",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu27_phase_execution_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu27_phase_execution_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu28_artifact_meta_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Exact immutable EDU-28 artifact-metadata validator slice: identity, byte and chunk bounds, presence bitmap/count coherence, checksums, unaligned data, and recomputed contradictions",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu28_artifact_meta_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu28_artifact_meta_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu29_30_async_stop_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Immutable EDU-29/30 asynchronous activation and cooperative stop contract mirror: FIFO eligibility, runner identity, work shape, bounded progress, cancellation/deadline/budget precedence, terminal evidence, and fail-closed conflicts",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu29_30_async_stop_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu29_30_async_stop_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu31_time_arithmetic_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-31 monotonic-time contract: calibration windows/pair agreement, checked divide-first nanosecond conversion, one-wrap unsigned deltas, monotonic reads, snapshot flags, and overflow rejection",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu31_time_arithmetic_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu31_time_arithmetic_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu35_checkpoint_snapshot_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS post-EDU-19 policy intake from immutable EDU-35: exact non-resumable checkpoint validation for owner/policy identity, phase-three capture, duration/work bounds, repeated partition evidence, three nested integrity layers, zero padding, unaligned input, recomputed-checksum contradictions, and the surrounding path's ownership of nested Workload-v1 semantics",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu37_two_owner_store_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS post-EDU-19 contract mirror from immutable EDU-37: two-lane zero/valid/unique admission, nested Workload-v1 semantics, exact-owner then empty then reclaimable selection, RUNNING and interrupted-prefix-three protection, full-capacity failure, identity reuse, and unaligned storage; authoritative implementation remains assembly-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu38_control_v13_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Exact immutable EDU-38 control_kernel.c: Wire-v13 admission, Wire-v12 fail-closed rejection, all twenty operation payload contracts, checksum/error precedence, bounded identifiers, workload/deadline/chunk fields, zero padding, and unaligned request frames",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu38_control_v13_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu38_control_v13_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu38_runner_context_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-38 runner-context contract: two 160-byte identities, slot-modulo-two selection, inactive and sole-active scans, duplicate-active corruption, active identity/resource shape, terminal evidence, checkpoint lanes, bounds, isolation, and unaligned records; active limit remains one and authoritative execution remains OS-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu38_runner_context_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu38_runner_context_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu39_phase_owner_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-39 phase-owner contract: two independent 224-byte saved owners, exact Workload-v1 and queue identity correlation, legal load shapes, width-one/width-two/resumed publication counters, unaligned records, and both in-flight and completed-but-unjoined switch rejection; active limit and AP mailbox remain singleton and OS-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu39_phase_owner_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu39_phase_owner_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu40_mailbox_owner_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-40 singleton AP-mailbox contract: idle/begin and generation exhaustion, exact phase/legacy dispatch owners, next-generation AP acceptance, distinct completion tuple publication, successful and correlated-error result envelopes, retained retirement evidence, width-one silence, and unaligned records; active limit remains one and authoritative execution remains OS-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu40_mailbox_owner_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu40_mailbox_owner_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_edu41_two_active_runner_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Assembly-derived immutable EDU-41 two-active-runner contract: bounded active counting, exact RUNNING correlation, eligible FIFO activation, third-owner rejection, alternating one-boundary turns, singleton-mailbox owner pinning, exact phase-owner release, cancel/deadline/budget precedence, peer-preserving retirement, and unaligned records; authoritative execution remains OS-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_edu41_two_active_runner_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu41_two_active_runner_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_two_owner_fault_composition_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_model.c",
+        "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Hardware-blind composition of immutable EDU-40/41 contracts: two exact active identities, singleton-mailbox owner pinning, wrong-owner dispatch/completion rejection, independent cancel/deadline/budget/corruption outcomes, exact owner-local phase release, peer-preserving retirement, and unaligned records; authoritative execution remains OS-owned",
+      "promoted_test_id": "15__runtime_promotion__os_post_edu19_two_owner_fault_composition_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_two_owner_fault_composition_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_model.c",
+            "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_workload_v1_policy_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_workload_v1_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS post-EDU-19 policy intake from immutable EDU-32: exact Workload-v1 parsing, finite-f64 admission, step bounds, independently pinned results, unaligned input, and fail-closed identity contradictions",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__os_post_edu19_edu39_phase_owner_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_admission_precedence_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 admission: fixed seed 31a0d17b, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_admission_precedence_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_admission_precedence_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_aggregate_checkpoint_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 aggregate: fixed seed f1357bd9, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_aggregate_checkpoint_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_aggregate_checkpoint_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_callback_dispatch_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 callback: fixed seed 126ef4a9, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_callback_dispatch_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_callback_dispatch_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_admission_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix admission: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_admission_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_admission_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_admission_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix admission: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_admission_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_admission_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_admission_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix admission: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_admission_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_admission_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_admission_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix admission: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_admission_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_admission_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_aggregate_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix aggregate: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_aggregate_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_aggregate_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_aggregate_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix aggregate: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_aggregate_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_aggregate_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_aggregate_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix aggregate: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_aggregate_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_aggregate_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_aggregate_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix aggregate: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_aggregate_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_aggregate_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_callback_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix callback: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_callback_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_callback_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_callback_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix callback: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_callback_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_callback_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_callback_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix callback: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_callback_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_callback_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_callback_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix callback: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_callback_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_callback_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_extent_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix extent: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_extent_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_extent_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_extent_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix extent: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_extent_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_extent_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_extent_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix extent: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_extent_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_extent_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_extent_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix extent: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_extent_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_extent_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_queue_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix queue: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_queue_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_queue_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_queue_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix queue: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_queue_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_queue_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_queue_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix queue: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_queue_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_queue_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_queue_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix queue: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_queue_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_queue_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scalar_double_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scalar-double: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scalar_double_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scalar_double_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scalar_double_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scalar-double: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scalar_double_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scalar_double_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scalar_double_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scalar-double: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scalar_double_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scalar_double_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scalar_double_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scalar-double: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scalar_double_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scalar_double_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scheduler_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scheduler: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scheduler_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scheduler_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scheduler_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scheduler: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scheduler_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scheduler_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scheduler_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scheduler: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scheduler_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scheduler_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_scheduler_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix scheduler: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_scheduler_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_scheduler_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_sync_rank_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix sync-rank: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_sync_rank_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_sync_rank_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_sync_rank_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix sync-rank: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_sync_rank_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_sync_rank_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_sync_rank_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix sync-rank: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_sync_rank_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_sync_rank_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_sync_rank_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix sync-rank: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_sync_rank_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_sync_rank_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_token_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix token: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_token_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_token_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_token_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix token: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_token_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_token_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_token_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix token: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_token_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_token_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_token_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix token: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_token_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_token_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_variadic_sret_one",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix variadic-sret: seed 00000001, 1-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_variadic_sret_one",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_variadic_sret_one",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_variadic_sret_prime",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix variadic-sret: seed a5a5a5a5, 257-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_variadic_sret_prime",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_variadic_sret_prime",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_variadic_sret_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix variadic-sret: seed ffffffff, 4096-case budget, with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_variadic_sret_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_variadic_sret_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_expand_variadic_sret_zero",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 expanded matrix variadic-sret: seed 6d2b79f5, 0-case budget",
+      "promoted_test_id": "15__runtime_promotion__osp3_expand_variadic_sret_zero",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_expand_variadic_sret_zero",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_extent_overflow_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 extent: fixed seed e87a3c55, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_extent_overflow_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_extent_overflow_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_generation_token_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 token: fixed seed b5297a4d, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_generation_token_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_generation_token_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_long_double_abi_model",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_long_double_abi_model.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 long-double portability model: accept only the common binary64, x87-extended, or IEEE-binary128 ABI descriptions",
+      "promoted_test_id": "15__runtime_promotion__osp3_long_double_abi_model",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_long_double_abi_model",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_long_double_abi_model.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_long_double_abi_model.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_long_double_variadic_sret_oracle_variants",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+        "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 target-aware oracle reduction: the strict multi-TU variadic long-double struct-return lane must match all available compilers and one of the two observed target transcripts",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge",
+          "manifest": "15-torture-differential-wave63-bulk-runtime-probe-promotions.json",
+          "input": "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+            "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_lib.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "axis3",
+            "wave2",
+            "runtime",
+            "clang",
+            "gcc",
+            "tri",
+            "diff",
+            "multitu"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_queue_transition_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 queue: fixed seed 715ee93d, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_queue_transition_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_queue_transition_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_entry_membership",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 3: entry membership must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_header_truncation",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 1: header truncation must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_mutation_alt",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF alternate mutation stream: 1,024 bounded raw-byte/header/program-header mutations",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_mutation_base",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 6: mutation base must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_mutation_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF stress stream: 4,096 bounded mutations with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_overflow_geometry",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 5: overflow geometry must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_segment_overlap",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 2: segment overlap must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_state_reset",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 4: state reset must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_elf_valid_topology",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-image ELF mode 0: valid topology must match the pinned fail-closed loader-policy transcript",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+            "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_authority_replay",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 3: authority replay must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_authority_replay",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_authority_replay",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_late_reject_reset",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 5: late reject reset must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_late_reject_reset",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_late_reject_reset",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_mutation_alt",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job alternate mutation stream: 1,024 bounded header/table/payload mutations",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_mutation_alt",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_mutation_base",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 6: mutation base must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_mutation_base",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_mutation_base",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_mutation_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job stress stream: 4,096 bounded mutations with the Clang reference instrumented by ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_mutation_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_rejection_precedence",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 2: rejection precedence must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_rejection_precedence",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_rejection_precedence",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_step_ranges_overlap",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 4: step ranges overlap must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_step_ranges_overlap",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_step_ranges_overlap",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_truncation_geometry",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 1: truncation geometry must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_truncation_geometry",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_truncation_geometry",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_job_valid_packages",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-job mode 0: valid packages must match the pinned fail-closed package-admission transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_job_valid_packages",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_job_valid_packages",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_job_policy.c",
+            "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_extent_overlap",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 4: extent overlap must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_extent_overlap",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_extent_overlap",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_late_reject_reset",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 5: late reject reset must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_late_reject_reset",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_late_reject_reset",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_mutation_alt",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage alternate 1,024-case mutation stream",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_mutation_alt",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_mutation_alt",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_mutation_base",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 6: mutation base must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_mutation_base",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_mutation_base",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_mutation_stress_sanitized",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage 4,096-case mutation stream with Clang ASan+UBSan",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_mutation_stress_sanitized",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_mutation_stress_sanitized",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_rejection_precedence",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 2: rejection precedence must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_rejection_precedence",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_rejection_precedence",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_sequence_replay",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 3: sequence replay must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_sequence_replay",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_sequence_replay",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_truncation_geometry",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 1: truncation geometry must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_truncation_geometry",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_truncation_geometry",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_raw_storage_valid_images",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 raw-storage mode 0: valid images must match the pinned fail-closed transcript",
+      "promoted_test_id": "15__runtime_promotion__osp3_raw_storage_valid_images",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_raw_storage_valid_images",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+            "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_scalar_double_dyadic_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 scalar-double: fixed seed c3d2e1f0, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_scalar_double_dyadic_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_scalar_double_dyadic_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_scheduler_selection_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 scheduler: fixed seed 5ce4d219, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_scheduler_selection_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_scheduler_selection_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_sync_rank_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 sync-rank: fixed seed 4a4f92c1, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_sync_rank_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_sync_rank_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_osp3_variadic_struct_return_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "OS-P3 Slice 0 variadic-sret: fixed seed 8f7e6d5c, 256-case budget, pinned runtime oracle, and fisiCs/Clang differential replay",
+      "promoted_test_id": "15__runtime_promotion__osp3_variadic_struct_return_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_promotion__osp3_variadic_struct_return_matrix",
+          "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+          "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+          "inputs": [
+            "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "probe-promotion",
+            "wave139"
           ],
           "status": "ok"
         }

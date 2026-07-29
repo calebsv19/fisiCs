@@ -391,63 +391,61 @@ void validateArrayInitializerEntries(ParsedType* type,
         LiteralEncoding enc = ast_literal_encoding(values[0]->expression->valueNode.value, &payload);
         bool narrowCompat = (enc == LIT_ENC_NARROW || enc == LIT_ENC_UTF8) && typeInfoIsCharLike(&elementInfo);
         bool wideCompat = enc == LIT_ENC_WIDE && typeInfoIsWideCharLike(&elementInfo);
-        if (!narrowCompat && !wideCompat) {
-            parsedTypeFree(&elementParsed);
-            return;
-        }
-        int charBitWidth = elementInfo.bitWidth ? (int)elementInfo.bitWidth : 8;
-        LiteralDecodeResult res = wideCompat
-            ? decode_c_string_literal_wide(payload ? payload : "", charBitWidth, NULL, NULL)
-            : decode_c_string_literal(payload ? payload : "", charBitWidth, NULL, NULL);
-        size_t needed = res.length + 1;
-        if (!res.ok) {
-            char buffer[256];
-            snprintf(buffer,
-                     sizeof(buffer),
-                     "Invalid escape sequence in string literal for array '%s'",
-                     arrayName);
-            reportErrorAtLineOnlyAstNode(contextNode,
-                                         stringExpr,
-                                         contextNode ? contextNode->line : 0,
-                                         buffer,
-                                         NULL);
-            parsedTypeFree(&elementParsed);
-            return;
-        } else if (res.overflow) {
-            char buffer[256];
-            snprintf(buffer,
-                     sizeof(buffer),
-                     "String literal for array '%s' contains code points not representable in element type",
-                     arrayName);
-            reportErrorAtLineOnlyAstNode(contextNode,
-                                         stringExpr,
-                                         contextNode ? contextNode->line : 0,
-                                         buffer,
-                                         NULL);
-            parsedTypeFree(&elementParsed);
-            return;
-        } else if (hasDeclaredLen && needed > declaredLen) {
-            char buffer[256];
-            snprintf(buffer,
-                     sizeof(buffer),
-                     "String literal for array '%s' is too long (needs %zu, size %zu)",
-                     arrayName,
-                     needed,
-                     declaredLen);
-            reportErrorAtLineOnlyAstNode(contextNode,
-                                         stringExpr,
-                                         contextNode ? contextNode->line : 0,
-                                         buffer,
-                                         NULL);
-            parsedTypeFree(&elementParsed);
-            return;
-        } else if (!hasDeclaredLen && outInferredLength) {
-            *outInferredLength = (long long)needed;
-            parsedTypeFree(&elementParsed);
-            return;
-        } else {
-            parsedTypeFree(&elementParsed);
-            return;
+        if (narrowCompat || wideCompat) {
+            int charBitWidth = elementInfo.bitWidth ? (int)elementInfo.bitWidth : 8;
+            LiteralDecodeResult res = wideCompat
+                ? decode_c_string_literal_wide(payload ? payload : "", charBitWidth, NULL, NULL)
+                : decode_c_string_literal(payload ? payload : "", charBitWidth, NULL, NULL);
+            size_t needed = res.length + 1;
+            if (!res.ok) {
+                char buffer[256];
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "Invalid escape sequence in string literal for array '%s'",
+                         arrayName);
+                reportErrorAtLineOnlyAstNode(contextNode,
+                                             stringExpr,
+                                             contextNode ? contextNode->line : 0,
+                                             buffer,
+                                             NULL);
+                parsedTypeFree(&elementParsed);
+                return;
+            } else if (res.overflow) {
+                char buffer[256];
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "String literal for array '%s' contains code points not representable in element type",
+                         arrayName);
+                reportErrorAtLineOnlyAstNode(contextNode,
+                                             stringExpr,
+                                             contextNode ? contextNode->line : 0,
+                                             buffer,
+                                             NULL);
+                parsedTypeFree(&elementParsed);
+                return;
+            } else if (hasDeclaredLen && needed > declaredLen) {
+                char buffer[256];
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "String literal for array '%s' is too long (needs %zu, size %zu)",
+                         arrayName,
+                         needed,
+                         declaredLen);
+                reportErrorAtLineOnlyAstNode(contextNode,
+                                             stringExpr,
+                                             contextNode ? contextNode->line : 0,
+                                             buffer,
+                                             NULL);
+                parsedTypeFree(&elementParsed);
+                return;
+            } else if (!hasDeclaredLen && outInferredLength) {
+                *outInferredLength = (long long)needed;
+                parsedTypeFree(&elementParsed);
+                return;
+            } else {
+                parsedTypeFree(&elementParsed);
+                return;
+            }
         }
     }
 

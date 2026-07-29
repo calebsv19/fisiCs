@@ -100,8 +100,11 @@ const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const ParsedTyp
     return type;
 }
 
-static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
-    if (!expr || !outValue) return false;
+static bool cg_eval_const_float_expr_depth(CodegenContext* ctx,
+                                           ASTNode* expr,
+                                           double* outValue,
+                                           unsigned depth) {
+    if (!ctx || !expr || !outValue || depth > 64) return false;
 
     switch (expr->type) {
         case AST_NUMBER_LITERAL:
@@ -113,12 +116,49 @@ static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
             *outValue = value;
             return true;
         }
+        case AST_IDENTIFIER: {
+            if (!expr->valueNode.value || !ctx->semanticModel) return false;
+            const Symbol* sym =
+                semanticModelLookupGlobal(ctx->semanticModel, expr->valueNode.value);
+            if (!sym) return false;
+            if (sym->hasConstValue) {
+                *outValue = (double)sym->constValue;
+                return true;
+            }
+            if (sym->kind != SYMBOL_VARIABLE ||
+                !sym->initializer ||
+                !sym->initializer->expression) {
+                return false;
+            }
+            const ParsedType* parsed = cg_resolve_typedef_parsed(ctx, &sym->type);
+            if (!parsed || !parsed->isConst) return false;
+            LLVMTypeRef llvmType = cg_type_from_parsed(ctx, parsed);
+            if (!llvmType) return false;
+            LLVMTypeKind kind = LLVMGetTypeKind(llvmType);
+            if (kind != LLVMFloatTypeKind &&
+                kind != LLVMDoubleTypeKind &&
+                kind != LLVMFP128TypeKind) {
+                return false;
+            }
+            return cg_eval_const_float_expr_depth(ctx,
+                                                  sym->initializer->expression,
+                                                  outValue,
+                                                  depth + 1);
+        }
         case AST_CAST_EXPRESSION:
-            return cg_eval_const_float_expr(expr->castExpr.expression, outValue);
+            return cg_eval_const_float_expr_depth(ctx,
+                                                  expr->castExpr.expression,
+                                                  outValue,
+                                                  depth + 1);
         case AST_UNARY_EXPRESSION: {
             if (!expr->expr.op || !expr->expr.left) return false;
             double inner = 0.0;
-            if (!cg_eval_const_float_expr(expr->expr.left, &inner)) return false;
+            if (!cg_eval_const_float_expr_depth(ctx,
+                                                expr->expr.left,
+                                                &inner,
+                                                depth + 1)) {
+                return false;
+            }
             if (strcmp(expr->expr.op, "+") == 0) {
                 *outValue = inner;
                 return true;
@@ -133,8 +173,14 @@ static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
             if (!expr->expr.op || !expr->expr.left || !expr->expr.right) return false;
             double lhs = 0.0;
             double rhs = 0.0;
-            if (!cg_eval_const_float_expr(expr->expr.left, &lhs) ||
-                !cg_eval_const_float_expr(expr->expr.right, &rhs)) {
+            if (!cg_eval_const_float_expr_depth(ctx,
+                                                expr->expr.left,
+                                                &lhs,
+                                                depth + 1) ||
+                !cg_eval_const_float_expr_depth(ctx,
+                                                expr->expr.right,
+                                                &rhs,
+                                                depth + 1)) {
                 return false;
             }
             if (strcmp(expr->expr.op, "+") == 0) {
@@ -187,15 +233,23 @@ static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
                 return false;
             }
             double cond = 0.0;
-            if (!cg_eval_const_float_expr(expr->ternaryExpr.condition, &cond)) return false;
+            if (!cg_eval_const_float_expr_depth(ctx,
+                                                expr->ternaryExpr.condition,
+                                                &cond,
+                                                depth + 1)) {
+                return false;
+            }
             ASTNode* chosen = (cond != 0.0) ? expr->ternaryExpr.trueExpr : expr->ternaryExpr.falseExpr;
-            return cg_eval_const_float_expr(chosen, outValue);
+            return cg_eval_const_float_expr_depth(ctx, chosen, outValue, depth + 1);
         }
         case AST_COMMA_EXPRESSION: {
             if (!expr->commaExpr.expressions || expr->commaExpr.exprCount == 0) return false;
             double last = 0.0;
             for (size_t i = 0; i < expr->commaExpr.exprCount; ++i) {
-                if (!cg_eval_const_float_expr(expr->commaExpr.expressions[i], &last)) {
+                if (!cg_eval_const_float_expr_depth(ctx,
+                                                    expr->commaExpr.expressions[i],
+                                                    &last,
+                                                    depth + 1)) {
                     return false;
                 }
             }
@@ -205,6 +259,12 @@ static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
         default:
             return false;
     }
+}
+
+static bool cg_eval_const_float_expr(CodegenContext* ctx,
+                                     ASTNode* expr,
+                                     double* outValue) {
+    return cg_eval_const_float_expr_depth(ctx, expr, outValue, 0);
 }
 
 static LLVMValueRef cg_make_const_string_global(CodegenContext* ctx,
@@ -715,7 +775,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
             CG_CONST_INIT_RETURN(LLVMConstReal(targetType, val));
         }
         double foldedFP = 0.0;
-        if (cg_eval_const_float_expr(expr, &foldedFP)) {
+        if (cg_eval_const_float_expr(ctx, expr, &foldedFP)) {
             CG_CONST_INIT_RETURN(LLVMConstReal(targetType, foldedFP));
         }
     }
@@ -915,7 +975,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
     if (!res.isConst) {
         if (targetKind == LLVMIntegerTypeKind) {
             double foldedFP = 0.0;
-            if (cg_eval_const_float_expr(expr, &foldedFP)) {
+            if (cg_eval_const_float_expr(ctx, expr, &foldedFP)) {
                 int isUnsigned = effectiveParsed && effectiveParsed->isUnsigned;
                 CG_CONST_INIT_RETURN(LLVMConstInt(targetType,
                                                   (unsigned long long)(long long)foldedFP,

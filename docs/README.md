@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-07-23.
+Last audited: 2026-07-28.
 
 ## Repository Entry
 
@@ -33,7 +33,8 @@ Last audited: 2026-07-23.
 - `compiler_test_coverage_blueprint.md`: coverage map and harness structure for compiler validation
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
 - `os_policy_validation.md`: freestanding OS-policy semantic, object-invariant,
-  future QEMU, and downstream-canary contract
+  repeated QEMU, closed OS-P3 stress, post-EDU-19 source-intake and stable
+  runtime promotion, and optional downstream-canary contract
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
 - `extension_overlays.md`: public reference for opt-in overlay lanes, including

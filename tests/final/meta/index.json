@@ -1247,10 +1247,13 @@
     "04-declarations-wave51-gnu-thread-local.json",
     "08-initializers-layout-wave92-promotion-closure-runtime.json",
     "08-initializers-layout-wave93-fnptr-null-initializers.json",
+    "08-initializers-layout-wave94-file-scope-const-aggregate-runtime.json",
+    "08-initializers-layout-wave95-unsized-singleton-pointer-array-aggregate.json",
     "11-functions-calls-wave93-promotion-closure-text-parity.json",
     "11-functions-calls-wave94-realproj-libpng-array-callback-compat.json",
     "11-functions-calls-wave95-realproj-datalab-null-function-pointer.json",
     "12-diagnostics-recovery-wave45-dual-failing-tu-completeness.json",
-    "12-diagnostics-recovery-wave46-rich-payload-aggregation.json"
+    "12-diagnostics-recovery-wave46-rich-payload-aggregation.json",
+    "15-torture-differential-wave139-os-policy-probe-promotion-closure.json"
   ]
 }

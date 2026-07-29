@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_unsized_singleton_pointer_array_aggregate",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_unsized_singleton_pointer_array_aggregate.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_unsized_singleton_pointer_array_aggregate.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": [
+        "initializer",
+        "runtime",
+        "file-scope",
+        "static",
+        "const",
+        "unsized-array",
+        "singleton",
+        "string-pointer",
+        "array-decay",
+        "struct",
+        "wave95"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

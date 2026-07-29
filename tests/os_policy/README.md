@@ -1,6 +1,6 @@
 # OS Policy Validation Lane
 
-Status: OS-P2 deterministic family matrix complete; OS-P3 stress planned
+Status: OS-P3 stress closed; deterministic post-EDU-19 runtime intake promoted
 
 The OS Policy lane (`OS-P`) is the compiler-owned trust boundary for
 freestanding C patterns used by operating-system policy code. It complements,
@@ -39,8 +39,219 @@ metadata remains a bounded, rejectable request rather than machine authority.
 | OS-P0 | complete | manifest, runner, host differential, repeated x86 object inspection, one core policy case |
 | OS-P1 | complete | minimal legacy-BIOS/long-mode QEMU harness with exact serial/exit/artifact parity |
 | OS-P2 | complete | ten deterministic families complete; strict and reduced scalar-double cases pass every current tier |
-| OS-P3 | planned | deterministic bounded mutation/property corpus and current `os-dev` canary |
+| OS-P3 | complete | 95 deterministic mutation, raw-format, ABI, aggregate, and freestanding object probes closed with no blockers |
 | OS-P4 | future | first versioned compiler-metadata accept/narrow/reject/ignore contract |
+
+The next compiler-testing frontier is not OS-P4. OS-P4 remains reserved for a
+real compiler-metadata schema. Current work is a post-EDU-19 source-intake
+continuation: copy bounded policy from immutable `os-dev` tags into
+self-contained probes, preserve exact source provenance, and separately
+design an optional live-source canary that never replaces the OS repository's
+accepted compiler.
+
+The historical crosswalk now covers EDU-20 through EDU-31. EDU-20 is
+assembly/platform discovery only and has no compiler-C probe. EDU-21 through
+EDU-31 use eleven runtime matrices, 574 deterministic vectors, and eleven
+freestanding object probes:
+
+- exact EDU-21 Wire-v1 validation and its original six-operation boundary;
+- exact EDU-22 Queue-metadata-v3, Entry-v2, Trace-v1, and
+  validate-before-action sequencing;
+- EDU-23 bounded parallelism admission, grants, values, and path evidence;
+- EDU-24 result-artifact identity, cursor, chunk, and final-marker policy;
+- exact Wire-v2 through Wire-v7 validation across EDU-24 through EDU-31;
+- EDU-25 bounded kernel-loader geometry and EDD transfer plans;
+- EDU-26 generation-safe reuse, tombstones, ACK identity, and wrap rejection;
+- EDU-27 phase/event prefixes and impossible-history rejection;
+- the exact EDU-28 artifact metadata validator;
+- EDU-29/30 asynchronous activation and cooperative stop precedence;
+- EDU-31 calibrated monotonic-time arithmetic and overflow rejection.
+
+The exact-source and assembly-derived boundaries are labeled independently.
+All eleven matrices pass strict C99 Clang diagnostics plus ASan/UBSan. With
+the two composition slices, the aggregate resolves all 48 runtime/object
+probes, and the stable torture-differential gate remains at
+`0 failing / 10 expected skips`.
+
+The first post-EDU-19 probe snapshots EDU-32 Workload-v1 validation. It covers
+exact 104-byte parsing, little-endian reconstruction, six finite-double
+admission points, step bounds, independently pinned partition/final results,
+unaligned byte input, scalar-double calls, and fail-closed identity or result
+contradictions. It also applies the freestanding object contract to the exact
+policy source.
+
+The second probe snapshots EDU-33 typed Result-v1 validation. Its 31-vector
+matrix covers the exact 80-byte logical record inside a zero-padded 512-byte
+sector, slots 0 through 7, nonzero identity fields, nested and whole-sector
+FNV-1a checksums, reserved bytes, unaligned input, and stale mutations without
+checksum republication. Partition and final result fields are intentionally
+tested as opaque bits: structural integrity admits zero and NaN-shaped values
+without assigning arithmetic meaning. Its paired object probe requires one
+exact export, no undefined helpers, bounded relocation, no red zone, and the
+hardware-blind instruction policy.
+
+The third probe snapshots the complete EDU-34 `queue_kernel.c`. Its 30-vector
+matrix covers pending/running deadline placement, terminal duration audit,
+timeout/budget/cancellation evidence, preserved phase prefixes, exact duration
+bounds, unaligned input, and recomputed-checksum contradictions. The frozen
+validator compares only the low 32 bits of the 64-bit terminal-reason slot;
+the matrix preserves that admission as an explicit upstream policy observation
+rather than describing it as fail-closed. Assembly safe-point ordering and
+QEMU timing remain `os-dev`-owned proof.
+
+The fourth probe snapshots EDU-35 non-resumable checkpoint validation. Its
+47-vector matrix covers exact owner and policy identity, phase-prefix three,
+work/worker/duration bounds, repeated partition evidence, four nested checksum
+boundaries, zero padding, unaligned input, and republished-checksum
+contradictions. The baseline embeds a valid Workload-v1 object; one explicit
+case preserves the validator boundary where embedded bytes are structurally
+bound while the surrounding OS path owns their full semantic admission and
+authoritative correlation. Publication ordering, crash ownership, lookup, and
+the non-resume rule remain `os-dev`-owned proof.
+
+The fifth probe snapshots EDU-36 durable checkpoint-resume entry validation.
+Its 38-vector matrix covers resumed running, complete, interrupted, timeout,
+and cancellation forms; exact `RESUMED` flag and `RESUME_RESTORED` event
+agreement; restored phase-three and direct-reduce sequencing; consumed-work
+accounting; ordinary-path separation; unaligned input; and fail-closed
+identity, event, state, and checksum contradictions. The paired object probe
+requires the exact validator export with no helpers, `PC32`-only relocation,
+no red zone, and hardware-blind instructions.
+
+The matrix preserves one upstream implementation observation: the frozen
+Entry-v8 validator accepts a resumed Trace-v3 entry with trace flags `0`, even
+though the EDU-36 resume contract assigns all four compact-epoch observation
+flags. Snapshot selection and correlation, resource/deadline execution,
+idempotence, ACK/reuse authority, persistence ordering, reboot execution, and
+QEMU proof remain `os-dev`-owned boundaries.
+
+The sixth probe is an EDU-37 two-owner checkpoint-store contract mirror.
+EDU-37 changes assembly and storage ownership but adds no generated C:
+`queue_kernel.c` remains byte-identical to EDU-36. The 36-vector compiler
+matrix therefore labels its bounded C selection policy as derived rather than
+claiming exact-source intake. It links the exact inherited Workload-v1 and
+Snapshot-v1 validators and covers zero/valid/unique lane admission,
+duplicate-owner and nested-workload rejection, exact-owner/empty/reclaimable
+selection order, running and resumable-interrupted owner protection,
+full-capacity failure, stale identity reclamation, and unaligned storage.
+
+The paired object probe permits only the two inherited validator imports and
+bounded `PC32`/`PLT32` relocation. ATA ordering, boot validation, assembly
+selection, persistence, lookup, reboot, and QEMU behavior remain
+`os-dev`-owned proof.
+
+The seventh wave anchors immutable EDU-38. It embeds the complete
+`control_kernel.c` source byte-for-byte and runs 56 vectors across Wire-v13,
+the prior and next wire versions, all twenty operation payload contracts,
+checksum/format precedence, bounds, padding, and unaligned request frames.
+Its object contract requires the three exact control exports, no imports,
+`PC32`-only relocation, no red zone, and hardware-blind instructions.
+
+Runner contexts remain assembly-owned, so their companion probe is explicitly
+an assembly-derived compiler contract mirror. Its 45 vectors cover two fixed
+160-byte records, slot-modulo-two selection, inactive and sole-active scans,
+duplicate-active corruption, active identity/resource shape, terminal
+evidence, checkpoint lanes, bounds, isolation, and unaligned records. This
+does not claim that authoritative OS execution is implemented in C: EDU-38
+still permits only one active runner, with phase/results and the AP mailbox
+remaining singleton OS state.
+
+The focused EDU-38 wave passes `4 resolved / 0 blocked / 0 skipped`; combined
+EDU-32-through-EDU-38 intake passes
+`16 resolved / 0 blocked / 0 skipped`; and the complete bucket-15 inventory
+passes `654 resolved / 0 blocked / 0 skipped`. Both new matrices also pass
+Clang AddressSanitizer/UndefinedBehaviorSanitizer execution.
+
+The eighth wave derives a bounded compiler contract mirror from immutable
+EDU-39. No generated C or wire-format change occurred; `smp64.asm` remains the
+authoritative implementation. The 70-vector matrix covers two independent
+224-byte saved owners, exact queue and Workload-v1 correlation, phase and
+reduction shape, load boundaries, retained invalid evidence, unaligned
+records, owner-local publication counters, and different-owner switch
+rejection both while a width-two AP batch is in flight and after completion
+but before its joined barrier.
+
+The paired object probe permits only the inherited Workload-v1 validator
+import and bounded `PC32`/`PLT32` relocation. Two saved valid phase owners do
+not establish two active jobs: the active-runner limit, live SMP working set,
+and AP mailbox remain singleton and OS-owned. EDU-39 passes
+`2 resolved / 0 blocked / 0 skipped`; combined EDU-32-through-EDU-39 intake
+passes `18 resolved / 0 blocked / 0 skipped`, and its matrix also passes Clang
+AddressSanitizer/UndefinedBehaviorSanitizer execution. The sequential EDU-39
+closeout replay passes the complete bucket-15 probe inventory at
+`656 resolved / 0 blocked / 0 skipped` and the stable owning bucket at
+`687 passed / 0 failing / 10 expected skips`.
+
+The ninth wave derives a bounded compiler contract mirror from immutable
+EDU-40. No generated C, wire, or durable-format change occurred; `smp64.asm`
+remains authoritative. Its 78 vectors cover the 112-byte volatile mailbox,
+reset and begin rules, monotonic/exhausted generations, queue-phase and
+reserved legacy owners, no-skip AP acceptance, distinct dispatch/completion
+tuples, successful and correlated-error result publication, retained
+retirement evidence, width-one silence, and unaligned records.
+
+The paired object probe is import-free and permits only bounded
+`PC32`/`PLT32` relocation. This does not instance the physical AP or mailbox
+and does not raise the one-active-runner limit. EDU-40 passes
+`2 resolved / 0 blocked / 0 skipped`; combined EDU-32-through-EDU-40 intake
+passes `20 resolved / 0 blocked / 0 skipped`; the complete bucket-15 inventory
+passes `658 resolved / 0 blocked / 0 skipped`; and the stable owning bucket
+passes `687 passed / 0 failing / 10 expected skips`. Its matrix also passes
+Clang AddressSanitizer/UndefinedBehaviorSanitizer execution.
+
+The tenth wave derives a bounded compiler contract mirror from immutable
+EDU-41. No generated C, wire, or durable-format change occurred;
+`queue64.asm` and `smp64.asm` remain authoritative. Its 79 vectors cover
+bounded two-active counting, exact RUNNING identity, eligible FIFO activation,
+third-owner rejection, alternating idle-mailbox turns, exact in-flight
+mailbox pinning, owner-local release, cancel/deadline/budget/work precedence,
+peer-preserving retirement, corruption rejection, and unaligned records.
+
+The paired object probe is import-free and requires nine exact exports with
+bounded `PC32`/`PLT32` relocation. This does not instance the physical
+BSP/AP appliance or claim a general scheduler. EDU-41 passes
+`2 resolved / 0 blocked / 0 skipped`; its matrix passes Clang
+AddressSanitizer/UndefinedBehaviorSanitizer execution; and the stable owning
+bucket passes `687 passed / 0 failing / 10 expected skips`.
+
+The first two-owner composition slice adds 36 vectors over the frozen EDU-40
+mailbox and EDU-41 runner helpers. It checks two-active identity, owner-pinned
+dispatch/completion, wrong-owner rejection, independent policy outcomes,
+owner-local phase release, unaligned data, and peer-preserving retirement.
+All 48 intake/composition runtime and object probes resolve in one aggregate
+replay.
+
+The durable-owner-chain composition slice adds 46 vectors over the frozen
+EDU-26 generation/reuse, EDU-35 snapshot, EDU-37 checkpoint-store, EDU-39
+phase-owner, EDU-40 mailbox, and EDU-41 runner helpers. It proves:
+
+- exact ACK identity, safe next-generation admission, owner-local retirement,
+  and byte-for-byte peer preservation;
+- valid checkpoint storage plus exact lane/running-owner correlation;
+- exact phase-owner, workload, running-context, and mailbox-owner correlation;
+- a complete metadata-to-dispatch chain that rejects stale generation,
+  request, owner, workload, checksum, lane, and dispatch contradictions.
+
+Its paired object probe permits only the fourteen named frozen helper imports.
+The runtime matrix passes strict C99 Clang diagnostics and ASan/UBSan; its
+focused runtime/object pair resolves `2 / 2`; the post-EDU-19 aggregate
+resolves `48 / 48`; and the stable torture-differential replay closes at
+`0 failing / 10 expected skips`.
+
+Stable torture-differential wave `139` promotes 88 deterministic OS-P3 and
+post-EDU-19 runtime cases with exact stdout oracles and reference-compiler
+parity. The refreshed promotion audit records `3577` promoted entries, `19`
+intentional probe-only entries, and no missing, critical, or ambiguous
+promotion candidates. The monitored broad checkpoint closes at `4984` passes,
+`0` failures, and `36` expected skips. The four remaining post-EDU-19
+policy/source mirrors stay explicitly probe-only because smaller stable cases
+own their compiler behavior.
+
+The next behavior-focused wave should exercise temporal fault sequences around
+this chain: interruption before ACK, restart after checkpoint selection,
+owner loss during a phase, and retirement after mailbox completion. Each
+sequence should reject stale re-admission while preserving the unaffected
+peer. Physical durability and BSP/AP execution remain OS-owned proof.
 
 ## Commands
 
@@ -232,3 +443,24 @@ execution, and fault production remain assembly- and downstream-OS-owned.
 
 A downstream `os-dev` failure must not be hidden by changing the accepted
 compiler hash or bypassing its toolchain identity gate.
+
+## Post-EDU-19 Stable And Probe Lanes
+
+Run the promoted deterministic runtime closure with:
+
+```sh
+make final-manifest \
+  MANIFEST=15-torture-differential-wave139-os-policy-probe-promotion-closure.json
+```
+
+Run the complete immutable frontier intake with:
+
+```sh
+PROBE_FILTER=15__probe_os_post_edu19_ \
+  python3 tests/final/probes/run_probes.py
+```
+
+This probe prefix remains noncanonical frontier evidence. Deterministic runtime
+behavior with durable oracles belongs in stable wave `139` (or its narrower
+owning compiler bucket). Large source-snapshot or policy matrices may remain
+explicitly probe-only when a smaller stable oracle owns the compiler behavior.

@@ -1,0 +1,2717 @@
+{
+  "version": 2,
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu21_control_v1_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu21_control_v1_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu21_control_v1_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu22_queue_v2_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu22_queue_v2_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu22_queue_v2_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu24_31_wire_history_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu24_31_wire_history_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu24_31_wire_history_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu24_artifact_exchange_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu24_artifact_exchange_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu24_artifact_exchange_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu25_loader_geometry_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu25_loader_geometry_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu25_loader_geometry_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu27_phase_execution_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu27_phase_execution_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu27_phase_execution_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu28_artifact_meta_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu28_artifact_meta_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu28_artifact_meta_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu29_30_async_stop_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu29_30_async_stop_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu29_30_async_stop_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu31_time_arithmetic_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu31_time_arithmetic_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu31_time_arithmetic_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu37_two_owner_store_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu38_control_v13_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu38_control_v13_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu38_control_v13_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu38_runner_context_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu38_runner_context_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu38_runner_context_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu39_phase_owner_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu39_phase_owner_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu40_mailbox_owner_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu40_mailbox_owner_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_edu41_two_active_runner_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_edu41_two_active_runner_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__os_post_edu19_two_owner_fault_composition_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_model.c",
+        "probes/runtime/15__probe_os_post_edu19_two_owner_fault_composition_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__os_post_edu19_two_owner_fault_composition_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_admission_precedence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_admission_precedence_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_aggregate_checkpoint_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_aggregate_checkpoint_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_callback_dispatch_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_callback_dispatch_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_admission_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_admission_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_admission_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_admission_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_admission_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_admission_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_admission_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_admission_precedence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_admission_precedence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_admission_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_aggregate_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_aggregate_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_aggregate_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_aggregate_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_aggregate_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_aggregate_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_aggregate_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_aggregate_checkpoint_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_aggregate_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_callback_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_callback_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_callback_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_callback_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_callback_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_callback_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_callback_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_callback_dispatch_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_callback_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_extent_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_extent_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_extent_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_extent_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_extent_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_extent_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_extent_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_extent_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_queue_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_queue_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_queue_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_queue_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_queue_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_queue_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_queue_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_queue_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scalar_double_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scalar_double_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scalar_double_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scalar_double_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scalar_double_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scalar_double_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scalar_double_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scalar_double_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scheduler_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scheduler_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scheduler_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scheduler_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scheduler_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scheduler_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_scheduler_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_scheduler_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_sync_rank_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_sync_rank_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_sync_rank_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_sync_rank_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_sync_rank_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_sync_rank_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_sync_rank_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_sync_rank_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_token_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_token_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_token_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_token_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_token_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_token_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_token_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_token_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_variadic_sret_one",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x00000001u",
+        "-DOSP3_CASE_BUDGET=1u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_variadic_sret_one.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_variadic_sret_prime",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xa5a5a5a5u",
+        "-DOSP3_CASE_BUDGET=257u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_variadic_sret_prime.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_variadic_sret_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0xffffffffu",
+        "-DOSP3_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_variadic_sret_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_expand_variadic_sret_zero",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "reference_args": [
+        "-DOSP3_SEED=0x6d2b79f5u",
+        "-DOSP3_CASE_BUDGET=0u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_expand_variadic_sret_zero.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_extent_overflow_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_extent_overflow_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_extent_overflow_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_extent_overflow_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_generation_token_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_generation_token_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_generation_token_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_generation_token_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_long_double_abi_model",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_long_double_abi_model.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_long_double_abi_model.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout_variants": [
+        "expect/15__runtime_promotion__osp3_long_double_abi_model.variant1.stdout",
+        "expect/15__runtime_promotion__osp3_long_double_abi_model.variant2.stdout",
+        "expect/15__runtime_promotion__osp3_long_double_abi_model.variant3.stdout"
+      ]
+    },
+    {
+      "id": "15__runtime_promotion__osp3_queue_transition_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_queue_transition_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_queue_transition_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_queue_transition_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_elf_mutation_alt",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_RAW_MODE=6",
+        "-DOSP3_RAW_SEED=0xa5a5a5a5u",
+        "-DOSP3_RAW_CASE_BUDGET=1024u"
+      ],
+      "reference_args": [
+        "-DOSP3_RAW_MODE=6",
+        "-DOSP3_RAW_SEED=0xa5a5a5a5u",
+        "-DOSP3_RAW_CASE_BUDGET=1024u"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_elf_mutation_alt.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_elf_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_elf_policy.c",
+        "probes/runtime/15__probe_osp3_raw_elf_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_RAW_MODE=6",
+        "-DOSP3_RAW_SEED=0xffffffffu",
+        "-DOSP3_RAW_CASE_BUDGET=4096u"
+      ],
+      "reference_args": [
+        "-DOSP3_RAW_MODE=6",
+        "-DOSP3_RAW_SEED=0xffffffffu",
+        "-DOSP3_RAW_CASE_BUDGET=4096u",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_elf_mutation_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_authority_replay",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=3",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=3",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_authority_replay.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_late_reject_reset",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=5",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=5",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_late_reject_reset.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_mutation_alt",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=6",
+        "-DOSP3_JOB_SEED=0xa5a5a5a5U",
+        "-DOSP3_JOB_CASE_BUDGET=1024U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=6",
+        "-DOSP3_JOB_SEED=0xa5a5a5a5U",
+        "-DOSP3_JOB_CASE_BUDGET=1024U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_mutation_alt.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_mutation_base",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=6",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=6",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_mutation_base.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_mutation_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=6",
+        "-DOSP3_JOB_SEED=0xffffffffU",
+        "-DOSP3_JOB_CASE_BUDGET=4096U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=6",
+        "-DOSP3_JOB_SEED=0xffffffffU",
+        "-DOSP3_JOB_CASE_BUDGET=4096U",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_mutation_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_rejection_precedence",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=2",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=2",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_rejection_precedence.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_step_ranges_overlap",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=4",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=4",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_step_ranges_overlap.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_truncation_geometry",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=1",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=1",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_truncation_geometry.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_job_valid_packages",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_job_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_job_policy.c",
+        "probes/runtime/15__probe_osp3_raw_job_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_JOB_MODE=0",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_JOB_MODE=0",
+        "-DOSP3_JOB_SEED=0x7f4a7c15U",
+        "-DOSP3_JOB_CASE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_job_valid_packages.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_extent_overlap",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=4",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=4",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_extent_overlap.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_late_reject_reset",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=5",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=5",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_late_reject_reset.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_mutation_alt",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=6",
+        "-DOSP3_STORE_SEED=0xa5a5a5a5U",
+        "-DOSP3_STORE_BUDGET=1024U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=6",
+        "-DOSP3_STORE_SEED=0xa5a5a5a5U",
+        "-DOSP3_STORE_BUDGET=1024U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_mutation_alt.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_mutation_base",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=6",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=6",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_mutation_base.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_mutation_stress_sanitized",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=6",
+        "-DOSP3_STORE_SEED=0xffffffffU",
+        "-DOSP3_STORE_BUDGET=4096U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=6",
+        "-DOSP3_STORE_SEED=0xffffffffU",
+        "-DOSP3_STORE_BUDGET=4096U",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_mutation_stress_sanitized.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_rejection_precedence",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=2",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=2",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_rejection_precedence.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_sequence_replay",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=3",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=3",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_sequence_replay.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_truncation_geometry",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=1",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=1",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_truncation_geometry.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_raw_storage_valid_images",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_raw_storage_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_raw_storage_policy.c",
+        "probes/runtime/15__probe_osp3_raw_storage_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-DOSP3_STORE_MODE=0",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "reference_args": [
+        "-DOSP3_STORE_MODE=0",
+        "-DOSP3_STORE_SEED=0x93d765a1U",
+        "-DOSP3_STORE_BUDGET=256U"
+      ],
+      "expected_stdout": "expect/15__runtime_promotion__osp3_raw_storage_valid_images.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_scalar_double_dyadic_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scalar_double_dyadic_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_scalar_double_dyadic_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_scheduler_selection_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_scheduler_selection_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_scheduler_selection_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_sync_rank_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_sync_rank_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_sync_rank_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_sync_rank_matrix.stdout"
+    },
+    {
+      "id": "15__runtime_promotion__osp3_variadic_struct_return_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_osp3_variadic_struct_return_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "os-policy",
+        "probe-promotion",
+        "wave139"
+      ],
+      "requires": [],
+      "status": "ok",
+      "expected_stdout": "expect/15__runtime_promotion__osp3_variadic_struct_return_matrix.stdout"
+    }
+  ]
+}

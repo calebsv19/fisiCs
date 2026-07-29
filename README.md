@@ -33,6 +33,21 @@ programs before broader language or tooling ambitions.
 - Default mode remains ordinary C compilation.
 - Core compiler trust lanes cover lexer, preprocessor, parser, semantics,
   codegen, runtime, and differential surfaces.
+- The compiler-owned OS Policy lane is closed through OS-P3 stress and its
+  immutable post-EDU-19 policy-contract intake now covers EDU-21 Wire-v1 and
+  EDU-22 Queue/Trace-v1, EDU-23 bounded parallelism through EDU-31
+  monotonic-time arithmetic, EDU-32 Workload-v1 through EDU-38 Wire-v13 and
+  bounded runner contexts, EDU-39 phase ownership, EDU-40 AP-mailbox ownership,
+  and EDU-41 two-active cooperative-runner selection. Composition probes now
+  join EDU-40/41 for wrong-owner rejection and peer-preserving retirement, then
+  join EDU-26/35/37/39/40/41 into one fail-closed durable owner chain from
+  generation-safe reuse through checkpoint, phase, runner, and mailbox
+  dispatch identity. The deterministic runtime subset is promoted into stable
+  torture-differential wave `139`; the promotion audit currently records
+  `3577` promoted entries, `19` intentional probe-only entries, and no missing,
+  critical, or ambiguous promotion candidates. The corresponding monitored
+  stable-suite checkpoint closes at `4984` passes, `0` failures, and `36`
+  expected skips.
 - Host-available standard-header runtime/header coverage is green through Wave
   `323` on the current validation host.
 - Real-project validation currently records Stages `A` through `F` closed for
