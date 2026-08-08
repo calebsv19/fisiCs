@@ -380,8 +380,9 @@ with 574 deterministic vectors and eleven freestanding object probes:
 
 All eleven matrices pass strict C99 Clang diagnostics and
 AddressSanitizer/UndefinedBehaviorSanitizer. The combined immutable intake and
-composition lane resolves `48 / 48` runtime and object probes, and the owning
-torture-differential gate closes with `0 failing / 10 expected skips`.
+composition lane currently resolves `56 / 56` runtime and object probes, and
+the owning torture-differential gate closes with `0 failing / 10 expected
+skips`.
 
 The assembly-derived models freeze only hardware-blind contract shapes.
 BIOS/EDD calls, durable publication, BSP/AP execution, device authority,
@@ -720,7 +721,7 @@ The paired object probe requires four exact composition exports and permits
 only the fourteen named EDU-26/35/37/39/40/41 helper imports. The matrix passes
 strict C99 Clang diagnostics and AddressSanitizer/UndefinedBehaviorSanitizer;
 the focused pair resolves `2 / 2`; the full post-EDU-19 aggregate now resolves
-`52 / 52`; and the owning torture-differential replay closes at
+`56 / 56`; and the owning torture-differential replay closes at
 `0 failing / 10 expected skips`.
 
 The stable promotion checkpoint is
@@ -728,10 +729,10 @@ The stable promotion checkpoint is
 reduced deterministic temporal oracles with exact stdout contracts and
 reference-compiler parity: checkpoint-recovery identity, stale ACK rejection,
 completion/retirement order, and peer-preserving owner loss. The refreshed
-audit records `3577` mapped promotions, `21` intentional probe-only entries,
+audit records `3578` mapped promotions, `22` intentional probe-only entries,
 `0` missing candidates, `0` critical integrity errors, and `0` ambiguous stem
-matches; the stable final suite contains `4988` tests, and its monitored
-checkpoint closes at `4988` passes, `0` failures, and `36` expected skips.
+matches; the stable final suite contains `4990` tests, and its monitored
+checkpoint closes at `4990` passes, `0` failures, and `36` expected skips.
 The large temporal source matrices remain explicitly probe-only because these
 smaller stable oracles own the compiler behavior.
 
@@ -741,16 +742,59 @@ runner, and mailbox correlation provide the required request binding before
 dispatch. This probe remains hardware-blind and does not claim durable write
 ordering or physical BSP/AP execution.
 
-The next behavior-focused boundary is cross-model temporal composition: take
-the now-stable temporal predicates through independent scheduler, queue, and
-wire-history model boundaries, preserving the same fail-closed stale-evidence
-and peer-preservation rules. New scheduler, transport, capacity, firmware, or
-hardware claims remain separate frozen OS lessons.
+Cross-model temporal composition is now established: the frontier matrix and
+its Wave-141 reduced stable oracle require Queue-v2 admission, Wire-v7
+admission, a deterministic scheduler handoff, and the temporal identity chain
+to agree; stale queue, wire, ACK, mailbox, or lane evidence rejects the whole
+composition. The next immutable source intake requires a new tagged `os-dev`
+C-policy snapshot or materially new contract. OS-P4 remains reserved for an
+implemented versioned compiler-metadata schema, and the optional live canary
+requires a reachable `os-dev` checkout plus its accepted-toolchain identity.
+
+EDU-48 supplies the first new material post-EDU-41 policy contract: a signed
+simulation bundle can select only a frozen build-authored program and must not
+grant executable, loader, guest, or device authority. It adds host-side Python,
+not compiler-generated C, so it is recorded as contract-only intake rather
+than a fabricated C snapshot or OS-P4 schema. The optional
+`run_external_os_dev_canary.py` extracts the immutable tagged
+`simulation_kernel.c` source into a temporary directory, verifies its tag
+object, commit, source hash, current-source continuity, accepted-toolchain
+hash, candidate/accepted object identity, bounded object surface, and
+fisiCs/Clang/ASan runtime transcript. Its normal mode requires Git SSH tag
+verification. An explicit `--allowed-signers <path>` supplies a read-only
+trust anchor only to that Git invocation; it does not mutate global Git
+configuration. `--allow-unverified-tag` is an explicit structural-only local
+diagnostic and reports `trust=unverified`, never a trusted provenance result.
+
+Wave 142 promotes the bounded C-facing selection behavior into the stable
+suite: a valid Workload-v1 may select only frozen program one or two; program
+one returns its published result and program two recomputes the bounded damped
+result. Invalid program identifiers, invalid result evidence, seed corruption,
+nonfinite input, null input, and wrong length reject. This oracle is derived
+from the immutable EDU-48 source continuity path, not a claim that the host
+bundle verifier, artifact bank, or guest loader is compiler-owned C.
+
+EDU-49 is now an immutable material-contract intake: its host-owned inactive
+program-artifact bank retains only already-verified evidence and explicitly
+grants no loader or guest authority. It also adds no compiler-generated C;
+the signed EDU-49 canary therefore verifies the retained
+`simulation_kernel.c` continuity path, not bank implementation correctness.
+Trusted temporary-anchor runs pass for both EDU-48 and EDU-49. EDU-50 remains
+only a bounded load-plan handoff, not an implemented metadata schema.
 
 The optional live `os-dev` canary remains a separate noncanonical layer. It
 must use temporary outputs, record the exact external revision and dirty
 state, compare candidate and accepted compiler identities, and never bypass
 the downstream accepted-toolchain hash.
+
+With a checkout and this host's configured Git SSH allowed-signers file:
+
+```sh
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu48_live_canary.json
+```
 
 ## Failure And Promotion Workflow
 

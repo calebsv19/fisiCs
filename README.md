@@ -45,12 +45,16 @@ programs before broader language or tooling ambitions.
   dispatch identity. Temporal fault-sequence and paired temporal-contradiction
   probes now exercise pre-ACK interruption, restart identity, retirement
   ordering, stale evidence, and peer preservation. Four reduced deterministic
-  temporal oracles are promoted in torture-differential wave `140`; the
-  frontier source matrices remain explicitly probe-only. The promotion audit
-  currently records `3577` mapped promotions, `21` intentional probe-only
+  temporal oracles are promoted in torture-differential wave `140`. Wave
+  `141` adds a reduced cross-model temporal oracle joining Queue-v2, Wire-v7,
+  scheduler handoff, and stale-evidence rejection. Wave `142` adds a reduced
+  source-derived frozen-program-selection oracle for the real EDU-48 bundle
+  contract; signing, artifact persistence, and guest loading remain outside
+  that C proof. The broad temporal composition matrix remains explicitly
+  probe-only. The promotion audit currently records `3578` mapped promotions, `22` intentional probe-only
   entries, no missing candidates, and no critical or ambiguous integrity
-  findings. The stable final suite contains `4988` tests; the monitored
-  checkpoint closes at `4988` passes, `0` failures, and `36` expected skips.
+  findings. The stable final suite contains `4990` tests; its latest monitored
+  checkpoint closes at `4990` passes, `0` failures, and `36` expected skips.
 - Host-available standard-header runtime/header coverage is green through Wave
   `323` on the current validation host.
 - Real-project validation currently records Stages `A` through `F` closed for

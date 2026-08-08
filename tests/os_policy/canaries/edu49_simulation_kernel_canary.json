@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu49-live-canary",
+  "description": "Optional noncanonical compiler continuity canary over the signed EDU-49 inactive-program-artifact-bank contract. It cannot establish artifact-bank or loader authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-49-bounded-inactive-program-artifact-bank",
+    "tag_object": "4bf4a5fde15f1d85ae49358535cd940a9e22f7b4",
+    "commit": "19eea7fa446d060ed6ab2956a7a4a20371c3959c",
+    "source_path": "simulation_kernel.c",
+    "source_sha256": "f55ec92ffc2e7b87da945f8b919d94b3640d45b7336bd8c54719654e29e2af5d"
+  },
+  "accepted_compiler": {
+    "relative_path": "build-toolchain/fisics",
+    "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"
+  },
+  "candidate_object_sha256": "eddff2b80d15fd58895d85ddb6997f7b373b28e9dd4e69c8dc5e3ee9d9a1157a",
+  "expected_stdout": "OS-DEV-EDU48 source=simulation_kernel.c policy=bundle-selection result=PASS\n",
+  "object_contract": {
+    "required_exports": ["edu12_reduce_result", "edu12_simulate_partition", "edu32_workload_valid", "edu42_program_result", "edu42_program_valid", "edu42_simulate_damped_partition"],
+    "allowed_undefined": [],
+    "allowed_relocations": ["R_X86_64_PC32", "R_X86_64_PLT32"],
+    "forbidden_instructions": ["cli", "hlt", "in", "iretq", "out", "sti", "syscall", "sysretq"],
+    "forbid_red_zone": true
+  }
+}

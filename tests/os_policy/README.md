@@ -235,25 +235,43 @@ phase-owner, EDU-40 mailbox, and EDU-41 runner helpers. It proves:
 Its paired object probe permits only the fourteen named frozen helper imports.
 The runtime matrix passes strict C99 Clang diagnostics and ASan/UBSan; its
 focused runtime/object pair resolves `2 / 2`; the post-EDU-19 aggregate now
-resolves `52 / 52`; and the stable torture-differential replay closes at
+resolves `56 / 56`; and the stable torture-differential replay closes at
 `0 failing / 10 expected skips`.
 
 Stable torture-differential wave `140`
 (`15-torture-differential-wave140-temporal-stable-oracles.json`) adds four
 reduced temporal cases with exact stdout oracles and reference-compiler parity:
 checkpoint-recovery identity, stale ACK rejection, completion/retirement order,
-and peer-preserving owner loss. The refreshed promotion audit records `3577`
-mapped promotions, `21` intentional probe-only entries, and no missing,
+and peer-preserving owner loss. The refreshed promotion audit records `3578`
+mapped promotions, `22` intentional probe-only entries, and no missing,
 critical, or ambiguous promotion candidates; the stable final suite contains
-`4988` tests, and its monitored checkpoint closes at `4988` passes, `0`
-failures, and `36` expected skips. The large temporal policy/source matrices
-remain explicitly probe-only because these smaller cases own their compiler
-behavior.
+`4990` tests, and its latest monitored checkpoint closes at `4990` passes,
+`0` failures, and `36` expected skips. The large temporal policy/source
+matrices remain explicitly probe-only because these smaller cases own their
+compiler behavior.
 
-The next behavior-focused wave should compose these temporal predicates across
-independent scheduler, queue, and wire-history models, while retaining exact
-stale-evidence rejection and peer preservation. Physical durability and BSP/AP
-execution remain OS-owned proof.
+Wave 141 now composes temporal predicates across independent scheduler,
+Queue-v2, and Wire-v7 models while retaining exact stale-evidence rejection.
+EDU-48 adds a material signed-bundle selection contract but no new
+compiler-generated C, so its first compiler coverage is an optional
+noncanonical live canary rather than a fabricated exact-source matrix. The
+canary pins the signed tag object/commit/source hash, current source
+continuity, accepted compiler hash, exact candidate/accepted freestanding
+object identity, object contract, and fisiCs/Clang/ASan runtime transcript in
+temporary outputs. Trusted mode requires the host's Git SSH allowed-signers
+configuration or an explicitly supplied `--allowed-signers` public anchor;
+the latter affects only the one Git verification invocation. The explicit
+`--allow-unverified-tag` mode is structural-only and reports that reduced trust
+state. EDU-49 now adds a host-owned inactive-artifact-bank contract but no new
+compiler-generated C; its trusted continuity canary passes while bank behavior
+remains host-owned. OS-P4 still requires a real versioned compiler-metadata
+schema. Physical durability and BSP/AP execution remain OS-owned proof.
+
+Wave 142 promotes the C-facing portion of that source continuity path into a
+stable oracle: only frozen program IDs one and two admit a valid Workload-v1;
+program one returns its published result, program two recomputes the bounded
+damped result, and malformed evidence or an unrecognized ID rejects. It does
+not promote host-side signing, artifact storage, or guest-load authority.
 
 ## Commands
 
@@ -265,6 +283,16 @@ make os-policy-runtime
 make os-policy-guest
 make os-policy-contract
 make os-policy
+```
+
+Run the optional EDU-48 integration-drift canary only against a deliberately
+selected checkout:
+
+```sh
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu48_live_canary.json
 ```
 
 Focused investigation:

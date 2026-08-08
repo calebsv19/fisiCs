@@ -2,11 +2,11 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `3598`
-- Promoted stable coverage: `3577`
-- Intentional probe-only coverage: `21`
+- Total resolved probe inventory audited: `3600`
+- Promoted stable coverage: `3578`
+- Intentional probe-only coverage: `22`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `4988`
+- Stable final tests scanned: `4990`
 - Critical integrity errors: `0`
 - Ambiguous stem matches: `0`
 - Multi-owner best-rank matches: `568`
@@ -25,19 +25,19 @@
 - Multi-owner best-rank matches requiring explicit-owner migration: `568`
 - Duplicate stable semantic shapes: `12`
 - Probe assets `stable-only`: `13`
-- Probe assets `inventory-only`: `621`
+- Probe assets `inventory-only`: `623`
 - Probe assets `unowned`: `21`
 
 ### Promoted Match Evidence
 
-- `explicit-id`: `495`
+- `explicit-id`: `496`
 - `id`: `1507`
 - `path`: `1573`
 - `stem`: `2`
 
 ### Explicit Probe-Only Reasons
 
-- `2`: explicit probe-only disposition
+- `3`: explicit probe-only disposition
 - `6`: explicit probe-only family marker: corpus
 - `3`: explicit probe-only family marker: pathological
 - `4`: explicit probe-only family marker: policy
@@ -60,7 +60,7 @@
 - Bucket `12`: promoted `247`, probe-only `0`, missing `0`
 - Bucket `13`: promoted `184`, probe-only `0`, missing `0`
 - Bucket `14`: promoted `587`, probe-only `1`, missing `0`
-- Bucket `15`: promoted `628`, probe-only `20`, missing `0`
+- Bucket `15`: promoted `629`, probe-only `21`, missing `0`
 
 ## Missing Promotion Candidates
 
@@ -95,6 +95,10 @@
 - `15__probe_diag_pathological_initializer_rewrite_surface_reject` (`diagnostic`) from `probes/diagnostics/15__probe_diag_pathological_initializer_rewrite_surface_reject.c` - pathological initializer rewrite surface lane should fail closed with deterministic diagnostics
 - `15__probe_diag_pathological_initializer_shape_reject` (`diagnostic`) from `probes/diagnostics/15__probe_diag_pathological_initializer_shape_reject.c` - pathological designated-initializer shape should fail closed with deterministic diagnostics
 - `15__probe_diag_pathological_switch_case_surface_reject` (`diagnostic`) from `probes/diagnostics/15__probe_diag_pathological_switch_case_surface_reject.c` - pathological switch case surface lane should reject non-constant case labels
+
+### explicit probe-only disposition
+
+- `15__probe_os_post_edu19_cross_model_temporal_composition_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_cross_model_temporal_composition_matrix.c` - Frontier lane: hardware-blind cross-model temporal composition requires independent Queue-v2 admission, Wire-v7 admission, a deterministic scheduler handoff, and the established cross-generation temporal rejection to agree. Any stale ACK, mailbox, lane, queue, or wire evidence fails closed; this is compiler-probe evidence, not OS-P4 metadata or OS execution
 
 ### explicit probe-only family marker: policy
 

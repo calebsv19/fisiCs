@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu48-live-canary",
+  "description": "Optional noncanonical compiler canary over the signed EDU-48 source continuity contract. It never grants executable or kernel authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-48-signed-simulation-bundle-execution-abi",
+    "tag_object": "53324b44fa935c6081e9c5473311a0fd956f468d",
+    "commit": "a5c7c4dfae411857c0151345ce687c4898bc9d5d",
+    "source_path": "simulation_kernel.c",
+    "source_sha256": "f55ec92ffc2e7b87da945f8b919d94b3640d45b7336bd8c54719654e29e2af5d"
+  },
+  "accepted_compiler": {
+    "relative_path": "build-toolchain/fisics",
+    "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"
+  },
+  "candidate_object_sha256": "eddff2b80d15fd58895d85ddb6997f7b373b28e9dd4e69c8dc5e3ee9d9a1157a",
+  "expected_stdout": "OS-DEV-EDU48 source=simulation_kernel.c policy=bundle-selection result=PASS\n",
+  "object_contract": {
+    "required_exports": [
+      "edu12_reduce_result",
+      "edu12_simulate_partition",
+      "edu32_workload_valid",
+      "edu42_program_result",
+      "edu42_program_valid",
+      "edu42_simulate_damped_partition"
+    ],
+    "allowed_undefined": [],
+    "allowed_relocations": [
+      "R_X86_64_PC32",
+      "R_X86_64_PLT32"
+    ],
+    "forbidden_instructions": [
+      "cli",
+      "hlt",
+      "in",
+      "iretq",
+      "out",
+      "sti",
+      "syscall",
+      "sysretq"
+    ],
+    "forbid_red_zone": true
+  }
+}

@@ -1255,6 +1255,8 @@
     "12-diagnostics-recovery-wave45-dual-failing-tu-completeness.json",
     "12-diagnostics-recovery-wave46-rich-payload-aggregation.json",
     "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
-    "15-torture-differential-wave140-temporal-stable-oracles.json"
+    "15-torture-differential-wave140-temporal-stable-oracles.json",
+    "15-torture-differential-wave141-cross-model-temporal-oracle.json",
+    "15-torture-differential-wave142-edu48-frozen-program-selection.json"
   ]
 }

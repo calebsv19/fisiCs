@@ -6,6 +6,7 @@ from .osp3_object import HARDWARE_BLIND_FORBIDDEN
 
 
 PROBE_DIR = Path(__file__).resolve().parent.parent.parent
+ROOT_DIR = PROBE_DIR.parents[2]
 POLICY_SOURCE = (
     PROBE_DIR / "runtime/15__probe_os_post_edu19_workload_v1_policy.c"
 )
@@ -167,6 +168,23 @@ TEMPORAL_PAIR_FAULT_MODEL_SOURCE = (
 TEMPORAL_PAIR_FAULT_MATRIX_SOURCE = (
     PROBE_DIR
     / "runtime/15__probe_os_post_edu19_temporal_pair_fault_matrix.c"
+)
+CROSS_MODEL_TEMPORAL_COMPOSITION_MODEL_SOURCE = (
+    PROBE_DIR
+    / "runtime/15__probe_os_post_edu19_cross_model_temporal_composition_model.c"
+)
+CROSS_MODEL_TEMPORAL_COMPOSITION_MATRIX_SOURCE = (
+    PROBE_DIR
+    / "runtime/15__probe_os_post_edu19_cross_model_temporal_composition_matrix.c"
+)
+EDU48_BUNDLE_SELECTION_MODEL_SOURCE = (
+    PROBE_DIR / "runtime/15__probe_os_post_edu19_edu48_bundle_selection_model.c"
+)
+EDU48_BUNDLE_SELECTION_MATRIX_SOURCE = (
+    PROBE_DIR / "runtime/15__probe_os_post_edu19_edu48_bundle_selection_matrix.c"
+)
+OSP2_SCHEDULER_MODEL_SOURCE = (
+    ROOT_DIR / "tests/os_policy/cases/osp2_scheduler_transition.c"
 )
 
 RUNTIME_PROBES = [
@@ -330,6 +348,66 @@ RUNTIME_PROBES = [
         ),
         expected_stderr="",
         promotion_disposition="probe-only",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_os_post_edu19_cross_model_temporal_composition_matrix",
+        source=CROSS_MODEL_TEMPORAL_COMPOSITION_MATRIX_SOURCE,
+        inputs=(
+            POLICY_SOURCE,
+            EDU26_REUSE_POLICY_SOURCE,
+            EDU35_POLICY_SOURCE,
+            EDU37_MODEL_SOURCE,
+            EDU39_PHASE_OWNER_MODEL_SOURCE,
+            EDU40_MAILBOX_OWNER_MODEL_SOURCE,
+            EDU41_TWO_ACTIVE_MODEL_SOURCE,
+            DURABLE_OWNER_CHAIN_MODEL_SOURCE,
+            TEMPORAL_FAULT_SEQUENCE_MODEL_SOURCE,
+            TEMPORAL_PAIR_FAULT_MODEL_SOURCE,
+            EDU22_QUEUE_POLICY_SOURCE,
+            EDU24_31_WIRE_POLICY_SOURCE,
+            OSP2_SCHEDULER_MODEL_SOURCE,
+            CROSS_MODEL_TEMPORAL_COMPOSITION_MODEL_SOURCE,
+            CROSS_MODEL_TEMPORAL_COMPOSITION_MATRIX_SOURCE,
+        ),
+        note=(
+            "Frontier lane: hardware-blind cross-model temporal composition "
+            "requires independent Queue-v2 admission, Wire-v7 admission, "
+            "a deterministic scheduler handoff, and the established "
+            "cross-generation temporal rejection to agree. Any stale ACK, "
+            "mailbox, lane, queue, or wire evidence fails closed; this is "
+            "compiler-probe evidence, not OS-P4 metadata or OS execution"
+        ),
+        expected_exit_code=0,
+        expected_stdout=(
+            "OS-POST-EDU19 cross-model-temporal "
+            "basis=queue-v2+wire-v7+scheduler vectors=8 digest=762569745 "
+            "result=PASS\n"
+        ),
+        expected_stderr="",
+        promotion_disposition="probe-only",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_os_post_edu19_edu48_bundle_selection_matrix",
+        source=EDU48_BUNDLE_SELECTION_MATRIX_SOURCE,
+        inputs=(
+            POLICY_SOURCE,
+            EDU48_BUNDLE_SELECTION_MODEL_SOURCE,
+            EDU48_BUNDLE_SELECTION_MATRIX_SOURCE,
+        ),
+        note=(
+            "Source-derived immutable EDU-48 bundle-selection C boundary: "
+            "only frozen program identifiers one and two may consume a "
+            "self-consistent Workload-v1 record; program one returns the "
+            "published result while program two recomputes the damped result. "
+            "Signing, artifact persistence, and guest loading remain host- "
+            "or OS-owned and are not modeled here"
+        ),
+        expected_exit_code=0,
+        expected_stdout=(
+            "OS-POST-EDU19 edu48-bundle-selection vectors=12 result=PASS\n"
+        ),
+        expected_stderr="",
+        promoted_test_id="15__runtime_edu48_frozen_program_selection",
     ),
     RuntimeProbe(
         probe_id="15__probe_os_post_edu19_edu23_parallelism_matrix",
@@ -851,6 +929,52 @@ OBJECT_PROBES = [
         ),
         allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
         forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,
+    ),
+    ObjectProbe(
+        probe_id="15__probe_os_post_edu19_cross_model_temporal_composition_object",
+        source=CROSS_MODEL_TEMPORAL_COMPOSITION_MODEL_SOURCE,
+        note=(
+            "Cross-model temporal composition must remain deterministic, "
+            "freestanding, hardware-blind, no-red-zone, and import only the "
+            "bounded Queue-v2, Wire-v7, scheduler, and temporal contracts"
+        ),
+        required_exports=(
+            "edu45_cross_model_temporal_admission",
+            "edu45_scheduler_handoff_valid",
+        ),
+        allowed_undefined=(
+            "edu22_queue_entry_valid",
+            "edu31_wire_v7_valid",
+            "edu44_stale_evidence_cross_generation_rejected",
+            "osp2_scheduler_choose",
+            "osp2_scheduler_init",
+            "osp2_scheduler_preemption_count",
+            "osp2_scheduler_state",
+            "osp2_scheduler_switch_count",
+            "osp2_scheduler_yield_count",
+        ),
+        allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
+        forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,
+    ),
+    ObjectProbe(
+        probe_id="15__probe_os_post_edu19_edu48_bundle_selection_object",
+        source=EDU48_BUNDLE_SELECTION_MODEL_SOURCE,
+        note=(
+            "The source-derived EDU-48 frozen-program selection model must "
+            "remain freestanding, hardware-blind, no-red-zone, and import "
+            "only Workload-v1 validation plus deterministic reduction"
+        ),
+        required_exports=(
+            "edu48_frozen_program_result",
+            "edu48_frozen_program_valid",
+        ),
+        allowed_undefined=(
+            "edu12_reduce_result",
+            "edu32_workload_valid",
+        ),
+        allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
+        forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,
+        scalar_sse2=True,
     ),
     ObjectProbe(
         probe_id="15__probe_os_post_edu19_edu23_parallelism_object",
