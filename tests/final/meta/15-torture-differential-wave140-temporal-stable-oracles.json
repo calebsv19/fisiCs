@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_temporal_checkpoint_identity",
+      "bucket": "torture-differential",
+      "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+        "cases/15__runtime_temporal_stable_fixture.c",
+        "cases/15__runtime_temporal_checkpoint_identity.c"
+      ],
+      "expects": [], "run": true, "expect_exit": 0, "differential": true,
+      "differential_compiler": "cc", "standard": "c99",
+      "tags": ["torture", "runtime", "os-policy", "temporal", "wave140"],
+      "requires": [], "status": "ok",
+      "expected_stdout": "expect/15__runtime_temporal_checkpoint_identity.stdout"
+    },
+    {
+      "id": "15__runtime_temporal_stale_ack",
+      "bucket": "torture-differential",
+      "input": "cases/15__runtime_temporal_stale_ack.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+        "cases/15__runtime_temporal_stable_fixture.c",
+        "cases/15__runtime_temporal_stale_ack.c"
+      ],
+      "expects": [], "run": true, "expect_exit": 0, "differential": true,
+      "differential_compiler": "cc", "standard": "c99",
+      "tags": ["torture", "runtime", "os-policy", "temporal", "wave140"],
+      "requires": [], "status": "ok",
+      "expected_stdout": "expect/15__runtime_temporal_stale_ack.stdout"
+    },
+    {
+      "id": "15__runtime_temporal_retirement_order",
+      "bucket": "torture-differential",
+      "input": "cases/15__runtime_temporal_retirement_order.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+        "cases/15__runtime_temporal_stable_fixture.c",
+        "cases/15__runtime_temporal_retirement_order.c"
+      ],
+      "expects": [], "run": true, "expect_exit": 0, "differential": true,
+      "differential_compiler": "cc", "standard": "c99",
+      "tags": ["torture", "runtime", "os-policy", "temporal", "wave140"],
+      "requires": [], "status": "ok",
+      "expected_stdout": "expect/15__runtime_temporal_retirement_order.stdout"
+    },
+    {
+      "id": "15__runtime_temporal_peer_preservation",
+      "bucket": "torture-differential",
+      "input": "cases/15__runtime_temporal_peer_preservation.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+        "cases/15__runtime_temporal_stable_fixture.c",
+        "cases/15__runtime_temporal_peer_preservation.c"
+      ],
+      "expects": [], "run": true, "expect_exit": 0, "differential": true,
+      "differential_compiler": "cc", "standard": "c99",
+      "tags": ["torture", "runtime", "os-policy", "temporal", "wave140"],
+      "requires": [], "status": "ok",
+      "expected_stdout": "expect/15__runtime_temporal_peer_preservation.stdout"
+    }
+  ]
+}

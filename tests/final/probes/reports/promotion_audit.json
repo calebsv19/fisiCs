@@ -1,9 +1,9 @@
 {
   "summary": {
-    "total_probes": 3597,
-    "total_final_tests": 4984,
+    "total_probes": 3598,
+    "total_final_tests": 4988,
     "promoted": 3577,
-    "probe_only": 20,
+    "probe_only": 21,
     "missing_promotion_candidate": 0,
     "promoted_match_kinds": {
       "explicit-id": 495,
@@ -12,7 +12,7 @@
       "stem": 2
     },
     "probe_only_reasons": {
-      "explicit probe-only disposition": 1,
+      "explicit probe-only disposition": 2,
       "explicit probe-only family marker: corpus": 6,
       "explicit probe-only family marker: pathological": 3,
       "explicit probe-only family marker: policy": 4,
@@ -107,7 +107,7 @@
       {
         "bucket": "15",
         "promoted": 628,
-        "probe_only": 19,
+        "probe_only": 20,
         "missing_promotion_candidate": 0
       }
     ],
@@ -127,7 +127,7 @@
       {
         "family": "runtime",
         "promoted": 1878,
-        "probe_only": 6,
+        "probe_only": 7,
         "missing_promotion_candidate": 0
       }
     ]
@@ -25370,6 +25370,144 @@
         ]
       },
       {
+        "probe_id": "15__probe_os_post_edu19_edu26_generation_reuse_matrix",
+        "match_kind": "path",
+        "matches": [
+          {
+            "id": "15__runtime_promotion__os_post_edu19_durable_owner_chain_matrix",
+            "manifest": "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+            "input": "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_matrix.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "probe-promotion",
+              "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_checkpoint_identity",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_checkpoint_identity.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_peer_preservation",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_peer_preservation.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_peer_preservation.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_retirement_order",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_retirement_order.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_retirement_order.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_stale_ack",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_stale_ack.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_stale_ack.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
         "probe_id": "15__probe_os_post_edu19_edu35_checkpoint_snapshot_matrix",
         "match_kind": "path",
         "matches": [
@@ -25413,6 +25551,114 @@
               "os-policy",
               "probe-promotion",
               "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_checkpoint_identity",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_checkpoint_identity.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_peer_preservation",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_peer_preservation.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_peer_preservation.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_retirement_order",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_retirement_order.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_retirement_order.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_stale_ack",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_stale_ack.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_stale_ack.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
             ],
             "status": "ok"
           }
@@ -25480,6 +25726,114 @@
               "os-policy",
               "probe-promotion",
               "wave139"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_checkpoint_identity",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_checkpoint_identity.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_peer_preservation",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_peer_preservation.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_peer_preservation.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_retirement_order",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_retirement_order.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_retirement_order.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
+            ],
+            "status": "ok"
+          },
+          {
+            "id": "15__runtime_temporal_stale_ack",
+            "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+            "input": "cases/15__runtime_temporal_stale_ack.c",
+            "inputs": [
+              "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+              "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+              "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+              "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+              "cases/15__runtime_temporal_stable_fixture.c",
+              "cases/15__runtime_temporal_stale_ack.c"
+            ],
+            "tags": [
+              "torture",
+              "runtime",
+              "os-policy",
+              "temporal",
+              "wave140"
             ],
             "status": "ok"
           }
@@ -29366,7 +29720,7 @@
         "classification": "inventory-only"
       },
       {
-        "path": "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "path": "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_matrix.c",
         "classification": "inventory-only"
       },
       {
@@ -29821,6 +30175,34 @@
       "mixed_inputs": [],
       "missing_inputs": [],
       "note": "Frontier lane: hardware-blind temporal composition over the frozen EDU-26/35/37/39/40/41 contracts and durable-owner chain: pre-ACK interruption blocks generation reuse, post-checkpoint restart distinguishes an overwrite destination from restored record identity, mid-phase owner loss preserves the peer, and post-completion retirement blocks stale redispatch. This is compiler-probe evidence, not an EDU-44 OS implementation claim",
+      "promoted_test_id": null,
+      "promotion_disposition": "probe-only",
+      "classification": "probe-only",
+      "reason": "explicit probe-only disposition",
+      "match_kind": null,
+      "matched_final_tests": []
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_os_post_edu19_temporal_pair_fault_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+        "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+        "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+        "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_matrix.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "Frontier lane: paired temporal contradictions over the first EDU-44 compiler model: checkpoint interruption plus generation reuse, completion/retirement reordering, owner loss plus peer corruption, stale ACK/mailbox/snapshot evidence crossing generations, and exact rejection of a checksum-valid recovery record with stale embedded identity. This is compiler-probe evidence, not an EDU-45 OS implementation claim",
       "promoted_test_id": null,
       "promotion_disposition": "probe-only",
       "classification": "probe-only",
@@ -158098,6 +158480,114 @@
             "wave139"
           ],
           "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_checkpoint_identity",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_checkpoint_identity.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_peer_preservation",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_peer_preservation.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_peer_preservation.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_retirement_order",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_retirement_order.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_retirement_order.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_stale_ack",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_stale_ack.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_stale_ack.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
         }
       ]
     },
@@ -158302,6 +158792,114 @@
             "os-policy",
             "probe-promotion",
             "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_checkpoint_identity",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_checkpoint_identity.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_peer_preservation",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_peer_preservation.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_peer_preservation.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_retirement_order",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_retirement_order.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_retirement_order.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_stale_ack",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_stale_ack.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_stale_ack.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
           ],
           "status": "ok"
         }
@@ -158644,6 +159242,114 @@
             "os-policy",
             "probe-promotion",
             "wave139"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_checkpoint_identity",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_checkpoint_identity.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_checkpoint_identity.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_peer_preservation",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_peer_preservation.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_peer_preservation.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_retirement_order",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_retirement_order.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_retirement_order.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
+          ],
+          "status": "ok"
+        },
+        {
+          "id": "15__runtime_temporal_stale_ack",
+          "manifest": "15-torture-differential-wave140-temporal-stable-oracles.json",
+          "input": "cases/15__runtime_temporal_stale_ack.c",
+          "inputs": [
+            "probes/runtime/15__probe_os_post_edu19_workload_v1_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu26_generation_reuse_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu35_checkpoint_snapshot_policy.c",
+            "probes/runtime/15__probe_os_post_edu19_edu37_two_owner_store_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu39_phase_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu40_mailbox_owner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_edu41_two_active_runner_model.c",
+            "probes/runtime/15__probe_os_post_edu19_durable_owner_chain_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_model.c",
+            "probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c",
+            "cases/15__runtime_temporal_stable_fixture.c",
+            "cases/15__runtime_temporal_stale_ack.c"
+          ],
+          "tags": [
+            "torture",
+            "runtime",
+            "os-policy",
+            "temporal",
+            "wave140"
           ],
           "status": "ok"
         }

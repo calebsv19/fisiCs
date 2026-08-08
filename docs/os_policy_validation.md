@@ -719,20 +719,21 @@ subwaves:
 The paired object probe requires four exact composition exports and permits
 only the fourteen named EDU-26/35/37/39/40/41 helper imports. The matrix passes
 strict C99 Clang diagnostics and AddressSanitizer/UndefinedBehaviorSanitizer;
-the focused pair resolves `2 / 2`; the full post-EDU-19 aggregate resolves
-`48 / 48`; and the owning torture-differential replay closes at
+the focused pair resolves `2 / 2`; the full post-EDU-19 aggregate now resolves
+`52 / 52`; and the owning torture-differential replay closes at
 `0 failing / 10 expected skips`.
 
 The stable promotion checkpoint is
-`15-torture-differential-wave139-os-policy-probe-promotion-closure.json`.
-It promotes 88 deterministic OS-P3 and post-EDU-19 runtime probes with exact
-stdout oracles and reference-compiler parity, including the sanitizer-backed
-stress variants. The refreshed audit records `3577` promoted entries, `19`
-intentional probe-only entries, `0` missing candidates, `0` critical integrity
-errors, and `0` ambiguous stem matches. The monitored broad checkpoint closes
-at `4984` passes, `0` failures, and `36` expected skips. Four large
-post-EDU-19 policy/source mirrors remain explicitly probe-only because smaller
-stable oracles own their compiler behavior.
+`15-torture-differential-wave140-temporal-stable-oracles.json`. It adds four
+reduced deterministic temporal oracles with exact stdout contracts and
+reference-compiler parity: checkpoint-recovery identity, stale ACK rejection,
+completion/retirement order, and peer-preserving owner loss. The refreshed
+audit records `3577` mapped promotions, `21` intentional probe-only entries,
+`0` missing candidates, `0` critical integrity errors, and `0` ambiguous stem
+matches; the stable final suite contains `4988` tests, and its monitored
+checkpoint closes at `4988` passes, `0` failures, and `36` expected skips.
+The large temporal source matrices remain explicitly probe-only because these
+smaller stable oracles own the compiler behavior.
 
 One boundary remains explicit: the EDU-26 action helper binds request identity
 only when an ACK is prepared. In the complete chain, checkpoint, phase,
@@ -740,12 +741,11 @@ runner, and mailbox correlation provide the required request binding before
 dispatch. This probe remains hardware-blind and does not claim durable write
 ordering or physical BSP/AP execution.
 
-The next behavior-focused boundary should add temporal fault-sequence
-permutations around this chain: pre-ACK interruption, post-checkpoint restart,
-mid-phase owner loss, and post-mailbox-completion retirement. Each sequence
-should prove that stale state cannot be re-admitted and that the unaffected
-peer remains valid. New scheduler, transport, capacity, firmware, or hardware
-claims remain separate frozen OS lessons.
+The next behavior-focused boundary is cross-model temporal composition: take
+the now-stable temporal predicates through independent scheduler, queue, and
+wire-history model boundaries, preserving the same fail-closed stale-evidence
+and peer-preservation rules. New scheduler, transport, capacity, firmware, or
+hardware claims remain separate frozen OS lessons.
 
 The optional live `os-dev` canary remains a separate noncanonical layer. It
 must use temporary outputs, record the exact external revision and dirty

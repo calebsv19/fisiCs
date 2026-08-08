@@ -2,14 +2,14 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `3597`
+- Total resolved probe inventory audited: `3598`
 - Promoted stable coverage: `3577`
-- Intentional probe-only coverage: `20`
+- Intentional probe-only coverage: `21`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `4984`
+- Stable final tests scanned: `4988`
 - Critical integrity errors: `0`
 - Ambiguous stem matches: `0`
-- Multi-owner best-rank matches: `567`
+- Multi-owner best-rank matches: `568`
 - Duplicate stable semantic shapes: `12`
 - Probe assets outside both lanes: `21`
 
@@ -22,7 +22,7 @@
 - Missing explicit promotion owners: `0`
 - Promoted non-ok matches: `0`
 - Ambiguous stem ownership requiring review: `0`
-- Multi-owner best-rank matches requiring explicit-owner migration: `567`
+- Multi-owner best-rank matches requiring explicit-owner migration: `568`
 - Duplicate stable semantic shapes: `12`
 - Probe assets `stable-only`: `13`
 - Probe assets `inventory-only`: `621`
@@ -37,7 +37,7 @@
 
 ### Explicit Probe-Only Reasons
 
-- `1`: explicit probe-only disposition
+- `2`: explicit probe-only disposition
 - `6`: explicit probe-only family marker: corpus
 - `3`: explicit probe-only family marker: pathological
 - `4`: explicit probe-only family marker: policy
@@ -60,7 +60,7 @@
 - Bucket `12`: promoted `247`, probe-only `0`, missing `0`
 - Bucket `13`: promoted `184`, probe-only `0`, missing `0`
 - Bucket `14`: promoted `587`, probe-only `1`, missing `0`
-- Bucket `15`: promoted `628`, probe-only `19`, missing `0`
+- Bucket `15`: promoted `628`, probe-only `20`, missing `0`
 
 ## Missing Promotion Candidates
 
@@ -106,6 +106,7 @@
 ### explicit probe-only disposition
 
 - `15__probe_os_post_edu19_temporal_fault_sequence_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c` - Frontier lane: hardware-blind temporal composition over the frozen EDU-26/35/37/39/40/41 contracts and durable-owner chain: pre-ACK interruption blocks generation reuse, post-checkpoint restart distinguishes an overwrite destination from restored record identity, mid-phase owner loss preserves the peer, and post-completion retirement blocks stale redispatch. This is compiler-probe evidence, not an EDU-44 OS implementation claim
+- `15__probe_os_post_edu19_temporal_pair_fault_matrix` (`runtime`) from `probes/runtime/15__probe_os_post_edu19_temporal_pair_fault_matrix.c` - Frontier lane: paired temporal contradictions over the first EDU-44 compiler model: checkpoint interruption plus generation reuse, completion/retirement reordering, owner loss plus peer corruption, stale ACK/mailbox/snapshot evidence crossing generations, and exact rejection of a checksum-valid recovery record with stale embedded identity. This is compiler-probe evidence, not an EDU-45 OS implementation claim
 
 ## Promoted Coverage Sample
 

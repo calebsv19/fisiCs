@@ -42,12 +42,15 @@ programs before broader language or tooling ambitions.
   join EDU-40/41 for wrong-owner rejection and peer-preserving retirement, then
   join EDU-26/35/37/39/40/41 into one fail-closed durable owner chain from
   generation-safe reuse through checkpoint, phase, runner, and mailbox
-  dispatch identity. The deterministic runtime subset is promoted into stable
-  torture-differential wave `139`; the promotion audit currently records
-  `3577` promoted entries, `19` intentional probe-only entries, and no missing,
-  critical, or ambiguous promotion candidates. The corresponding monitored
-  stable-suite checkpoint closes at `4984` passes, `0` failures, and `36`
-  expected skips.
+  dispatch identity. Temporal fault-sequence and paired temporal-contradiction
+  probes now exercise pre-ACK interruption, restart identity, retirement
+  ordering, stale evidence, and peer preservation. Four reduced deterministic
+  temporal oracles are promoted in torture-differential wave `140`; the
+  frontier source matrices remain explicitly probe-only. The promotion audit
+  currently records `3577` mapped promotions, `21` intentional probe-only
+  entries, no missing candidates, and no critical or ambiguous integrity
+  findings. The stable final suite contains `4988` tests; the monitored
+  checkpoint closes at `4988` passes, `0` failures, and `36` expected skips.
 - Host-available standard-header runtime/header coverage is green through Wave
   `323` on the current validation host.
 - Real-project validation currently records Stages `A` through `F` closed for

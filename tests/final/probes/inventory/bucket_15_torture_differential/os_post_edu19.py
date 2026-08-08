@@ -160,6 +160,14 @@ TEMPORAL_FAULT_SEQUENCE_MATRIX_SOURCE = (
     PROBE_DIR
     / "runtime/15__probe_os_post_edu19_temporal_fault_sequence_matrix.c"
 )
+TEMPORAL_PAIR_FAULT_MODEL_SOURCE = (
+    PROBE_DIR
+    / "runtime/15__probe_os_post_edu19_temporal_pair_fault_model.c"
+)
+TEMPORAL_PAIR_FAULT_MATRIX_SOURCE = (
+    PROBE_DIR
+    / "runtime/15__probe_os_post_edu19_temporal_pair_fault_matrix.c"
+)
 
 RUNTIME_PROBES = [
     RuntimeProbe(
@@ -284,6 +292,40 @@ RUNTIME_PROBES = [
         expected_stdout=(
             "OS-POST-EDU19 temporal-fault-sequence "
             "basis=durable-owner-chain-v1 vectors=20 digest=3207911626 "
+            "result=PASS\n"
+        ),
+        expected_stderr="",
+        promotion_disposition="probe-only",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_os_post_edu19_temporal_pair_fault_matrix",
+        source=TEMPORAL_PAIR_FAULT_MATRIX_SOURCE,
+        inputs=(
+            POLICY_SOURCE,
+            EDU26_REUSE_POLICY_SOURCE,
+            EDU35_POLICY_SOURCE,
+            EDU37_MODEL_SOURCE,
+            EDU39_PHASE_OWNER_MODEL_SOURCE,
+            EDU40_MAILBOX_OWNER_MODEL_SOURCE,
+            EDU41_TWO_ACTIVE_MODEL_SOURCE,
+            DURABLE_OWNER_CHAIN_MODEL_SOURCE,
+            TEMPORAL_FAULT_SEQUENCE_MODEL_SOURCE,
+            TEMPORAL_PAIR_FAULT_MODEL_SOURCE,
+            TEMPORAL_PAIR_FAULT_MATRIX_SOURCE,
+        ),
+        note=(
+            "Frontier lane: paired temporal contradictions over the first "
+            "EDU-44 compiler model: checkpoint interruption plus generation "
+            "reuse, completion/retirement reordering, owner loss plus peer "
+            "corruption, stale ACK/mailbox/snapshot evidence crossing "
+            "generations, and exact rejection of a checksum-valid recovery "
+            "record with stale embedded identity. This is compiler-probe "
+            "evidence, not an EDU-45 OS implementation claim"
+        ),
+        expected_exit_code=0,
+        expected_stdout=(
+            "OS-POST-EDU19 temporal-pair-fault "
+            "basis=temporal-fault-sequence-v1 vectors=25 digest=2914858269 "
             "result=PASS\n"
         ),
         expected_stderr="",
@@ -779,6 +821,33 @@ OBJECT_PROBES = [
             "edu43_checkpoint_owner_valid",
             "edu43_generation_reuse_owner_valid",
             "edu43_phase_owner_active_valid",
+        ),
+        allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
+        forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,
+    ),
+    ObjectProbe(
+        probe_id="15__probe_os_post_edu19_temporal_pair_fault_object",
+        source=TEMPORAL_PAIR_FAULT_MODEL_SOURCE,
+        note=(
+            "Paired temporal-fault composition must remain deterministic, "
+            "freestanding, hardware-blind, no-red-zone, and limited to the "
+            "first temporal model plus exact frozen identity validators"
+        ),
+        required_exports=(
+            "edu44_pair_checkpoint_interruption_blocks_reuse",
+            "edu44_pair_completion_retirement_order_valid",
+            "edu44_pair_owner_loss_peer_corruption_rejected",
+            "edu44_stale_evidence_cross_generation_rejected",
+            "edu44_unique_recovery_candidate_valid",
+        ),
+        allowed_undefined=(
+            "edu26_ack_identity_valid",
+            "edu40_mailbox_dispatch_valid",
+            "edu43_checkpoint_owner_valid",
+            "edu44_mid_phase_owner_loss_preserves_peer",
+            "edu44_post_checkpoint_restart_rejects_stale",
+            "edu44_post_completion_retirement_blocks_redispatch",
+            "edu44_pre_ack_interruption_blocks_reuse",
         ),
         allowed_relocations=("R_X86_64_PC32", "R_X86_64_PLT32"),
         forbidden_instructions=HARDWARE_BLIND_FORBIDDEN,

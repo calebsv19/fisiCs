@@ -1254,6 +1254,7 @@
     "11-functions-calls-wave95-realproj-datalab-null-function-pointer.json",
     "12-diagnostics-recovery-wave45-dual-failing-tu-completeness.json",
     "12-diagnostics-recovery-wave46-rich-payload-aggregation.json",
-    "15-torture-differential-wave139-os-policy-probe-promotion-closure.json"
+    "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
+    "15-torture-differential-wave140-temporal-stable-oracles.json"
   ]
 }

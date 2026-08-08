@@ -234,24 +234,26 @@ phase-owner, EDU-40 mailbox, and EDU-41 runner helpers. It proves:
 
 Its paired object probe permits only the fourteen named frozen helper imports.
 The runtime matrix passes strict C99 Clang diagnostics and ASan/UBSan; its
-focused runtime/object pair resolves `2 / 2`; the post-EDU-19 aggregate
-resolves `48 / 48`; and the stable torture-differential replay closes at
+focused runtime/object pair resolves `2 / 2`; the post-EDU-19 aggregate now
+resolves `52 / 52`; and the stable torture-differential replay closes at
 `0 failing / 10 expected skips`.
 
-Stable torture-differential wave `139` promotes 88 deterministic OS-P3 and
-post-EDU-19 runtime cases with exact stdout oracles and reference-compiler
-parity. The refreshed promotion audit records `3577` promoted entries, `19`
-intentional probe-only entries, and no missing, critical, or ambiguous
-promotion candidates. The monitored broad checkpoint closes at `4984` passes,
-`0` failures, and `36` expected skips. The four remaining post-EDU-19
-policy/source mirrors stay explicitly probe-only because smaller stable cases
-own their compiler behavior.
+Stable torture-differential wave `140`
+(`15-torture-differential-wave140-temporal-stable-oracles.json`) adds four
+reduced temporal cases with exact stdout oracles and reference-compiler parity:
+checkpoint-recovery identity, stale ACK rejection, completion/retirement order,
+and peer-preserving owner loss. The refreshed promotion audit records `3577`
+mapped promotions, `21` intentional probe-only entries, and no missing,
+critical, or ambiguous promotion candidates; the stable final suite contains
+`4988` tests, and its monitored checkpoint closes at `4988` passes, `0`
+failures, and `36` expected skips. The large temporal policy/source matrices
+remain explicitly probe-only because these smaller cases own their compiler
+behavior.
 
-The next behavior-focused wave should exercise temporal fault sequences around
-this chain: interruption before ACK, restart after checkpoint selection,
-owner loss during a phase, and retirement after mailbox completion. Each
-sequence should reject stale re-admission while preserving the unaffected
-peer. Physical durability and BSP/AP execution remain OS-owned proof.
+The next behavior-focused wave should compose these temporal predicates across
+independent scheduler, queue, and wire-history models, while retaining exact
+stale-evidence rejection and peer preservation. Physical durability and BSP/AP
+execution remain OS-owned proof.
 
 ## Commands
 
@@ -461,6 +463,6 @@ PROBE_FILTER=15__probe_os_post_edu19_ \
 ```
 
 This probe prefix remains noncanonical frontier evidence. Deterministic runtime
-behavior with durable oracles belongs in stable wave `139` (or its narrower
+behavior with durable oracles belongs in stable wave `140` (or its narrower
 owning compiler bucket). Large source-snapshot or policy matrices may remain
 explicitly probe-only when a smaller stable oracle owns the compiler behavior.
