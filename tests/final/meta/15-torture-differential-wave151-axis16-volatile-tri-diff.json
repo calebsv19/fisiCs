@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [{
+    "id": "15__runtime_axis16_wave1_multitu_volatile_access_order",
+    "bucket": "torture-differential",
+    "input": "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_main.c",
+    "inputs": ["probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_main.c", "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_lib.c"],
+    "expects": [], "run": true, "expect_exit": 0,
+    "expected_stdout": "expect/15__runtime_axis16_wave1_multitu_volatile_access_order.stdout",
+    "differential": true, "differential_compiler": "cc", "standard": "c99",
+    "tags": ["runtime", "15", "axis16", "c99", "volatile", "linkage", "multitu", "clang-gcc16-tri-diff", "probe-promotion"],
+    "requires": [], "status": "ok"
+  }]
+}

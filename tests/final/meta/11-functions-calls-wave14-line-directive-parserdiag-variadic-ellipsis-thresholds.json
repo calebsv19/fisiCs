@@ -11,7 +11,7 @@
         "expect/11__line_directive_parserdiag_variadic_ellipsis_not_last_current_threshold.pdiag"
       ],
       "tags": ["line-directive", "parser-diag", "variadic", "current-threshold", "probe-promotion"],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -23,7 +23,7 @@
         "expect/11__line_directive_include_parserdiag_variadic_ellipsis_not_last_current_threshold.pdiag"
       ],
       "tags": ["line-directive", "parser-diag", "include", "variadic", "current-threshold", "probe-promotion"],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -35,7 +35,7 @@
         "expect/11__line_directive_parserdiag_prototype_ellipsis_then_param_reject_current_threshold.pdiag"
       ],
       "tags": ["line-directive", "parser-diag", "prototype", "variadic", "current-threshold", "probe-promotion"],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -47,7 +47,7 @@
         "expect/11__line_directive_include_parserdiag_prototype_ellipsis_then_param_reject_current_threshold.pdiag"
       ],
       "tags": ["line-directive", "parser-diag", "include", "prototype", "variadic", "current-threshold", "probe-promotion"],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     }

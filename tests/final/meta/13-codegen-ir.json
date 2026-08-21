@@ -227,6 +227,21 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "13__runtime_nested_pointer_aggregate_index",
+      "bucket": "codegen-ir",
+      "input": "cases/13__runtime_nested_pointer_aggregate_index.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_nested_pointer_aggregate_index.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "nested-index", "pointer-aggregate", "by-value", "redeclaration"],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

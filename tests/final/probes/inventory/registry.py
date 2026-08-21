@@ -64,6 +64,7 @@ from . import bucket_02_lexer
 from . import bucket_03_preprocessor
 from . import bucket_03_preprocessor_wave39
 from . import bucket_03_preprocessor_wave41
+from . import bucket_03_preprocessor_wave43
 from . import bucket_06_lvalues_rvalues
 from . import bucket_06_lvalues_rvalues_wave26
 from . import bucket_06_lvalues_rvalues_wave27
@@ -90,6 +91,7 @@ RUNTIME_PROBES = (
     bucket_03_preprocessor.RUNTIME_PROBES +
     bucket_03_preprocessor_wave39.RUNTIME_PROBES +
     bucket_03_preprocessor_wave41.RUNTIME_PROBES +
+    bucket_03_preprocessor_wave43.RUNTIME_PROBES +
     bucket_04_declarations.RUNTIME_PROBES +
     bucket_04_declarations_wave39.RUNTIME_PROBES +
     bucket_04_declarations_wave40.RUNTIME_PROBES +

@@ -14,7 +14,7 @@
         "parser-diag",
         "params"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -29,7 +29,7 @@
         "parser-diag",
         "variadic"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -44,7 +44,7 @@
         "parser-diag",
         "declarator"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -60,7 +60,7 @@
         "function-pointer",
         "params"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     }

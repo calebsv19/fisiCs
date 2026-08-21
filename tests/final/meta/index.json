@@ -1220,6 +1220,7 @@
     "14-runtime-surface-wave354-file-scope-compound-identity.json",
     "03-preprocessor-wave41-variadic-paste-argument-provenance.json",
     "03-preprocessor-wave42-has-include-defined.json",
+    "03-preprocessor-wave43-include-next-once-reentry.json",
     "06-lvalues-rvalues-wave28-volatile-aggregate-assignment.json",
     "06-lvalues-rvalues-wave29-realproj-drawing-program-pointer-array-assignment.json",
     "10-scopes-linkage-wave70-equal-compound-identity.json",
@@ -1257,6 +1258,19 @@
     "15-torture-differential-wave139-os-policy-probe-promotion-closure.json",
     "15-torture-differential-wave140-temporal-stable-oracles.json",
     "15-torture-differential-wave141-cross-model-temporal-oracle.json",
-    "15-torture-differential-wave142-edu48-frozen-program-selection.json"
+    "15-torture-differential-wave142-edu48-frozen-program-selection.json",
+    "15-torture-differential-wave143-axis8-compound-literal-tri-diff.json",
+    "15-torture-differential-wave144-axis9-complex-tri-diff.json",
+    "15-torture-differential-wave145-axis10-xmacro-linkage-tri-diff.json",
+    "15-torture-differential-wave146-axis11-uint64-tri-diff.json",
+    "15-torture-differential-wave147-axis12-static-inline-tri-diff.json",
+    "15-torture-differential-wave148-axis13-va-copy-tri-diff.json",
+    "15-torture-differential-wave149-axis14-vla-sizeof-tri-diff.json",
+    "15-torture-differential-wave150-axis15-flexible-array-tri-diff.json",
+    "15-torture-differential-wave151-axis16-volatile-tri-diff.json",
+    "15-torture-differential-wave152-axis17-restrict-tri-diff.json",
+    "15-torture-differential-wave153-axis18-signed-division-tri-diff.json",
+    "15-torture-differential-wave154-axis19-subobject-pointer-tri-diff.json",
+    "15-torture-differential-wave155-axis20-static-storage-tri-diff.json"
   ]
 }

@@ -1,12 +1,12 @@
 {
   "summary": {
-    "total_probes": 3600,
-    "total_final_tests": 4990,
-    "promoted": 3578,
+    "total_probes": 3615,
+    "total_final_tests": 5006,
+    "promoted": 3593,
     "probe_only": 22,
     "missing_promotion_candidate": 0,
     "promoted_match_kinds": {
-      "explicit-id": 496,
+      "explicit-id": 511,
       "id": 1507,
       "path": 1573,
       "stem": 2
@@ -34,7 +34,7 @@
       },
       {
         "bucket": "03",
-        "promoted": 100,
+        "promoted": 102,
         "probe_only": 0,
         "missing_promotion_candidate": 0
       },
@@ -106,7 +106,7 @@
       },
       {
         "bucket": "15",
-        "promoted": 629,
+        "promoted": 642,
         "probe_only": 21,
         "missing_promotion_candidate": 0
       }
@@ -126,7 +126,7 @@
       },
       {
         "family": "runtime",
-        "promoted": 1879,
+        "promoted": 1894,
         "probe_only": 8,
         "missing_promotion_candidate": 0
       }
@@ -29615,6 +29615,10 @@
         "classification": "inventory-only"
       },
       {
+        "path": "probes/runtime/15__probe_edu50_frozen_simulation_kernel.c",
+        "classification": "unowned"
+      },
+      {
         "path": "probes/runtime/15__probe_fuzz_seeded_expr_volume_replay.c",
         "classification": "inventory-only"
       },
@@ -29896,6 +29900,22 @@
       },
       {
         "path": "probes/runtime/15__probe_osp3_object_switch_transition.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_p4_object_policy_internal_calls.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_p4_object_policy_load_plan.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_p4_object_policy_rodata_bss.c",
+        "classification": "unowned"
+      },
+      {
+        "path": "probes/runtime/15__probe_p4_object_policy_undefined_external.c",
         "classification": "unowned"
       },
       {
@@ -39148,6 +39168,72 @@
             "runtime",
             "wave41",
             "probe-frontier"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "03__probe_wave43_include_next_once_reentry_guarded_runtime",
+      "bucket": "03",
+      "source": "probes/runtime/03__probe_wave43_include_next_once_reentry_guarded_runtime.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "wave43 reduced control: the same five-level #include_next path is valid when the re-entered first header has a once barrier; quote/angle search order, inactive missing-include skipping, and protected restart must preserve the deterministic macro result",
+      "promoted_test_id": "03__runtime_wave43_include_next_once_reentry_guarded",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "03__runtime_wave43_include_next_once_reentry_guarded",
+          "manifest": "03-preprocessor-wave43-include-next-once-reentry.json",
+          "input": "probes/runtime/03__probe_wave43_include_next_once_reentry_guarded_runtime.c",
+          "inputs": [],
+          "tags": [
+            "preprocessor",
+            "include-next",
+            "search-order",
+            "pragma-once",
+            "inactive-branch",
+            "reentry",
+            "runtime",
+            "wave43"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "03__probe_wave43_include_next_once_reentry_runtime",
+      "bucket": "03",
+      "source": "probes/runtime/03__probe_wave43_include_next_once_reentry_runtime.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "wave43 include-path frontier: a five-level #include_next chain must preserve quote/angle next-search order, skip inactive missing includes, honor two pragma-once barriers, and safely re-enter at the first include path without restarting the protected chain",
+      "promoted_test_id": "03__runtime_wave43_include_next_once_reentry",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "03__runtime_wave43_include_next_once_reentry",
+          "manifest": "03-preprocessor-wave43-include-next-once-reentry.json",
+          "input": "probes/runtime/03__probe_wave43_include_next_once_reentry_runtime.c",
+          "inputs": [],
+          "tags": [
+            "preprocessor",
+            "include-next",
+            "search-order",
+            "pragma-once",
+            "inactive-branch",
+            "reentry",
+            "runtime",
+            "wave43"
           ],
           "status": "ok"
         }
@@ -149198,6 +149284,388 @@
     },
     {
       "family": "runtime",
+      "probe_id": "15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold_main.c",
+        "probes/runtime/15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis10 wave1: defined C99 X-macro-generated enum/prototype linkage and seeded dispatch across translation units must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis10_wave1_multitu_xmacro_linkage_seed_fold",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis10_wave1_multitu_xmacro_linkage_seed_fold",
+          "manifest": "15-torture-differential-wave145-axis10-xmacro-linkage-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold_main.c",
+            "probes/runtime/15__probe_axis10_wave1_runtime_clang_gcc16_tri_diff_multitu_xmacro_linkage_seed_fold_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis10",
+            "c99",
+            "xmacro",
+            "preprocessor",
+            "linkage",
+            "multitu",
+            "seeded",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet_main.c",
+        "probes/runtime/15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis11 wave1: defined C99 fixed-width unsigned rotation and aggregate return across translation units must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis11_wave1_multitu_uint64_rotate_packet",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis11_wave1_multitu_uint64_rotate_packet",
+          "manifest": "15-torture-differential-wave146-axis11-uint64-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet_main.c",
+            "probes/runtime/15__probe_axis11_wave1_runtime_clang_gcc16_tri_diff_multitu_uint64_rotate_packet_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis11",
+            "c99",
+            "stdint",
+            "uint64",
+            "rotation",
+            "aggregate-return",
+            "multitu",
+            "seeded",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state_main.c",
+        "probes/runtime/15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis12 wave1: defined C99 static-inline function-local state must remain translation-unit-local and match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis12_wave1_multitu_static_inline_local_state",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis12_wave1_multitu_static_inline_local_state",
+          "manifest": "15-torture-differential-wave147-axis12-static-inline-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state_main.c",
+            "probes/runtime/15__probe_axis12_wave1_runtime_clang_gcc16_tri_diff_multitu_static_inline_local_state_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis12",
+            "c99",
+            "static-inline",
+            "local-static",
+            "linkage",
+            "multitu",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis13_wave1_runtime_clang_gcc16_tri_diff_va_copy_dual_fold",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis13_wave1_runtime_clang_gcc16_tri_diff_va_copy_dual_fold.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis13 wave1: defined C99 va_copy traversal must preserve an independent variadic argument cursor and match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis13_wave1_va_copy_dual_fold",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis13_wave1_va_copy_dual_fold",
+          "manifest": "15-torture-differential-wave148-axis13-va-copy-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis13_wave1_runtime_clang_gcc16_tri_diff_va_copy_dual_fold.c",
+          "inputs": [],
+          "tags": [
+            "runtime",
+            "15",
+            "axis13",
+            "c99",
+            "stdarg",
+            "va-copy",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis14_wave1_runtime_clang_gcc16_tri_diff_vla_sizeof_evaluation",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis14_wave1_runtime_clang_gcc16_tri_diff_vla_sizeof_evaluation.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis14 wave1: defined C99 VLA bound evaluation inside sizeof must occur at runtime and match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis14_wave1_vla_sizeof_evaluation",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis14_wave1_vla_sizeof_evaluation",
+          "manifest": "15-torture-differential-wave149-axis14-vla-sizeof-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis14_wave1_runtime_clang_gcc16_tri_diff_vla_sizeof_evaluation.c",
+          "inputs": [],
+          "tags": [
+            "runtime",
+            "15",
+            "axis14",
+            "c99",
+            "vla",
+            "sizeof",
+            "evaluation",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet_main.c",
+        "probes/runtime/15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis15 wave1: defined C99 flexible-array-member allocation and multi-TU payload access must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis15_wave1_multitu_flexible_array_packet",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis15_wave1_multitu_flexible_array_packet",
+          "manifest": "15-torture-differential-wave150-axis15-flexible-array-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet_main.c",
+            "probes/runtime/15__probe_axis15_wave1_runtime_clang_gcc16_tri_diff_multitu_flexible_array_packet_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis15",
+            "c99",
+            "flexible-array",
+            "allocation",
+            "linkage",
+            "multitu",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_main.c",
+        "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis16 wave1: defined C99 volatile reads and writes across translation units must retain the sequenced access transcript for clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis16_wave1_multitu_volatile_access_order",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis16_wave1_multitu_volatile_access_order",
+          "manifest": "15-torture-differential-wave151-axis16-volatile-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_main.c",
+            "probes/runtime/15__probe_axis16_wave1_runtime_clang_gcc16_tri_diff_multitu_volatile_access_order_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis16",
+            "c99",
+            "volatile",
+            "linkage",
+            "multitu",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis17_wave1_runtime_clang_gcc16_tri_diff_restrict_transform",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis17_wave1_runtime_clang_gcc16_tri_diff_restrict_transform.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis17 wave1: defined C99 restrict-qualified non-overlapping transforms must preserve the same result for clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis17_wave1_restrict_transform",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis17_wave1_restrict_transform",
+          "manifest": "15-torture-differential-wave152-axis17-restrict-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis17_wave1_runtime_clang_gcc16_tri_diff_restrict_transform.c",
+          "inputs": [],
+          "tags": [
+            "runtime",
+            "15",
+            "axis17",
+            "c99",
+            "restrict",
+            "non-alias",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis18_wave1_runtime_clang_gcc16_tri_diff_signed_division_remainder",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis18_wave1_runtime_clang_gcc16_tri_diff_signed_division_remainder.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis18 wave1: defined C99 signed division/remainder truncation cases, excluding division-by-zero and INT_MIN/-1, must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis18_wave1_signed_division_remainder",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis18_wave1_signed_division_remainder",
+          "manifest": "15-torture-differential-wave153-axis18-signed-division-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis18_wave1_runtime_clang_gcc16_tri_diff_signed_division_remainder.c",
+          "inputs": [],
+          "tags": [
+            "runtime",
+            "15",
+            "axis18",
+            "c99",
+            "signed-division",
+            "remainder",
+            "no-overflow",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk_main.c",
+        "probes/runtime/15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis19 wave1: defined C99 nested-array subobject pointer traversal, without cross-subarray pointer arithmetic, must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis19_wave1_multitu_subobject_pointer_walk",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis19_wave1_multitu_subobject_pointer_walk",
+          "manifest": "15-torture-differential-wave154-axis19-subobject-pointer-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk_main.c",
+            "probes/runtime/15__probe_axis19_wave1_runtime_clang_gcc16_tri_diff_multitu_subobject_pointer_walk_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis19",
+            "c99",
+            "pointer",
+            "subobject",
+            "linkage",
+            "multitu",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
       "probe_id": "15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash",
       "bucket": "15",
       "source": "probes/runtime/15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash_main.c",
@@ -149928,6 +150396,47 @@
             "wave9",
             "multitu",
             "promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization_main.c",
+        "probes/runtime/15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis20 wave1: defined C99 file-scope static storage zero and explicit initialization across translation units must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis20_wave1_multitu_static_storage_initialization",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis20_wave1_multitu_static_storage_initialization",
+          "manifest": "15-torture-differential-wave155-axis20-static-storage-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization_main.c",
+            "probes/runtime/15__probe_axis20_wave1_runtime_clang_gcc16_tri_diff_multitu_static_storage_initialization_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis20",
+            "c99",
+            "static-storage",
+            "initialization",
+            "linkage",
+            "multitu",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
           ],
           "status": "ok"
         }
@@ -156030,6 +156539,80 @@
             "wave4",
             "lexical-alpha",
             "unique-name-control"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis8_wave1_runtime_clang_gcc_tri_diff_compound_literal_lifetime_copy_matrix",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis8_wave1_runtime_clang_gcc_tri_diff_compound_literal_lifetime_copy_matrix.c",
+      "inputs": [],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis8 wave1: defined C99 automatic compound-literal object identity, designated initialization, and aggregate-value-copy matrix must match both clang and Homebrew GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis8_wave1_compound_literal_lifetime_copy_matrix",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis8_wave1_compound_literal_lifetime_copy_matrix",
+          "manifest": "15-torture-differential-wave143-axis8-compound-literal-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis8_wave1_runtime_clang_gcc_tri_diff_compound_literal_lifetime_copy_matrix.c",
+          "inputs": [],
+          "tags": [
+            "runtime",
+            "15",
+            "axis8",
+            "c99",
+            "compound-literal",
+            "aggregate-copy",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold_main.c",
+        "probes/runtime/15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "axis9 wave1: defined C99 integral-valued complex arithmetic and aggregate return across translation units must match clang and GNU GCC 16",
+      "promoted_test_id": "15__runtime_axis9_wave1_multitu_complex_packet_seed_fold",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis9_wave1_multitu_complex_packet_seed_fold",
+          "manifest": "15-torture-differential-wave144-axis9-complex-tri-diff.json",
+          "input": "probes/runtime/15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold_main.c",
+            "probes/runtime/15__probe_axis9_wave1_runtime_clang_gcc16_tri_diff_multitu_complex_packet_seed_fold_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "15",
+            "axis9",
+            "c99",
+            "complex",
+            "aggregate-return",
+            "multitu",
+            "seeded",
+            "clang-gcc16-tri-diff",
+            "probe-promotion"
           ],
           "status": "ok"
         }

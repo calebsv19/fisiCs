@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [{
+    "id": "15__runtime_axis17_wave1_restrict_transform",
+    "bucket": "torture-differential",
+    "input": "probes/runtime/15__probe_axis17_wave1_runtime_clang_gcc16_tri_diff_restrict_transform.c",
+    "expects": [], "run": true, "expect_exit": 0,
+    "expected_stdout": "expect/15__runtime_axis17_wave1_restrict_transform.stdout",
+    "differential": true, "differential_compiler": "cc", "standard": "c99",
+    "tags": ["runtime", "15", "axis17", "c99", "restrict", "non-alias", "clang-gcc16-tri-diff", "probe-promotion"],
+    "requires": [], "status": "ok"
+  }]
+}

@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave43_include_next_once_reentry",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_wave43_include_next_once_reentry_runtime.c",
+      "args": [
+        "-Itests/final/probes/runtime/pp_inext_reentry_p1",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p2",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p3",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p4",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p5"
+      ],
+      "reference_args": [
+        "-Itests/final/probes/runtime/pp_inext_reentry_p1",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p2",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p3",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p4",
+        "-Itests/final/probes/runtime/pp_inext_reentry_p5"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-next", "search-order", "pragma-once", "inactive-branch", "reentry", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave43_include_next_once_reentry_guarded",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_wave43_include_next_once_reentry_guarded_runtime.c",
+      "args": [
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p1",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p2",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p3",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p4",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p5"
+      ],
+      "reference_args": [
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p1",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p2",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p3",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p4",
+        "-Itests/final/probes/runtime/pp_inext_reentry_guarded_p5"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-next", "search-order", "pragma-once", "inactive-branch", "reentry", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

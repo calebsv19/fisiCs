@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [{
+    "id": "15__runtime_axis18_wave1_signed_division_remainder",
+    "bucket": "torture-differential",
+    "input": "probes/runtime/15__probe_axis18_wave1_runtime_clang_gcc16_tri_diff_signed_division_remainder.c",
+    "expects": [], "run": true, "expect_exit": 0,
+    "expected_stdout": "expect/15__runtime_axis18_wave1_signed_division_remainder.stdout",
+    "differential": true, "differential_compiler": "cc", "standard": "c99",
+    "tags": ["runtime", "15", "axis18", "c99", "signed-division", "remainder", "no-overflow", "clang-gcc16-tri-diff", "probe-promotion"],
+    "requires": [], "status": "ok"
+  }]
+}

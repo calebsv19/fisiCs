@@ -15,7 +15,7 @@
         "prototype",
         "params"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -31,7 +31,7 @@
         "prototype",
         "variadic"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -47,7 +47,7 @@
         "prototype",
         "params"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -63,7 +63,7 @@
         "prototype",
         "variadic"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -79,7 +79,7 @@
         "prototype",
         "recovery"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     }
