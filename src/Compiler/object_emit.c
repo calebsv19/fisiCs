@@ -244,7 +244,7 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     bool freestandingX86_64 = target_is_x86_64_unknown_none(triple);
     if (freestandingX86_64) {
         cpu = "x86-64";
-        reloc = LLVMRelocStatic;
+        reloc = LLVMRelocPIC;
         codeModel = LLVMCodeModelSmall;
         if (!apply_freestanding_x86_64_function_attributes(module, errorOut)) {
             if (tripleNeedsDispose) LLVMDisposeMessage(triple);

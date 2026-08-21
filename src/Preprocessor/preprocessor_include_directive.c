@@ -12,6 +12,8 @@
 #include "Lexer/tokens.h"
 #include "Utils/profiler.h"
 
+#define FISICS_MAX_INCLUDE_DEPTH 256u
+
 static IncludeFile* pp_include_file_at(Preprocessor* pp, size_t includeFileIndex) {
     if (!pp || !pp->resolver) return NULL;
     if (includeFileIndex >= pp->resolver->count) return NULL;
@@ -573,17 +575,44 @@ bool process_include(Preprocessor* pp,
         return true;
     }
 
-    if (includeWouldRecurse) {
-        if (incValue->pragmaOnce) {
-            pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_recursive_pragma_once", 1);
-            if (nestedIncludeDispatch) {
-                pp_profile_event("pp_nested_include_recursive_pragma_once_skip");
-            }
-            pp->lineOffset = savedOffset;
-            pp->logicalFile = savedLogical;
-            pp->lineRemapActive = savedRemap;
+    if (includeWouldRecurse && incValue->pragmaOnce) {
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_recursive_pragma_once", 1);
+        if (nestedIncludeDispatch) {
+            pp_profile_event("pp_nested_include_recursive_pragma_once_skip");
+        }
+        pp->lineOffset = savedOffset;
+        pp->logicalFile = savedLogical;
+        pp->lineRemapActive = savedRemap;
+        return true;
+    }
+
+    const PPIncludeFrame* activeFrame = pp_include_stack_top(pp);
+    bool reentryViaEarlierIncludePath =
+        includeWouldRecurse &&
+        origin == INCLUDE_SEARCH_INCLUDE_PATH &&
+        activeFrame &&
+        activeFrame->origin == INCLUDE_SEARCH_INCLUDE_PATH &&
+        originIndex < activeFrame->originIndex;
+    if (includeWouldRecurse && !reentryViaEarlierIncludePath) {
+        if (nestedIncludeDispatch) {
+            pp_profile_event("pp_nested_include_recursive_cycle");
+        }
+        pp->lineOffset = savedOffset;
+        pp->logicalFile = savedLogical;
+        pp->lineRemapActive = savedRemap;
+        if (pp->lenientMissingIncludes) {
             return true;
         }
+        pp_report_diag(pp,
+                       tokens ? &tokens[*cursor] : NULL,
+                       DIAG_ERROR,
+                       CDIAG_PREPROCESSOR_GENERIC,
+                       "detected recursive include of '%s'",
+                       incValue->path ? incValue->path : "<unknown>");
+        return false;
+    }
+
+    if (pp->includeStack.depth >= FISICS_MAX_INCLUDE_DEPTH) {
         if (nestedIncludeDispatch) {
             pp_profile_event("pp_nested_include_recursive_cycle");
         }

@@ -105,10 +105,17 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     if (arrayParsedResolved && arrayParsedResolved->kind != TYPE_INVALID) {
         arrayParsed = arrayParsedResolved;
     }
-    static ParsedType expandedArrayParsed;
-    parsedTypeFree(&expandedArrayParsed);
+    /* This type must remain valid while the index expression is lowered.
+       Nested array accesses re-enter this routine, so a static scratch type
+       would be overwritten by the nested expression (for example, with the
+       integer index type) before the outer access selects its element type. */
+    ParsedType expandedArrayParsed;
+    memset(&expandedArrayParsed, 0, sizeof(expandedArrayParsed));
+    expandedArrayParsed.kind = TYPE_INVALID;
+    bool expandedArrayParsedOwned = false;
     if (cg_expand_surface_typedef_parsed_type(ctx, arrayParsed, &expandedArrayParsed)) {
         arrayParsed = &expandedArrayParsed;
+        expandedArrayParsedOwned = true;
     }
     bool baseIsDirectArray = (arrayParsed && parsedTypeIsDirectArray(arrayParsed)) ||
                              (arrayType && LLVMGetTypeKind(arrayType) == LLVMArrayTypeKind);
@@ -130,6 +137,7 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     }
     LLVMValueRef index = codegenNode(ctx, node->arrayAccess.index);
     if (!arrayPtr || !index) {
+        if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
         fprintf(stderr, "Error: Array access failed\n");
         return NULL;
     }
@@ -177,7 +185,10 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         }
 
         LLVMValueRef offset = ensureIntegerLike(ctx, index);
-        if (!offset) return NULL;
+        if (!offset) {
+            if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
+            return NULL;
+        }
         if (arrayDims > 1) {
             offset = LLVMBuildMul(ctx->builder, offset, stride, "vla.offset");
         }
@@ -187,9 +198,11 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
 
         bool hasMoreDims = arrayDims > 1;
         if (hasMoreDims) {
+            if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
             return elementPtr;
         }
         LLVMValueRef loadVal = LLVMBuildLoad2(ctx->builder, elemType, elementPtr, "arrayLoad");
+        if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
         return loadVal;
     }
     char* arrTyStr = LLVMPrintTypeToString(LLVMTypeOf(arrayPtr));
@@ -227,6 +240,7 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
                                                        elementHint,
                                                        &derivedElementType);
     if (!elementPtr) {
+        if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
         fprintf(stderr, "Error: Failed to compute array element pointer\n");
         return NULL;
     }
@@ -248,6 +262,7 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         }
         parsedTypeFree(&pointed);
         if (pointerToVLAArray) {
+            if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
             return elementPtr;
         }
     }
@@ -272,6 +287,7 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     }
     if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
         if (LLVMGetTypeKind(ptrToElemType) == LLVMPointerTypeKind && LLVMGetElementType(ptrToElemType) == NULL) {
+            if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
             fprintf(stderr, "Error: opaque pointer array access without element hint\n");
             return NULL;
         }
@@ -289,13 +305,16 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     }
     if (!typedElementPtr || !LLVMTypeOf(typedElementPtr) ||
         LLVMGetTypeKind(LLVMTypeOf(typedElementPtr)) != LLVMPointerTypeKind) {
+        if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
         fprintf(stderr, "Error: invalid pointer for array load\n");
         return NULL;
     }
     if (loadTy && LLVMGetTypeKind(loadTy) == LLVMArrayTypeKind) {
         LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
         LLVMValueRef idxs[2] = { zero, zero };
-        return LLVMBuildGEP2(ctx->builder, loadTy, typedElementPtr, idxs, 2, "array.elem.decay");
+        LLVMValueRef decay = LLVMBuildGEP2(ctx->builder, loadTy, typedElementPtr, idxs, 2, "array.elem.decay");
+        if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
+        return decay;
     }
     if (dbgRun) fprintf(stderr, "[CG] array load begin\n");
     LLVMTypeRef expectedPtrTy = LLVMPointerType(loadTy, 0);
@@ -303,6 +322,7 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         typedElementPtr = LLVMBuildBitCast(ctx->builder, typedElementPtr, expectedPtrTy, "array.elem.cast");
     }
     LLVMValueRef loadVal = LLVMBuildLoad2(ctx->builder, loadTy, typedElementPtr, "arrayLoad");
+    if (expandedArrayParsedOwned) parsedTypeFree(&expandedArrayParsed);
     CG_DEBUG("[CG] Array element load complete\n");
     if (dbgRun) fprintf(stderr, "[CG] array access end\n");
     return loadVal;

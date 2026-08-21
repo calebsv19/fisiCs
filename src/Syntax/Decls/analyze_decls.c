@@ -684,9 +684,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             Symbol* existing = lookupSymbol(&scope->table, funcName->valueNode.value);
             if (existing && existing->kind == SYMBOL_FUNCTION) {
                 if (!existing->definition) {
-                    existing->type = node->type == AST_FUNCTION_DEFINITION
-                                         ? node->functionDef.returnType
-                                         : node->functionDecl.returnType;
+                    ParsedType reboundType = parsedTypeClone(
+                        node->type == AST_FUNCTION_DEFINITION
+                            ? &node->functionDef.returnType
+                            : &node->functionDecl.returnType);
+                    if (reboundType.kind == TYPE_INVALID) {
+                        parsedTypeFree(&reboundType);
+                        break;
+                    }
+                    parsedTypeFree(&existing->type);
+                    existing->type = reboundType;
                     invalidateSymbolTypeInfoCache(existing);
                     resetFunctionSignature(existing);
                     if (node->type == AST_FUNCTION_DEFINITION) {
@@ -810,7 +817,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 }
 
                 if (node->type == AST_FUNCTION_DEFINITION) {
-                    existing->type = node->functionDef.returnType;
+                    /* mergeCompatibleParsedTypeDetailsInScope above installs an
+                       owned canonical copy. Do not replace it with the
+                       definition AST's borrowed return type: later compatible
+                       redeclarations may free the symbol type while codegen
+                       still consults it. */
                     invalidateSymbolTypeInfoCache(existing);
                     existing->definition = node;
                     if (node->functionDef.hasPrototype ||
@@ -917,9 +928,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             if (!sym) break;
             sym->name = strdup(funcName->valueNode.value);
             sym->kind = SYMBOL_FUNCTION;
-            sym->type = node->type == AST_FUNCTION_DEFINITION
-                            ? node->functionDef.returnType
-                            : node->functionDecl.returnType;
+            sym->type = parsedTypeClone(
+                node->type == AST_FUNCTION_DEFINITION
+                    ? &node->functionDef.returnType
+                    : &node->functionDecl.returnType);
+            if (sym->type.kind == TYPE_INVALID) {
+                parsedTypeFree(&sym->type);
+                free(sym->name);
+                free(sym);
+                break;
+            }
             sym->definition = node;
             sym->storage = storage;
             sym->linkage = linkage;
