@@ -36,6 +36,11 @@ class ObjectProbe:
     forbidden_instructions: Sequence[str] = ()
     forbid_red_zone: bool = True
     scalar_sse2: bool = False
+    required_section_flags: Mapping[str, Sequence[str]] | None = None
+    required_section_prefix_flags: Mapping[str, Sequence[str]] | None = None
+    expected_source_sha256: str | None = None
+    expected_fisics_object_sha256: str | None = None
+    expected_policy_rejection: str | None = None
     fisics_args: Sequence[str] | None = None
     clang_args: Sequence[str] | None = None
 

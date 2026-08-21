@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 
 import json
+import signal
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from lib.exec import _merge_timeout_output
+from lib.exec import _merge_timeout_output, run_cmd
 from lib.models import DiagnosticExpectation, DiagnosticJsonProbe, DiagnosticProbe, ObjectProbe, RuntimeProbe
 from lib.runner import (
     compile_output_substrings,
+    differential_executable_name,
     diagnostic_record_matches,
     main,
     mixed_object_path,
@@ -19,14 +22,45 @@ from lib.runner import (
     run_object_probe,
     run_runtime_probe,
     runtime_stdout_oracle_mismatch,
+    resolve_extra_differential_compiler,
     stable_json_identity_expectations,
     stable_oracle_path_for_probe,
     stable_text_identity_markers,
+    versioned_gcc_candidates,
 )
 from lib.taxonomy import classify_blocked_probe
 
 
 class ProbeRunnerContractTests(unittest.TestCase):
+    def test_differential_executable_name_uses_compiler_basename(self):
+        self.assertEqual(
+            differential_executable_name("/opt/homebrew/opt/gcc/bin/gcc-16"),
+            "gcc-16.out",
+        )
+
+    def test_gcc_resolver_honors_explicit_gnu_gcc_override(self):
+        with patch.dict(
+            "lib.runner.os.environ",
+            {"FISICS_GNU_GCC": "/opt/homebrew/opt/gcc/bin/gcc-16"},
+            clear=False,
+        ), patch("lib.runner.shutil.which", return_value="/usr/bin/gcc"), patch.dict(
+            "lib.runner._EXTRA_COMPILER_PATHS", {}, clear=True
+        ):
+            self.assertEqual(
+                resolve_extra_differential_compiler("gcc"),
+                "/opt/homebrew/opt/gcc/bin/gcc-16",
+            )
+
+    def test_versioned_gcc_candidates_exclude_binutils_helpers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("gcc-15", "gcc-16", "gcc-ar-16", "gcc-nm-16", "gcc-ranlib-16"):
+                (root / name).touch()
+            self.assertEqual(
+                [path.name for path in versioned_gcc_candidates(root)],
+                ["gcc-15", "gcc-16"],
+            )
+
     def test_timeout_output_normalizes_mixed_bytes_and_text(self):
         timeout = SimpleNamespace(
             stdout=b"partial stdout \xff\n",
@@ -35,6 +69,39 @@ class ProbeRunnerContractTests(unittest.TestCase):
         self.assertEqual(
             _merge_timeout_output(timeout),
             "partial stdout \ufffd\npartial stderr\n",
+        )
+
+    def test_command_timeout_terminates_and_reaps_its_process_group(self):
+        proc = Mock(pid=9123)
+        proc.communicate.side_effect = [
+            subprocess.TimeoutExpired(["fake-compiler"], 1, output="partial\n"),
+            ("drained\n", None),
+        ]
+        with patch("lib.exec.subprocess.Popen", return_value=proc) as popen, patch(
+            "lib.exec.os.killpg"
+        ) as killpg:
+            exit_code, output, timed_out = run_cmd(["fake-compiler"], 1)
+
+        self.assertEqual((exit_code, output, timed_out), (124, "drained\n", True))
+        self.assertEqual(killpg.call_args_list[0].args, (9123, signal.SIGTERM))
+        self.assertTrue(popen.call_args.kwargs["start_new_session"])
+
+    def test_command_timeout_escalates_when_children_do_not_exit(self):
+        proc = Mock(pid=9124)
+        proc.communicate.side_effect = [
+            subprocess.TimeoutExpired(["fake-compiler"], 1),
+            subprocess.TimeoutExpired(["fake-compiler"], 1),
+            ("killed\n", None),
+        ]
+        with patch("lib.exec.subprocess.Popen", return_value=proc), patch(
+            "lib.exec.os.killpg"
+        ) as killpg:
+            exit_code, output, timed_out = run_cmd(["fake-compiler"], 1)
+
+        self.assertEqual((exit_code, output, timed_out), (124, "killed\n", True))
+        self.assertEqual(
+            [call.args for call in killpg.call_args_list],
+            [(9124, signal.SIGTERM), (9124, signal.SIGKILL)],
         )
 
     def test_diagnostic_identity_rejects_wrong_file_message_or_trace_order(self):

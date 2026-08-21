@@ -1,5 +1,7 @@
 import json
+import hashlib
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -31,6 +33,7 @@ COMPILE_TIMEOUT_SEC = 20
 RUN_TIMEOUT_SEC = 8
 
 _STABLE_ORACLE_INDEX = None
+_EXTRA_COMPILER_PATHS = {}
 
 
 def stable_oracle_index():
@@ -249,9 +252,69 @@ def object_contract(probe, *, clang_reference=False):
     }
 
 
+def verify_object_section_policy(probe, object_path, readobj):
+    exit_code, output, timed_out = run_cmd(
+        [str(readobj), "--sections", str(object_path)], COMPILE_TIMEOUT_SEC
+    )
+    if timed_out:
+        raise RuntimeError("llvm-readobj --sections timeout")
+    if exit_code != 0:
+        raise RuntimeError(f"llvm-readobj --sections failed ({exit_code})")
+
+    sections = {}
+    for block in re.findall(r"  Section \{\n(.*?)\n  \}", output, re.DOTALL):
+        name_match = re.search(r"^    Name: ([^\s(]+)", block, re.MULTILINE)
+        if not name_match:
+            continue
+        flags = set(re.findall(r"\bSHF_[A-Z_]+\b", block))
+        section_name = name_match.group(1)
+        sections[section_name] = flags
+        if "SHF_WRITE" in flags and "SHF_EXECINSTR" in flags:
+            raise RuntimeError(
+                f"writable executable section rejected: {section_name}"
+            )
+
+    for section_name, required_flags in (probe.required_section_flags or {}).items():
+        actual_flags = sections.get(section_name)
+        if actual_flags is None:
+            raise RuntimeError(f"required section missing: {section_name}")
+        missing_flags = sorted(set(required_flags) - actual_flags)
+        if missing_flags:
+            raise RuntimeError(
+                f"section {section_name} missing required flags: {missing_flags}"
+            )
+    for section_prefix, required_flags in (
+        probe.required_section_prefix_flags or {}
+    ).items():
+        matches = [
+            (section_name, flags)
+            for section_name, flags in sections.items()
+            if section_name.startswith(section_prefix)
+        ]
+        if not matches:
+            raise RuntimeError(f"required section prefix missing: {section_prefix}")
+        if not any(set(required_flags).issubset(flags) for _, flags in matches):
+            observed = {
+                section_name: sorted(flags) for section_name, flags in matches
+            }
+            raise RuntimeError(
+                f"section prefix {section_prefix} missing required flags: "
+                f"required={sorted(required_flags)} observed={observed}"
+            )
+    return sections
+
+
 def run_object_probe(probe, clang_path, fisics_bin, readobj, objdump):
     if not probe.source.is_file():
         return ("BLOCKED", "probe input missing", str(probe.source))
+    if probe.expected_source_sha256 is not None:
+        actual_source_sha256 = hashlib.sha256(probe.source.read_bytes()).hexdigest()
+        if actual_source_sha256 != probe.expected_source_sha256:
+            return (
+                "BLOCKED",
+                "probe source receipt mismatch",
+                f"expected={probe.expected_source_sha256} actual={actual_source_sha256}",
+            )
     with tempfile.TemporaryDirectory(prefix=f"probe-object-{probe.probe_id}-") as tmp:
         tmp_dir = Path(tmp)
         fisics_a = tmp_dir / "fisics-a.o"
@@ -291,6 +354,14 @@ def run_object_probe(probe, clang_path, fisics_bin, readobj, objdump):
                 "fisics object mismatch across identical replay",
                 "",
             )
+        if probe.expected_fisics_object_sha256 is not None:
+            actual_object_sha256 = hashlib.sha256(fisics_a.read_bytes()).hexdigest()
+            if actual_object_sha256 != probe.expected_fisics_object_sha256:
+                return (
+                    "BLOCKED",
+                    "fisiCs object receipt mismatch",
+                    f"expected={probe.expected_fisics_object_sha256} actual={actual_object_sha256}",
+                )
         try:
             fisics_facts = verify_object(
                 object_path=fisics_a,
@@ -298,8 +369,25 @@ def run_object_probe(probe, clang_path, fisics_bin, readobj, objdump):
                 objdump=objdump,
                 contract=object_contract(probe),
             )
+            verify_object_section_policy(probe, fisics_a, readobj)
         except Exception as exc:
+            if (
+                probe.expected_policy_rejection is not None
+                and probe.expected_policy_rejection in str(exc)
+            ):
+                return (
+                    "RESOLVED",
+                    "fisiCs object reaches the expected P4 policy rejection",
+                    f"policy_rejection={exc}",
+                )
             return ("BLOCKED", "fisics object mismatch", str(exc))
+
+        if probe.expected_policy_rejection is not None:
+            return (
+                "BLOCKED",
+                "fisiCs object unexpectedly passed P4 policy",
+                f"expected_policy_rejection={probe.expected_policy_rejection}",
+            )
 
         if not clang_path:
             return (
@@ -354,6 +442,7 @@ def run_object_probe(probe, clang_path, fisics_bin, readobj, objdump):
                 objdump=objdump,
                 contract=object_contract(probe, clang_reference=True),
             )
+            verify_object_section_policy(probe, clang_a, readobj)
         except Exception as exc:
             return ("BLOCKED", "clang object mismatch", str(exc))
 
@@ -465,6 +554,44 @@ def runtime_stdout_oracle_mismatch(probe, actual_stdout):
         )
         return f"stdout expected one of=[{expected}] actual={actual_stdout.strip()}"
     return None
+
+
+def differential_executable_name(compiler_name):
+    return f"{Path(compiler_name).name}.out"
+
+
+def versioned_gcc_candidates(bin_dir):
+    """Return GCC driver binaries without selecting gcc-ar/nm/ranlib helpers."""
+    return sorted(
+        candidate
+        for candidate in Path(bin_dir).glob("gcc-*")
+        if candidate.is_file() and re.fullmatch(r"gcc-[0-9]+", candidate.name)
+    )
+
+
+def resolve_extra_differential_compiler(compiler_name):
+    cached = _EXTRA_COMPILER_PATHS.get(compiler_name)
+    if cached is not None:
+        return cached
+
+    resolved = shutil.which(compiler_name)
+    if compiler_name != "gcc" or not resolved:
+        _EXTRA_COMPILER_PATHS[compiler_name] = resolved
+        return resolved
+
+    configured = os.environ.get("FISICS_GNU_GCC", "").strip()
+    if configured and Path(configured).is_file():
+        _EXTRA_COMPILER_PATHS[compiler_name] = configured
+        return configured
+
+    exit_code, version, timed_out = run_cmd([resolved, "--version"], COMPILE_TIMEOUT_SEC)
+    if not timed_out and exit_code == 0 and "Apple clang" in version:
+        candidates = versioned_gcc_candidates("/opt/homebrew/opt/gcc/bin")
+        if candidates:
+            resolved = str(candidates[-1])
+
+    _EXTRA_COMPILER_PATHS[compiler_name] = resolved
+    return resolved
 
 
 def run_runtime_probe(probe, clang_path, fisics_bin):
@@ -635,7 +762,7 @@ def run_runtime_probe(probe, clang_path, fisics_bin):
 
         if same and probe.extra_differential_compiler:
             extra_compiler_name = probe.extra_differential_compiler
-            extra_compiler_path = shutil.which(extra_compiler_name)
+            extra_compiler_path = resolve_extra_differential_compiler(extra_compiler_name)
             if not extra_compiler_path:
                 return (
                     "SKIP",
@@ -643,7 +770,7 @@ def run_runtime_probe(probe, clang_path, fisics_bin):
                     f"fisics exit={fisics_run_exit}, stdout={fisics_stdout.strip()}",
                 )
 
-            extra_exe = tmp_dir / f"{extra_compiler_name}.out"
+            extra_exe = tmp_dir / differential_executable_name(extra_compiler_name)
             extra_compile_exit, extra_compile_out, extra_compile_timeout = run_cmd(
                 [extra_compiler_path, "-std=c99", "-O0"]
                 + [str(src) for src in sources + mixed_clang_inputs]
