@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu62-control-kernel-canary",
+  "description": "Optional noncanonical compiler continuity canary over the signed EDU-62 control-kernel source. It exercises only hardware-blind request validation and grants no output-object, host-bank, transport, or guest authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-62-bounded-versioned-output-object-publication",
+    "tag_object": "1c408015ce1dd9c7acb32d192dcf4d3036844e8a",
+    "commit": "37fecf1b1234f49cf58871c16cf1acd09fd6bda3",
+    "source_path": "control_kernel.c",
+    "source_sha256": "7aee7f7b032e66eb9e60949ddf968b4bf1f702744032a9c3340e4eeae808c9a7"
+  },
+  "accepted_compiler": {
+    "relative_path": "build-toolchain/fisics",
+    "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"
+  },
+  "candidate_object_sha256": "e94314beb1f2cd5951b69159100b9944e6f7808254831443471848151310d99b",
+  "runtime_driver": "edu62_control_kernel_driver.c",
+  "expected_stdout_path": "edu62_control_kernel.stdout",
+  "expected_stdout": "OS-DEV-EDU62 source=control_kernel.c policy=output-retrieve-validation result=PASS\n",
+  "object_contract": {
+    "required_exports": [
+      "edu21_control_validate_request",
+      "edu28_artifact_meta_valid",
+      "edu28_fnv1a32",
+      "edu42_program_partition_result"
+    ],
+    "allowed_undefined": [
+      "edu42_program_valid",
+      "edu42_simulate_damped_partition"
+    ],
+    "allowed_relocations": [
+      "R_X86_64_PC32",
+      "R_X86_64_PLT32"
+    ],
+    "forbidden_instructions": [
+      "cli",
+      "hlt",
+      "in",
+      "iretq",
+      "out",
+      "sti",
+      "syscall",
+      "sysretq"
+    ],
+    "forbid_red_zone": true
+  }
+}

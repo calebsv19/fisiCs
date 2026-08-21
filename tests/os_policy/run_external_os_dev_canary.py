@@ -23,8 +23,6 @@ from typing import Any
 LANE_ROOT = Path(__file__).resolve().parent
 FISICS_ROOT = LANE_ROOT.parent.parent
 CONTRACT_PATH = LANE_ROOT / "canaries/edu48_simulation_kernel_canary.json"
-DRIVER_PATH = LANE_ROOT / "canaries/edu48_simulation_kernel_driver.c"
-EXPECTED_PATH = LANE_ROOT / "canaries/edu48_simulation_kernel.stdout"
 sys.path.insert(0, str(LANE_ROOT))
 from verify_object import verify_object  # noqa: E402
 
@@ -67,6 +65,17 @@ def require_equal(actual: str, expected: str, label: str) -> None:
         raise RuntimeError(f"{label} mismatch: expected={expected} actual={actual}")
 
 
+def canary_asset_path(value: str, label: str) -> Path:
+    path = Path(value)
+    if path.is_absolute() or ".." in path.parts:
+        raise RuntimeError(f"{label} must stay within the canaries directory: {value}")
+    resolved = (LANE_ROOT / "canaries" / path).resolve()
+    canaries = (LANE_ROOT / "canaries").resolve()
+    if canaries not in resolved.parents:
+        raise RuntimeError(f"{label} escapes the canaries directory: {value}")
+    return resolved
+
+
 def load_contract(path: Path) -> dict[str, Any]:
     require_file(path, "canary contract")
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -88,6 +97,10 @@ def load_contract(path: Path) -> dict[str, Any]:
         raise RuntimeError("canary candidate_object_sha256 must be a string")
     if not isinstance(data.get("expected_stdout"), str):
         raise RuntimeError("canary expected_stdout must be a string")
+    for key in ("runtime_driver", "expected_stdout_path"):
+        if not isinstance(data.get(key), str) or not data[key]:
+            raise RuntimeError(f"canary {key} must be a non-empty string")
+        require_file(canary_asset_path(data[key], f"canary {key}"), f"canary {key}")
     if not isinstance(data.get("object_contract"), dict):
         raise RuntimeError("canary object_contract must be an object")
     return data
@@ -98,10 +111,10 @@ def compiler_version(compiler: Path) -> str:
 
 
 def compile_and_run_runtime(
-    *, compiler: Path, source: Path, output: Path, label: str
+    *, compiler: Path, source: Path, driver: Path, output: Path, label: str
 ) -> str:
     run(
-        [str(compiler), str(source), str(DRIVER_PATH), "-o", str(output)],
+        [str(compiler), str(source), str(driver), "-o", str(output)],
         cwd=FISICS_ROOT,
         label=f"{label} runtime compile",
     )
@@ -141,11 +154,13 @@ def main() -> int:
 
     contract = load_contract(args.contract)
     origin = contract["origin"]
+    driver_path = canary_asset_path(contract["runtime_driver"], "canary runtime_driver")
+    expected_path = canary_asset_path(
+        contract["expected_stdout_path"], "canary expected_stdout_path"
+    )
     checkout = args.os_dev_root.resolve()
     compiler = args.compiler.resolve()
     require_file(compiler, "candidate compiler")
-    require_file(DRIVER_PATH, "canary runtime driver")
-    require_file(EXPECTED_PATH, "canary expected transcript")
     if not (checkout / ".git").exists():
         raise RuntimeError(f"os-dev root is not a Git checkout: {checkout}")
     require_equal(git(checkout, "rev-parse", "--show-toplevel", label="os-dev root"), str(checkout), "os-dev root")
@@ -199,12 +214,12 @@ def main() -> int:
     objdump = shutil.which("llvm-objdump")
     if not readobj or not objdump:
         raise RuntimeError("llvm-readobj and llvm-objdump are required for the canary")
-    expected_stdout = EXPECTED_PATH.read_text(encoding="utf-8")
+    expected_stdout = expected_path.read_text(encoding="utf-8")
     require_equal(contract["expected_stdout"], expected_stdout, "contract transcript")
 
-    with tempfile.TemporaryDirectory(prefix="fisics-os-dev-edu48-") as directory:
+    with tempfile.TemporaryDirectory(prefix=f"fisics-os-dev-{contract['lane_id']}-") as directory:
         root = Path(directory)
-        source = root / "simulation_kernel.c"
+        source = root / Path(origin["source_path"]).name
         source.write_bytes(source_bytes)
         candidate_a = root / "candidate-a.o"
         candidate_b = root / "candidate-b.o"
@@ -234,6 +249,7 @@ def main() -> int:
         fisics_stdout = compile_and_run_runtime(
             compiler=compiler,
             source=source,
+            driver=driver_path,
             output=root / "candidate.out",
             label="candidate",
         )
@@ -242,19 +258,29 @@ def main() -> int:
             raise RuntimeError("clang is required for the canary runtime differential")
         clang_output = root / "clang.out"
         run(
-            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", str(source), str(DRIVER_PATH), "-o", str(clang_output)],
+            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", str(source), str(driver_path), "-o", str(clang_output)],
             cwd=FISICS_ROOT,
             label="Clang runtime compile",
         )
         clang_stdout = run([str(clang_output)], cwd=root, label="Clang runtime execution").stdout
         sanitized = root / "clang-sanitized.out"
         run(
-            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", str(source), str(DRIVER_PATH), "-o", str(sanitized)],
+            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", str(source), str(driver_path), "-o", str(sanitized)],
             cwd=FISICS_ROOT,
             label="Clang sanitizer runtime compile",
         )
         sanitizer_stdout = run([str(sanitized)], cwd=root, label="Clang sanitizer runtime execution").stdout
-        for label, stdout in (("candidate", fisics_stdout), ("clang", clang_stdout), ("clang-sanitizer", sanitizer_stdout)):
+        gcc = Path(shutil.which("gcc-16") or shutil.which("gcc") or "")
+        if not gcc.is_file():
+            raise RuntimeError("GNU GCC is required for the canary runtime differential")
+        gcc_output = root / "gcc.out"
+        run(
+            [str(gcc), "-std=c99", "-Wall", "-Wextra", "-Wpedantic", str(source), str(driver_path), "-o", str(gcc_output)],
+            cwd=FISICS_ROOT,
+            label="GNU GCC runtime compile",
+        )
+        gcc_stdout = run([str(gcc_output)], cwd=root, label="GNU GCC runtime execution").stdout
+        for label, stdout in (("candidate", fisics_stdout), ("clang", clang_stdout), ("clang-sanitizer", sanitizer_stdout), ("gcc", gcc_stdout)):
             require_equal(stdout, expected_stdout, f"{label} runtime transcript")
         report = {
             "status": "pass",
@@ -275,7 +301,7 @@ def main() -> int:
         args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         f"OS-DEV canary lane={contract['lane_id']} source=immutable-tag candidate=accepted "
-        f"runtime=clang+asan trust={signature_status} result=PASS"
+        f"runtime=clang+gcc+asan trust={signature_status} result=PASS"
     )
     return 0
 

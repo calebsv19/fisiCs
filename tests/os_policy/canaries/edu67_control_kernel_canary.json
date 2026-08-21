@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu67-control-kernel-canary",
+  "description": "Optional noncanonical compiler continuity canary over signed EDU-67 control-kernel source. It exercises only hardware-blind operation-44 input-binding admission and grants no input-object ownership, mapping, capsule, delivery, or guest authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-67-bounded-versioned-input-object-execution-binding",
+    "tag_object": "9c89fabbb71211fa86d5457d64e6241e20ab94a9",
+    "commit": "fe3d0de45a48ca4da6026bfcd4525712172975d5",
+    "source_path": "control_kernel.c",
+    "source_sha256": "51fa8dac7568e9fab02b3668aa1e30c3cf21c74a9812ba871548fad8d6df76c4"
+  },
+  "accepted_compiler": {"relative_path": "build-toolchain/fisics", "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"},
+  "candidate_object_sha256": "5119a01a94f604fdd44ae18f58d6e0baf36d9da7b86986d85ca1c0e29c444381",
+  "runtime_driver": "edu67_control_kernel_driver.c",
+  "expected_stdout_path": "edu67_control_kernel.stdout",
+  "expected_stdout": "OS-DEV-EDU67 source=control_kernel.c policy=input-bind-admission result=PASS\n",
+  "object_contract": {
+    "required_exports": ["edu21_control_validate_request", "edu28_artifact_meta_valid", "edu28_fnv1a32", "edu42_program_partition_result", "edu67_program_partition_result"],
+    "allowed_undefined": ["edu42_program_valid", "edu42_simulate_damped_partition", "edu67_simulate_input_bound"],
+    "allowed_relocations": ["R_X86_64_PC32", "R_X86_64_PLT32"],
+    "forbidden_instructions": ["cli", "hlt", "in", "iretq", "out", "sti", "syscall", "sysretq"],
+    "forbid_red_zone": true
+  }
+}

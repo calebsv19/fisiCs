@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu58-queue-kernel-canary",
+  "description": "Optional noncanonical compiler continuity canary over the signed EDU-58 queue-kernel source. It exercises only hardware-blind dynamic-result record validation and grants no queue ownership, result publication, controller, or guest authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-58-validated-dynamic-result-publication",
+    "tag_object": "75b6482e0435a16371c92fd1e558abbc589de553",
+    "commit": "cfbb6fcc8caf0f25b02028a48578edb0f42818f6",
+    "source_path": "queue_kernel.c",
+    "source_sha256": "6716e8354359d6cd6dae29a6adec5ac8b6f8301b8c7ad12d64f0f7ab81df57df"
+  },
+  "accepted_compiler": {
+    "relative_path": "build-toolchain/fisics",
+    "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"
+  },
+  "candidate_object_sha256": "139047eb714a52aee6793e680fb57627c220fa5af56985a20570791902f284bc",
+  "runtime_driver": "edu58_queue_kernel_driver.c",
+  "expected_stdout_path": "edu58_queue_kernel.stdout",
+  "expected_stdout": "OS-DEV-EDU58 source=queue_kernel.c policy=dynamic-result-validation result=PASS\n",
+  "object_contract": {
+    "required_exports": [
+      "edu15_queue_meta_valid",
+      "edu22_queue_entry_valid",
+      "edu26_queue_entry_generation_action",
+      "edu15_queue_entry_action",
+      "edu33_result_payload_valid",
+      "edu35_checkpoint_snapshot_valid"
+    ],
+    "allowed_undefined": [],
+    "allowed_relocations": [
+      "R_X86_64_PC32"
+    ],
+    "forbidden_instructions": [
+      "cli",
+      "hlt",
+      "in",
+      "iretq",
+      "out",
+      "sti",
+      "syscall",
+      "sysretq"
+    ],
+    "forbid_red_zone": true
+  }
+}

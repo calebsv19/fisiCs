@@ -1337,6 +1337,7 @@ os-policy-guest: $(BIN)
 
 os-policy-contract:
 	@python3 tests/os_policy/test_runner_contract.py
+	@python3 tests/os_policy/test_external_canary_contract.py
 
 os-policy: $(BIN) os-policy-contract
 	@python3 $(OS_POLICY_RUNNER) --tier all --continue-on-failure

@@ -285,14 +285,57 @@ make os-policy-contract
 make os-policy
 ```
 
-Run the optional EDU-48 integration-drift canary only against a deliberately
-selected checkout:
+Run an optional immutable-source integration-drift canary only against a
+deliberately selected checkout. The default is the EDU-48 continuity source;
+the EDU-58 contract covers only hardware-blind dynamic-result queue-record
+validation, and the EDU-62 contract covers only hardware-blind operation-43
+request validation added for bounded output-object retrieval. Each requires
+fisiCs, Clang, GNU GCC, and the Clang
+AddressSanitizer/UndefinedBehaviorSanitizer screen to agree on the pinned
+runtime transcript. None grants host storage, transport, output-object, queue,
+or guest authority.
 
 ```sh
 python3 tests/os_policy/run_external_os_dev_canary.py \
   --os-dev-root /path/to/os-dev \
   --allowed-signers /path/to/allowed_signers \
   --report build/os_policy/edu48_live_canary.json
+```
+
+```sh
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --contract tests/os_policy/canaries/edu62_control_kernel_canary.json \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu62_live_canary.json
+```
+
+```sh
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --contract tests/os_policy/canaries/edu58_queue_kernel_canary.json \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu58_live_canary.json
+```
+
+```sh
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --contract tests/os_policy/canaries/edu65_control_kernel_canary.json \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu65_live_canary.json
+
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --contract tests/os_policy/canaries/edu67_control_kernel_canary.json \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu67_control_live_canary.json
+
+python3 tests/os_policy/run_external_os_dev_canary.py \
+  --os-dev-root /path/to/os-dev \
+  --contract tests/os_policy/canaries/edu67_simulation_kernel_canary.json \
+  --allowed-signers /path/to/allowed_signers \
+  --report build/os_policy/edu67_simulation_live_canary.json
 ```
 
 Focused investigation:

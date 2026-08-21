@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu67-simulation-kernel-canary",
+  "description": "Optional noncanonical compiler continuity canary over signed EDU-67 simulation-kernel source. It exercises the bounded input FNV gate and deterministic damped result only; it grants no input-object, controller, mapping, capsule, or guest authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-67-bounded-versioned-input-object-execution-binding",
+    "tag_object": "9c89fabbb71211fa86d5457d64e6241e20ab94a9",
+    "commit": "fe3d0de45a48ca4da6026bfcd4525712172975d5",
+    "source_path": "simulation_kernel.c",
+    "source_sha256": "3e6c68062a0f6d58ef7432a461ae9a1d08d5777b55a1e514cec73f2b9dadb060"
+  },
+  "accepted_compiler": {"relative_path": "build-toolchain/fisics", "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"},
+  "candidate_object_sha256": "3cd4b6f23d5f7b95ad1b53e94d764c6f59aa00e91ca89fa467b92e059ca2e1de",
+  "runtime_driver": "edu67_simulation_kernel_driver.c",
+  "expected_stdout_path": "edu67_simulation_kernel.stdout",
+  "expected_stdout": "OS-DEV-EDU67 source=simulation_kernel.c policy=input-bound-result result=PASS\n",
+  "object_contract": {
+    "required_exports": ["edu12_reduce_result", "edu12_simulate_partition", "edu32_workload_valid", "edu42_program_result", "edu42_program_valid", "edu42_simulate_damped_partition", "edu67_simulate_input_bound"],
+    "allowed_undefined": [],
+    "allowed_relocations": ["R_X86_64_PC32", "R_X86_64_PLT32"],
+    "forbidden_instructions": ["cli", "hlt", "in", "iretq", "out", "sti", "syscall", "sysretq"],
+    "forbid_red_zone": true
+  }
+}

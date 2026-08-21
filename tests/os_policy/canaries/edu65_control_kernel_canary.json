@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "lane_id": "os-dev-edu65-control-kernel-canary",
+  "description": "Optional noncanonical compiler continuity canary over signed EDU-65 control-kernel source. It exercises only hardware-blind slot-aware output retrieval admission and grants no multi-program store, controller, delivery, or guest authority.",
+  "origin": {
+    "repo_name": "os-dev",
+    "tag": "edu-65-bounded-multiple-installed-programs",
+    "tag_object": "0bca8dc17d371c192abcd1f6ee6a60f0a16fb8cc",
+    "commit": "2f19cb370cdc93dfcd381a103518c17049068f42",
+    "source_path": "control_kernel.c",
+    "source_sha256": "68445e87270cbe1d990d8a2ade06185918bc51fd893b9a799940c5826b296b4c"
+  },
+  "accepted_compiler": {"relative_path": "build-toolchain/fisics", "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"},
+  "candidate_object_sha256": "0f5d3fc30dad013ef5bf6415c17a42ad91e79a16263ee17bd5fd4bf1854a35fa",
+  "runtime_driver": "edu65_control_kernel_driver.c",
+  "expected_stdout_path": "edu65_control_kernel.stdout",
+  "expected_stdout": "OS-DEV-EDU65 source=control_kernel.c policy=slot-aware-output-retrieve result=PASS\n",
+  "object_contract": {
+    "required_exports": ["edu21_control_validate_request", "edu28_artifact_meta_valid", "edu28_fnv1a32", "edu42_program_partition_result"],
+    "allowed_undefined": ["edu42_program_valid", "edu42_simulate_damped_partition"],
+    "allowed_relocations": ["R_X86_64_PC32", "R_X86_64_PLT32"],
+    "forbidden_instructions": ["cli", "hlt", "in", "iretq", "out", "sti", "syscall", "sysretq"],
+    "forbid_red_zone": true
+  }
+}
