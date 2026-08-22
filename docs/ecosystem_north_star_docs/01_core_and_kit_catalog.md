@@ -74,15 +74,19 @@ This is not an implementation guide.
 ---
 
 ### core_scene (ACTIVE)
-**Role:** Scene handoff contract resolver for cross-program imports.
+**Role:** Shared typed scene contract owner plus scene-handoff resolver for cross-program imports.
 **Responsibilities:**
+- Shared scene-root metadata contract helpers
+- Shared object-kind vocabulary and first primitive payload semantics
+- Validation helpers for canonical authoring object contracts
 - `scene_bundle.json` path/type resolution
 - Source detection (`manifest`, `.pack`, `.vf2d`)
 - Optional bundle metadata path resolution
 
 **Boundary:**
+- Owns app-agnostic scene structure/schema and first-class object semantics
 - Resolves *what to load*
-- Does not decide placement math or rendering behavior
+- Does not decide placement math, rendering behavior, or app-specific overlay policy
 
 ---
 
@@ -91,6 +95,7 @@ This is not an implementation guide.
 **Responsibilities:**
 - Compile `scene_authoring_v1` payloads into `scene_runtime_v1`
 - Emit deterministic runtime envelope order and compile metadata
+- Validate canonical primitive payloads for known primitive object kinds
 - Preserve unknown extension namespaces while stripping authoring-only lanes from runtime contract
 
 **Boundary:**
@@ -100,16 +105,150 @@ This is not an implementation guide.
 
 ---
 
+### core_scene_view (BOOTSTRAP)
+**Role:** Shared renderer-free scene-view packet vocabulary and readback
+contract.
+**Responsibilities:**
+- Scene-view schema family and packet variant constants
+- Preview quality, degraded reason, display flag, and pick-id vocabulary
+- Compact JSON readback validation for packet metadata
+- Shared readback structs for producer/consumer fixture parity
+- Compact summary derivation from validated packet readback metadata
+
+**Boundary:**
+- Owns packet meaning only
+- Does not own rendering, viewport input, picking policy, material sampling,
+  editor mutation, or app face/object mapping
+- Does not create, delete, move, resize, or rewrite scene objects
+- Producers and consumers keep app-local rendering/editor behavior until more
+  hosts prove the contract
+
+---
+
+### core_mesh_asset (BOOTSTRAP)
+**Role:** Shared reusable mesh-asset contract owner.
+**Responsibilities:**
+- `mesh_asset_authoring_v1` contract helpers
+- `mesh_asset_runtime_v1` contract helpers
+- Primitive-seed authoring payload validation
+- Imported-mesh/STL source metadata validation
+- Runtime vertex, triangle, surface-group, bounds, and topology validation
+- Runtime mesh asset JSON load/save helpers
+
+**Boundary:**
+- Owns reusable object and runtime mesh asset meaning
+- Does not own scene placement, editing UX, triangulation, render acceleration,
+  solver voxelization, collision proxies, or SDF generation
+
+---
+
+### core_mesh_compile (BOOTSTRAP)
+**Role:** Shared compile-boundary owner for mesh asset authoring to runtime mesh handoff.
+**Responsibilities:**
+- Staged `mesh_asset_instance` scene-reference helpers
+- Authored-source compile responsibility validation
+- Bounded ASCII and binary STL imported-mesh to runtime-mesh compile proof
+  with a `1000000` triangle proof-scale ceiling
+- File-backed runtime mesh output for bounded imported-mesh proofs
+- Runtime mesh emission contract flags
+- Surface-group preservation contract
+- Imported-mesh source metadata requirement checks
+
+**Boundary:**
+- Owns app-neutral compile responsibility semantics only
+- Owns bounded STL parsing, triangle-count rejection, and indexed weld lookup
+  for imported-mesh compile proofs
+- Does not own mesh repair, retopo, LOD/streaming, host import UX, scene
+  envelopes, render meshes, or solver runtime-form derivation
+
+---
+
+### core_mesh_preview (BOOTSTRAP)
+**Role:** Shared viewport-safe runtime mesh preview contract owner.
+**Responsibilities:**
+- `core_mesh_preview_runtime_v1` sidecar payload helpers
+- Bounded feature-edge preview generation from `mesh_asset_runtime_v1`
+- Runtime mesh preview metadata for source counts, local bounds, source asset
+  ids, preview mode, and sampled drawable edge payloads
+- Renderer-neutral coherent indexed LOD construction with caller-selected
+  triangle budgets
+- File-backed preview save/load helpers
+
+**Boundary:**
+- Owns app-neutral preview data meaning and bounded payload generation
+- Does not own UI selection, hitboxes, camera projection, renderer state,
+  scene placement, mesh repair, retopo, GPU buffers, BVHs, solver proxies,
+  collision meshes, or SDF generation
+- Proven consumers: LineDrawing retains its CPU depth-raster/cache policy;
+  RayTracing retains its native Vulkan editor rendering, mode controls,
+  picking, overlays, final geometry, and BVH authority.
+
+---
+
 ### core_space (ACTIVE)
 **Role:** Shared spatial conversion contract.
 **Responsibilities:**
 - Unit-to-world/world-to-unit transforms
 - Import fit/scale normalization
 - Author-window span conversion
+- Canonical right-handed Z-up meter-frame meaning
+- Validated legacy right-handed Y-up conversion for vectors, orientation
+  matrices, quaternions, planes, AABBs, and axis-aligned half extents
 
 **Boundary:**
 - Defines *where/how to place*
+- Owns app-neutral coordinate-frame meaning and rigid conversion only
 - Does not parse scene bundles or own asset formats
+- Does not own projection, cameras, renderer/solver interpretation,
+  persistence, or application frame-selection policy
+
+---
+
+### core_viewport2d (BOOTSTRAP)
+**Role:** Shared 2D viewport/camera interaction math contract.
+**Responsibilities:**
+- Screen-to-content/content-to-screen transforms
+- Fit-to-window reset for oversized or undersized 2D content
+- Screen-space pan deltas and cursor-anchor zoom state updates
+
+**Boundary:**
+- Owns pure 2D viewport state and transform math only
+- No SDL/input event ownership
+- No map projection semantics, scene import placement, or renderer backend coupling
+
+---
+
+### core_viewport3d (BOOTSTRAP)
+**Role:** Shared renderer-neutral 3D editor viewport navigation contract.
+**Responsibilities:**
+- Double-precision effective viewport-center target and scale state
+- Canonical radian orientation and camera right/screen-down/forward basis
+- Camera-basis pan, anchor-preserving zoom, orbit, frame, reset, and resize transitions
+- Projected-extents fit-scale resolution with host-selected padding
+- Invalid-input rejection without output mutation
+
+**Boundary:**
+- Depends only on `core_base`; uses a domain-specific double vector ABI
+- No SDL/input, projector matrices, selection/bounds resolution, picking,
+  rendering, authoring, persistence, geometry, or BVH ownership
+- RayTracing and LineDrawing remain responsible for thin runtime adapters
+
+---
+
+### core_screen_pick (BOOTSTRAP)
+**Role:** Shared renderer-neutral projected-origin selection index.
+**Responsibilities:**
+- Uniform hashed-grid storage for viewport-local logical-pixel candidates
+- Deterministic nearest and bounded ranked queries
+- Default 28-pixel capture radius with distance, frontmost-depth, and stable-key ordering
+- Transactional rebuilds that preserve the prior valid index on invalid input or allocation failure
+
+**Boundary:**
+- Depends only on `core_base`; callers own projection and candidate eligibility
+- No SDL/input, camera, visibility/occlusion, scene identity, selection state,
+  handles/gizmos, topology/face picking, dragging, rendering, or authoring ownership
+- LineDrawing, RayTracing, and PhysicsSim retain thin adapters and their existing
+  higher-priority interaction arbitration
 
 ---
 
@@ -138,6 +277,26 @@ This is not an implementation guide.
 - No full scene container ownership (`core_scene` owns scene envelope)
 - No app namespace overlay ownership
 - No solver/render runtime ownership
+
+---
+
+### core_authored_texture (BOOTSTRAP)
+**Role:** Shared authored-texture manifest and indexed-atlas contract owner for cross-app texture export/runtime handoff.
+**Responsibilities:**
+- Authored-texture schema-version vocabulary
+- Binding-kind and emitted-output-kind vocabulary
+- Supported primitive and face-role vocabulary
+- Primitive-specific face completeness rules
+- JSON-free manifest-contract validation helpers
+- Exact indexed source-slot and palette-entry validation
+- Fixed-size atlas-cell rectangle, identifier, output-kind, bounds, overlap,
+  lookup, and revision semantics
+
+**Boundary:**
+- Owns authored-texture manifest and generic indexed-interchange meaning only
+- No JSON parsing or file/image IO
+- No scene-envelope ownership (`core_scene` owns scene/object semantics)
+- No renderer/editor/runtime UI behavior
 
 ---
 
@@ -171,6 +330,34 @@ This is not an implementation guide.
 
 ---
 
+### core_pane_module (BOOTSTRAP)
+**Role:** Shared pane-module descriptor registry and binding validation semantics.
+**Responsibilities (initial):**
+- Register internal module descriptors with stable identities
+- Validate descriptor capability-to-hook compatibility
+- Validate pane-to-module bindings against known leaf pane IDs and registry entries
+
+**Boundary:**
+- No plugin binary loading or sandboxing
+- No host runtime loop ownership
+- No arbitrary key/value module config persistence in v1
+
+---
+
+### core_pane_snapshot (BOOTSTRAP)
+**Role:** Shared pane snapshot schema struct and validation semantics.
+**Responsibilities (initial):**
+- Define v1 snapshot metadata/node/binding record structs
+- Validate snapshot schema/meta fields before host import
+- Validate pane graph and module-binding invariants deterministically
+
+**Boundary:**
+- No `core_pack` read/write ownership
+- No JSON serializer ownership
+- No host runtime/layout mutation policy ownership
+
+---
+
 ### core_config (BOOTSTRAP)
 **Role:** Lightweight typed runtime configuration table.
 **Responsibilities (initial):**
@@ -182,6 +369,25 @@ This is not an implementation guide.
 - No schema graph modeling (`core_data` owns rich structures)
 - No file/persistence policy (`core_pack`/app policy own that)
 - No action routing semantics
+
+---
+
+### core_headless_job (BOOTSTRAP)
+**Role:** Shared outer job, workflow, event, result, artifact, and
+worker-capability semantic contract for cross-program compute.
+**Responsibilities:**
+- Backward-compatible bundle/report vocabulary and typed records
+- Platform-v1 job, append-only event, terminal result, content/provenance
+  artifact, ordered workflow, and worker-capability vocabulary
+- Closed job-state, event-kind, outcome, and transition semantics
+- JSON-free validation for identity, relative paths, UTC timestamps, SHA-256,
+  workflow order, attempt/claim/lease references, and capability records
+
+**Boundary:**
+- Owns only cross-program execution-contract meaning
+- No JSON parsing/writing, filesystem creation, coordinator persistence,
+  transport, or scheduler dispatch
+- No program-specific scene payload semantics
 
 ---
 
@@ -209,6 +415,45 @@ This is not an implementation guide.
 **Boundary:**
 - Diagnostics/timeline semantics only
 - No UI or renderer coupling
+
+---
+
+### core_sim_trace (BOOTSTRAP)
+**Role:** Optional `core_sim` to `core_trace` control-plane adapter.
+**Responsibilities (initial):**
+- Standard `core_sim.*` trace lanes for frame index, frame dt, tick count,
+  pass count, reason bits, accumulator, and advanced simulation time
+- Standard frame/reason markers for tick, render, clamp, single-step, and pass
+  failure outcomes
+- Headless/agent-analysis vocabulary that simulation hosts can reuse before
+  adding app-specific domain lanes
+
+**Boundary:**
+- Does not add a `core_trace` dependency to base `core_sim`
+- Does not own app entity/world snapshots, solver metrics, replay execution,
+  UI, `core_data`, or `core_pack`
+- Apps add domain-specific lanes beside the shared control-plane lanes
+
+---
+
+### core_sim (BOOTSTRAP)
+**Role:** Shared simulation control-plane foundation.
+**Responsibilities (initial):**
+- Fixed-step accumulator policy
+- Pause/play/single-step control state
+- Max ticks per frame clamp
+- Ordered simulation pass execution
+- Deterministic per-frame outcome reporting
+- Host adapter diagnostics: status names, pass-order validation, pass-outcome initialization, and frame reason bits
+- UI-free frame summaries, reason-name extraction, and stage-timing derivation for optional diagnostics/artifact adapters
+- Step 3 artifact records: public version string, deterministic pass-order hash,
+  artifact run-header initialization, and frame-record extraction
+
+**Boundary:**
+- Owns simulation orchestration semantics only
+- Does not own physics equations, entity/world storage, scenario formats, rendering, UI, platform input, or worker/job/scheduler ownership
+- Current proving-host shapes are fixed-step (`gravity_orbit_sim`), entity/group pass order (`behavior_sim`), solver/substep (`physics_sim`), and progressive/render-frame orchestration (`ray_tracing`)
+- May layer with `core_time`, `core_kernel`, `core_sched`, `core_jobs`, `core_workers`, `core_queue`, `core_wake`, and optional sibling adapters such as `core_sim_trace`
 
 ---
 
@@ -243,6 +488,46 @@ This is not an implementation guide.
 - Generic math primitives only
 - Scene contracts stay in `core_scene`
 - Import/world placement policy stays in `core_space`
+
+---
+
+### core_collision2d (BOOTSTRAP)
+**Role:** Shared UI-free 2D collision contract.
+**Responsibilities:**
+- Double-precision 2D vectors and AABBs
+- Circle, axis-aligned box, and convex polygon descriptors
+- Polygon geometry helpers
+- Contact manifold records
+- Primitive contact generation for circle/circle, axis-aligned box/box, and
+  convex polygon/polygon
+
+**Boundary:**
+- Owns app-neutral collision shape/query semantics only
+- Does not own rigid-body integration, impulse solving, mass/inertia, or
+  fixed-step cadence
+- Does not own room/floor/wall convenience contacts, named fixtures, summary
+  strings, CLI routes, visual review artifacts, workers, packages, or runtime
+  default policy
+
+---
+
+### core_rigid2d (BOOTSTRAP)
+**Role:** Shared UI-free 2D rigid-body contract layered on `core_collision2d`.
+**Responsibilities:**
+- Material records and rigid-body state descriptors
+- Shape-based mass and inertia helpers
+- Dynamic/static body initialization and validation
+- Minimal host-called body integration
+- Deterministic normal, angular, and friction contact solver primitives
+- Standalone typed parity harness over the first Ball Bounce rigid-body and
+  solver oracle values
+
+**Boundary:**
+- Owns rigid-body state and contact response primitives only
+- Depends on `core_collision2d` for vectors, shapes, and manifolds
+- Does not own fixed-step accumulation, broadphase/contact discovery, worlds,
+  scenarios, summary strings, CLI routes, visual review artifacts, workers,
+  packages, or runtime default policy
 
 ---
 
@@ -395,20 +680,40 @@ This is not an implementation guide.
 
 ### kit_render (ACTIVE)
 **Role:** Rendering abstraction (`vk_renderer` seed path).
+**Notes:**
+- Owns backend-agnostic command-frame recording/submission, backend attach/adopt
+  boundaries, shared theme/font text policy resolution, and renderer-adjacent
+  external text helpers.
+- Does not own widget behavior, app hit testing, event loops, persistence, or
+  optional plain-SDL UI bridge drawing.
 
 ### kit_ui (ACTIVE)
 **Role:** Shared UI primitives (`timer_hud` seed path).
 **Notes:**
 - Primary consumer of `core_theme` and `core_font` contracts.
-- Owns renderer adapters that convert theme/font tokens into backend-specific calls.
-- Current shared controls include buttons, checkboxes, sliders, scrollbars, and segmented selectors.
+- Owns immediate-mode layout, evaluation, and draw helpers layered onto
+  `kit_render`; it does not own renderer lifecycle.
+- Current shared controls include buttons, checkboxes, sliders, scrollbars,
+  segmented selectors, rounded/compact button appearances, HUD button-row
+  layout, alpha-aware HUD style fields, nested corner/inset math, and optional
+  SDL rounded-surface adapters for plain SDL hosts.
+- App-specific actions, playback/session behavior, active theme persistence,
+  and host text/cache ownership stay app-owned.
 
 ### kit_pane (BOOTSTRAP)
 **Role:** Shared pane-shell presentation kit for `core_pane`-driven workspaces.
 **Notes:**
 - Owns pane chrome visuals (border/header/title/splitter states).
 - Owns authoring-mode structural overlay affordances.
-- Does not own pane topology solve, module lifecycle, or workspace persistence policy.
+- Does not own pane topology solve, module lifecycle, workspace persistence policy, or app build/dependency hygiene needed to keep pane/session struct changes coherently rebuilt.
+
+### kit_workspace_authoring (BOOTSTRAP)
+**Role:** Shared host-agnostic authoring interaction glue kit.
+**Notes:**
+- Owns entry-chord and trigger mapping helpers for authoring/runtime mode routes.
+- Owns callback-driven action execution + text-size step adapter helpers.
+- Publishes host-attach guidance for theme preset + text zoom handoff, including top-level picker/shell parity requirements so theme changes are visible outside authoring overlay.
+- Does not own renderer/window policy, module-picker model ownership, or pane topology semantics.
 
 ### kit_runtime_diag (BOOTSTRAP)
 **Role:** Shared runtime diagnostics contract helpers.
@@ -416,6 +721,18 @@ This is not an implementation guide.
 - Owns app-neutral frame-stage timing math helpers.
 - Owns app-neutral input-frame cumulative totals helpers.
 - Does not own program input policy, routing behavior, or render behavior.
+
+### kit_viewport3d (BOOTSTRAP)
+**Role:** Optional renderer-neutral 3D editor viewport presentation helpers.
+**Notes:**
+- Owns semantic object-outline palette roles and CPU buffer composition for
+  silhouettes, relative depth discontinuities, and object-owner boundaries.
+- Accepts borrowed float or double depth buffers and optional object-owner
+  buffers; supports filled-surface and outline-only composition.
+- Does not own `core_viewport3d` navigation state, projection, rasterization,
+  renderer/GPU resources, cache lifetime, picking, scene state, input, or
+  app overlay visibility policy.
+- RayTracing and LineDrawing are the first source-level proving hosts.
 
 ### kit_graph (ACTIVE)
 **Role:** Shared graph visualization kit.
@@ -430,10 +747,74 @@ This is not an implementation guide.
 
 ### kit_sim (PLANNED)
 **Role:** Shared simulation-loop and replay helpers.
+**Notes:**
+- Should remain a kit-level optional layer above `core_sim` for diagnostics,
+  replay presentation, scaffold examples, and tooling helpers.
+- Should not own the core loop ABI or pull renderer/UI dependencies into
+  `core_sim`.
 
 ---
 
 ## Shared Infrastructure (Non-core / Non-kit)
+
+### vk_runtime (ACTIVE FOUNDATION)
+**Role:** SDL-independent Vulkan device/runtime foundation.
+**Responsibilities (S1-S4 plus platform portability):**
+- Vulkan loader and API negotiation
+- Portability enumeration and validation/debug policy
+- Headless or staged presentation physical-device, queue-family, feature,
+  extension, memory, driver, and subgroup discovery
+- Explainable graphics/compute/transfer/present queue-role selection
+- Headless or surface-bound logical-device creation
+- Deterministic `codework_gpu_capability_report_v1` JSON
+- Canonical `VERSION`-derived library and report identity
+- Typed runtime and per-device rejection diagnostics
+- One-shot host-visible storage-buffer allocation and mapping
+- Sequential storage-buffer descriptor and compute-pipeline creation
+- Command recording, bounded fence wait, readback, and reverse teardown
+- Versioned shader identity and deterministic CPU/GPU parity evidence
+- Explicit coherent staging and device-local buffer roles
+- Persistent buffer, descriptor/pipeline, command-pool/buffer, and fence state
+- Dependent dispatch chains with explicit compute memory barriers
+- Final-only readback, bounded timeout recovery, and resource accounting
+- Persistent timestamp query pairs on timestamp-capable compute queues
+- Valid-bit wrap handling and conversion through device timestamp period
+- Separated CPU, host-copy, submit/wait, GPU, transfer, and wall timing
+- Seven-size deterministic parity sweep and explicit crossover evidence
+- Deterministic export and explicit consumption of source-bound precompiled
+  SPIR-V for compiler-free proof hosts
+- Prebuilt-bundle identity, safe-path, and tamper validation before dispatch
+- Compiler-free Linux llvmpipe S2-S4 portability evidence
+
+**Boundary:**
+- Vulkan-specific non-core infrastructure
+- No SDL surface creation, swapchains, presentation, render pipelines, or UI;
+  caller-provided Vulkan surfaces are accepted only for present suitability
+- No application workload semantics, CPU-oracle ownership, or fallback policy
+- No images, semaphores, cross-queue transfers, allocator suballocation,
+  application workload policy, or renderer presentation
+- No portable speedup guarantee; timing profiles remain device/driver specific
+- `vk_renderer 1.3.0` remains the presentation owner and consumes this
+  lifecycle through compatibility wrappers; no application rollout yet
+
+### vk_renderer (ACTIVE PRESENTATION INFRASTRUCTURE)
+**Role:** SDL/Vulkan presentation backend beneath `kit_render`.
+**Responsibilities:**
+- SDL window-surface creation and ownership handoff into `vk_runtime`
+- Swapchain, render-pass, framebuffer, graphics pipeline, and synchronization
+  lifecycle
+- Primitive, texture, mesh, and line drawing plus capture/readback
+- Compatibility mirrors for existing public Vulkan handles and entry points
+- Out-of-date/suboptimal recovery through bounded swapchain recreation
+
+**Boundary:**
+- Uses `vk_runtime 0.6.0` for instance/device/queue lifecycle
+- Does not own headless compute policy, application drawing semantics, or CPU
+  fallback/oracle policy
+- Local `1.3.0` proof is not program adoption; each consumer still requires a
+  separate shared-subtree and build-link update
+
+---
 
 ### sys_shims (BOOTSTRAP)
 **Role:** Local shim layer for system include compatibility and controlled extensions.

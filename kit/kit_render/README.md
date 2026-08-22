@@ -1,12 +1,12 @@
 # kit_render
 
-`kit_render` is the shared rendering abstraction kit for visual drawing and frame submission.
+`kit_render` is the shared rendering abstraction kit for visual drawing, text policy, and frame submission.
 
 It sits above `core_*` contracts and below higher-level kits such as `kit_ui` and `kit_graph`.
 
-## Current Scope (Scaffold / Null Backend)
+## Current Scope
 
-This initial scaffold defines:
+The live module defines:
 
 - a backend-agnostic render command model
 - frame lifecycle entrypoints
@@ -14,9 +14,14 @@ This initial scaffold defines:
 - theme token color resolution through `core_theme`
 - font role/tier references through `core_font`
 
-The current implementation is intentionally a null backend that records commands into a caller-owned command buffer. This gives the ecosystem a stable API surface before real GPU backends are attached.
+The current implementation includes:
 
-An optional Vulkan bridge skeleton is also present. It is compiled in a stub-safe mode by default and can be enabled for real `shared/vk_renderer` integration with:
+- a stable null backend that records commands into a caller-owned command buffer
+- a Vulkan backend path that can attach an external `VkRenderer` handle
+- shared text-policy resolution for role/tier/zoom/render-scale selection
+- additive external text helpers for bridge hosts that still draw directly through `VkRenderer` / SDL_ttf
+
+The Vulkan lane is compiled in a stub-safe mode by default and can be enabled for real `shared/vk_renderer` integration with:
 
 ```sh
 make -C shared/kit/kit_render KIT_RENDER_ENABLE_VK=1
@@ -30,6 +35,16 @@ make -C shared/kit/kit_render KIT_RENDER_ENABLE_VK=1
 - backend adapter boundary
 - clip/transform API shape
 - frame recording and submission contracts
+- shared text policy resolution for role/tier/zoom/render-scale
+- additive external text runtime helpers that stay renderer-adjacent rather than app-local
+
+Borrowed data and lifetime rules:
+
+- `KitRenderCommandBuffer.commands` is caller-owned storage
+- recorded command payloads are shallow-copied into that caller-owned storage
+- `KitRenderTextCommand.text` is borrowed for the frame; callers must keep the backing string alive until frame submission is complete
+- `KitRenderPolylineCommand.points` is borrowed for the frame; callers must keep the backing points alive until frame submission is complete
+- external text runtime caches are process-global helper state inside `kit_render_external_text.*`; they are not per-context ownership objects
 
 `kit_render` does not own:
 
@@ -39,6 +54,11 @@ make -C shared/kit/kit_render KIT_RENDER_ENABLE_VK=1
 - settings/action policy
 - persistence formats
 - global runtime policy
+- renderer host lifecycle beyond the explicit attach/adopt boundary
+- app-local wrapped-layout rules, cursor policy, hit testing, or widget state
+- optional plain-SDL HUD draw bridges such as `kit_ui_sdl`; those bridge
+  helpers may reuse shared color/style structs while keeping SDL renderer,
+  font-cache, and event-loop ownership in the host
 
 ## Progress
 
@@ -56,16 +76,24 @@ Implemented now:
 10. additive runtime theme/font preset switching through `kit_render_set_theme_preset(...)` and `kit_render_set_font_preset(...)`
 11. runtime font-path resilience improvements in the Vulkan text backend so TTF font loading can resolve shared relative font paths when apps are launched from nested working directories
 12. additive text measurement API through `kit_render_measure_text(...)`, with TTF-backed metrics on Vulkan and deterministic fallback metrics on null/bitmap paths
+13. Vulkan text crispness upgrade: render-scale-aware raster font selection, nearest-filter upload for downscaled raster glyph textures, and logical-size-correct destination sizing for high-DPI/zoom clarity
+14. additive shared text-runtime policy resolution through `kit_render_resolve_text_run(...)` so non-`kit_ui` hosts can consume one shared role/tier/zoom/render-scale contract before full render-command adoption
+15. additive external Vulkan text runtime through `kit_render_external_text.*` so non-`kit_ui` hosts can reuse shared SDL_ttf font-source registration, per-point-size font caching, persistent uploaded-texture caching, and UTF-8 measure/draw helpers without app-local cache ownership
+16. Vulkan `KIT_RENDER_CMD_TEXT` now delegates to that same extracted shared runtime, removing the duplicate internal raster-font cache path and giving bridge hosts and full command-frame hosts one shared SDL_ttf/cache implementation
+17. additive wrapped UTF-8 draw support through `kit_render_external_text_draw_utf8_wrapped(...)`, so bridge hosts can reuse the same shared cached Vulkan text runtime for wrapped labels instead of keeping one last app-local wrapped-text path
+18. external text font-source unregister now clears derived point-size font cache entries for that source path, preventing stale SDL_ttf font handles from surviving app/menu shutdown and later crashing text measurement
+19. additive external text font-system reset seam through `kit_render_external_text_reset_font_system(...)`, so bridge hosts can flush shared point-size/font-source helper state before `TTF_Quit` and avoid stale derived SDL_ttf handles after runtime/menu lifecycle restarts
 
 ## Planned Growth
 
-Near-term implementation goals:
+Near-term implementation goals remain:
 
 1. keep the null backend as a stable test harness
 2. add transform stack helpers beyond per-command transforms
 3. improve rounded-rect fidelity beyond plain rect fallback
 4. become the draw substrate for `kit_ui` and `kit_graph`
 5. improve glyph/text caching and layout quality for dense UI text workloads
+6. continue visual parity tuning on top of the now-unified shared Vulkan text runtime
 
 ## Ownership Model
 
@@ -125,9 +153,12 @@ Expected visual result:
 Current Vulkan text support now uses a TTF-first render path with shared `core_font` selection:
 
 - `core_font` role and size tier resolve font path + point size
+- text draw now derives rasterization scale from swapchain extent vs logical size
 - `core_theme` color tokens drive glyph color
 - SDL_ttf rasterizes UTF-8 text into surfaces that are uploaded and drawn via textured quads
+- when rasterizing above logical point size, upload uses nearest filtering and draw destination is downscaled back to logical metrics
 - backend-local bitmap fallback remains available when TTF path resolution or rasterization fails
+- Vulkan backend text policy now consumes the same public `kit_render_resolve_text_run(...)` contract instead of keeping a separate internal copy of role/tier/zoom/raster policy
 
 Current limitations:
 
@@ -141,6 +172,25 @@ Current limitations:
 - Vulkan backend resolves the same TTF role+tier and uses SDL_ttf measurement (`TTF_SizeUTF8`) for caret/click alignment
 - if TTF lookup fails, backend falls back to deterministic bitmap-estimated metrics so callers still get stable behavior
 
+`kit_render` now also exposes additive shared text-runtime policy resolution:
+
+- `kit_render_resolve_text_run(...)` returns the shared role/tier text contract for the active font preset
+- the resolved payload includes the chosen `CoreFontRoleSpec`, zoom-adjusted logical point size, raster point size for a requested render scale, kerning policy, hinting mode, and upload-filter guidance
+- this is the bridge surface for hosts such as `physics_sim` and `ray_tracing` that need the shared text/runtime policy before they move fully onto `kit_render` frame submission
+
+`kit_render` now also exposes additive external text-runtime helpers for bridge hosts that still draw directly through `VkRenderer` / SDL_ttf:
+
+- `kit_render_external_text_register_font_source(...)`
+- `kit_render_external_text_unregister_font_source(...)`
+- `kit_render_external_text_measure_utf8(...)`
+- `kit_render_external_text_draw_utf8(...)`
+- `kit_render_external_text_draw_utf8_at(...)`
+- `kit_render_external_text_reset_renderer(...)`
+
+These helpers are intended for apps such as `physics_sim` and `ray_tracing` that are not yet issuing full `KIT_RENDER_CMD_TEXT` frames but still need shared font-source tracking, render-scale-aware point-size reuse, persistent uploaded-texture caching, and consistent UTF-8 measure/draw behavior.
+
+The Vulkan backend's internal `KIT_RENDER_CMD_TEXT` path now uses this same shared runtime for font-source registration, UTF-8 measurement, per-point-size raster-font reuse, and persistent uploaded-texture caching. That keeps bridge hosts and full command-buffer hosts on one text implementation technique inside `kit_render`.
+
 ## Runtime Preset Switching
 
 `kit_render` now supports additive runtime preset updates on an existing render context:
@@ -150,4 +200,18 @@ Current limitations:
 
 These calls are intended for between-frame use so apps can respond to runtime preset-cycle shortcuts without rebuilding the render context.
 
+Plain-SDL hosts that are not using a live `KitRenderContext` can still share the
+same theme/font vocabulary by mapping `core_theme` / `core_font` state into
+their local draw adapter. DataLab currently uses this bridge shape for its
+`kit_ui_sdl` HUDs: `kit_ui` supplies HUD style/layout/corner semantics, while
+DataLab owns active theme selection, SDL text drawing, playback/session policy,
+and runtime preference persistence.
+
 Press `Esc` or close the window to exit.
+
+Recent update notes:
+- `0.14.4`: the Vulkan bridge now honors recorded line and polyline thickness
+  through the additive `vk_renderer_draw_line_thick(...)` filled-stroke path.
+- `0.14.3`: added `kit_render_external_text_reset_font_system(...)` so bridge hosts can clear shared external-text font caches before SDL_ttf shutdown/restart and avoid stale derived font handles in later text measurement.
+- `0.14.2`: truth-locked the live backend/text boundary, documented borrowed frame-data lifetime rules, added lifecycle/zoom/borrow-contract tests, and rejected backend attachment during an open frame.
+- `0.14.1`: external text font-source unregister now clears derived point-size font cache entries for that source path, preventing stale SDL_ttf font handles from surviving app/menu shutdown and later crashing text measurement.
