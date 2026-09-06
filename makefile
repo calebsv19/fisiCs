@@ -263,7 +263,7 @@ release-stage: release-build
 	@mkdir -p "$(RELEASE_STAGE_DIR)/bin"
 	@cp -f "./$(BIN)" "$(RELEASE_BIN)"
 	@cp -f README.md AGENTS.md LICENSE "$(RELEASE_STAGE_DIR)/"
-	@cp -R docs examples compilation "$(RELEASE_STAGE_DIR)/"
+	@cp -R docs examples compilation include "$(RELEASE_STAGE_DIR)/"
 	@rm -rf "$(RELEASE_STAGE_DIR)/compilation/out"
 	@find "$(RELEASE_STAGE_DIR)/examples" -type d -name build -prune -exec rm -rf {} +
 	@printf "name=fisiCs\nversion=%s\nchannel=%s\nplatform=%s\narch=%s\n" \
@@ -477,6 +477,9 @@ integration-compat-routing: $(BIN)
 integration-overlay-units-scaffold: $(BIN)
 	@bash ./tests/integration/run_overlay_units_scaffold.sh ./$(BIN)
 
+integration-overlay-semantic-metadata: $(BIN)
+	@bash ./tests/integration/run_overlay_semantic_metadata.sh ./$(BIN)
+
 integration-overlay-memory-check-contract: $(BIN)
 	@bash ./tests/integration/run_overlay_memory_check_contract.sh ./$(BIN)
 
@@ -501,6 +504,14 @@ memory-check-test: integration-overlay-memory-check-contract integration-memory-
 integration-examples-physics-units: $(BIN)
 	@bash ./tests/integration/run_examples_physics_units.sh ./$(BIN)
 
+integration-examples-semantic-metadata: $(BIN)
+	@bash ./examples/semantic_metadata/run_basic.sh ./$(BIN)
+	@bash ./examples/semantic_metadata/compare_compilers.sh ./$(BIN)
+	@bash ./examples/semantic_metadata/run_hardware_project.sh ./$(BIN)
+
+integration-extension-portability-macros: $(BIN)
+	@bash ./tests/integration/run_extension_portability_macros.sh ./$(BIN)
+
 integration-build-graph-source-json: $(BIN)
 	@bash ./tests/integration/run_build_graph_source_json.sh ./$(BIN)
 
@@ -516,6 +527,84 @@ integration-build-manifest-execute: $(BIN)
 integration-cli-metadata: $(BIN)
 	@bash ./tests/integration/run_cli_metadata.sh ./$(BIN)
 
+integration-cli-semantic-metadata: $(BIN)
+	@bash ./tests/integration/run_semantic_metadata_json.sh ./$(BIN)
+
+integration-esp-portable-c-contract:
+	@python3 ./tests/integration/test_esp_portable_c_contract.py
+
+integration-esp-portable-c: $(BIN) integration-esp-portable-c-contract
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_portable_c.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--contract ./tests/fixtures/esp_portable_c/e016_intake_v1.json \
+		--build-root "$(abspath build/integration-esp-portable-c)"
+
+integration-esp-semantic-physical-contract:
+	@python3 ./tests/integration/test_esp_semantic_physical_contract.py
+
+integration-esp-semantic-physical: $(BIN) integration-esp-portable-c-contract integration-esp-semantic-physical-contract
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_semantic_physical.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--contract ./tests/fixtures/esp_portable_c/e016_composition_v1.json \
+		--build-root "$(abspath build/integration-esp-portable-c)"
+
+integration-esp-hardware-compatibility-contract:
+	@python3 ./tests/integration/test_esp_hardware_compatibility_contract.py
+
+integration-esp-hardware-compatibility: $(BIN) integration-esp-portable-c-contract integration-esp-semantic-physical-contract integration-esp-hardware-compatibility-contract
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_hardware_compatibility.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--contract ./tests/fixtures/esp_portable_c/e016_hardware_v1.json \
+		--build-root "$(abspath build/integration-esp-portable-c)"
+
+integration-esp-deterministic-proof-contract:
+	@python3 ./tests/integration/test_esp_deterministic_proof_contract.py
+
+integration-esp-deterministic-proof: $(BIN) integration-esp-portable-c-contract integration-esp-semantic-physical-contract integration-esp-hardware-compatibility-contract integration-esp-deterministic-proof-contract
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_deterministic_proof.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--contract ./tests/fixtures/esp_portable_c/e016_proof_v1.json \
+		--build-root "$(abspath build/integration-esp-portable-c)"
+
+integration-esp-realization-evidence-contract:
+	@python3 ./tests/integration/test_esp_realization_evidence_contract.py
+
+integration-esp-realization-evidence: $(BIN) integration-esp-portable-c-contract integration-esp-semantic-physical-contract integration-esp-hardware-compatibility-contract integration-esp-deterministic-proof-contract integration-esp-realization-evidence-contract
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_realization_evidence.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--contract ./tests/fixtures/esp_portable_c/e016_realization_v1.json \
+		--build-root "$(abspath build/integration-esp-portable-c)"
+
+integration-external-evidence-receipts:
+	@python3 ./tests/integration/test_external_evidence_receipts.py
+	@python3 ./scripts/validate_external_evidence.py \
+		--evidence-root ./tests/fixtures/external_evidence_receipts/v1 \
+		--observation receipts/observation.json \
+		--output "$(abspath build/external-evidence-receipts/fixture.chain.receipt.json)"
+	@echo "external evidence receipt contract passed"
+
+integration-cli-units-metadata: $(BIN)
+	@bash ./tests/integration/run_units_metadata_json.sh ./$(BIN)
+
+integration-semantic-project-graph: $(BIN)
+	@bash ./tests/integration/run_semantic_project_graph.sh ./$(BIN)
+
+integration-physical-project-graph: $(BIN)
+	@bash ./tests/integration/run_physical_project_graph.sh ./$(BIN)
+
+integration-hardware-project-graph: $(BIN)
+	@bash ./tests/integration/run_hardware_project_graph.sh ./$(BIN)
+
 integration-x86_64-freestanding-object: $(BIN)
 	@bash ./tests/integration/run_x86_64_unknown_none_freestanding.sh ./$(BIN)
 
@@ -523,7 +612,7 @@ dev-smoke: $(BIN)
 	@mkdir -p build/examples
 	@FISICS_MAX_PROCS=0 ./$(BIN) -c include/test.txt -o build/examples/include_test_smoke.o
 
-integration: integration-cli-metadata integration-compile-only integration-compile-link integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
+integration: integration-cli-metadata integration-cli-semantic-metadata integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-external-evidence-receipts integration-compile-only integration-compile-link integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -652,7 +741,7 @@ final-timing-sync: final-monitored final-timing-sync-db final-timing-rollup
 run: src/Lexer/keyword_lookup.c $(BIN)
 	@MallocNanoZone=0 ./$(BIN)
 
-examples: $(BIN) examples-hello examples-canaries examples-sdl examples-physics-units
+examples: $(BIN) examples-hello examples-canaries examples-sdl examples-physics-units examples-semantic-metadata
 
 examples-hello: $(BIN)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)
@@ -671,8 +760,19 @@ examples-sdl: $(BIN)
 
 examples-physics-units: $(BIN)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)
-	@./$(BIN) --overlay=physics-units $(EXAMPLES_DIR)/physics_units/ballistics_valid.c -o $(EXAMPLES_BUILD_DIR)/ballistics_valid
+	@./$(BIN) --overlay=physics-units -Iinclude $(EXAMPLES_DIR)/physics_units/ballistics_valid.c -o $(EXAMPLES_BUILD_DIR)/ballistics_valid
 	@echo "Built $(EXAMPLES_BUILD_DIR)/ballistics_valid"
+
+examples-semantic-metadata: $(BIN)
+	@bash ./examples/semantic_metadata/run_basic.sh ./$(BIN)
+
+examples-semantic-metadata-compare: $(BIN)
+	@bash ./examples/semantic_metadata/compare_compilers.sh ./$(BIN)
+
+examples-semantic-hardware: $(BIN)
+	@bash ./examples/semantic_metadata/run_hardware_project.sh ./$(BIN)
+
+examples-extension-portability: integration-extension-portability-macros
 
 examples-memory-check: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)/memory_check
@@ -1153,7 +1253,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-x86_64-freestanding-object integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-cli-semantic-metadata integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-external-evidence-receipts integration-x86_64-freestanding-object integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1345,7 +1445,7 @@ os-policy: $(BIN) os-policy-contract
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run dev-smoke examples examples-hello examples-sdl examples-physics-units examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
+.PHONY: all clean run dev-smoke examples examples-hello examples-sdl examples-physics-units examples-semantic-metadata examples-semantic-metadata-compare examples-semantic-hardware examples-extension-portability examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
         release-clean release-contract release-adapter-contract-test release-build-clean release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-verify-authenticated release-pkg release-all \
@@ -1367,7 +1467,7 @@ tests: test frontend-api-test
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-header test-binary-header-shadow test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
+        integration-cli-metadata integration-cli-semantic-metadata integration-esp-portable-c-contract integration-esp-portable-c integration-esp-semantic-physical-contract integration-esp-semantic-physical integration-esp-hardware-compatibility-contract integration-esp-hardware-compatibility integration-esp-deterministic-proof-contract integration-esp-deterministic-proof integration-esp-realization-evidence-contract integration-esp-realization-evidence integration-external-evidence-receipts integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
         runtime-memory-check runtime-clean examples-memory-check \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         os-policy-contract os-policy-object os-policy-runtime os-policy-guest os-policy \

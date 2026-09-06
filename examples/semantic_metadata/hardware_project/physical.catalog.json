@@ -1,0 +1,39 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "van.physical.contracts",
+  "quantity_kinds": [
+    {
+      "id": "quantity.temperature.absolute",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [0, 0, 0, 0, 1, 0, 0, 0],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.temperature.difference",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [0, 0, 0, 0, 1, 0, 0, 0],
+      "dimension_text": "temperature"
+    }
+  ],
+  "contracts": [
+    {
+      "contract_id": "contract.temperature",
+      "subject": {"kind": "semantic_id", "id": "signal.cabin.temperature"},
+      "quantity_kind": "quantity.temperature.absolute",
+      "unit_policy": {"mode": "exact_unit", "unit": "kelvin"},
+      "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+      "reference_semantics": {"kind": "absolute", "reference_subject": null, "period_binary64": null},
+      "frame_id": null
+    },
+    {
+      "contract_id": "contract.fan.command",
+      "subject": {"kind": "semantic_id", "id": "device.cabin.fan.command"},
+      "quantity_kind": "quantity.temperature.difference",
+      "unit_policy": {"mode": "exact_unit", "unit": "kelvin"},
+      "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+      "reference_semantics": {"kind": "difference", "reference_subject": null, "period_binary64": null},
+      "frame_id": null
+    }
+  ]
+}

@@ -76,6 +76,9 @@ bool fisics_parse_overlay_mode(const char* mode, FisicsOverlayFeatures* overlayF
                    strcmp(part, "memory_check") == 0 ||
                    strcmp(part, "memcheck") == 0) {
             parsed |= FISICS_OVERLAY_MEMORY_CHECK;
+        } else if (strcmp(part, "semantic-metadata") == 0 ||
+                   strcmp(part, "semantic_metadata") == 0) {
+            parsed |= FISICS_OVERLAY_SEMANTIC_METADATA;
         } else {
             ok = false;
             break;

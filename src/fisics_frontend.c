@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "fisics_frontend.h"
+#include "Compiler/analysis_contract_version.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,12 +15,9 @@
 #include "Compiler/compiler_context.h"
 #include "Compiler/diagnostics.h"
 #include "Compiler/pipeline.h"
+#include "Compiler/pipeline_artifacts_semantic_metadata.h"
 #include "Compiler/pipeline_artifacts_units.h"
 
-#define FISICS_CONTRACT_ID "fisiCs.analysis.contract"
-#define FISICS_CONTRACT_MAJOR 1
-#define FISICS_CONTRACT_MINOR 8
-#define FISICS_CONTRACT_PATCH 0
 #define FISICS_CONTRACT_PRODUCER "fisiCs"
 #define FISICS_CONTRACT_PRODUCER_VERSION "0.1.0"
 
@@ -228,10 +226,10 @@ static void init_contract(FisicsAnalysisResult* out,
     snprintf(out->contract.contract_id,
              sizeof(out->contract.contract_id),
              "%s",
-             FISICS_CONTRACT_ID);
-    out->contract.contract_major = FISICS_CONTRACT_MAJOR;
-    out->contract.contract_minor = FISICS_CONTRACT_MINOR;
-    out->contract.contract_patch = FISICS_CONTRACT_PATCH;
+             FISICS_ANALYSIS_CONTRACT_ID);
+    out->contract.contract_major = FISICS_ANALYSIS_CONTRACT_MAJOR;
+    out->contract.contract_minor = FISICS_ANALYSIS_CONTRACT_MINOR;
+    out->contract.contract_patch = FISICS_ANALYSIS_CONTRACT_PATCH;
     snprintf(out->contract.producer_name,
              sizeof(out->contract.producer_name),
              "%s",
@@ -719,11 +717,13 @@ static bool has_concrete_unit_metadata(const FisicsAnalysisResult* out) {
     return false;
 }
 
-bool fisics_analyze_buffer(const char* file_path,
-                           const char* source,
-                           size_t length,
-                           const FisicsFrontendOptions* opts,
-                           FisicsAnalysisResult* out) {
+static bool analyze_buffer_common(
+    const char* file_path,
+    const char* source,
+    size_t length,
+    const FisicsFrontendOptions* opts,
+    FisicsAnalysisResult* out,
+    FisicsAnalysisResultEx* extended_out) {
     if (!out || !file_path || !source) return false;
     memset(out, 0, sizeof(*out));
     char* absolute_file_path = make_absolute_path(file_path);
@@ -816,12 +816,78 @@ bool fisics_analyze_buffer(const char* file_path,
         }
     }
 
+    bool metadata_projection_ok = true;
+    if (extended_out) {
+        if (!ok || semaErrors > 0) {
+            out->contract.partial = true;
+            out->contract.fatal = true;
+        } else if ((overlayFeatures & FISICS_OVERLAY_SEMANTIC_METADATA) != 0) {
+            metadata_projection_ok = pipeline_collect_semantic_metadata_projection(
+                model,
+                out->symbols,
+                out->symbol_count,
+                contract_file_path,
+                &extended_out->semantic_metadata_records,
+                &extended_out->semantic_metadata_record_count,
+                &extended_out->semantic_metadata_edges,
+                &extended_out->semantic_metadata_edge_count);
+            if (metadata_projection_ok &&
+                extended_out->semantic_metadata_record_count > 0) {
+                out->contract.capabilities |=
+                    FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA;
+            }
+        }
+        if (!metadata_projection_ok) {
+            pipeline_free_semantic_metadata_projection(
+                extended_out->semantic_metadata_records,
+                extended_out->semantic_metadata_record_count,
+                extended_out->semantic_metadata_edges,
+                extended_out->semantic_metadata_edge_count);
+            extended_out->semantic_metadata_records = NULL;
+            extended_out->semantic_metadata_record_count = 0;
+            extended_out->semantic_metadata_edges = NULL;
+            extended_out->semantic_metadata_edge_count = 0;
+            out->contract.capabilities &=
+                ~FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA;
+            out->contract.partial = true;
+            out->contract.fatal = true;
+        }
+    }
+
     cc_destroy(ctx);
     free(merged_include_paths);
     free(inferred_dir);
     free(inferred_src);
     free(absolute_file_path);
+    if (!metadata_projection_ok) return false;
     return copied && ok ? true : copied;
+}
+
+bool fisics_analyze_buffer(const char* file_path,
+                           const char* source,
+                           size_t length,
+                           const FisicsFrontendOptions* opts,
+                           FisicsAnalysisResult* out) {
+    return analyze_buffer_common(file_path, source, length, opts, out, NULL);
+}
+
+bool fisics_analyze_buffer_ex(const char* file_path,
+                              const char* source,
+                              size_t length,
+                              const FisicsFrontendOptions* opts,
+                              FisicsAnalysisResultEx* out) {
+    if (!out ||
+        out->abi_version != FISICS_ANALYSIS_RESULT_EX_ABI_VERSION ||
+        out->struct_size < sizeof(FisicsAnalysisResultEx)) {
+        return false;
+    }
+    memset(&out->analysis, 0, sizeof(out->analysis));
+    out->semantic_metadata_records = NULL;
+    out->semantic_metadata_record_count = 0;
+    out->semantic_metadata_edges = NULL;
+    out->semantic_metadata_edge_count = 0;
+    return analyze_buffer_common(file_path, source, length, opts,
+                                 &out->analysis, out);
 }
 
 void fisics_free_analysis_result(FisicsAnalysisResult* result) {
@@ -887,4 +953,18 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
     result->include_count = 0;
     result->units_attachments = NULL;
     result->units_attachment_count = 0;
+}
+
+void fisics_free_analysis_result_ex(FisicsAnalysisResultEx* result) {
+    if (!result) return;
+    fisics_free_analysis_result(&result->analysis);
+    pipeline_free_semantic_metadata_projection(
+        result->semantic_metadata_records,
+        result->semantic_metadata_record_count,
+        result->semantic_metadata_edges,
+        result->semantic_metadata_edge_count);
+    result->semantic_metadata_records = NULL;
+    result->semantic_metadata_record_count = 0;
+    result->semantic_metadata_edges = NULL;
+    result->semantic_metadata_edge_count = 0;
 }

@@ -1,0 +1,107 @@
+{
+  "schema": "fisiCs.esp_hardware_compatibility",
+  "schema_version": 1,
+  "lane_id": "esp.e016.hardware_compatibility.v1",
+  "slice_c": {
+    "contract_path": "tests/fixtures/esp_portable_c/e016_composition_v1.json",
+    "contract_sha256": "55146e841d8848e3972e5c761d738676566dd5ffbccebde51d66ca9c9434def8",
+    "physical_graph_path": "build/integration-esp-portable-c/e016.physical-project.graph.json",
+    "physical_graph_sha256": "29bb340605e96b425cab36722537d9e1418b6948227a45eccb0701ee32788c76"
+  },
+  "external_inputs": [
+    {
+      "role": "bench_a_profile",
+      "path": "nodes/bench_a/e016-profile.json",
+      "sha256": "ca45c1caaad236c71ea9d7e3a722dd115d09b77876e532f5956c832d4d2d77a6"
+    },
+    {
+      "role": "bench_b_profile",
+      "path": "nodes/bench_b/e016-profile.json",
+      "sha256": "426d4eb16a029386577a978162829ece58c0e9f552e12db5b91216029c29293d"
+    },
+    {
+      "role": "experiment_contract",
+      "path": "experiments/e016_pot_can_signal/README.md",
+      "sha256": "dc21b27ac1ba0afe15b32d70a1d84513fcfbe897f9c236443e9471143a1d7a8c"
+    },
+    {
+      "role": "can_bench_contract",
+      "path": "experiments/e013_can_two_node_transport/README.md",
+      "sha256": "1252b7784a7f4991061f280f9cb04686c56191d0695915c84a66658778c3b969"
+    },
+    {
+      "role": "board_contract",
+      "path": "docs/boards/esp32-c6-devkitc-1.md",
+      "sha256": "25eb4d7ac9041c16f56f23f5508d23d0c0d4df137a65aeda7215b6023bdf82ef"
+    },
+    {
+      "role": "protocol_schema",
+      "path": "protocol/schema/protocol_v1.yaml",
+      "sha256": "3e29abc2f78b5f03dd1293fa89327341d1e4a93cfd6934e653372ca69d5abb83"
+    }
+  ],
+  "authored_inputs": [
+    {
+      "role": "hardware_component_catalog",
+      "path": "tests/fixtures/esp_portable_c/e016.hardware.catalog.json",
+      "sha256": "2fb994f2433820fde28c4aa08a6a778ecd9e207fc12e57e43384cfe75496b431"
+    },
+    {
+      "role": "hardware_topology",
+      "path": "tests/fixtures/esp_portable_c/e016.hardware.topology.json",
+      "sha256": "823123f60096d5dddb68d4256e8b849d85cc2e1a38cbf72679a5a3f213314cbd"
+    },
+    {
+      "role": "hardware_project_manifest",
+      "path": "tests/fixtures/esp_portable_c/e016.hardware-project.json",
+      "sha256": "5f5e85f6e8731c4b8afe8c3dc793291ecacd132d43063e7310ee52fea830c2de"
+    }
+  ],
+  "declared_scope": {
+    "board_profile": "board.espressif.esp32_c6_devkitc_1",
+    "board_revision": "wroom-1",
+    "nodes": ["node.bench_a", "node.bench_b"],
+    "bus_profile": "bus.can.classical.kbps500",
+    "bus_scope": "project_shared",
+    "transceiver_model": "device.nxp.tja1050",
+    "transceiver_revision": "declared-breakout-v1",
+    "bench_b_potentiometer_endpoint": "gpio1",
+    "twai_tx_endpoint": "gpio10",
+    "twai_rx_endpoint": "gpio11",
+    "twai_rx_protection": "declared_external_divider",
+    "producer_binding": "binding.bench_b.e016_producer",
+    "consumer_binding": "binding.bench_a.e016_consumer",
+    "physical_contract": "contract.esp.e016.normalized_signal.test_level",
+    "can_network_anchor": "structural_only_not_bus_master",
+    "electrical_declarations_outside_graph_v1": [
+      "canh_continuity",
+      "canl_continuity",
+      "common_can_ground",
+      "separate_local_5v_domains",
+      "potentiometer_local_3v3_supply",
+      "termination_resistance",
+      "rx_divider_values"
+    ]
+  },
+  "expected_graph": {
+    "bus_profile_count": 1,
+    "board_profile_count": 1,
+    "device_model_count": 4,
+    "driver_contract_count": 2,
+    "node_count": 2,
+    "bus_count": 1,
+    "device_count": 5,
+    "connection_count": 9,
+    "signal_binding_count": 2,
+    "unbound_required_ports": 0,
+    "physical_evidence_state": "external_declared",
+    "declared_topology": "compatible",
+    "hardware_presence": "not_assessed",
+    "wiring": "not_assessed",
+    "driver_implementation": "not_assessed",
+    "calibration": "not_assessed",
+    "runtime_observation": "not_assessed",
+    "deployment": "not_assessed",
+    "physical_acceptance": "not_assessed"
+  }
+}

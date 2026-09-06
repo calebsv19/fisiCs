@@ -186,7 +186,62 @@ To see a known leak report without writing a file:
 make examples-memory-check
 ```
 
-## 7. Run The Minimum Smoke Suite
+## 7. Optional: Run Semantic Metadata
+
+The smallest semantic-metadata example attaches stable IDs, domains, roles,
+and `produces`/`consumes` relationships to ordinary C declarations:
+
+```bash
+make examples-semantic-metadata
+```
+
+Its deterministic artifact is written to:
+
+```text
+build/examples/semantic_metadata/basic/metadata.json
+```
+
+If the same annotated source must compile cleanly with strict Clang and fisiCs,
+use the public portability macros and run:
+
+```bash
+make examples-semantic-metadata-compare
+```
+
+To verify the complete public macro adoption corpus, including units examples,
+curated projects, all semantic macros, and normalized native/macro evidence
+parity, run:
+
+```bash
+make examples-extension-portability
+```
+
+For the complete static physical-system graph pipeline static physical/hardware graph example:
+
+```bash
+make examples-semantic-hardware
+```
+
+Read [the extension quickstart](extensions_guide.md) and
+[semantic metadata examples](../examples/semantic_metadata/README.md) before
+adapting the graph manifests. A successful hardware compatibility graph proves supplied static
+compatibility, not hardware presence or operation.
+
+## 8. Optional: Validate External Hardware Evidence Shape
+
+The compiler repository includes a synthetic, non-hardware fixture for the
+separate candidate, deployment, raw-capture, and observation receipt contract:
+
+```bash
+make integration-external-evidence-receipts
+```
+
+This test contacts no device and establishes no runtime fact. Read
+[the external receipt contract](external_evidence_receipts.md) and the
+[ESP bridge case study](esp_compiler_bridge_case_study.md) before adopting the
+shape in a hardware-owning project.
+
+## 9. Run The Minimum Smoke Suite
 
 ```bash
 make examples
@@ -215,7 +270,7 @@ If you want the broad checkpoint lane:
 make final-monitored
 ```
 
-## 8. Optional: Run The Release Example Pack
+## 10. Optional: Run The Release Example Pack
 
 For the smallest public demo story that also includes a curated agent task,
 use:

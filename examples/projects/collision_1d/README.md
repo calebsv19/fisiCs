@@ -7,6 +7,10 @@ The valid run computes post-collision velocities for two bodies. The invalid
 fixture intentionally mixes incompatible dimensions so the physics-units
 overlay can reject the bug before code generation.
 
+The valid and invalid sources use the public `FISICS_DIM`/`FISICS_UNIT`
+portability macros. Strict Clang sees ordinary C; fisiCs retains the units
+semantics.
+
 ## Run
 
 ```bash

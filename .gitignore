@@ -30,9 +30,9 @@ build/
 *~
 
 # local compiler/build artifacts
-fisics
-fisics_shim_shadow
-fisics 2
+/fisics
+/fisics_shim_shadow
+/fisics 2
 libfisics_frontend.a
 libfisics_frontend_unsanitized.a
 libfisics_frontend_sanitized.a

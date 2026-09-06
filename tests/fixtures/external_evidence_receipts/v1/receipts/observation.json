@@ -1,0 +1,47 @@
+{
+  "assertions": [
+    {
+      "contains": "fixture can pong counter=7 match=1",
+      "id": "transport.pong.7",
+      "kind": "transport",
+      "summary": "One identity-matching fixture pong is present."
+    },
+    {
+      "contains": "fixture signal sequence=11 value=400 quality=GOOD",
+      "id": "semantic.signal.11",
+      "kind": "semantic_signal",
+      "summary": "One GOOD normalized-signal fixture record is present."
+    }
+  ],
+  "capture": {
+    "bytes": 151,
+    "completed_at_utc": "2026-01-01T00:02:00Z",
+    "kind": "serial_text",
+    "path": "captures/serial.txt",
+    "sha256": "c840712e3b82e73ff9a7fd7f4d45263f6301ee58a8594808a9f1ce3387d9ce62",
+    "started_at_utc": "2026-01-01T00:01:00Z"
+  },
+  "claim_boundary": {
+    "calibration": "not_assessed",
+    "deployment_linkage": "fixture_only",
+    "digital_runtime_observation": "fixture_only",
+    "physical_acceptance": "not_assessed",
+    "raw_capture_integrity": "fixture_only"
+  },
+  "deployment_receipts": [
+    {
+      "path": "receipts/deployment.json",
+      "receipt_id": "fixture.deployment.node_a.v1",
+      "role": "node_a",
+      "sha256": "156358fa69384209841a301eeffce5ccd7004581c82c248c345e73fe6c6b1be8"
+    }
+  ],
+  "evidence_class": "contract_fixture",
+  "operator_observation": {
+    "state": "not_assessed",
+    "summary": "No physical claim is made by this contract fixture."
+  },
+  "receipt_id": "fixture.observation.normalized_signal.v1",
+  "schema": "fisiCs.external_observation_receipt",
+  "schema_version": 1
+}

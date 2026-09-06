@@ -1,14 +1,17 @@
 #include <stdio.h>
 
+#include <fisics/extensions.h>
+
 #include "kinematics_stepper.h"
 
 int main(void) {
-    double position [[fisics::dim(length)]] [[fisics::unit(meter)]] = 0.0;
-    double velocity [[fisics::dim(speed)]] [[fisics::unit(meter_per_second)]] = 18.0;
-    double acceleration [[fisics::dim(acceleration)]] [[fisics::unit(meter_per_second_squared)]] = -9.81;
-    double dt [[fisics::dim(time)]] [[fisics::unit(second)]] = 0.1;
-    double mass [[fisics::dim(mass)]] [[fisics::unit(kilogram)]] = 1.25;
-    double kinetic_energy [[fisics::dim(energy)]] [[fisics::unit(joule)]] = 0.0;
+    double position FISICS_DIM(length) FISICS_UNIT(meter) = 0.0;
+    double velocity FISICS_DIM(speed) FISICS_UNIT(meter_per_second) = 18.0;
+    double acceleration FISICS_DIM(acceleration)
+        FISICS_UNIT(meter_per_second_squared) = -9.81;
+    double dt FISICS_DIM(time) FISICS_UNIT(second) = 0.1;
+    double mass FISICS_DIM(mass) FISICS_UNIT(kilogram) = 1.25;
+    double kinetic_energy FISICS_DIM(energy) FISICS_UNIT(joule) = 0.0;
 
     printf("step position_m velocity_mps kinetic_j\n");
     for (int step = 1; step <= 3; ++step) {

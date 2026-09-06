@@ -11,7 +11,8 @@ enum {
     FISICS_OVERLAY_NONE = 0,
     FISICS_OVERLAY_IDE_METADATA = (1ULL << 0),
     FISICS_OVERLAY_PHYSICS_UNITS = (1ULL << 1),
-    FISICS_OVERLAY_MEMORY_CHECK = (1ULL << 2)
+    FISICS_OVERLAY_MEMORY_CHECK = (1ULL << 2),
+    FISICS_OVERLAY_SEMANTIC_METADATA = (1ULL << 3)
 };
 
 FisicsOverlayFeatures fisics_all_overlay_features(void);

@@ -60,6 +60,9 @@ compiler-usability pass.
 | `compile_commands.json` export | initial manifest-backed export through `--build-manifest <path> --emit-compile-db <path>` |
 | Manifest-backed build execution | initial local-only execution through `--build-manifest <path>` for explicit TU/object/link manifests |
 | Build graph diagnostic summary | compact additive `diagnostic_summary` counts and `partial` / `fatal` state; full diagnostics remain in the diagnostics JSON/pack lanes |
+| Semantic project graph | strict offline v1 assembly from fresh translation-unit metadata export artifacts through paired `--semantic-project-manifest` and `--emit-semantic-project-graph-json`; deterministic output, project-global authored-ID checks, explicit external allowlist, and no compile/link/runtime effect |
+| Physical project graph | strict offline v1 composition from a semantic project graph, one fresh units receipt per translation unit, and author-owned physical catalogs through paired `--physical-project-manifest` and `--emit-physical-project-graph-json`; deterministic scoped compatibility evidence with no compile/link/runtime/hardware effect |
+| Hardware project graph | strict offline v1 validation of reusable component catalogs and authored topology against a physical composition graph through paired `--hardware-project-manifest` and `--emit-hardware-project-graph-json`; validates exact profiles, ownership, capabilities, drivers, allocations, and physical-signal bindings without runtime or hardware effect |
 | Package fetching / registries | out of scope for the current local-only Phase 1 tooling lane |
 
 ## Behavior Policy
@@ -90,11 +93,14 @@ compiler-usability pass.
 | Area | Current contract |
 | --- | --- |
 | Overlay default | off |
-| Current public overlays | `physics-units`, `memory-check` |
+| Current public overlays | `physics-units`, `memory-check`, experimental `semantic-metadata` |
 | Other overlay profiles | `ide-metadata`, `all` |
-| `--overlay=all` policy | does not include `memory-check` because that mode rewrites allocator calls and links runtime support |
+| `--overlay=all` policy | does not include `memory-check` or experimental `semantic-metadata`; both require explicit selection |
 | Extension diagnostic policy | extension-owned diagnostics stay namespaced and do not silently become default-C semantics |
 | Memory-check overlay | explicit opt-in allocation/free lifecycle diagnostics for direct `malloc`, `calloc`, `realloc`, and `free` calls |
+| Semantic-metadata overlay | declaration-only authored ID/domain/role validation plus repeatable `produces`/`consumes` relationships, a deterministic translation-unit-local graph in `--dump-sema`, additive `FisicsAnalysisResultEx` export, atomic single-TU JSON via `--emit-semantic-metadata-json`, and strict offline multi-TU graph assembly; no codegen or runtime effect |
+| Units metadata sidecar | atomic single-TU `fisiCs.units_metadata` v1 through `--emit-units-metadata-json` with the physics-units overlay; includes canonical source receipt, registry fingerprint, Dim8 evidence, concrete-unit conversion data, stable exported identity when available, and retained unbound local evidence |
+| Shared-source portability | `include/fisics/extensions.h` exposes `FISICS_DIM`, `FISICS_UNIT`, and semantic-metadata macros that retain canonical attributes under fisiCs and erase under control compilers; all public extension-bearing example sources use the macros, while the permanent parity gate proves strict local Clang C99 compilation, runtime parity, and normalized native/macro units plus translation-unit metadata export equivalence |
 
 ## Known Gaps And Cautions
 
@@ -112,6 +118,14 @@ compiler-usability pass.
   translation units to resolved object paths and links them when `link.output`
   is present. It does not fetch packages, generate lockfiles, run version
   solving, or replace makefile flows.
+- physical composition graph proves static compatibility between declarations and authored physical
+  contracts. It does not prove hardware presence, calibration,
+  telemetry freshness, simulation correctness, deployment, or physical
+  acceptance. Those remain hardware compatibility graph-or-later consumer boundaries.
+- hardware compatibility graph validates supplied static catalogs and topology and emits a deterministic
+  hardware project graph. That static result does not constitute device
+  presence, wiring, driver implementation, calibration, runtime,
+  deployment, or physical-acceptance evidence.
 - `memory-check` is a runtime allocation/free diagnostics overlay, not a full
   AddressSanitizer replacement. It currently supports automatic exit reports,
   `FISICS_MEMCHECK_REPORT` policy controls, and source labels for direct

@@ -26,6 +26,30 @@ programs before broader language or tooling ambitions.
   [`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md)
 - Overlay contract:
   [`docs/extension_overlays.md`](docs/extension_overlays.md)
+- Extension selection and quickstart:
+  [`docs/extensions_guide.md`](docs/extensions_guide.md)
+- Portable Clang/fisiCs extension authoring:
+  [`docs/extension_portability.md`](docs/extension_portability.md)
+- Agent-facing extension routing and evidence contract:
+  [`docs/agent_extension_guide.md`](docs/agent_extension_guide.md)
+- Stable metadata-system vocabulary:
+  [`docs/metadata_system_concepts.md`](docs/metadata_system_concepts.md)
+- Semantic declaration metadata, translation-unit export, and strict semantic
+  project graph contracts:
+  [`docs/semantic_metadata_contract.md`](docs/semantic_metadata_contract.md) and
+  [`docs/semantic_metadata_export_contract.md`](docs/semantic_metadata_export_contract.md),
+  plus
+  [`docs/semantic_metadata_project_graph_contract.md`](docs/semantic_metadata_project_graph_contract.md)
+- Physical composition graph contract:
+  [`docs/semantic_metadata_physical_composition_contract.md`](docs/semantic_metadata_physical_composition_contract.md)
+- Hardware compatibility graph contract:
+  [`docs/semantic_metadata_hardware_contract.md`](docs/semantic_metadata_hardware_contract.md)
+- Separate deployment/raw-observation receipt contract and ESP case study:
+  [`docs/external_evidence_receipts.md`](docs/external_evidence_receipts.md) and
+  [`docs/esp_compiler_bridge_case_study.md`](docs/esp_compiler_bridge_case_study.md)
+- Cross-system growth architecture for connecting deterministic ESP/CAN
+  simulation, physics adapters, and compiler graph intake:
+  [`docs/esp_network_sim_growth_architecture.md`](docs/esp_network_sim_growth_architecture.md)
 
 ## Current Status
 
@@ -239,12 +263,29 @@ Overlay-specific flags:
 - `--overlay=physics-units`
 - `--overlay=memory-check`
 - `--overlay=ide-metadata`
+- `--overlay=semantic-metadata`
 - `--overlay=all`
 
-`memory-check` is explicit opt-in allocation/free lifecycle diagnostics and is
-not included in `--overlay=all`.
+`memory-check` is explicit opt-in allocation/free lifecycle diagnostics.
+Experimental `semantic-metadata` validates declaration identity/domain/role
+annotations plus repeatable `produces`/`consumes` relationships. It exposes a
+deterministic translation-unit-local relationship graph through `--dump-sema`,
+an additive extended frontend result, and atomic single-TU JSON through
+`--emit-semantic-metadata-json <path>`.
+Neither it nor `memory-check` is included in `--overlay=all`.
 
-The current overlay model is documented in [`docs/extension_overlays.md`](docs/extension_overlays.md).
+Use `include/fisics/extensions.h` when the same extension-authored source must
+also pass strict Clang compilation. Run the public paths with:
+
+```bash
+make examples-semantic-metadata
+make examples-semantic-metadata-compare
+make examples-semantic-hardware
+make examples-extension-portability
+```
+
+Start with [`docs/extensions_guide.md`](docs/extensions_guide.md); the complete
+overlay reference is in [`docs/extension_overlays.md`](docs/extension_overlays.md).
 
 For the clean-user path from clone to first successful examples, use
 [`docs/first_user_path.md`](docs/first_user_path.md).
@@ -342,11 +383,13 @@ For the smaller release/user-facing checkpoint flow, use
 - Release example pack: [`examples/release_example_pack.md`](examples/release_example_pack.md)
 - Practical public canaries: [`examples/canaries/README.md`](examples/canaries/README.md)
 - Physics-units pilot example: [`examples/physics_units/README.md`](examples/physics_units/README.md)
+- Semantic metadata and hardware examples: [`examples/semantic_metadata/README.md`](examples/semantic_metadata/README.md)
 - Test-system re-architecture context: [`docs/compiler_test_system_rearchitecture_context.md`](docs/compiler_test_system_rearchitecture_context.md)
 - Test workflow guide: [`docs/compiler_test_workflow_guide.md`](docs/compiler_test_workflow_guide.md)
 - Full validation workflow: [`docs/validation_workflow.md`](docs/validation_workflow.md)
 - Compiler/IDE data contract: [`docs/compiler_ide_data_contract.md`](docs/compiler_ide_data_contract.md)
-- Extension overlays and physics-units lane: [`docs/extension_overlays.md`](docs/extension_overlays.md)
+- Extension selection and quickstart: [`docs/extensions_guide.md`](docs/extensions_guide.md)
+- Extension reference: [`docs/extension_overlays.md`](docs/extension_overlays.md)
 - CLI release workflow: [`docs/cli_release_workflow.md`](docs/cli_release_workflow.md)
 - Real-project validation scaffold: [`tests/real_projects/README.md`](tests/real_projects/README.md)
 

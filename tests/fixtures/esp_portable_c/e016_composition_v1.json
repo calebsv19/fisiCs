@@ -1,0 +1,51 @@
+{
+  "schema": "fisiCs.esp_semantic_physical_composition",
+  "schema_version": 1,
+  "lane_id": "esp.e016.sensor_metadata_bridge.v1",
+  "intake_contract": {
+    "path": "tests/fixtures/esp_portable_c/e016_intake_v1.json",
+    "sha256": "38cf8c1b22554961a11e9b1c95c12010982f3ea06b654abd58c6ec37232c4184"
+  },
+  "authored_inputs": [
+    {
+      "role": "semantic_project_manifest",
+      "path": "tests/fixtures/esp_portable_c/e016.semantic-project.json",
+      "sha256": "9bfb694a81dffd35b11adb655c45b9c02f2d222d9c533d87164675bebe20eaae"
+    },
+    {
+      "role": "physical_contract_catalog",
+      "path": "tests/fixtures/esp_portable_c/e016.physical.catalog.json",
+      "sha256": "de1a54baa2e79feba5e2f3174f2c489d809aa5175030c2812a537a1eb60eb220"
+    },
+    {
+      "role": "physical_project_manifest",
+      "path": "tests/fixtures/esp_portable_c/e016.physical-project.json",
+      "sha256": "0c6372923e185cb7e8a120a9e2976065bee17742d6bc86559d9b227c817b8a16"
+    }
+  ],
+  "representation": {
+    "subject_identity": "signal.bench_potentiometer.test_level",
+    "integer_minimum": 0,
+    "integer_maximum": 1000,
+    "normalization_basis": "filtered_adc_domain",
+    "dimension": "dimensionless",
+    "calibration": "uncalibrated",
+    "unit_policy": "dimension_only",
+    "value_form": "scalar",
+    "reference_semantics": "linear",
+    "forbidden_interpretations": [
+      "voltage",
+      "shaft_angle",
+      "travel_distance",
+      "calibrated_percentage"
+    ]
+  },
+  "expected_graphs": {
+    "semantic_record_count": 2,
+    "semantic_edge_count": 2,
+    "semantic_edge_resolution": "external",
+    "physical_contract_count": 1,
+    "physical_contract_state": "external_declared",
+    "physical_acceptance": "not_assessed"
+  }
+}

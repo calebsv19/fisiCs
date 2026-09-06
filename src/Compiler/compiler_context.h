@@ -275,6 +275,7 @@ bool cc_has_overlay_feature(const CompilerContext* ctx, FisicsOverlayFeatures fe
 bool cc_has_any_overlay_features(const CompilerContext* ctx);
 bool cc_overlay_physics_units_enabled(const CompilerContext* ctx);
 bool cc_overlay_memory_check_enabled(const CompilerContext* ctx);
+bool cc_overlay_semantic_metadata_enabled(const CompilerContext* ctx);
 long cc_dialect_stdc_version(CCDialect dialect);
 
 // ---- Typedef-name namespace ----

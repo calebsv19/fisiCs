@@ -14,6 +14,8 @@ This directory contains minimal runnable examples for `fisiCs`.
   and agents
 - `sdl_window_loop.c`: SDL window with event loop and animated clear color
 - `physics_units/`: public pilot lane for the physics-units overlay
+- `semantic_metadata/`: public declaration metadata, strict Clang/fisiCs
+  portability, and a complete static hardware graph example
 
 ## Release Example Pack
 
@@ -99,6 +101,33 @@ Those physics-units references are also the current public source of truth for:
 - canonical `dim(...)` and `unit(...)` authoring style
 - explicit conversion-only boundaries
 - widened practical unit-family examples
+
+## Run Semantic Metadata Examples
+
+Start with declaration metadata:
+
+```bash
+make examples-semantic-metadata
+```
+
+Prove strict shared-source Clang/fisiCs portability:
+
+```bash
+make examples-semantic-metadata-compare
+make examples-extension-portability
+```
+
+The broader target covers every public units/semantic macro surface, including
+the units-bearing curated projects and native-versus-macro metadata parity.
+
+Run the complete static physical-system graph pipeline static hardware graph pipeline:
+
+```bash
+make examples-semantic-hardware
+```
+
+For the generated artifacts, expected results, and evidence boundaries, see
+[semantic_metadata/README.md](./semantic_metadata/README.md).
 
 ## Build and Run: Hello World
 

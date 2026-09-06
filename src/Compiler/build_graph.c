@@ -210,6 +210,7 @@ static bool bg_append_overlays(BuildGraphJsonBuilder* b, FisicsOverlayFeatures f
     APPEND_OVERLAY(FISICS_OVERLAY_PHYSICS_UNITS, "physics-units");
     APPEND_OVERLAY(FISICS_OVERLAY_IDE_METADATA, "ide-metadata");
     APPEND_OVERLAY(FISICS_OVERLAY_MEMORY_CHECK, "memory-check");
+    APPEND_OVERLAY(FISICS_OVERLAY_SEMANTIC_METADATA, "semantic-metadata");
 #undef APPEND_OVERLAY
     return bg_append_char(b, ']');
 }

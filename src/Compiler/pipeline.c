@@ -26,6 +26,16 @@
 #include "Compiler/diagnostics.h"
 #include "Utils/profiler.h"
 
+static uint64_t pipeline_source_hash(const char* data, size_t length) {
+    const uint64_t prime = 1099511628211ULL;
+    uint64_t hash = 1469598103934665603ULL;
+    for (size_t i = 0; data && i < length; ++i) {
+        hash ^= (uint8_t)data[i];
+        hash *= prime;
+    }
+    return hash;
+}
+
 static const char* diag_kind_str(DiagKind kind) {
     switch (kind) {
         case DIAG_ERROR: return "error";
@@ -846,6 +856,20 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         sourceLength = used;
     }
 
+    if (options->captureSourceContract && !sourceForFrontend) {
+        loadedInputSource = pipeline_read_file_all(options->inputPath, &sourceLength);
+        if (!loadedInputSource) {
+            fprintf(stderr, "Error: failed to read source file %s for metadata export\n",
+                    options->inputPath);
+            goto cleanup;
+        }
+        sourceForFrontend = loadedInputSource;
+    }
+    if (options->captureSourceContract) {
+        result.analyzedSourceHash = pipeline_source_hash(sourceForFrontend, sourceLength);
+        result.analyzedSourceLength = sourceLength;
+    }
+
     if (!compiler_run_frontend_internal(ctx,
                                         options->inputPath,
                                         sourceForFrontend,
@@ -992,4 +1016,6 @@ void compile_result_destroy(CompileResult* result) {
     }
     result->ast = NULL;
     result->semanticErrors = 0;
+    result->analyzedSourceHash = 0;
+    result->analyzedSourceLength = 0;
 }

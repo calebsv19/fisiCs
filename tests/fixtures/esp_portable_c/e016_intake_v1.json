@@ -1,0 +1,127 @@
+{
+  "schema": "fisiCs.esp_portable_c_intake",
+  "schema_version": 1,
+  "lane_id": "esp.normalized_signal_policy.v1",
+  "external_inputs": [
+    {
+      "role": "production_source",
+      "path": "libraries/CodeWorkEspCore/src/portable/NormalizedSignalPolicy.c",
+      "sha256": "b0160f5f2f64f83aff501b851727130a2ee114f314e4f1ca2341db81fb6cb0d3"
+    },
+    {
+      "role": "public_header",
+      "path": "libraries/CodeWorkEspCore/src/portable/NormalizedSignalPolicy.h",
+      "sha256": "ea771185cd7d63aacbdd0da066919c24bc177696fa80092451a33acb30e21084"
+    },
+    {
+      "role": "vector_source",
+      "path": "tests/protocol/portable_normalized_signal_policy_test.c",
+      "sha256": "9859b31a8ecd892b6d01f1efb3ead845d7d9fabdfb2a966854b316cf4bf0ccd1"
+    },
+    {
+      "role": "semantic_mapping",
+      "path": "protocol/schema/fisics_semantic_identities_v1.json",
+      "sha256": "dff82428179c53402eaba4ee89d11c8e2cbbf1519acd17afce1d413711e5301d"
+    },
+    {
+      "role": "protocol_schema",
+      "path": "protocol/schema/protocol_v1.yaml",
+      "sha256": "3e29abc2f78b5f03dd1293fa89327341d1e4a93cfd6934e653372ca69d5abb83"
+    },
+    {
+      "role": "vendored_extension_header",
+      "path": "libraries/CodeWorkEspCore/src/fisics/extensions.h",
+      "sha256": "7df00db0931827c33bfb90f5000dda3b2e134a57629166e13e02d8c5b621bc80"
+    },
+    {
+      "role": "bench_a_profile",
+      "path": "nodes/bench_a/e016-profile.json",
+      "sha256": "ca45c1caaad236c71ea9d7e3a722dd115d09b77876e532f5956c832d4d2d77a6"
+    },
+    {
+      "role": "bench_b_profile",
+      "path": "nodes/bench_b/e016-profile.json",
+      "sha256": "426d4eb16a029386577a978162829ece58c0e9f552e12db5b91216029c29293d"
+    },
+    {
+      "role": "owning_contract",
+      "path": "docs/architecture/portable-embedded-c-core-contract.md",
+      "sha256": "c4f0d6ab02aa57bb6a521a4411501e664d5bbf7f172f07ecac8df9f7f377fc3c"
+    },
+    {
+      "role": "owning_evidence",
+      "path": "docs/architecture/portable-embedded-c-core-v1-evidence.md",
+      "sha256": "df950137c62ad0a32af29f0e677b3c6b3937dc436ee6f1633284becfb8b695fa"
+    }
+  ],
+  "compiler_header": {
+    "path": "include/fisics/extensions.h",
+    "sha256": "7df00db0931827c33bfb90f5000dda3b2e134a57629166e13e02d8c5b621bc80"
+  },
+  "behavior": {
+    "source_role": "production_source",
+    "test_role": "vector_source",
+    "include_path": "libraries/CodeWorkEspCore/src",
+    "normalization_cases": 6,
+    "publication_cases": 12,
+    "runs_per_compiler": 2,
+    "expected_stdout": "portable_normalized_signal_policy_v1 normalization=6 publication=12 PASS\n"
+  },
+  "protocol": {
+    "mapping_role": "semantic_mapping",
+    "mapping_schema": "codework_esp_fisics_semantic_identities_v1",
+    "protocol_schema_role": "protocol_schema",
+    "canonical_protocol_sha256": "5caf80a5d8bc282c999c58508ac786247faa2f85a26a41907d8724cd594c1c20",
+    "semantic_type": "TEST_LEVEL",
+    "instance": "BENCH_POTENTIOMETER",
+    "target_identity": "signal.bench_potentiometer.test_level"
+  },
+  "metadata": {
+    "schema": "fisiCs.semantic_metadata",
+    "schema_version": 1,
+    "analysis_contract_id": "fisiCs.analysis.contract",
+    "analysis_contract_minimum": "1.9.0",
+    "records": [
+      {
+        "symbol": "cw_esp_normalize_adc_u16",
+        "identity": "operation.esp.normalized_signal.adc_normalize"
+      },
+      {
+        "symbol": "cw_esp_decide_normalized_publication",
+        "identity": "operation.esp.normalized_signal.publication_decide"
+      }
+    ],
+    "edges": [
+      {
+        "source_identity": "operation.esp.normalized_signal.adc_normalize",
+        "kind": "produces",
+        "target_identity": "signal.bench_potentiometer.test_level",
+        "resolution": "external"
+      },
+      {
+        "source_identity": "operation.esp.normalized_signal.publication_decide",
+        "kind": "consumes",
+        "target_identity": "signal.bench_potentiometer.test_level",
+        "resolution": "external"
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "role": "bench_a_pot_observer",
+      "manifest_path": "firmware-releases/candidates/bench_a_pot_observer/0.3.0-2b8b11a9be09-dirty-20260904T055413Z/manifest.json",
+      "manifest_sha256": "a7f631da6c33d28e78a57e8d60cee0737a9d07bd7a783b75b789f0008e262301",
+      "source_set_sha256": "a592ad573320a054e061eae698b1c4360a1022cc31da0114a2c84c3f664f782b",
+      "firmware_version": "0.3.0",
+      "expected_usb_serial": "98:A3:16:7E:5F:F4"
+    },
+    {
+      "role": "bench_b_pot_publisher",
+      "manifest_path": "firmware-releases/candidates/bench_b_pot_publisher/0.2.0-2b8b11a9be09-dirty-20260904T055428Z/manifest.json",
+      "manifest_sha256": "73b1d7dd2eb5ae614d901044b4554a23b07e67cec908fde4c31e43a5ef056fad",
+      "source_set_sha256": "a30aafec148589731e9d38f380ff1090d1f9235a180dfd23619a632ae1e10ede",
+      "firmware_version": "0.2.0",
+      "expected_usb_serial": "20:6E:F1:19:8B:1C"
+    }
+  ]
+}

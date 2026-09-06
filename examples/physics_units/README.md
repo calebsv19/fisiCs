@@ -37,6 +37,11 @@ The declarations use readable physics-oriented overlay annotations:
 - `mass`: `mass`, `kilogram`
 - `kinetic_energy`: `energy`, `joule`
 
+All five public sources include `<fisics/extensions.h>` and use
+`FISICS_DIM(...)` plus `FISICS_UNIT(...)`. The valid program and the four
+intentional semantic failures therefore remain warning-clean ordinary C under
+strict Clang while fisiCs retains and validates their units meaning.
+
 ## Build The Valid Example
 
 ```bash
@@ -49,7 +54,7 @@ make examples-physics-units
 
 ```bash
 cd /path/to/fisiCs
-./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_valid.c -o build/examples/ballistics_valid.o
+./fisics --overlay=physics-units -Iinclude --dump-sema -c examples/physics_units/ballistics_valid.c -o build/examples/ballistics_valid.o
 ```
 
 Useful things to look for in the dump:
@@ -66,7 +71,7 @@ Invalid assignment:
 
 ```bash
 cd /path/to/fisiCs
-./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_assignment.c -o /tmp/ballistics_invalid_assignment.o
+./fisics --overlay=physics-units -Iinclude --dump-sema -c examples/physics_units/ballistics_invalid_assignment.c -o /tmp/ballistics_invalid_assignment.o
 ```
 
 Expected outcome:
@@ -80,7 +85,7 @@ Invalid comparison:
 
 ```bash
 cd /path/to/fisiCs
-./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_compare.c -o /tmp/ballistics_invalid_compare.o
+./fisics --overlay=physics-units -Iinclude --dump-sema -c examples/physics_units/ballistics_invalid_compare.c -o /tmp/ballistics_invalid_compare.o
 ```
 
 Expected outcome:
@@ -94,7 +99,7 @@ Invalid position update:
 
 ```bash
 cd /path/to/fisiCs
-./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_position_update.c -o /tmp/ballistics_invalid_position_update.o
+./fisics --overlay=physics-units -Iinclude --dump-sema -c examples/physics_units/ballistics_invalid_position_update.c -o /tmp/ballistics_invalid_position_update.o
 ```
 
 Expected outcome:
@@ -108,7 +113,7 @@ Invalid nested formula chain:
 
 ```bash
 cd /path/to/fisiCs
-./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_formula_chain.c -o /tmp/ballistics_invalid_formula_chain.o
+./fisics --overlay=physics-units -Iinclude --dump-sema -c examples/physics_units/ballistics_invalid_formula_chain.c -o /tmp/ballistics_invalid_formula_chain.o
 ```
 
 Expected outcome:
@@ -120,6 +125,10 @@ Expected outcome:
 
 ## Notes
 
+- Direct `[[fisics::dim(...)]]` and `[[fisics::unit(...)]]` spellings remain
+  the native form for compiler fixtures. This public pilot intentionally uses
+  the portable macros; see
+  [Portable Extension Authoring](../../docs/extension_portability.md).
 - This pilot is dimension-first. It uses concrete units, but it does not depend
   on conversion helpers.
 - The example is also intended to be a stable prompt/reference lane for human

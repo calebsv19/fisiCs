@@ -1,0 +1,192 @@
+{
+  "schema": "fisiCs.hardware_component_catalog",
+  "schema_version": 1,
+  "catalog_id": "catalog.esp.e016.declared_components",
+  "authority": {
+    "kind": "project",
+    "identity": "authority.esp.e016.bridge"
+  },
+  "bus_profiles": [
+    {
+      "profile_id": "bus.can.classical.kbps500",
+      "revision": "e016-v1",
+      "transport_kind": "transport.can.classical.kbps500",
+      "controller_capability": "endpoint.can.network_anchor",
+      "participant_capability": "endpoint.can.participant",
+      "allocation_spaces": [
+        {
+          "space_id": "node_identity",
+          "value_kind": "canonical_id",
+          "minimum_uint64": null,
+          "maximum_uint64": null,
+          "claim_required": true,
+          "collision_policy": "shared"
+        }
+      ]
+    }
+  ],
+  "board_profiles": [
+    {
+      "profile_id": "board.espressif.esp32_c6_devkitc_1",
+      "revision": "wroom-1",
+      "capability_ids": [
+        "board.esp32_c6",
+        "board.microcontroller"
+      ],
+      "endpoints": [
+        {
+          "endpoint_id": "anchor.can0",
+          "capability_ids": ["endpoint.can.network_anchor"],
+          "allocation_policy": "exclusive"
+        },
+        {
+          "endpoint_id": "gpio1",
+          "capability_ids": ["endpoint.analog.input"],
+          "allocation_policy": "exclusive"
+        },
+        {
+          "endpoint_id": "gpio10",
+          "capability_ids": ["endpoint.twai.tx"],
+          "allocation_policy": "exclusive"
+        },
+        {
+          "endpoint_id": "gpio11",
+          "capability_ids": ["endpoint.twai.rx.protected"],
+          "allocation_policy": "exclusive"
+        }
+      ]
+    }
+  ],
+  "device_models": [
+    {
+      "model_id": "device.nxp.tja1050",
+      "revision": "declared-breakout-v1",
+      "capability_ids": ["device.can.transceiver"],
+      "driver_policy": "none",
+      "attachment_ports": [
+        {
+          "port_id": "port.can",
+          "connection_kind": "bus_participant",
+          "required_capability": "endpoint.can.participant",
+          "required_transport_kind": "transport.can.classical.kbps500",
+          "required": true
+        },
+        {
+          "port_id": "port.rxd",
+          "connection_kind": "direct_endpoint",
+          "required_capability": "endpoint.twai.rx.protected",
+          "required_transport_kind": null,
+          "required": true
+        },
+        {
+          "port_id": "port.txd",
+          "connection_kind": "direct_endpoint",
+          "required_capability": "endpoint.twai.tx",
+          "required_transport_kind": null,
+          "required": true
+        }
+      ],
+      "physical_ports": []
+    },
+    {
+      "model_id": "device.passive.potentiometer",
+      "revision": "three_terminal_wiper-v1",
+      "capability_ids": ["device.sensor.potentiometer"],
+      "driver_policy": "none",
+      "attachment_ports": [
+        {
+          "port_id": "port.wiper",
+          "connection_kind": "direct_endpoint",
+          "required_capability": "endpoint.analog.input",
+          "required_transport_kind": null,
+          "required": true
+        }
+      ],
+      "physical_ports": []
+    },
+    {
+      "model_id": "device.codework_esp.e016.publisher",
+      "revision": "normalized-signal-v1",
+      "capability_ids": ["device.semantic_signal.publisher"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {
+          "port_id": "port.can",
+          "connection_kind": "bus_participant",
+          "required_capability": "endpoint.can.participant",
+          "required_transport_kind": "transport.can.classical.kbps500",
+          "required": true
+        }
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.signal_output",
+          "direction": "produces",
+          "required": true,
+          "requirement": {
+            "mode": "exact_quantity",
+            "quantity_kind": "quantity.normalized_signal.level",
+            "dimension_system": null,
+            "dimension_vector": [],
+            "value_form": "scalar",
+            "reference_kind": "linear"
+          }
+        }
+      ]
+    },
+    {
+      "model_id": "device.codework_esp.e016.observer",
+      "revision": "normalized-signal-v1",
+      "capability_ids": ["device.semantic_signal.observer"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {
+          "port_id": "port.can",
+          "connection_kind": "bus_participant",
+          "required_capability": "endpoint.can.participant",
+          "required_transport_kind": "transport.can.classical.kbps500",
+          "required": true
+        }
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.signal_input",
+          "direction": "consumes",
+          "required": true,
+          "requirement": {
+            "mode": "exact_quantity",
+            "quantity_kind": "quantity.normalized_signal.level",
+            "dimension_system": null,
+            "dimension_vector": [],
+            "value_form": "scalar",
+            "reference_kind": "linear"
+          }
+        }
+      ]
+    }
+  ],
+  "driver_contracts": [
+    {
+      "driver_id": "driver.codework_esp.e016.publisher",
+      "revision": "v1",
+      "supported_models": [
+        {
+          "model_id": "device.codework_esp.e016.publisher",
+          "revision": "normalized-signal-v1"
+        }
+      ],
+      "required_transport_kinds": ["transport.can.classical.kbps500"]
+    },
+    {
+      "driver_id": "driver.codework_esp.e016.observer",
+      "revision": "v1",
+      "supported_models": [
+        {
+          "model_id": "device.codework_esp.e016.observer",
+          "revision": "normalized-signal-v1"
+        }
+      ],
+      "required_transport_kinds": ["transport.can.classical.kbps500"]
+    }
+  ]
+}

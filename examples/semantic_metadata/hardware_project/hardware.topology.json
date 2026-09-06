@@ -1,0 +1,61 @@
+{
+  "schema": "fisiCs.hardware_topology",
+  "schema_version": 1,
+  "project_id": "van.control",
+  "nodes": [
+    {"node_id": "node.van.front", "board_profile": {"profile_id": "board.esp32.generic", "revision": "rev-a"}}
+  ],
+  "buses": [
+    {
+      "bus_id": "bus.van.front.i2c0",
+      "owner_node_id": "node.van.front",
+      "scope": "node_local",
+      "bus_profile": {"profile_id": "bus.i2c.controller", "revision": "v1"},
+      "controller_endpoint_id": "controller.i2c0"
+    }
+  ],
+  "devices": [
+    {
+      "device_id": "device.van.fan.front",
+      "owner_node_id": "node.van.front",
+      "model": {"model_id": "device.fan.controller", "revision": "rev-a"},
+      "driver": {"driver_id": "driver.fan.controller", "revision": "v1"}
+    },
+    {
+      "device_id": "device.van.temperature.front",
+      "owner_node_id": "node.van.front",
+      "model": {"model_id": "device.environment.sensor", "revision": "rev-a"},
+      "driver": {"driver_id": "driver.environment.sensor", "revision": "v1"}
+    }
+  ],
+  "connections": [
+    {
+      "connection_id": "connection.fan.control",
+      "device_id": "device.van.fan.front",
+      "attachment_port_id": "port.control",
+      "target": {"kind": "bus", "bus_id": "bus.van.front.i2c0", "board_endpoint_id": null},
+      "allocation_claims": [{"space_id": "address", "value_uint64": "47", "value_id": null}]
+    },
+    {
+      "connection_id": "connection.temperature.control",
+      "device_id": "device.van.temperature.front",
+      "attachment_port_id": "port.control",
+      "target": {"kind": "bus", "bus_id": "bus.van.front.i2c0", "board_endpoint_id": null},
+      "allocation_claims": [{"space_id": "address", "value_uint64": "68", "value_id": null}]
+    }
+  ],
+  "signal_bindings": [
+    {
+      "binding_id": "binding.fan.command",
+      "device_id": "device.van.fan.front",
+      "physical_port_id": "port.command",
+      "physical_contract_id": "contract.fan.command"
+    },
+    {
+      "binding_id": "binding.temperature.measurement",
+      "device_id": "device.van.temperature.front",
+      "physical_port_id": "port.measurement",
+      "physical_contract_id": "contract.temperature"
+    }
+  ]
+}

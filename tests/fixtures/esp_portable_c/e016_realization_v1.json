@@ -1,0 +1,74 @@
+{
+  "schema": "fisiCs.esp_realization_evidence",
+  "schema_version": 1,
+  "lane_id": "esp.e016.realization_evidence.v1",
+  "slice_e": {
+    "contract_path": "tests/fixtures/esp_portable_c/e016_proof_v1.json",
+    "contract_sha256": "7dca495da10e5146b0e99c50bfabaf60b2b29cc2d8dcd80b5dfe2b4c7c337c2b",
+    "receipt_path": "build/integration-esp-portable-c/e016.deterministic-proof.receipt.json"
+  },
+  "external_evidence": [
+    {
+      "role": "portable_core_evidence",
+      "path": "docs/architecture/portable-embedded-c-core-v1-evidence.md",
+      "sha256": "df950137c62ad0a32af29f0e677b3c6b3937dc436ee6f1633284becfb8b695fa"
+    },
+    {
+      "role": "physical_can_milestone",
+      "path": "docs/changes/e013-e016-first-physical-semantic-can-milestone.md",
+      "sha256": "0505bcef9b1ede5dec3fa20f22ad20a1fef001e2af46d1edd4ba490725aed61b"
+    }
+  ],
+  "candidates": [
+    {
+      "role": "bench_a_pot_observer",
+      "manifest_path": "firmware-releases/candidates/bench_a_pot_observer/0.3.0-2b8b11a9be09-dirty-20260904T055413Z/manifest.json",
+      "manifest_sha256": "a7f631da6c33d28e78a57e8d60cee0737a9d07bd7a783b75b789f0008e262301",
+      "source_set_sha256": "a592ad573320a054e061eae698b1c4360a1022cc31da0114a2c84c3f664f782b",
+      "firmware_version": "0.3.0",
+      "expected_usb_serial": "98:A3:16:7E:5F:F4"
+    },
+    {
+      "role": "bench_b_pot_publisher",
+      "manifest_path": "firmware-releases/candidates/bench_b_pot_publisher/0.2.0-2b8b11a9be09-dirty-20260904T055428Z/manifest.json",
+      "manifest_sha256": "73b1d7dd2eb5ae614d901044b4554a23b07e67cec908fde4c31e43a5ef056fad",
+      "source_set_sha256": "a30aafec148589731e9d38f380ff1090d1f9235a180dfd23619a632ae1e10ede",
+      "firmware_version": "0.2.0",
+      "expected_usb_serial": "20:6E:F1:19:8B:1C"
+    }
+  ],
+  "shared_source": [
+    {
+      "path": "libraries/CodeWorkEspCore/src/portable/NormalizedSignalPolicy.c",
+      "sha256": "b0160f5f2f64f83aff501b851727130a2ee114f314e4f1ca2341db81fb6cb0d3"
+    },
+    {
+      "path": "libraries/CodeWorkEspCore/src/portable/NormalizedSignalPolicy.h",
+      "sha256": "ea771185cd7d63aacbdd0da066919c24bc177696fa80092451a33acb30e21084"
+    },
+    {
+      "path": "protocol/schema/protocol_v1.yaml",
+      "sha256": "3e29abc2f78b5f03dd1293fa89327341d1e4a93cfd6934e653372ca69d5abb83"
+    }
+  ],
+  "static_artifacts": {
+    "translation_unit_metadata_sha256": "303afdb74a467c5e43218bfca3d3739a6f229d7b7823991a1ca2787d651683fe",
+    "semantic_project_graph_sha256": "0ccb73417bb08a09c79b87df4811010cd296060ed1b8ac034bd706f54543eb0d",
+    "physical_composition_graph_sha256": "29bb340605e96b425cab36722537d9e1418b6948227a45eccb0701ee32788c76",
+    "hardware_compatibility_graph_sha256": "e04b5cbdbbe97b6f3d3f86f11dc82252363d4a991f65a07b11489d5c42c36ee7"
+  },
+  "expected_projection": {
+    "bench_a_selected_candidate_upload": "documented_consistent",
+    "bench_b_selected_candidate_upload": "conflict_unresolved",
+    "shared_portable_source": "exact_match",
+    "candidate_protocol_schema": "exact_match",
+    "current_protocol_schema": "drift_reported",
+    "initial_no_peer_bus_off": "documented",
+    "recovered_transport_pongs": "118..135",
+    "recovered_semantic_sequences": "148..183",
+    "recovered_signal_quality": "GOOD",
+    "operator_potentiometer_response": "documented",
+    "calibration": "not_assessed",
+    "fresh_runtime_state": "not_assessed"
+  }
+}

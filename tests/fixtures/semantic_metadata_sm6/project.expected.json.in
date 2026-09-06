@@ -1,0 +1,182 @@
+{
+  "schema": "fisiCs.semantic_project_graph",
+  "schema_version": 1,
+  "producer": {
+    "name": "fisiCs",
+    "version": "@PRODUCER_VERSION@"
+  },
+  "project": {
+    "id": "van.control",
+    "manifest_path": "@MANIFEST_PATH@"
+  },
+  "complete": true,
+  "translation_units": [
+    {
+      "translation_unit_index": 0,
+      "source": {
+        "path": "@CONTROLLER_SOURCE_PATH@",
+        "hash_fnv1a64": "@CONTROLLER_HASH@",
+        "length_bytes": @CONTROLLER_LENGTH@
+      },
+      "metadata_artifact": {
+        "path": "@CONTROLLER_ARTIFACT_PATH@"
+      },
+      "producer": {
+        "name": "fisiCs",
+        "version": "@PRODUCER_VERSION@"
+      },
+      "analysis_contract": {
+        "id": "fisiCs.analysis.contract",
+        "version": "1.9.0"
+      },
+      "record_count": 1,
+      "edge_count": 2
+    },
+    {
+      "translation_unit_index": 1,
+      "source": {
+        "path": "@SENSOR_SOURCE_PATH@",
+        "hash_fnv1a64": "@SENSOR_HASH@",
+        "length_bytes": @SENSOR_LENGTH@
+      },
+      "metadata_artifact": {
+        "path": "@SENSOR_ARTIFACT_PATH@"
+      },
+      "producer": {
+        "name": "fisiCs",
+        "version": "@PRODUCER_VERSION@"
+      },
+      "analysis_contract": {
+        "id": "fisiCs.analysis.contract",
+        "version": "1.9.0"
+      },
+      "record_count": 2,
+      "edge_count": 1
+    }
+  ],
+  "allowed_external_targets": [
+    "device.cabin.fan.command",
+    "service.weather.forecast"
+  ],
+  "records": [
+    {
+      "record_index": 0,
+      "origin": {
+        "translation_unit_index": 0,
+        "local_record_index": 0
+      },
+      "source_identity": "method.cabin.control",
+      "authored_id": "method.cabin.control",
+      "symbol_stable_id": "@CONTROLLER_STABLE_ID@",
+      "symbol_name": "update_cabin_control",
+      "symbol_kind": "function",
+      "source": {
+        "file": "@CONTROLLER_SOURCE_PATH@",
+        "start_line": 6,
+        "start_column": 5,
+        "end_line": 6,
+        "end_column": 25
+      },
+      "domain": "control",
+      "role": "control.decide"
+    },
+    {
+      "record_index": 1,
+      "origin": {
+        "translation_unit_index": 1,
+        "local_record_index": 0
+      },
+      "source_identity": "signal.cabin.temperature",
+      "authored_id": "signal.cabin.temperature",
+      "symbol_stable_id": "@SENSOR_STABLE_ID@",
+      "symbol_name": "cabin_temperature",
+      "symbol_kind": "file_variable",
+      "source": {
+        "file": "@SENSOR_SOURCE_PATH@",
+        "start_line": 4,
+        "start_column": 5,
+        "end_line": 4,
+        "end_column": 22
+      },
+      "domain": "thermal",
+      "role": "sensor.read"
+    },
+    {
+      "record_index": 2,
+      "origin": {
+        "translation_unit_index": 1,
+        "local_record_index": 1
+      },
+      "source_identity": "symbol:function:@SENSOR_SOURCE_PATH@:9:6:publish_temperature",
+      "authored_id": null,
+      "symbol_stable_id": "@PUBLISH_STABLE_ID@",
+      "symbol_name": "publish_temperature",
+      "symbol_kind": "function",
+      "source": {
+        "file": "@SENSOR_SOURCE_PATH@",
+        "start_line": 9,
+        "start_column": 6,
+        "end_line": 9,
+        "end_column": 25
+      },
+      "domain": "data_io",
+      "role": "telemetry.publish"
+    }
+  ],
+  "edges": [
+    {
+      "source_record_index": 0,
+      "kind": "produces",
+      "target_id": "device.cabin.fan.command",
+      "resolution": "external",
+      "target_record_index": null,
+      "origin": {
+        "translation_unit_index": 0,
+        "local_edge_index": 0
+      },
+      "occurrence": {
+        "file": "@CONTROLLER_SOURCE_PATH@",
+        "start_line": 6,
+        "start_column": 5,
+        "end_line": 6,
+        "end_column": 25
+      }
+    },
+    {
+      "source_record_index": 0,
+      "kind": "consumes",
+      "target_id": "signal.cabin.temperature",
+      "resolution": "resolved",
+      "target_record_index": 1,
+      "origin": {
+        "translation_unit_index": 0,
+        "local_edge_index": 1
+      },
+      "occurrence": {
+        "file": "@CONTROLLER_SOURCE_PATH@",
+        "start_line": 6,
+        "start_column": 5,
+        "end_line": 6,
+        "end_column": 25
+      }
+    },
+    {
+      "source_record_index": 2,
+      "kind": "consumes",
+      "target_id": "signal.cabin.temperature",
+      "resolution": "resolved",
+      "target_record_index": 1,
+      "origin": {
+        "translation_unit_index": 1,
+        "local_edge_index": 0
+      },
+      "occurrence": {
+        "file": "@SENSOR_SOURCE_PATH@",
+        "start_line": 9,
+        "start_column": 6,
+        "end_line": 9,
+        "end_column": 25
+      }
+    }
+  ]
+}

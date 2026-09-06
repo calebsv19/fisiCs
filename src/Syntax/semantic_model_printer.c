@@ -4,6 +4,7 @@
 
 #include "Extensions/extension_units_expr_table.h"
 #include "Extensions/extension_units_view.h"
+#include "Extensions/SemanticMetadata/semantic_metadata_model.h"
 #include "semantic_model.h"
 #include "scope.h"
 #include "symbol_table.h"
@@ -70,5 +71,6 @@ void semanticModelDump(const SemanticModel* model) {
     dumpScope(scope);
     fisics_extension_dump_units_annotations(semanticModelGetContext(model), stdout);
     fisics_extension_dump_units_expr_results(semanticModelGetContext(model), stdout);
+    fisics_extension_dump_semantic_metadata(semanticModelGetContext(model), stdout);
     fflush(stdout);
 }

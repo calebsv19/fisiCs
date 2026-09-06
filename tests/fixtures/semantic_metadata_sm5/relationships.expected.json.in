@@ -1,0 +1,126 @@
+{
+  "schema": "fisiCs.semantic_metadata",
+  "schema_version": 1,
+  "producer": {
+    "name": "fisiCs",
+    "version": "@PRODUCER_VERSION@"
+  },
+  "analysis_contract": {
+    "id": "fisiCs.analysis.contract",
+    "version": "1.9.0"
+  },
+  "source": {
+    "path": "@SOURCE_PATH@",
+    "hash_fnv1a64": "@SOURCE_HASH@",
+    "length_bytes": @SOURCE_LENGTH@
+  },
+  "complete": true,
+  "records": [
+    {
+      "source_identity": "method.cabin.read_environment",
+      "authored_id": "method.cabin.read_environment",
+      "symbol_stable_id": "@READ_ENVIRONMENT_STABLE_ID@",
+      "symbol_name": "read_environment",
+      "symbol_kind": "function",
+      "source": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 6,
+        "start_column": @READ_ENVIRONMENT_COLUMN@,
+        "end_line": 6,
+        "end_column": @READ_ENVIRONMENT_END_COLUMN@
+      },
+      "domain": "thermal",
+      "role": "sensor.read"
+    },
+    {
+      "source_identity": "signal.cabin.temperature",
+      "authored_id": "signal.cabin.temperature",
+      "symbol_stable_id": "@CABIN_TEMPERATURE_STABLE_ID@",
+      "symbol_name": "cabin_temperature",
+      "symbol_kind": "file_variable",
+      "source": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 11,
+        "start_column": @CABIN_TEMPERATURE_COLUMN@,
+        "end_line": 11,
+        "end_column": @CABIN_TEMPERATURE_END_COLUMN@
+      },
+      "domain": "thermal",
+      "role": "data.read"
+    },
+    {
+      "source_identity": "symbol:function:@SOURCE_PATH@:17:@CONTROL_COLUMN@:control_without_id",
+      "authored_id": null,
+      "symbol_stable_id": "@CONTROL_STABLE_ID@",
+      "symbol_name": "control_without_id",
+      "symbol_kind": "function",
+      "source": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 17,
+        "start_column": @CONTROL_COLUMN@,
+        "end_line": 17,
+        "end_column": @CONTROL_END_COLUMN@
+      },
+      "domain": "control",
+      "role": "control.decide"
+    }
+  ],
+  "edges": [
+    {
+      "source_record_index": 0,
+      "kind": "produces",
+      "target_id": "signal.cabin.humidity",
+      "resolution": "external",
+      "target_record_index": null,
+      "occurrence": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 6,
+        "start_column": @READ_ENVIRONMENT_COLUMN@,
+        "end_line": 6,
+        "end_column": @READ_ENVIRONMENT_END_COLUMN@
+      }
+    },
+    {
+      "source_record_index": 0,
+      "kind": "produces",
+      "target_id": "signal.cabin.temperature",
+      "resolution": "resolved",
+      "target_record_index": 1,
+      "occurrence": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 6,
+        "start_column": @READ_ENVIRONMENT_COLUMN@,
+        "end_line": 6,
+        "end_column": @READ_ENVIRONMENT_END_COLUMN@
+      }
+    },
+    {
+      "source_record_index": 2,
+      "kind": "produces",
+      "target_id": "device.roof_fan.target",
+      "resolution": "external",
+      "target_record_index": null,
+      "occurrence": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 17,
+        "start_column": @CONTROL_COLUMN@,
+        "end_line": 17,
+        "end_column": @CONTROL_END_COLUMN@
+      }
+    },
+    {
+      "source_record_index": 2,
+      "kind": "consumes",
+      "target_id": "signal.cabin.temperature",
+      "resolution": "resolved",
+      "target_record_index": 1,
+      "occurrence": {
+        "file": "@SOURCE_PATH@",
+        "start_line": 17,
+        "start_column": @CONTROL_COLUMN@,
+        "end_line": 17,
+        "end_column": @CONTROL_END_COLUMN@
+      }
+    }
+  ]
+}

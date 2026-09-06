@@ -1,6 +1,8 @@
+#include <fisics/extensions.h>
+
 int main(void) {
-    double position [[fisics::dim(length)]] [[fisics::unit(meter)]] = 0.0;
-    double dt [[fisics::dim(time)]] [[fisics::unit(second)]] = 0.1;
+    double position FISICS_DIM(length) FISICS_UNIT(meter) = 0.0;
+    double dt FISICS_DIM(time) FISICS_UNIT(second) = 0.1;
 
     position = dt;
     return (int)position;

@@ -25,6 +25,8 @@ typedef struct {
     bool preservePPNodes;
     const char* depsJsonPath;
     const char* buildGraphJsonPath;
+    const char* semanticMetadataJsonPath;
+    const char* unitsMetadataJsonPath;
     const char* diagsJsonPath;
     const char* diagsPackPath;
     const char* targetTriple;

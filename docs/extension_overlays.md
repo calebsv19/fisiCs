@@ -18,12 +18,13 @@ Supported overlay profiles:
 - `ide-metadata`
 - `physics-units`
 - `memory-check`
+- `semantic-metadata`
 - `all`
 
-`all` currently means the public non-instrumenting overlay bundle. It includes
-the existing IDE/physics overlay behavior, but it does not include
-`memory-check` because memory-check rewrites allocator calls and adds a runtime
-support library.
+`all` currently means the established public non-instrumenting overlay bundle.
+It includes the existing IDE/physics overlay behavior, but it does not include
+`memory-check` or experimental `semantic-metadata`. Both require explicit
+selection during this stage.
 
 CLI examples:
 
@@ -31,7 +32,14 @@ CLI examples:
 ./fisics --overlay=physics-units sample.c
 FISICS_OVERLAY=physics-units ./fisics sample.c
 ./fisics --overlay=memory-check sample.c -o sample
+./fisics --overlay=semantic-metadata --dump-sema -c sample.c -o sample.o
 ```
+
+For source shared with strict Clang builds, include
+`<fisics/extensions.h>` and use the `FISICS_*` portability macros. Direct
+`[[fisics::...]]` syntax remains the canonical native form. See
+[Portable Extension Authoring](extension_portability.md). The public example
+corpus is checked with `make examples-extension-portability`.
 
 Frontend example:
 
@@ -43,6 +51,122 @@ FisicsFrontendOptions opts = {
 
 If no overlay is enabled, the compiler stays on its normal core-C path and
 overlay diagnostics/results are omitted.
+
+## Semantic Metadata Extension
+
+A typed `semantic-metadata` overlay implements the first additive declaration
+metadata milestone. It is opt-in and intentionally remains outside
+`overlay=all`.
+
+It reuses the existing `[[fisics::...]]` attribute pipeline to attach authored
+identities, canonical domains, and roles to functions and single-declarator
+file-scope variables. The compiler validates and merges compatible
+redeclarations, rejects translation-unit ID collisions, and prints a stable
+record projection with `--dump-sema`.
+
+```c
+[[fisics::id("thermal.read_temperature")]]
+[[fisics::domain("thermal")]]
+[[fisics::role("sensor.read")]]
+double read_temperature(void);
+```
+
+declaration relationship model also accepts repeatable relationships to distinct canonical targets:
+
+```c
+[[fisics::id("thermal.read_temperature")]]
+[[fisics::produces("signal.cabin.temperature")]]
+double read_temperature(void);
+
+[[fisics::consumes("signal.cabin.temperature")]]
+void update_controller(void);
+```
+
+Same-owner duplicate edges are diagnosed. Edges merge across compatible
+redeclarations. A target matching a valid authored ID in the active translation
+unit is `resolved`; every other valid isolated target is retained as `external`.
+When the source has no authored ID, the dump uses a deterministic compiler
+projection rather than a pointer-derived identity. Target prefixes have no
+inferred category or behavior.
+
+The translation-unit metadata export machine export contract is implemented. A successful single-TU
+invocation can request an atomic deterministic artifact with:
+
+```bash
+./fisics --overlay=semantic-metadata \
+  --emit-semantic-metadata-json metadata.json \
+  -c sample.c -o sample.o
+```
+
+The option requires exactly one C input, explicit overlay selection, and a
+filesystem destination. The additive `FisicsAnalysisResultEx` frontend result
+exposes the same sorted record/edge projection and advertises it with
+`FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA` only when populated.
+The focused proof command is `make integration-cli-semantic-metadata`; the
+extended frontend lifecycle remains part of `make frontend-contract-test`.
+
+The semantic project graph assembles multiple fresh translation-unit metadata export artifacts through a dedicated graph-only
+manifest and paired terminal CLI mode:
+
+```bash
+./fisics --semantic-project-manifest semantic-project.json \
+  --emit-semantic-project-graph-json semantic-project-graph.json
+```
+
+This mode validates current source provenance, enforces project-global authored
+IDs, resolves cross-TU targets, and permits only explicitly allowlisted external
+targets. It does not enable an overlay, parse or compile C, link, or execute
+runtime behavior. Its focused proof command is
+`make integration-semantic-project-graph`.
+
+Physics-units remains the authority for dimensions and units. physical composition graph can emit a
+fresh deterministic units-evidence sidecar for one translation unit:
+
+```bash
+./fisics --overlay=physics-units,semantic-metadata \
+  --emit-semantic-metadata-json values.semantic.json \
+  --emit-units-metadata-json values.units.json \
+  -c values.c -o values.o
+```
+
+The implemented physical composition graph offline composer joins those receipts to a semantic project graph
+and strict author-owned physical catalogs:
+
+```bash
+./fisics --physical-project-manifest physical-project.json \
+  --emit-physical-project-graph-json physical-project-graph.json
+```
+
+The resulting extensible physical type keeps quantity kind, dimension,
+concrete-unit policy, value form, reference semantics, and frame identity
+separate. It reports only `source_compatible`, `source_unverified`,
+`external_declared`, and uncovered state, with top-level
+`physical_acceptance: not_assessed`.
+
+The hardware compatibility graph consumes that graph with static component catalogs and authored topology:
+
+```bash
+./fisics --hardware-project-manifest hardware-project.json \
+  --emit-hardware-project-graph-json hardware-project-graph.json
+```
+
+This exact paired terminal mode validates profile revisions, ownership,
+capabilities, driver/model/transport compatibility, generic allocation spaces,
+and physical-signal bindings. It does not compile C, generate or execute
+drivers, contact hardware, run simulation, deploy firmware, or promote any
+runtime or physical-acceptance state. The focused graph gates are
+`make integration-physical-project-graph` and
+`make integration-hardware-project-graph`.
+
+See:
+
+- [Extension Selection And Quickstart](extensions_guide.md)
+- [Portable Extension Authoring](extension_portability.md)
+- [Semantic Metadata Extension Contract](semantic_metadata_contract.md)
+- [Semantic Project Graph Contract](semantic_metadata_project_graph_contract.md)
+- [Physical Composition Graph Contract](semantic_metadata_physical_composition_contract.md)
+- [Hardware Compatibility Graph Contract](semantic_metadata_hardware_contract.md)
+- [Semantic Metadata Historical Implementation Record](semantic_metadata_implementation_plan.md)
 
 ## Memory-Check Overlay
 

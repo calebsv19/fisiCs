@@ -5,6 +5,10 @@ This curated example is a tiny physics-units project for time-step motion.
 It updates position and velocity under acceleration, computes kinetic energy,
 and includes an intentional invalid fixture for a dimension mismatch.
 
+The valid and invalid sources use the public `FISICS_DIM`/`FISICS_UNIT`
+portability macros. Strict Clang sees ordinary C; fisiCs retains the units
+semantics.
+
 ## Run
 
 ```bash

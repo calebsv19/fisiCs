@@ -41,6 +41,7 @@ typedef struct {
     bool enableTrigraphs;
     bool warnIgnoredInterop;
     bool errorIgnoredInterop;
+    bool captureSourceContract;
 } CompileOptions;
 
 typedef struct {
@@ -50,6 +51,8 @@ typedef struct {
     CodegenContext* codegenCtx;
     LLVMModuleRef module;
     size_t semanticErrors;
+    uint64_t analyzedSourceHash;
+    size_t analyzedSourceLength;
 } CompileResult;
 
 // Reusable frontend entry point: runs lex -> preprocess -> parse -> sema on an

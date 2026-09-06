@@ -1,0 +1,14 @@
+{
+  "schema": "fisiCs.physical_project_manifest",
+  "schema_version": 1,
+  "project_id": "esp.e016.sensor_metadata_bridge",
+  "semantic_project_graph_path": "../../../build/integration-esp-portable-c/e016.semantic-project.graph.json",
+  "units_metadata_paths": [
+    "../../../build/integration-esp-portable-c/normalized_signal_policy.units.json"
+  ],
+  "physical_catalog_paths": [
+    "e016.physical.catalog.json"
+  ],
+  "coverage_policy": "require_relationship_targets",
+  "source_evidence_policy": "report_unverified"
+}

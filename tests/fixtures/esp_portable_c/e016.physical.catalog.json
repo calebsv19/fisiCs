@@ -1,0 +1,39 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "esp.e016.normalized_signal.physical_contracts",
+  "quantity_kinds": [
+    {
+      "id": "quantity.normalized_signal.level",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [0, 0, 0, 0, 0, 0, 0, 0],
+      "dimension_text": "dimensionless"
+    }
+  ],
+  "contracts": [
+    {
+      "contract_id": "contract.esp.e016.normalized_signal.test_level",
+      "subject": {
+        "kind": "semantic_id",
+        "id": "signal.bench_potentiometer.test_level"
+      },
+      "quantity_kind": "quantity.normalized_signal.level",
+      "unit_policy": {
+        "mode": "dimension_only",
+        "unit": null
+      },
+      "value_form": {
+        "kind": "scalar",
+        "component_count": null,
+        "tensor_rank": null,
+        "tensor_shape": []
+      },
+      "reference_semantics": {
+        "kind": "linear",
+        "reference_subject": null,
+        "period_binary64": null
+      },
+      "frame_id": null
+    }
+  ]
+}

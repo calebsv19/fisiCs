@@ -7,6 +7,7 @@
 
 #include "Extensions/Units/units_model.h"
 #include "Extensions/Units/units_registry.h"
+#include "Extensions/SemanticMetadata/semantic_metadata_model.h"
 #include "Parser/Helpers/parsed_type.h"
 
 struct ASTNode;
@@ -60,6 +61,14 @@ typedef struct FisicsUnitsExprBinding {
 } FisicsUnitsExprBinding;
 
 typedef struct FisicsExtensionState {
+    /* Compiler-owned semantic-metadata projection, keyed by resolved symbol. */
+    FisicsSemanticMetadataRecord* semanticMetadataRecords;
+    size_t semanticMetadataRecordCount;
+    size_t semanticMetadataRecordCapacity;
+    FisicsSemanticMetadataEdge* semanticMetadataEdges;
+    size_t semanticMetadataEdgeCount;
+    size_t semanticMetadataEdgeCapacity;
+
     /*
      * Current Phase 2/2.5 declaration-side storage.
      * One canonical slot per owner node, with per-attribute duplicate counters

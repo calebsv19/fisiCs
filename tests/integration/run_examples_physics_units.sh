@@ -17,25 +17,25 @@ if [ ! -x "$BIN" ]; then
   exit 1
 fi
 
-if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units "$VALID_SRC" -o "$TMP_DIR/ballistics_valid" >"$TMP_OUTPUT" 2>&1; then
+if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units -I"$ROOT_DIR/include" "$VALID_SRC" -o "$TMP_DIR/ballistics_valid" >"$TMP_OUTPUT" 2>&1; then
   echo "valid physics units example failed to build normally" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi
 
-if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$VALID_SRC" -o "$TMP_DIR/ballistics_valid.o" >"$TMP_OUTPUT" 2>&1; then
+if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units -I"$ROOT_DIR/include" --dump-sema -c "$VALID_SRC" -o "$TMP_DIR/ballistics_valid.o" >"$TMP_OUTPUT" 2>&1; then
   echo "valid physics units example failed to build with overlay dump" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi
 
-if ! grep -Fq "line 4: m [resolved, unit=meter, unit-resolved]" "$TMP_OUTPUT"; then
+if ! grep -Eq "line [0-9]+: m \[resolved, unit=meter, unit-resolved\]" "$TMP_OUTPUT"; then
   echo "missing position annotation in valid example dump" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi
 
-if ! grep -Fq "line 10: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]" "$TMP_OUTPUT"; then
+if ! grep -Eq "line [0-9]+: m\^2\*kg/s\^2 \[resolved, unit=joule, unit-resolved\]" "$TMP_OUTPUT"; then
   echo "missing kinetic energy annotation in valid example dump" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
@@ -53,7 +53,7 @@ if ! grep -Fq "binary-expression(*) [dim=m^2*kg/s^2, resolved]" "$TMP_OUTPUT"; t
   exit 1
 fi
 
-if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$INVALID_ASSIGN_SRC" -o "$TMP_DIR/ballistics_invalid_assignment.o" >"$TMP_OUTPUT" 2>&1; then
+if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units -I"$ROOT_DIR/include" --dump-sema -c "$INVALID_ASSIGN_SRC" -o "$TMP_DIR/ballistics_invalid_assignment.o" >"$TMP_OUTPUT" 2>&1; then
   echo "expected invalid assignment example to fail" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
@@ -77,7 +77,7 @@ if ! grep -Fq "Skipping LLVM code generation due to semantic errors." "$TMP_OUTP
   exit 1
 fi
 
-if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$INVALID_COMPARE_SRC" -o "$TMP_DIR/ballistics_invalid_compare.o" >"$TMP_OUTPUT" 2>&1; then
+if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units -I"$ROOT_DIR/include" --dump-sema -c "$INVALID_COMPARE_SRC" -o "$TMP_DIR/ballistics_invalid_compare.o" >"$TMP_OUTPUT" 2>&1; then
   echo "expected invalid comparison example to fail" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
@@ -101,7 +101,7 @@ if ! grep -Fq "Skipping LLVM code generation due to semantic errors." "$TMP_OUTP
   exit 1
 fi
 
-if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$INVALID_POSITION_UPDATE_SRC" -o "$TMP_DIR/ballistics_invalid_position_update.o" >"$TMP_OUTPUT" 2>&1; then
+if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units -I"$ROOT_DIR/include" --dump-sema -c "$INVALID_POSITION_UPDATE_SRC" -o "$TMP_DIR/ballistics_invalid_position_update.o" >"$TMP_OUTPUT" 2>&1; then
   echo "expected invalid position-update example to fail" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
@@ -137,7 +137,7 @@ if ! grep -Fq "Skipping LLVM code generation due to semantic errors." "$TMP_OUTP
   exit 1
 fi
 
-if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$INVALID_CHAIN_SRC" -o "$TMP_DIR/ballistics_invalid_formula_chain.o" >"$TMP_OUTPUT" 2>&1; then
+if FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units -I"$ROOT_DIR/include" --dump-sema -c "$INVALID_CHAIN_SRC" -o "$TMP_DIR/ballistics_invalid_formula_chain.o" >"$TMP_OUTPUT" 2>&1; then
   echo "expected invalid formula-chain example to fail" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1

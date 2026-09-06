@@ -1,0 +1,41 @@
+{
+  "schema": "fisiCs.hardware_component_catalog",
+  "schema_version": 1,
+  "catalog_id": "catalog.van.project",
+  "authority": {"kind": "project", "identity": "authority.van.project"},
+  "bus_profiles": [
+    {
+      "profile_id": "bus.i2c.controller",
+      "revision": "v1",
+      "transport_kind": "transport.i2c",
+      "controller_capability": "endpoint.i2c.controller",
+      "participant_capability": "endpoint.i2c.participant",
+      "allocation_spaces": [
+        {
+          "space_id": "address",
+          "value_kind": "uint64_decimal",
+          "minimum_uint64": "0",
+          "maximum_uint64": "127",
+          "claim_required": true,
+          "collision_policy": "exclusive"
+        }
+      ]
+    }
+  ],
+  "board_profiles": [
+    {
+      "profile_id": "board.esp32.generic",
+      "revision": "rev-a",
+      "capability_ids": ["board.microcontroller"],
+      "endpoints": [
+        {
+          "endpoint_id": "controller.i2c0",
+          "capability_ids": ["endpoint.i2c.controller"],
+          "allocation_policy": "exclusive"
+        }
+      ]
+    }
+  ],
+  "device_models": [],
+  "driver_contracts": []
+}

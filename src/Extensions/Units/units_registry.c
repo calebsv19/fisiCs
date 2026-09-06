@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 /*
@@ -189,6 +190,21 @@ static FisicsUnitDef kVoltageUnits[3];
 static FisicsUnitDef kResistanceUnits[4];
 static FisicsUnitFamilyDef kUnitFamilies[18];
 static bool kUnitRegistryInitialized = false;
+
+static uint64_t fingerprint_bytes(uint64_t hash, const void* bytes, size_t count) {
+    const unsigned char* cursor = (const unsigned char*)bytes;
+    for (size_t i = 0; i < count; ++i) {
+        hash ^= cursor[i];
+        hash *= UINT64_C(1099511628211);
+    }
+    return hash;
+}
+
+static uint64_t fingerprint_text(uint64_t hash, const char* text) {
+    if (text) hash = fingerprint_bytes(hash, text, strlen(text));
+    const unsigned char separator = 0xffu;
+    return fingerprint_bytes(hash, &separator, 1u);
+}
 
 static void init_length_units_head(void) {
     ASSIGN_UNIT(kLengthUnits[0], "meter", "m", FISICS_DIM_FAMILY_LENGTH, 1, 0, 0, 0, 0, 0, 0, 0, 1.0, kMeterAliases);
@@ -592,4 +608,32 @@ bool fisics_unit_registry_validate(FisicsUnitRegistryAudit* outAudit) {
         kUnitFamilies,
         sizeof(kUnitFamilies) / sizeof(kUnitFamilies[0]),
         outAudit);
+}
+
+uint64_t fisics_unit_registry_fingerprint(void) {
+    ensure_unit_registry_initialized();
+    uint64_t hash = UINT64_C(1469598103934665603);
+    for (size_t family_index = 0; family_index < fisics_unit_family_count(); ++family_index) {
+        const FisicsUnitFamilyDef* family = fisics_unit_family_at(family_index);
+        if (!family) continue;
+        uint32_t family_value = (uint32_t)family->family;
+        hash = fingerprint_bytes(hash, &family_value, sizeof(family_value));
+        hash = fingerprint_text(hash, family->family_name);
+        for (size_t unit_index = 0; unit_index < family->unit_count; ++unit_index) {
+            const FisicsUnitDef* unit = &family->units[unit_index];
+            hash = fingerprint_text(hash, unit->name);
+            hash = fingerprint_text(hash, unit->symbol);
+            hash = fingerprint_bytes(hash, unit->dim.e, sizeof(unit->dim.e));
+            uint64_t scale_bits = 0;
+            uint64_t offset_bits = 0;
+            memcpy(&scale_bits, &unit->scale_to_canonical, sizeof(scale_bits));
+            memcpy(&offset_bits, &unit->offset_to_canonical, sizeof(offset_bits));
+            hash = fingerprint_bytes(hash, &scale_bits, sizeof(scale_bits));
+            hash = fingerprint_bytes(hash, &offset_bits, sizeof(offset_bits));
+            for (size_t alias_index = 0; alias_index < unit->alias_count; ++alias_index) {
+                hash = fingerprint_text(hash, unit->aliases[alias_index]);
+            }
+        }
+    }
+    return hash;
 }

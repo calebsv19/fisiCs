@@ -1,0 +1,13 @@
+{
+  "schema": "fisiCs.semantic_project_manifest",
+  "schema_version": 1,
+  "project_id": "esp.e016.sensor_metadata_bridge",
+  "translation_units": [
+    {
+      "metadata_path": "../../../build/integration-esp-portable-c/normalized_signal_policy.semantic.json"
+    }
+  ],
+  "allowed_external_targets": [
+    "signal.bench_potentiometer.test_level"
+  ]
+}

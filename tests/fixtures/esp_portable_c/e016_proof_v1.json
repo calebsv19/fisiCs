@@ -1,0 +1,111 @@
+{
+  "schema": "fisiCs.esp_deterministic_proof",
+  "schema_version": 1,
+  "lane_id": "esp.e016.deterministic_proof.v1",
+  "prerequisite_contracts": [
+    {
+      "role": "portable_c_intake",
+      "path": "tests/fixtures/esp_portable_c/e016_intake_v1.json",
+      "sha256": "38cf8c1b22554961a11e9b1c95c12010982f3ea06b654abd58c6ec37232c4184"
+    },
+    {
+      "role": "semantic_physical_composition",
+      "path": "tests/fixtures/esp_portable_c/e016_composition_v1.json",
+      "sha256": "55146e841d8848e3972e5c761d738676566dd5ffbccebde51d66ca9c9434def8"
+    },
+    {
+      "role": "hardware_compatibility",
+      "path": "tests/fixtures/esp_portable_c/e016_hardware_v1.json",
+      "sha256": "e80a12812cb7783d32aac19fcebb3895110daeec12f21db1f33e91776089cf11"
+    }
+  ],
+  "terminal_graphs": [
+    {
+      "role": "semantic_project_graph",
+      "path": "build/integration-esp-portable-c/e016.semantic-project.graph.json",
+      "sha256": "0ccb73417bb08a09c79b87df4811010cd296060ed1b8ac034bd706f54543eb0d"
+    },
+    {
+      "role": "physical_composition_graph",
+      "path": "build/integration-esp-portable-c/e016.physical-project.graph.json",
+      "sha256": "29bb340605e96b425cab36722537d9e1418b6948227a45eccb0701ee32788c76"
+    },
+    {
+      "role": "hardware_compatibility_graph",
+      "path": "build/integration-esp-portable-c/e016.hardware-project.graph.json",
+      "sha256": "e04b5cbdbbe97b6f3d3f86f11dc82252363d4a991f65a07b11489d5c42c36ee7"
+    }
+  ],
+  "expected_corpus": {
+    "semantic_record_ids": [
+      "operation.esp.normalized_signal.adc_normalize",
+      "operation.esp.normalized_signal.publication_decide"
+    ],
+    "semantic_edges": [
+      [
+        "operation.esp.normalized_signal.adc_normalize",
+        "produces",
+        "signal.bench_potentiometer.test_level",
+        "external"
+      ],
+      [
+        "operation.esp.normalized_signal.publication_decide",
+        "consumes",
+        "signal.bench_potentiometer.test_level",
+        "external"
+      ]
+    ],
+    "physical_contract_id": "contract.esp.e016.normalized_signal.test_level",
+    "physical_quantity_id": "quantity.normalized_signal.level",
+    "physical_state": "external_declared",
+    "node_ids": [
+      "node.bench_a",
+      "node.bench_b"
+    ],
+    "bus_ids": [
+      "bus.e016.can"
+    ],
+    "device_ids": [
+      "device.bench_a.e016_observer",
+      "device.bench_a.tja1050",
+      "device.bench_b.e016_publisher",
+      "device.bench_b.potentiometer",
+      "device.bench_b.tja1050"
+    ],
+    "connection_ids": [
+      "connection.bench_a.observer.can",
+      "connection.bench_a.tja1050.can",
+      "connection.bench_a.tja1050.rxd",
+      "connection.bench_a.tja1050.txd",
+      "connection.bench_b.potentiometer.wiper",
+      "connection.bench_b.publisher.can",
+      "connection.bench_b.tja1050.can",
+      "connection.bench_b.tja1050.rxd",
+      "connection.bench_b.tja1050.txd"
+    ],
+    "binding_ids": [
+      "binding.bench_a.e016_consumer",
+      "binding.bench_b.e016_producer"
+    ],
+    "live_evidence_state": "not_assessed"
+  },
+  "required_negative_classes": [
+    "stale_source_digest",
+    "stale_protocol_digest",
+    "unapproved_relationship_target",
+    "conflicting_duplicate_identity",
+    "incompatible_physical_quantity",
+    "incompatible_value_form",
+    "incompatible_unit_policy",
+    "incompatible_reference_kind",
+    "wrong_board_revision",
+    "wrong_device_revision",
+    "wrong_driver",
+    "wrong_bus_revision",
+    "wrong_endpoint_capability",
+    "exclusive_gpio_collision",
+    "missing_required_allocation",
+    "missing_required_physical_binding",
+    "static_live_evidence_promotion"
+  ]
+}

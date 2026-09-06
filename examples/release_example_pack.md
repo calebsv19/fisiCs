@@ -22,6 +22,7 @@ cd /path/to/fisiCs
 - single-file and multi-translation-unit compile/link smoke paths work
 - practical canaries cover libc/string and numeric/math behavior
 - the physics-units overlay has a small valid example
+- semantic metadata has a portable Clang/fisiCs example
 - a curated project can be operated by an agent through documented commands,
   expected output, intentional diagnostics, and generated build-graph artifacts
 
@@ -114,6 +115,27 @@ Generated tooling artifact:
 
 - `examples/projects/kinematics_stepper/ide_files/build_graph.json`
 
+## Optional: Semantic Metadata And Hardware Graphs
+
+Use the basic example for the release-facing metadata path and the comparison
+target for strict shared-source C99 portability:
+
+```bash
+make examples-semantic-metadata
+make examples-semantic-metadata-compare
+make examples-extension-portability
+```
+
+The complete static graph pipeline is available separately because it teaches
+static physical-system graph pipeline rather than the minimum compiler smoke:
+
+```bash
+make examples-semantic-hardware
+```
+
+See `examples/semantic_metadata/README.md` before interpreting the final graph.
+It proves supplied static compatibility, not hardware presence or operation.
+
 ## Optional: Memory-Check Demo
 
 Use this only when the release story needs runtime allocation/free diagnostics:
@@ -131,5 +153,7 @@ release example pack.
 - first-user path: `docs/first_user_path.md`
 - agent guide: `AGENTS.md`
 - examples index: `examples/README.md`
+- extension quickstart: `docs/extensions_guide.md`
+- semantic metadata examples: `examples/semantic_metadata/README.md`
 - curated project index: `examples/projects/README.md`
 - release-confidence checklist: `docs/release_confidence_checklist.md`

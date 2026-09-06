@@ -27,6 +27,8 @@ public operating surface is intentionally CLI-first:
 7. Use `docs/cli_release_workflow.md` only when release packaging is in scope.
 8. Use `examples/release_example_pack.md` for the smallest public demo path.
 9. Use `examples/README.md` to choose broader example or curated-project workflows.
+10. For extension work, start with `docs/metadata_system_concepts.md`, then use
+    `docs/extensions_guide.md` and `docs/agent_extension_guide.md`.
 
 ## Safe Routine Commands
 

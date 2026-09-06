@@ -3,7 +3,7 @@
 This document defines the public contract between `fisiCs` compiler analysis output and IDE consumers.
 
 Contract ID: `fisiCs.analysis.contract`
-Current Contract Version: `1.7.0`
+Current Contract Version: `1.9.0`
 Status: active
 
 ## Goals
@@ -39,6 +39,10 @@ analysis contract. They are not emitted by `--emit-diags-json`,
 - Includes (`includes`)
 - Tokens (`tokens`, optional lane)
 - Units attachments (`units_attachments`, optional extension lane)
+
+`FisicsAnalysisResultEx` embeds that unchanged base result and adds optional
+semantic-metadata record and edge arrays. Its caller-supplied ABI version and
+structure size must be validated before the producer writes the result.
 
 ## Stability Lanes
 
@@ -91,7 +95,7 @@ Interpretation:
 - `fatal=true` means analysis is incomplete and UX should be non-authoritative.
 - `partial=false` and `fatal=false` indicates full successful analysis for this input.
 
-### Contract Capabilities (v1.7)
+### Contract Capabilities (v1.9)
 
 This lane adds explicit producer-advertised capability flags so consumers can gate optional behavior without relying only on minor-version inference.
 
@@ -105,6 +109,7 @@ Current capability bits:
 - `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY`
 - `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`
 - `FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE`
+- `FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA`
 
 Capability table:
 
@@ -118,6 +123,7 @@ Capability table:
 | `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` | Normalized diagnostics taxonomy lane present | Prefer `severity_id`/`category_id`/`code_id` when available. |
 | `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS` | Extension units attachment lane present | Ingest declaration/symbol units metadata only when explicitly advertised. |
 | `FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE` | Concrete unit identity fields are populated in the units attachment lane | Surface unit name/symbol/family only when explicitly advertised. |
+| `FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA` | The extended result contains a complete accepted semantic-metadata record/edge projection | Consume only through `FisicsAnalysisResultEx`; absence is authoritative. |
 
 Consumer behavior:
 
@@ -143,7 +149,15 @@ Compatibility matrix (major `1` consumers):
 | `1.4.x` | explicit `contract.capabilities` | gated by advertised `FISICS_CONTRACT_CAP_SYMBOLS` / `FISICS_CONTRACT_CAP_TOKENS` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
 | `1.5.x` | explicit `contract.capabilities` | same as `1.4.x`, plus optional `units_attachments` gated by `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
 | `1.6.x` | explicit `contract.capabilities` | same as `1.5.x`, plus optional concrete unit identity gated by `FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
-| `1.7.x+` | explicit `contract.capabilities` | same as `1.6.x`, with optional `unit_source_text` round-trip metadata on concrete unit attachments | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
+| `1.7.x` | explicit `contract.capabilities` | same as `1.6.x`, with optional `unit_source_text` round-trip metadata on concrete unit attachments | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
+| `1.8.x` | explicit `contract.capabilities` | same as `1.7.x`, with location-backed units attachments and explicit stable-ID presence | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
+| `1.9.x` | explicit `contract.capabilities` | same as `1.8.x`; `FisicsAnalysisResultEx` may additionally advertise semantic-metadata records and edges | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
+
+Contract `1.9.0` retains the `1.8` capability and units-lane rules and adds the
+implemented translation-unit metadata export semantic-metadata lane through a separate size/version-tagged
+extended result. The legacy result layout and entry point remain unchanged;
+the exact additive contract is specified in
+`semantic_metadata_export_contract.md`.
 
 ## Path Rules
 
@@ -247,6 +261,7 @@ Reserved code ranges:
 - `3000-3999`: preprocessor
 - `4000-4099`: extension framework/bootstrap
 - `4100-4199`: physics-units semantic diagnostics
+- `4200-4299`: semantic-metadata diagnostics
 - `5000-5099`: lexer-specific emitted diagnostics
 - `6000-6099`: codegen diagnostics
 - `7000-7099`: build/driver diagnostics
@@ -261,6 +276,11 @@ Extension namespace policy:
   - invalid `fisics::dim(...)`
   - duplicate declaration annotation
 - `4100-4199` is reserved in advance for Phase 5 units-semantics diagnostics so future algebra checks can ship without renumbering public ids.
+- `4201-4206` and `4209` are live semantic-metadata codes for disabled use,
+  invalid syntax/value, invalid target, same-owner singular duplicate,
+  redeclaration conflict, translation-unit authored-ID collision, and
+  same-owner duplicate relationship. `4207-4208` remain reserved for strict
+  unresolved-reference and metadata/units mismatch stages.
 
 Build/link namespace policy:
 

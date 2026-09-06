@@ -64,7 +64,7 @@ esac
 run_valid() {
   mkdir -p "$project/build"
   # shellcheck disable=SC2086
-  FISICS_MAX_PROCS=0 "$bin" $overlay -I"$project/src" "$main_src" $extra_src -o "$binary"
+  FISICS_MAX_PROCS=0 "$bin" $overlay -Iinclude -I"$project/src" "$main_src" $extra_src -o "$binary"
   "$binary" > "$project/build/stdout.txt"
   if ! cmp -s "$project/tests/expected_stdout.txt" "$project/build/stdout.txt"; then
     echo "stdout mismatch for $name" >&2
@@ -93,7 +93,7 @@ run_invalid_one() {
 
   set +e
   # shellcheck disable=SC2086
-  FISICS_MAX_PROCS=0 "$bin" $overlay --dump-sema -c "$src" -o "$object" > "$output" 2>&1
+  FISICS_MAX_PROCS=0 "$bin" $overlay -Iinclude --dump-sema -c "$src" -o "$object" > "$output" 2>&1
   status=$?
   set -e
 
@@ -146,7 +146,7 @@ run_artifacts() {
   graph="$project/ide_files/build_graph.json"
   FISICS_MAX_PROCS=0 "$bin" --build-manifest "$project/project.fisics.json" --dry-run --json --emit-build-graph-json "$graph"
   # shellcheck disable=SC2086
-  FISICS_MAX_PROCS=0 "$bin" $overlay -I"$project/src" "$main_src" $extra_src -o "$binary"
+  FISICS_MAX_PROCS=0 "$bin" $overlay -Iinclude -I"$project/src" "$main_src" $extra_src -o "$binary"
   "$binary" > "$project/build/stdout.txt"
   echo "wrote $graph"
   echo "wrote $project/build/stdout.txt"

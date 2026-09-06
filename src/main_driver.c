@@ -13,6 +13,10 @@
 #include "Compiler/diagnostics.h"
 #include "Compiler/build_graph.h"
 #include "Compiler/object_emit.h"
+#include "Compiler/pipeline_artifacts_semantic_metadata.h"
+#include "Compiler/pipeline_artifacts_units.h"
+#include "Compiler/semantic_metadata_json.h"
+#include "Compiler/units_metadata_json.h"
 
 static bool env_flag_enabled(const char* name) {
     if (!name || !name[0]) return false;
@@ -23,6 +27,65 @@ static bool env_flag_enabled(const char* name) {
 static bool memory_check_overlay_enabled(const MainDriverConfig* config) {
     return config &&
            (config->overlayFeatures & FISICS_OVERLAY_MEMORY_CHECK) != 0;
+}
+
+static bool write_semantic_metadata_artifact(const MainDriverConfig* config,
+                                             const char* source_path,
+                                             const CompileResult* result) {
+    if (!config || !config->semanticMetadataJsonPath) return true;
+    if (!source_path || !result || !result->semanticModel || !result->compilerCtx) return false;
+
+    char* normalized_source_path =
+        pipeline_normalize_semantic_metadata_source_path(source_path);
+    size_t symbol_count = 0;
+    const FisicsSymbol* symbols = cc_get_symbols(result->compilerCtx, &symbol_count);
+    FisicsFrontendSemanticMetadataRecord* records = NULL;
+    FisicsFrontendSemanticMetadataEdge* edges = NULL;
+    size_t record_count = 0;
+    size_t edge_count = 0;
+    bool ok = normalized_source_path &&
+              pipeline_collect_semantic_metadata_projection(
+                  result->semanticModel, symbols, symbol_count, source_path,
+                  &records, &record_count, &edges, &edge_count);
+    if (ok) {
+        ok = fisics_semantic_metadata_write_json_atomic(
+            config->semanticMetadataJsonPath, normalized_source_path,
+            result->analyzedSourceHash, result->analyzedSourceLength,
+            records, record_count, edges, edge_count);
+    }
+    pipeline_free_semantic_metadata_projection(records, record_count, edges, edge_count);
+    free(normalized_source_path);
+    return ok;
+}
+
+static bool write_units_metadata_artifact(const MainDriverConfig* config,
+                                          const char* source_path,
+                                          const CompileResult* result) {
+    if (!config || !config->unitsMetadataJsonPath) return true;
+    if (!source_path || !result || !result->semanticModel || !result->compilerCtx) return false;
+    char* normalized = pipeline_normalize_semantic_metadata_source_path(source_path);
+    size_t symbol_count = 0;
+    const FisicsSymbol* symbols = cc_get_symbols(result->compilerCtx, &symbol_count);
+    FisicsUnitsAttachment* attachments = NULL;
+    size_t attachment_count = 0;
+    bool ok = normalized && pipeline_collect_units_attachments(
+        result->semanticModel, symbols, symbol_count, source_path,
+        &attachments, &attachment_count);
+    if (ok) {
+        ok = fisics_units_metadata_write_json_atomic(
+            config->unitsMetadataJsonPath, normalized,
+            result->analyzedSourceHash, result->analyzedSourceLength,
+            (config->overlayFeatures & FISICS_OVERLAY_PHYSICS_UNITS) != 0,
+            attachments, attachment_count);
+    }
+    if (attachments) {
+        FisicsAnalysisResult owned = {0};
+        owned.units_attachments = attachments;
+        owned.units_attachment_count = attachment_count;
+        fisics_free_analysis_result(&owned);
+    }
+    free(normalized);
+    return ok;
 }
 
 static const char* memory_check_runtime_archive_path(void) {
@@ -240,7 +303,9 @@ static CompileOptions make_compile_options(const MainDriverConfig* config,
         .dumpTokens = config->dumpTokens,
         .enableCodegen = config->enableCodegen != 0,
         .warnIgnoredInterop = config->warnIgnoredInterop,
-        .errorIgnoredInterop = config->errorIgnoredInterop
+        .errorIgnoredInterop = config->errorIgnoredInterop,
+        .captureSourceContract = config->semanticMetadataJsonPath != NULL ||
+                                 config->unitsMetadataJsonPath != NULL
     };
     return options;
 }
@@ -316,7 +381,8 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
         }
 
         CompileOptions options = make_compile_options(config, cPath, config->depsJsonPath);
-        if (should_use_clang_frontend_fallback(&options)) {
+        if (!config->semanticMetadataJsonPath && !config->unitsMetadataJsonPath &&
+            should_use_clang_frontend_fallback(&options)) {
             fprintf(stderr,
                     "Warning: using clang frontend/backend fallback for %s (AArch64 map_forge tools compatibility)\n",
                     cPath);
@@ -406,7 +472,8 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
         free(diagPackPathForInput);
         free(graphPath);
 
-        if (should_use_clang_backend_fallback(&options, result.module)) {
+        if (!config->semanticMetadataJsonPath && !config->unitsMetadataJsonPath &&
+            should_use_clang_backend_fallback(&options, result.module)) {
             fprintf(stderr,
                     "Warning: using clang backend fallback for %s (AArch64 ISel compatibility)\n",
                     cPath);
@@ -446,6 +513,22 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
             return 1;
         }
         free(emitErr);
+        if (!write_semantic_metadata_artifact(config, cPath, &result)) {
+            fprintf(stderr, "Error: failed to write semantic metadata JSON to %s\n",
+                    config->semanticMetadataJsonPath);
+            free(objPath);
+            compile_result_destroy(&result);
+            compiler_diagnostics_clear(&aggregateDiagnostics);
+            return 1;
+        }
+        if (!write_units_metadata_artifact(config, cPath, &result)) {
+            fprintf(stderr, "Error: failed to write units metadata JSON to %s\n",
+                    config->unitsMetadataJsonPath);
+            free(objPath);
+            compile_result_destroy(&result);
+            compiler_diagnostics_clear(&aggregateDiagnostics);
+            return 1;
+        }
         compile_result_destroy(&result);
         free(objPath);
     }
@@ -485,7 +568,8 @@ static int run_link_mode(const MainDriverConfig* config) {
         }
 
         CompileOptions options = make_compile_options(config, cPath, NULL);
-        if (should_use_clang_frontend_fallback(&options)) {
+        if (!config->semanticMetadataJsonPath && !config->unitsMetadataJsonPath &&
+            should_use_clang_frontend_fallback(&options)) {
             fprintf(stderr,
                     "Warning: using clang frontend/backend fallback for %s (AArch64 map_forge tools compatibility)\n",
                     cPath);
@@ -584,7 +668,8 @@ static int run_link_mode(const MainDriverConfig* config) {
         free(diagPath);
         free(diagPackPathForInput);
 
-        if (should_use_clang_backend_fallback(&options, result.module)) {
+        if (!config->semanticMetadataJsonPath && !config->unitsMetadataJsonPath &&
+            should_use_clang_backend_fallback(&options, result.module)) {
             fprintf(stderr,
                     "Warning: using clang backend fallback for %s (AArch64 ISel compatibility)\n",
                     cPath);
@@ -630,6 +715,22 @@ static int run_link_mode(const MainDriverConfig* config) {
             break;
         }
         free(emitErr);
+        if (!write_semantic_metadata_artifact(config, cPath, &result)) {
+            fprintf(stderr, "Error: failed to write semantic metadata JSON to %s\n",
+                    config->semanticMetadataJsonPath);
+            free(objPath);
+            compile_result_destroy(&result);
+            allOk = false;
+            break;
+        }
+        if (!write_units_metadata_artifact(config, cPath, &result)) {
+            fprintf(stderr, "Error: failed to write units metadata JSON to %s\n",
+                    config->unitsMetadataJsonPath);
+            free(objPath);
+            compile_result_destroy(&result);
+            allOk = false;
+            break;
+        }
         compile_result_destroy(&result);
         if (!string_list_push(&tempObjects, objPath)) {
             fprintf(stderr, "OOM: temp object list\n");

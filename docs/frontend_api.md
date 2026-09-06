@@ -37,6 +37,17 @@ fisics_free_analysis_result(&res);
 - `contract`: metadata describing contract id/version, producer, mode (`strict`/`lenient`), partial/fatal flags, trust fields, and additive capability flags (`capabilities`) for optional consumer lanes.
 - `units_attachments`: optional declaration/symbol units metadata exported only when the producer advertises `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`. In contract `1.7.0+`, this lane may also carry optional concrete unit identity fields (`unit_source_text`, `unit_name`, `unit_symbol`, `unit_family`, `unit_resolved`) when `FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE` is advertised.
 
+Semantic metadata is exported through the additive `FisicsAnalysisResultEx`
+API without resizing `FisicsAnalysisResult`. Initialize `abi_version` to
+`FISICS_ANALYSIS_RESULT_EX_ABI_VERSION`, initialize `struct_size` to
+`sizeof(FisicsAnalysisResultEx)`, enable
+`FISICS_OVERLAY_SEMANTIC_METADATA`, and call `fisics_analyze_buffer_ex`.
+Accepted records and relationship edges are independently owned, sorted arrays
+and are advertised only through
+`FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA`. Release the complete result
+with `fisics_free_analysis_result_ex`; see
+`docs/semantic_metadata_export_contract.md` for exact ABI and ownership rules.
+
 ## Overlay Options
 
 - `overlay_features` uses the same feature family as the CLI `--overlay=` flag.
@@ -44,6 +55,8 @@ fisics_free_analysis_result(&res);
   - `FISICS_OVERLAY_NONE`
   - `FISICS_OVERLAY_IDE_METADATA`
   - `FISICS_OVERLAY_PHYSICS_UNITS`
+  - `FISICS_OVERLAY_MEMORY_CHECK`
+  - `FISICS_OVERLAY_SEMANTIC_METADATA`
 - Overlay behavior is opt-in; callers that leave this field at `FISICS_OVERLAY_NONE` stay on the core-C analysis path.
 
 For the current overlay model and `[[fisics::dim(...)]]` syntax, see:
@@ -52,6 +65,10 @@ For the current overlay model and `[[fisics::dim(...)]]` syntax, see:
 
 ## Ownership and lifetime
 - All pointers inside `FisicsAnalysisResult` are owned by the caller after a successful call; free them via `fisics_free_analysis_result`.
+- All pointers added by `FisicsAnalysisResultEx` are likewise caller-owned;
+  free them via `fisics_free_analysis_result_ex`. The extended destructor is
+  idempotent for an initialized result and preserves `abi_version` and
+  `struct_size`.
 - Input `source` is not modified or retained.
 
 ## Linking

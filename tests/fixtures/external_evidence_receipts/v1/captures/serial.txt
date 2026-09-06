@@ -1,0 +1,3 @@
+fixture boot candidate=fixture.candidate.v1 usb=AA:BB:CC:DD:EE:FF
+fixture can pong counter=7 match=1
+fixture signal sequence=11 value=400 quality=GOOD

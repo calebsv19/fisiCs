@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "Extensions/Units/units_model.h"
 
@@ -57,3 +58,4 @@ bool fisics_unit_registry_validate_table(const FisicsUnitFamilyDef* families,
                                          size_t family_count,
                                          FisicsUnitRegistryAudit* outAudit);
 bool fisics_unit_registry_validate(FisicsUnitRegistryAudit* outAudit);
+uint64_t fisics_unit_registry_fingerprint(void);

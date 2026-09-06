@@ -1,7 +1,7 @@
 # Contributor and Agent Quickstart
 
 This file is the fastest entrypoint for human contributors and automated tooling.
-Last updated: 2026-07-03.
+Last updated: 2026-09-03.
 
 ## 1) Read First
 
@@ -9,9 +9,12 @@ Last updated: 2026-07-03.
 2. `AGENTS.md` (agent boot contract and safe command boundaries)
 3. `docs/first_user_path.md` (shortest supported build/example path)
 4. `docs/release_confidence_checklist.md` (public release-readiness ladder)
-5. `docs/compiler_test_confidence_tiers.md` (which trust command ladder to use day to day)
-6. `docs/compiler_test_workflow_guide.md` (test-work operating flow)
-7. `docs/public_roadmap.md` (current priorities and direction)
+5. `docs/extensions_guide.md` (which extension or static graph layer to use)
+6. `docs/agent_extension_guide.md` (agent provenance, evidence, and completion
+   contract for extension work)
+7. `docs/compiler_test_confidence_tiers.md` (which trust command ladder to use day to day)
+8. `docs/compiler_test_workflow_guide.md` (test-work operating flow)
+9. `docs/public_roadmap.md` (current priorities and direction)
 
 ## 2) Build and Verify
 
@@ -32,6 +35,17 @@ make ci-guardrails
 Use `docs/compiler_test_confidence_tiers.md` to decide when a focused bucket run
 is enough and when to widen to runtime, canary, full-suite, or timed
 checkpoint validation.
+
+For extension-facing changes, start with the narrow public examples:
+
+```bash
+make examples-physics-units
+make examples-semantic-metadata
+make examples-semantic-metadata-compare
+make examples-semantic-hardware
+make examples-extension-portability
+make examples-memory-check
+```
 
 ## 3) Release-Readiness Agent Path
 
@@ -79,6 +93,9 @@ that scope is explicitly requested.
   - `docs/compiler_test_coverage_blueprint.md`
 - Frontend embedding/API integration:
   - `docs/frontend_api.md`
+- Extension selection and portable Clang/fisiCs authoring:
+  - `docs/extensions_guide.md`
+  - `docs/extension_portability.md`
 - Compiler/IDE contract compatibility and semver lane:
   - `docs/compiler_ide_data_contract.md`
 - Full-project compile-validation flow:

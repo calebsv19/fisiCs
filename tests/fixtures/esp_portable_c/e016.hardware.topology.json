@@ -1,0 +1,225 @@
+{
+  "schema": "fisiCs.hardware_topology",
+  "schema_version": 1,
+  "project_id": "esp.e016.sensor_metadata_bridge",
+  "nodes": [
+    {
+      "node_id": "node.bench_a",
+      "board_profile": {
+        "profile_id": "board.espressif.esp32_c6_devkitc_1",
+        "revision": "wroom-1"
+      }
+    },
+    {
+      "node_id": "node.bench_b",
+      "board_profile": {
+        "profile_id": "board.espressif.esp32_c6_devkitc_1",
+        "revision": "wroom-1"
+      }
+    }
+  ],
+  "buses": [
+    {
+      "bus_id": "bus.e016.can",
+      "owner_node_id": "node.bench_a",
+      "scope": "project_shared",
+      "bus_profile": {
+        "profile_id": "bus.can.classical.kbps500",
+        "revision": "e016-v1"
+      },
+      "controller_endpoint_id": "anchor.can0"
+    }
+  ],
+  "devices": [
+    {
+      "device_id": "device.bench_a.e016_observer",
+      "owner_node_id": "node.bench_a",
+      "model": {
+        "model_id": "device.codework_esp.e016.observer",
+        "revision": "normalized-signal-v1"
+      },
+      "driver": {
+        "driver_id": "driver.codework_esp.e016.observer",
+        "revision": "v1"
+      }
+    },
+    {
+      "device_id": "device.bench_a.tja1050",
+      "owner_node_id": "node.bench_a",
+      "model": {
+        "model_id": "device.nxp.tja1050",
+        "revision": "declared-breakout-v1"
+      },
+      "driver": null
+    },
+    {
+      "device_id": "device.bench_b.e016_publisher",
+      "owner_node_id": "node.bench_b",
+      "model": {
+        "model_id": "device.codework_esp.e016.publisher",
+        "revision": "normalized-signal-v1"
+      },
+      "driver": {
+        "driver_id": "driver.codework_esp.e016.publisher",
+        "revision": "v1"
+      }
+    },
+    {
+      "device_id": "device.bench_b.potentiometer",
+      "owner_node_id": "node.bench_b",
+      "model": {
+        "model_id": "device.passive.potentiometer",
+        "revision": "three_terminal_wiper-v1"
+      },
+      "driver": null
+    },
+    {
+      "device_id": "device.bench_b.tja1050",
+      "owner_node_id": "node.bench_b",
+      "model": {
+        "model_id": "device.nxp.tja1050",
+        "revision": "declared-breakout-v1"
+      },
+      "driver": null
+    }
+  ],
+  "connections": [
+    {
+      "connection_id": "connection.bench_a.observer.can",
+      "device_id": "device.bench_a.e016_observer",
+      "attachment_port_id": "port.can",
+      "target": {
+        "kind": "bus",
+        "bus_id": "bus.e016.can",
+        "board_endpoint_id": null
+      },
+      "allocation_claims": [
+        {
+          "space_id": "node_identity",
+          "value_uint64": null,
+          "value_id": "node.bench_a"
+        }
+      ]
+    },
+    {
+      "connection_id": "connection.bench_a.tja1050.can",
+      "device_id": "device.bench_a.tja1050",
+      "attachment_port_id": "port.can",
+      "target": {
+        "kind": "bus",
+        "bus_id": "bus.e016.can",
+        "board_endpoint_id": null
+      },
+      "allocation_claims": [
+        {
+          "space_id": "node_identity",
+          "value_uint64": null,
+          "value_id": "node.bench_a"
+        }
+      ]
+    },
+    {
+      "connection_id": "connection.bench_a.tja1050.rxd",
+      "device_id": "device.bench_a.tja1050",
+      "attachment_port_id": "port.rxd",
+      "target": {
+        "kind": "direct_endpoint",
+        "bus_id": null,
+        "board_endpoint_id": "gpio11"
+      },
+      "allocation_claims": []
+    },
+    {
+      "connection_id": "connection.bench_a.tja1050.txd",
+      "device_id": "device.bench_a.tja1050",
+      "attachment_port_id": "port.txd",
+      "target": {
+        "kind": "direct_endpoint",
+        "bus_id": null,
+        "board_endpoint_id": "gpio10"
+      },
+      "allocation_claims": []
+    },
+    {
+      "connection_id": "connection.bench_b.potentiometer.wiper",
+      "device_id": "device.bench_b.potentiometer",
+      "attachment_port_id": "port.wiper",
+      "target": {
+        "kind": "direct_endpoint",
+        "bus_id": null,
+        "board_endpoint_id": "gpio1"
+      },
+      "allocation_claims": []
+    },
+    {
+      "connection_id": "connection.bench_b.publisher.can",
+      "device_id": "device.bench_b.e016_publisher",
+      "attachment_port_id": "port.can",
+      "target": {
+        "kind": "bus",
+        "bus_id": "bus.e016.can",
+        "board_endpoint_id": null
+      },
+      "allocation_claims": [
+        {
+          "space_id": "node_identity",
+          "value_uint64": null,
+          "value_id": "node.bench_b"
+        }
+      ]
+    },
+    {
+      "connection_id": "connection.bench_b.tja1050.can",
+      "device_id": "device.bench_b.tja1050",
+      "attachment_port_id": "port.can",
+      "target": {
+        "kind": "bus",
+        "bus_id": "bus.e016.can",
+        "board_endpoint_id": null
+      },
+      "allocation_claims": [
+        {
+          "space_id": "node_identity",
+          "value_uint64": null,
+          "value_id": "node.bench_b"
+        }
+      ]
+    },
+    {
+      "connection_id": "connection.bench_b.tja1050.rxd",
+      "device_id": "device.bench_b.tja1050",
+      "attachment_port_id": "port.rxd",
+      "target": {
+        "kind": "direct_endpoint",
+        "bus_id": null,
+        "board_endpoint_id": "gpio11"
+      },
+      "allocation_claims": []
+    },
+    {
+      "connection_id": "connection.bench_b.tja1050.txd",
+      "device_id": "device.bench_b.tja1050",
+      "attachment_port_id": "port.txd",
+      "target": {
+        "kind": "direct_endpoint",
+        "bus_id": null,
+        "board_endpoint_id": "gpio10"
+      },
+      "allocation_claims": []
+    }
+  ],
+  "signal_bindings": [
+    {
+      "binding_id": "binding.bench_a.e016_consumer",
+      "device_id": "device.bench_a.e016_observer",
+      "physical_port_id": "port.signal_input",
+      "physical_contract_id": "contract.esp.e016.normalized_signal.test_level"
+    },
+    {
+      "binding_id": "binding.bench_b.e016_producer",
+      "device_id": "device.bench_b.e016_publisher",
+      "physical_port_id": "port.signal_output",
+      "physical_contract_id": "contract.esp.e016.normalized_signal.test_level"
+    }
+  ]
+}

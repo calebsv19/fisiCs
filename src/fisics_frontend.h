@@ -26,12 +26,17 @@ typedef enum {
     FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID = (1ULL << 4),
     FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY = (1ULL << 5),
     FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS = (1ULL << 6),
-    FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE = (1ULL << 7)
+    FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE = (1ULL << 7),
+    FISICS_CONTRACT_CAP_EXTENSION_SEMANTIC_METADATA = (1ULL << 8)
 } FisicsContractCapability;
 
 enum {
-    FISICS_UNITS_DIM_SLOTS = 8
+    FISICS_UNITS_DIM_SLOTS = 8,
+    FISICS_ANALYSIS_RESULT_EX_ABI_VERSION = 1,
+    FISICS_SEMANTIC_METADATA_SCHEMA_VERSION = 1
 };
+
+#define FISICS_SEMANTIC_METADATA_SCHEMA_ID "fisiCs.semantic_metadata"
 
 typedef struct {
     char contract_id[64];
@@ -97,6 +102,69 @@ typedef struct {
 // Ownership: all arrays/strings in FisicsAnalysisResult are allocated by the
 // frontend and must be released with fisics_free_analysis_result.
 
+typedef enum {
+    FISICS_SEMANTIC_METADATA_SYMBOL_FUNCTION = 1,
+    FISICS_SEMANTIC_METADATA_SYMBOL_FILE_VARIABLE = 2
+} FisicsFrontendSemanticMetadataSymbolKind;
+
+typedef enum {
+    FISICS_SEMANTIC_METADATA_EDGE_PRODUCES = 1,
+    FISICS_SEMANTIC_METADATA_EDGE_CONSUMES = 2
+} FisicsFrontendSemanticMetadataEdgeKind;
+
+typedef enum {
+    FISICS_SEMANTIC_METADATA_REFERENCE_EXTERNAL = 1,
+    FISICS_SEMANTIC_METADATA_REFERENCE_RESOLVED = 2
+} FisicsFrontendSemanticMetadataReferenceState;
+
+typedef struct {
+    const char* source_identity;
+    const char* authored_id;
+
+    uint64_t symbol_stable_id;
+    bool has_symbol_stable_id;
+    const char* symbol_name;
+    FisicsFrontendSemanticMetadataSymbolKind symbol_kind;
+
+    const char* source_file_path;
+    int start_line;
+    int start_col;
+    int end_line;
+    int end_col;
+
+    const char* domain;
+    const char* role;
+} FisicsFrontendSemanticMetadataRecord;
+
+typedef struct {
+    size_t source_record_index;
+    FisicsFrontendSemanticMetadataEdgeKind kind;
+    const char* target_id;
+    FisicsFrontendSemanticMetadataReferenceState resolution;
+
+    size_t target_record_index;
+    bool has_target_record_index;
+
+    const char* source_file_path;
+    int start_line;
+    int start_col;
+    int end_line;
+    int end_col;
+} FisicsFrontendSemanticMetadataEdge;
+
+typedef struct {
+    uint32_t abi_version;
+    size_t struct_size;
+
+    FisicsAnalysisResult analysis;
+
+    FisicsFrontendSemanticMetadataRecord* semantic_metadata_records;
+    size_t semantic_metadata_record_count;
+
+    FisicsFrontendSemanticMetadataEdge* semantic_metadata_edges;
+    size_t semantic_metadata_edge_count;
+} FisicsAnalysisResultEx;
+
 typedef struct {
     // Array of include search paths (equivalent to -I). Optional; pass NULL/0 to use defaults.
     const char* const* include_paths;
@@ -125,6 +193,14 @@ bool fisics_analyze_buffer(const char* file_path,
                            FisicsAnalysisResult* out);
 
 void fisics_free_analysis_result(FisicsAnalysisResult* result);
+
+bool fisics_analyze_buffer_ex(const char* file_path,
+                              const char* source,
+                              size_t length,
+                              const FisicsFrontendOptions* opts,
+                              FisicsAnalysisResultEx* out);
+
+void fisics_free_analysis_result_ex(FisicsAnalysisResultEx* result);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "AST/ast_node.h"
+#include "Compiler/pipeline_artifacts_semantic_metadata.h"
 #include "Extensions/extension_hooks.h"
 #include "Extensions/extension_units_view.h"
 
@@ -49,26 +50,49 @@ static FisicsSymbolKind map_definition_kind(const Symbol* sym) {
     }
 }
 
-static const char* symbol_file_path(const Symbol* sym) {
-    if (!sym || !sym->definition) return NULL;
-    return sym->definition->location.start.file;
-}
-
 static const FisicsSymbol* find_exported_symbol_match(const Symbol* sym,
                                                       const FisicsSymbol* symbols,
                                                       size_t symbol_count) {
     if (!sym || !sym->name || !symbols || symbol_count == 0) return NULL;
     const FisicsSymbolKind want_kind = map_definition_kind(sym);
-    const char* want_path = symbol_file_path(sym);
 
     for (size_t i = 0; i < symbol_count; ++i) {
         const FisicsSymbol* cand = &symbols[i];
         if (!cand->name || strcmp(cand->name, sym->name) != 0) continue;
         if (cand->kind != want_kind) continue;
-        if (want_path && cand->file_path && strcmp(cand->file_path, want_path) != 0) continue;
         return cand;
     }
     return NULL;
+}
+
+static const FisicsSymbol* find_exported_variable_by_range(
+    const char* name,
+    SourceRange range,
+    const FisicsSymbol* symbols,
+    size_t symbol_count) {
+    if (!name || !symbols) return NULL;
+    for (size_t i = 0; i < symbol_count; ++i) {
+        const FisicsSymbol* candidate = &symbols[i];
+        if (candidate->kind != FISICS_SYMBOL_VARIABLE || !candidate->name ||
+            strcmp(candidate->name, name) != 0) continue;
+        if (candidate->start_line == range.start.line &&
+            candidate->start_col == range.start.column &&
+            candidate->end_line == range.end.line &&
+            candidate->end_col == range.end.column) return candidate;
+    }
+    return NULL;
+}
+
+static uint64_t exported_stable_id(const FisicsSymbol* symbol) {
+    if (!symbol) return 0;
+    if (symbol->stable_id) return symbol->stable_id;
+    FisicsSymbol normalized = *symbol;
+    char* normalized_path =
+        pipeline_normalize_semantic_metadata_source_path(symbol->file_path);
+    if (normalized_path) normalized.file_path = normalized_path;
+    uint64_t stable_id = pipeline_compute_exported_symbol_stable_id(&normalized);
+    free(normalized_path);
+    return stable_id;
 }
 
 static bool append_units_attachment(UnitsAttachmentBuffer* buf,
@@ -89,8 +113,9 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
 
     FisicsUnitsAttachment* dst = &buf->items[buf->count];
     memset(dst, 0, sizeof(*dst));
-    if (symbol && symbol->stable_id != 0) {
-        dst->symbol_stable_id = symbol->stable_id;
+    uint64_t stable_id = exported_stable_id(symbol);
+    if (stable_id != 0) {
+        dst->symbol_stable_id = stable_id;
         dst->has_symbol_stable_id = true;
     }
     dst->symbol_name = dup_cstr(symbol_name);
@@ -141,25 +166,15 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
 }
 
 static void normalize_units_attachment_range(UnitsAttachmentBuffer* buf,
-                                             SourceRange* range,
-                                             const SourceRange* fallback_range) {
+                                             SourceRange* range) {
     if (!range) return;
-    const char* fallback_file = NULL;
-    if (fallback_range && fallback_range->start.file && fallback_range->start.file[0]) {
-        fallback_file = fallback_range->start.file;
-    } else if (buf && buf->fallback_file_path && buf->fallback_file_path[0]) {
-        fallback_file = buf->fallback_file_path;
-    }
+    const char* fallback_file =
+        buf && buf->fallback_file_path && buf->fallback_file_path[0]
+            ? buf->fallback_file_path : NULL;
     if (!fallback_file) return;
 
-    if (!range->start.file || !range->start.file[0] ||
-        strcmp(range->start.file, fallback_file) != 0) {
-        range->start.file = fallback_file;
-    }
-    if (!range->end.file || !range->end.file[0] ||
-        strcmp(range->end.file, fallback_file) != 0) {
-        range->end.file = fallback_file;
-    }
+    range->start.file = fallback_file;
+    range->end.file = fallback_file;
 }
 
 static void free_units_attachment_buffer(UnitsAttachmentBuffer* buf) {
@@ -187,12 +202,10 @@ static void collect_units_symbol_cb(const Symbol* sym, void* user_data) {
     if (!ann || !ann->resolved) return;
 
     const FisicsSymbol* exported = find_exported_symbol_match(sym, buf->symbols, buf->symbol_count);
-    if (!exported || exported->stable_id == 0) return;
+    if (!exported) return;
 
     SourceRange range = sym->definition ? sym->definition->location : (SourceRange){0};
-    if (!range.start.file || !range.start.file[0]) range.start.file = buf->fallback_file_path;
-    if (!range.end.file || !range.end.file[0]) range.end.file = range.start.file;
-    normalize_units_attachment_range(buf, &range, sym->definition ? &sym->definition->location : NULL);
+    normalize_units_attachment_range(buf, &range);
     if (!append_units_attachment(buf, exported, exported->name, range, ann)) {
         buf->ok = false;
     }
@@ -210,17 +223,11 @@ static void collect_units_annotation_cb(const FisicsUnitsAnnotation* ann, void* 
         if (!name || !name[0]) continue;
 
         SourceRange range = ident ? ident->location : node->location;
-        if (!range.start.file || !range.start.file[0]) range.start.file = node->location.start.file;
-        if (!range.start.file || !range.start.file[0]) range.start.file = buf->fallback_file_path;
-        if (!range.end.file || !range.end.file[0]) range.end.file = range.start.file;
-        normalize_units_attachment_range(buf, &range, &node->location);
+        normalize_units_attachment_range(buf, &range);
         const FisicsSymbol* exported = NULL;
         if (buf->symbols && buf->symbol_count > 0) {
-            Symbol transient = {0};
-            transient.name = (char*)name;
-            transient.kind = SYMBOL_VARIABLE;
-            transient.definition = node;
-            exported = find_exported_symbol_match(&transient, buf->symbols, buf->symbol_count);
+            exported = find_exported_variable_by_range(
+                name, range, buf->symbols, buf->symbol_count);
         }
         if (!append_units_attachment(buf, exported, name, range, ann)) {
             buf->ok = false;

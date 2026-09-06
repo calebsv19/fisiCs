@@ -1,0 +1,91 @@
+{
+  "schema": "fisiCs.hardware_component_catalog",
+  "schema_version": 1,
+  "catalog_id": "catalog.vendor.example",
+  "authority": {
+    "kind": "external_declared",
+    "identity": "authority.vendor.example"
+  },
+  "bus_profiles": [],
+  "board_profiles": [],
+  "device_models": [
+    {
+      "model_id": "device.environment.sensor",
+      "revision": "rev-a",
+      "capability_ids": ["device.sensor"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {
+          "port_id": "port.control",
+          "connection_kind": "bus_participant",
+          "required_capability": "endpoint.i2c.participant",
+          "required_transport_kind": "transport.i2c",
+          "required": true
+        }
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.measurement",
+          "direction": "produces",
+          "required": true,
+          "requirement": {
+            "mode": "exact_quantity",
+            "quantity_kind": "quantity.temperature.absolute",
+            "dimension_system": null,
+            "dimension_vector": [],
+            "value_form": "scalar",
+            "reference_kind": "absolute"
+          }
+        }
+      ]
+    },
+    {
+      "model_id": "device.fan.controller",
+      "revision": "rev-a",
+      "capability_ids": ["device.actuator"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {
+          "port_id": "port.control",
+          "connection_kind": "bus_participant",
+          "required_capability": "endpoint.i2c.participant",
+          "required_transport_kind": "transport.i2c",
+          "required": true
+        }
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.command",
+          "direction": "consumes",
+          "required": true,
+          "requirement": {
+            "mode": "dimension_only",
+            "quantity_kind": null,
+            "dimension_system": "fisiCs.si_dim8.v1",
+            "dimension_vector": [0, 0, 0, 0, 1, 0, 0, 0],
+            "value_form": "scalar",
+            "reference_kind": "difference"
+          }
+        }
+      ]
+    }
+  ],
+  "driver_contracts": [
+    {
+      "driver_id": "driver.environment.sensor",
+      "revision": "v1",
+      "supported_models": [
+        {"model_id": "device.environment.sensor", "revision": "rev-a"}
+      ],
+      "required_transport_kinds": ["transport.i2c"]
+    },
+    {
+      "driver_id": "driver.fan.controller",
+      "revision": "v1",
+      "supported_models": [
+        {"model_id": "device.fan.controller", "revision": "rev-a"}
+      ],
+      "required_transport_kinds": ["transport.i2c"]
+    }
+  ]
+}

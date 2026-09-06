@@ -20,8 +20,17 @@
 #include "Compiler/build_graph.h"
 #include "Compiler/build_manifest.h"
 #include "Compiler/diagnostic_metadata.h"
+#include "Compiler/hardware_project_graph.h"
+#include "Compiler/hardware_project_graph_json.h"
+#include "Compiler/hardware_project_manifest.h"
 #include "Compiler/object_emit.h"
 #include "Compiler/pipeline.h"
+#include "Compiler/physical_project_graph.h"
+#include "Compiler/physical_project_graph_json.h"
+#include "Compiler/physical_project_manifest.h"
+#include "Compiler/semantic_project_graph.h"
+#include "Compiler/semantic_project_graph_json.h"
+#include "Compiler/semantic_project_manifest.h"
 #include "Extensions/extension_profile.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
@@ -66,6 +75,19 @@ static void print_cli_usage(FILE* out, const char* argv0) {
             "  --dump-ir                  Print LLVM IR.\n"
             "  --emit-build-graph-json <path>\n"
             "                             Write source or manifest build graph JSON.\n"
+            "  --emit-semantic-metadata-json <path>\n"
+            "                             Write one deterministic single-TU metadata artifact.\n"
+            "  --emit-units-metadata-json <path>\n"
+            "                             Write one deterministic single-TU units evidence artifact.\n"
+            "  --semantic-project-manifest <path>\n"
+            "  --emit-semantic-project-graph-json <path>\n"
+            "                             Assemble one strict multi-TU semantic graph.\n"
+            "  --physical-project-manifest <path>\n"
+            "  --emit-physical-project-graph-json <path>\n"
+            "                             Assemble one static physical compatibility graph.\n"
+            "  --hardware-project-manifest <path>\n"
+            "  --emit-hardware-project-graph-json <path>\n"
+            "                             Assemble one static hardware compatibility graph.\n"
             "  --build-manifest <path>    Load local build manifest.\n"
             "  --overlay=<name>           Enable opt-in overlay, e.g. physics-units.\n"
             "  --list-diagnostics --json  Print diagnostic explanation catalog.\n"
@@ -88,6 +110,137 @@ static bool is_historical_dev_fixture(const char* path) {
     return path &&
            (strcmp(path, "include/test.txt") == 0 ||
             strcmp(path, "./include/test.txt") == 0);
+}
+
+static bool semantic_project_cli_shape_valid(int argc, char** argv) {
+    unsigned manifest_count = 0;
+    unsigned output_count = 0;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--semantic-project-manifest") == 0) {
+            if (++manifest_count != 1u || i + 1 >= argc) return false;
+            i++;
+        } else if (strcmp(argv[i], "--emit-semantic-project-graph-json") == 0) {
+            if (++output_count != 1u || i + 1 >= argc) return false;
+            i++;
+        } else {
+            return false;
+        }
+    }
+    return manifest_count == 1u && output_count == 1u;
+}
+
+static bool semantic_project_cli_requested(int argc, char** argv) {
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--semantic-project-manifest") == 0 ||
+            strcmp(argv[i], "--emit-semantic-project-graph-json") == 0) return true;
+    }
+    return false;
+}
+
+static int run_semantic_project_cli(int argc, char** argv) {
+    if (!semantic_project_cli_shape_valid(argc, argv)) {
+        fprintf(stderr,
+                "Error: semantic project graph mode requires both paired options exactly once and cannot be combined with compile, build, overlay, dump, or other options\n");
+        return 1;
+    }
+    const char* manifest_path = NULL;
+    const char* output_path = NULL;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--semantic-project-manifest") == 0) {
+            manifest_path = argv[++i];
+        } else if (strcmp(argv[i], "--emit-semantic-project-graph-json") == 0) {
+            output_path = argv[++i];
+        }
+    }
+    if (strcmp(manifest_path, "-") == 0 || strcmp(output_path, "-") == 0) {
+        fprintf(stderr,
+                "Error: semantic project graph mode requires filesystem paths; '-' is not supported\n");
+        return 1;
+    }
+    FisicsSemanticProjectManifest manifest = {0};
+    FisicsSemanticProjectGraph graph = {0};
+    FisicsSemanticProjectDiagnostic diagnostic = {0};
+    bool ok = fisics_semantic_project_manifest_load(manifest_path, &manifest, &diagnostic);
+    if (ok) ok = fisics_semantic_project_graph_build(&manifest, &graph, &diagnostic);
+    if (ok) {
+        ok = fisics_semantic_project_graph_write_json_atomic(output_path, &graph, &diagnostic);
+        if (!ok && !diagnostic.message[0]) {
+            snprintf(diagnostic.message, sizeof(diagnostic.message),
+                     "failed to atomically publish semantic project graph: %s", output_path);
+        }
+    }
+    if (!ok) {
+        fprintf(stderr, "Error: %s\n",
+                diagnostic.message[0] ? diagnostic.message
+                                      : "semantic project graph assembly failed");
+    }
+    fisics_semantic_project_graph_free(&graph);
+    fisics_semantic_project_manifest_free(&manifest);
+    return ok ? 0 : 1;
+}
+
+static bool physical_project_cli_requested(int argc,char** argv){for(int i=1;i<argc;++i)if(strcmp(argv[i],"--physical-project-manifest")==0||strcmp(argv[i],"--emit-physical-project-graph-json")==0)return true;return false;}
+
+static bool physical_project_cli_shape_valid(int argc,char** argv){unsigned manifests=0,outputs=0;for(int i=1;i<argc;++i){if(strcmp(argv[i],"--physical-project-manifest")==0){if(++manifests!=1u||i+1>=argc)return false;++i;}else if(strcmp(argv[i],"--emit-physical-project-graph-json")==0){if(++outputs!=1u||i+1>=argc)return false;++i;}else return false;}return manifests==1u&&outputs==1u;}
+
+static int run_physical_project_cli(int argc,char** argv){if(!physical_project_cli_shape_valid(argc,argv)){fprintf(stderr,"Error: physical project graph mode requires both paired options exactly once and cannot be combined with compile, build, semantic graph, overlay, dump, or other options\n");return 1;}const char* manifest_path=NULL;const char* output_path=NULL;for(int i=1;i<argc;++i){if(strcmp(argv[i],"--physical-project-manifest")==0)manifest_path=argv[++i];else if(strcmp(argv[i],"--emit-physical-project-graph-json")==0)output_path=argv[++i];}if(!strcmp(manifest_path,"-")||!strcmp(output_path,"-")){fprintf(stderr,"Error: physical project graph mode requires filesystem paths; '-' is not supported\n");return 1;}FisicsPhysicalProjectManifest manifest={0};FisicsPhysicalProjectGraph graph={0};FisicsSemanticProjectDiagnostic diagnostic={0};bool ok=fisics_physical_project_manifest_load(manifest_path,&manifest,&diagnostic);if(ok)ok=fisics_physical_project_graph_build(&manifest,&graph,&diagnostic);if(ok)ok=fisics_physical_project_graph_write_json_atomic(output_path,&manifest,&graph,&diagnostic);if(!ok)fprintf(stderr,"Error: %s\n",diagnostic.message[0]?diagnostic.message:"physical project graph assembly failed");fisics_physical_project_graph_free(&graph);fisics_physical_project_manifest_free(&manifest);return ok?0:1;}
+
+static bool hardware_project_cli_requested(int argc, char** argv) {
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--hardware-project-manifest") == 0 ||
+            strcmp(argv[i], "--emit-hardware-project-graph-json") == 0) return true;
+    }
+    return false;
+}
+
+static bool hardware_project_cli_shape_valid(int argc, char** argv) {
+    unsigned manifests = 0, outputs = 0;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--hardware-project-manifest") == 0) {
+            if (++manifests != 1u || i + 1 >= argc) return false;
+            ++i;
+        } else if (strcmp(argv[i], "--emit-hardware-project-graph-json") == 0) {
+            if (++outputs != 1u || i + 1 >= argc) return false;
+            ++i;
+        } else return false;
+    }
+    return manifests == 1u && outputs == 1u;
+}
+
+static int run_hardware_project_cli(int argc, char** argv) {
+    if (!hardware_project_cli_shape_valid(argc, argv)) {
+        fprintf(stderr,
+                "Error: hardware project graph mode requires both paired options exactly once and cannot be combined with compile, build, semantic, physical, overlay, dump, or other options\n");
+        return 1;
+    }
+    const char* manifest_path = NULL;
+    const char* output_path = NULL;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--hardware-project-manifest") == 0) manifest_path = argv[++i];
+        else output_path = argv[++i];
+    }
+    if (strcmp(manifest_path, "-") == 0 || strcmp(output_path, "-") == 0) {
+        fprintf(stderr,
+                "Error: hardware project graph mode requires filesystem paths; '-' is not supported\n");
+        return 1;
+    }
+    FisicsHardwareProjectManifest manifest = {0};
+    FisicsHardwareProjectGraph graph = {0};
+    FisicsSemanticProjectDiagnostic diagnostic = {0};
+    bool ok = fisics_hardware_project_manifest_load(manifest_path, &manifest, &diagnostic);
+    if (ok) ok = fisics_hardware_project_graph_build(&manifest, &graph, &diagnostic);
+    if (ok) {
+        ok = fisics_hardware_project_graph_write_json_atomic(
+            output_path, &manifest, &graph, &diagnostic);
+    }
+    if (!ok) {
+        fprintf(stderr, "Error: %s\n",
+                diagnostic.message[0] ? diagnostic.message
+                                      : "hardware project graph assembly failed");
+    }
+    fisics_hardware_project_graph_free(&graph);
+    fisics_hardware_project_manifest_free(&manifest);
+    return ok ? 0 : 1;
 }
 
 static void fisics_proc_guard_cleanup(void) {
@@ -986,14 +1139,6 @@ int main(int argc, char **argv) {
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
     if (debugProgress) fprintf(stderr, "[main] start argc=%d\n", argc);
-    profiler_init();
-    if (profiler_enabled()) {
-        atexit(profiler_shutdown);
-    }
-    const char* nanoEnv = getenv("MallocNanoZone");
-    if (!nanoEnv) {
-        setenv("MallocNanoZone", "0", 0);
-    }
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -1004,6 +1149,27 @@ int main(int argc, char **argv) {
             print_cli_version(stdout);
             return 0;
         }
+    }
+
+    if (hardware_project_cli_requested(argc, argv)) {
+        return run_hardware_project_cli(argc, argv);
+    }
+
+    if (physical_project_cli_requested(argc, argv)) {
+        return run_physical_project_cli(argc, argv);
+    }
+
+    if (semantic_project_cli_requested(argc, argv)) {
+        return run_semantic_project_cli(argc, argv);
+    }
+
+    profiler_init();
+    if (profiler_enabled()) {
+        atexit(profiler_shutdown);
+    }
+    const char* nanoEnv = getenv("MallocNanoZone");
+    if (!nanoEnv) {
+        setenv("MallocNanoZone", "0", 0);
     }
 
     if (!fisics_proc_guard_enter()) {
@@ -1017,6 +1183,8 @@ int main(int argc, char **argv) {
     bool preservePPNodes = false;
     const char* depsJsonPath = NULL;
     const char* buildGraphJsonPath = NULL;
+    const char* semanticMetadataJsonPath = NULL;
+    const char* unitsMetadataJsonPath = NULL;
     const char* buildManifestPath = NULL;
     const char* compileDbPath = NULL;
     const char* diagsJsonPath = NULL;
@@ -1118,6 +1286,18 @@ int main(int argc, char **argv) {
             depsJsonPath = argv[++i];
         } else if (strcmp(argv[i], "--emit-build-graph-json") == 0 && i + 1 < argc) {
             buildGraphJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--emit-semantic-metadata-json") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "Error: --emit-semantic-metadata-json requires a path\n");
+                goto fail;
+            }
+            semanticMetadataJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--emit-units-metadata-json") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "Error: --emit-units-metadata-json requires a path\n");
+                goto fail;
+            }
+            unitsMetadataJsonPath = argv[++i];
         } else if (strcmp(argv[i], "--build-manifest") == 0 && i + 1 < argc) {
             buildManifestPath = argv[++i];
         } else if (strcmp(argv[i], "--emit-compile-db") == 0 && i + 1 < argc) {
@@ -1432,6 +1612,57 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    if (semanticMetadataJsonPath) {
+        if (buildManifestPath) {
+            fprintf(stderr,
+                    "Error: --emit-semantic-metadata-json does not support build manifests; run one direct invocation per translation unit\n");
+            goto fail;
+        }
+        if (strcmp(semanticMetadataJsonPath, "-") == 0) {
+            fprintf(stderr, "Error: --emit-semantic-metadata-json requires a filesystem path; '-' is not supported\n");
+            goto fail;
+        }
+        if (inputCFiles.count != 1u || inputOFiles.count != 0u) {
+            fprintf(stderr,
+                    "Error: --emit-semantic-metadata-json requires exactly one C input; run one invocation per translation unit\n");
+            goto fail;
+        }
+        if ((overlayFeatures & FISICS_OVERLAY_SEMANTIC_METADATA) == 0) {
+            fprintf(stderr,
+                    "Error: --emit-semantic-metadata-json requires --overlay=semantic-metadata\n");
+            goto fail;
+        }
+    }
+
+    if (unitsMetadataJsonPath) {
+        if (buildManifestPath) {
+            fprintf(stderr,
+                    "Error: --emit-units-metadata-json does not support build manifests; run one direct invocation per translation unit\n");
+            goto fail;
+        }
+        if (strcmp(unitsMetadataJsonPath, "-") == 0) {
+            fprintf(stderr, "Error: --emit-units-metadata-json requires a filesystem path; '-' is not supported\n");
+            goto fail;
+        }
+        if (inputCFiles.count != 1u || inputOFiles.count != 0u) {
+            fprintf(stderr,
+                    "Error: --emit-units-metadata-json requires exactly one C input; run one invocation per translation unit\n");
+            goto fail;
+        }
+        if ((overlayFeatures & FISICS_OVERLAY_PHYSICS_UNITS) == 0) {
+            fprintf(stderr,
+                    "Error: --emit-units-metadata-json requires --overlay=physics-units\n");
+            goto fail;
+        }
+        if ((semanticMetadataJsonPath &&
+             strcmp(unitsMetadataJsonPath, semanticMetadataJsonPath) == 0) ||
+            (outputName && strcmp(unitsMetadataJsonPath, outputName) == 0)) {
+            fprintf(stderr,
+                    "Error: --emit-units-metadata-json output must be distinct from other outputs\n");
+            goto fail;
+        }
+    }
+
     if (buildManifestPath) {
         if (buildManifestDryRun && !buildManifestJson) {
             fprintf(stderr, "Error: --build-manifest --dry-run currently requires --json\n");
@@ -1505,7 +1736,7 @@ int main(int argc, char **argv) {
         return llvm_shutdown_and_return(0);
     }
 
-    bool driverMode = compileOnly || outputName || inputOFiles.count > 0 ||
+    bool driverMode = compileOnly || outputName || semanticMetadataJsonPath || unitsMetadataJsonPath || inputOFiles.count > 0 ||
                       linkerSearchPaths.count > 0 || linkerLibs.count > 0 ||
                       linkerFrameworks.count > 0 || linkerPath;
     if (driverMode) {
@@ -1514,6 +1745,8 @@ int main(int argc, char **argv) {
             .preservePPNodes = preservePPNodes,
             .depsJsonPath = depsJsonPath,
             .buildGraphJsonPath = buildGraphJsonPath,
+            .semanticMetadataJsonPath = semanticMetadataJsonPath,
+            .unitsMetadataJsonPath = unitsMetadataJsonPath,
             .diagsJsonPath = diagsJsonPath,
             .diagsPackPath = diagsPackPath,
             .targetTriple = targetTriple,

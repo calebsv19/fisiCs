@@ -1,0 +1,12 @@
+{
+  "schema": "fisiCs.hardware_project_manifest",
+  "schema_version": 1,
+  "project_id": "esp.e016.sensor_metadata_bridge",
+  "physical_project_graph_path": "../../../build/integration-esp-portable-c/e016.physical-project.graph.json",
+  "hardware_catalog_paths": [
+    "e016.hardware.catalog.json"
+  ],
+  "hardware_topology_path": "e016.hardware.topology.json",
+  "physical_evidence_policy": "allow_declared",
+  "required_port_policy": "require_all"
+}

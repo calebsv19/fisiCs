@@ -82,3 +82,11 @@ Each curated project should include:
 
 The goal is one clear story per project, not one large example that tries to
 show every compiler feature.
+
+The units-bearing `kinematics_stepper` and `collision_1d` projects use the
+public portability header and compile from the same source under strict Clang
+and fisiCs. Run the repository-wide public parity gate with:
+
+```bash
+make examples-extension-portability
+```

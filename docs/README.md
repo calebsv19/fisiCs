@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-07-28.
+Last audited: 2026-09-04.
 
 ## Repository Entry
 
@@ -35,12 +35,54 @@ Last audited: 2026-07-28.
 - `os_policy_validation.md`: freestanding OS-policy semantic, object-invariant,
   repeated QEMU, closed OS-P3 stress, post-EDU-19 source-intake and stable
   runtime promotion, and optional downstream-canary contract
+- `esp_portable_c_validation_contract.md`: frozen intake and evidence contract
+  for validating small production-used ESP-owned C policy modules under
+  `fisiCs`, Clang, and the separate ESP vendor build
+- `e016_sensor_metadata_bridge_plan.md`: audit-first next-milestone plan for
+  composing the proven E016 portable C sensor carrier through semantic,
+  physical, and hardware graphs while retaining separate deployment and
+  observation evidence
+- `external_evidence_receipts.md`: project-neutral, digest-bound contract for
+  candidate, deployment, raw text capture, observation, and operator evidence;
+  includes the hardware-free validator command and retention rules
+- `esp_compiler_bridge_case_study.md`: runnable explanation of the E016 shared
+  C/Arduino boundary, compiler graph flow, retained realization mismatch, and
+  smallest future ESP adoption step
+- `esp_network_sim_growth_architecture.md`: cross-system design handoff for
+  deterministic CAN execution, event journaling, physics adapters, compiler
+  graph intake, scaling, and physical-test boundaries
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
 - `extension_overlays.md`: public reference for opt-in overlay lanes, including
   the physics-units surface and the explicit memory-check runtime diagnostics
   overlay
-- `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.7.0`)
+- `extensions_guide.md`: concise selection and quickstart path for current
+  overlays plus the offline static graph pipeline
+- `metadata_system_concepts.md`: stable public vocabulary for the metadata and
+  static graph capabilities
+- `extension_portability.md`: shared-source macro contract, public-example
+  adoption boundary, and strict Clang/fisiCs parity gate through
+  `include/fisics/extensions.h`
+- `agent_extension_guide.md`: agent routing, artifact freshness,
+  evidence-language, validation, and completion contract for extensions and
+  the static physical-system graph pipeline
+- `semantic_metadata_contract.md`: implemented identity/domain/role attachment
+  and relationship contract plus project, physical, and hardware boundaries
+- `semantic_metadata_export_contract.md`: implemented extended-frontend and
+  deterministic translation-unit JSON export contract
+- `semantic_metadata_project_graph_contract.md`: dedicated manifest,
+  strict cross-TU resolution, provenance, output, and failure contract;
+  focused and broad validation evidence is recorded in the contract
+- `semantic_metadata_physical_composition_contract.md`: implemented physical
+  type, units-evidence, quantity-catalog, compatibility, provenance, output,
+  failure, and focused-proof contract
+- `semantic_metadata_hardware_contract.md`: implemented static hardware
+  catalog/topology, profile/model/driver, allocation, physical
+  signal binding, evidence-scope, and canary contract
+- `semantic_metadata_implementation_plan.md`: historical design and completed
+  implementation record for maintainers; current users should start with the
+  concepts, quickstart, and capability contracts
+- `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.9.0`)
 - build graph JSON now carries compact diagnostic summaries while full
   diagnostic payloads remain in the dedicated diagnostics JSON/pack lanes
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
@@ -51,6 +93,8 @@ Public example references live under `examples/`:
 - `examples/canaries/README.md`: practical public canaries for multi-TU,
   libc/string parsing, and numeric/math behavior
 - `examples/physics_units/README.md`: first public pilot for the physics-units overlay
+- `examples/semantic_metadata/README.md`: basic semantic metadata, strict
+  Clang/fisiCs portability, and a complete static hardware example
 
 Public compile/link smoke fixtures also live under `compilation/`:
 - `compilation/README.md`: single-file and multi-TU public smoke path

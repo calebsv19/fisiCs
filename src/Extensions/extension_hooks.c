@@ -8,6 +8,7 @@
 #include "AST/ast_node.h"
 #include "Compiler/compiler_context.h"
 #include "Extensions/extension_diagnostics.h"
+#include "Extensions/SemanticMetadata/semantic_metadata_semantics.h"
 #include "Extensions/Units/units_decl_semantics.h"
 #include "Extensions/Units/units_expr_semantics.h"
 #include "Extensions/Units/units_parser.h"
@@ -19,6 +20,10 @@ FisicsExtensionState* fisics_extension_state_create(void) {
 
 void fisics_extension_state_destroy(FisicsExtensionState* state) {
     if (!state) return;
+    fisics_semantic_metadata_records_destroy(state->semanticMetadataRecords,
+                                             state->semanticMetadataRecordCount);
+    fisics_semantic_metadata_edges_destroy(state->semanticMetadataEdges,
+                                           state->semanticMetadataEdgeCount);
     for (size_t i = 0; i < state->unitsAnnotationCount; ++i) {
         free(state->unitsAnnotations[i].dimExprText);
         free(state->unitsAnnotations[i].canonicalText);
@@ -210,6 +215,7 @@ void fisics_extension_run_semantic_scaffold(ASTNode* root, Scope* globalScope) {
     CompilerContext* ctx = globalScope->ctx;
     run_units_decl_scaffold(ctx);
     fisics_units_run_expr_semantics(root, globalScope);
+    fisics_semantic_metadata_run(root, globalScope);
 }
 
 size_t fisics_extension_units_annotation_count(const CompilerContext* ctx) {

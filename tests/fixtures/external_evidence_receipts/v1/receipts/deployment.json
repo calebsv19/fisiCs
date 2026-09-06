@@ -1,0 +1,44 @@
+{
+  "authority": {
+    "kind": "contract_fixture",
+    "reference": "tests/fixtures/external_evidence_receipts/v1/README.md"
+  },
+  "candidate": {
+    "artifact": {
+      "bytes": 66,
+      "path": "candidate/firmware.bin",
+      "sha256": "2038cae2d374b19f221f15bcb91578db0372b6ef51e978861c84a0b627035f81"
+    },
+    "manifest": {
+      "path": "candidate/manifest.json",
+      "sha256": "7bcb496cd0558e4a7d44982e5baedf4f1c439ad43c6552efc0dc093a02d73187"
+    },
+    "protocol": {
+      "path": "candidate/protocol.yaml",
+      "sha256": "2594b5c8493a51eeb463826f38c0c21f592c75417cc271b1adc93366da3f4ce6"
+    },
+    "source_set_sha256": "54902e9a78707a8c97f759ac17b129e08b3f6c74f659fa8585913fa40efcaae3"
+  },
+  "claim_boundary": {
+    "candidate_integrity": "digest_validated",
+    "deployment": "fixture_only",
+    "physical_acceptance": "not_assessed",
+    "runtime_observation": "not_assessed"
+  },
+  "evidence_class": "contract_fixture",
+  "operation": {
+    "completed_at_utc": "2026-01-01T00:01:00Z",
+    "flash_verification": "passed",
+    "identity_check": "matched",
+    "result": "pass",
+    "started_at_utc": "2026-01-01T00:00:00Z",
+    "tool": "fixture-uploader/1"
+  },
+  "receipt_id": "fixture.deployment.node_a.v1",
+  "schema": "fisiCs.external_deployment_receipt",
+  "schema_version": 1,
+  "target": {
+    "board_profile": "fixture-board-v1",
+    "usb_serial": "AA:BB:CC:DD:EE:FF"
+  }
+}

@@ -60,6 +60,48 @@ static const FisicsDiagnosticExplanation kFisicsDiagnosticExplanations[] = {
         "A units extension conversion requested incompatible source and target dimensions.",
         "Converting between dimensions that do not represent the same physical quantity.",
         "Convert only between compatible units, and check that both source and target unit declarations use the intended dimensions."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_DISABLED,
+        "Semantic metadata syntax was used without enabling its opt-in overlay.",
+        "A fisiCs semantic metadata attribute appeared while semantic-metadata was disabled.",
+        "Enable --overlay=semantic-metadata, or remove the semantic metadata attributes."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_INVALID,
+        "A semantic metadata attribute has an invalid argument or canonical value.",
+        "The attribute was not exactly one string, violated canonical name grammar, or used an unregistered domain or role.",
+        "Use one lowercase ASCII canonical name and select registered domain and role values."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_INVALID_TARGET,
+        "A semantic metadata attribute is attached to an unsupported declaration target.",
+        "The first contract only accepts functions and single-declarator file-scope variables.",
+        "Move the annotation to a supported declaration or wait for a later target-expansion contract."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE,
+        "One declaration owner repeats a singular semantic metadata kind.",
+        "More than one id, domain, or role was attached to the same declaration node.",
+        "Keep at most one attribute of each metadata kind on a declaration."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_REDECL_CONFLICT,
+        "Compatible C redeclarations disagree on semantic metadata.",
+        "A prototype, definition, or repeated file-scope declaration supplied a different value for the same metadata field.",
+        "Use identical metadata on every redeclaration of the symbol."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE_ID,
+        "Two distinct symbols share one authored semantic ID in a translation unit.",
+        "Authored IDs identify semantic entities and must be translation-unit unique in the first contract.",
+        "Assign a different canonical authored ID to one of the symbols."
+    },
+    {
+        FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE_RELATIONSHIP,
+        "One declaration owner repeats the same semantic relationship.",
+        "The same produces or consumes target was attached more than once to one declaration node.",
+        "Keep one occurrence of each relationship kind and target on a declaration."
     }
 };
 
@@ -98,7 +140,7 @@ int fisics_diag_category_id_from_code(int code_id) {
         return FISICS_DIAG_CATEGORY_LEXER;
     }
     if (code_id >= FISICS_DIAG_CODE_EXTENSION_GENERIC &&
-        code_id <= FISICS_DIAG_CODE_EXTENSION_UNITS_CONVERSION_REQUIRES_FLOATING) {
+        code_id <= FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE_RELATIONSHIP) {
         return FISICS_DIAG_CATEGORY_EXTENSION;
     }
     if (code_id >= FISICS_DIAG_CODE_PREPROCESSOR_GENERIC &&
@@ -162,6 +204,14 @@ const char* fisics_diag_code_name(int code_id) {
         case FISICS_DIAG_CODE_EXTENSION_UNITS_CONVERSION_INCOMPATIBLE: return "extension.units.conversion_incompatible";
         case FISICS_DIAG_CODE_EXTENSION_UNITS_CONVERSION_REQUIRES_SOURCE_UNIT: return "extension.units.conversion_requires_source_unit";
         case FISICS_DIAG_CODE_EXTENSION_UNITS_CONVERSION_REQUIRES_FLOATING: return "extension.units.conversion_requires_floating";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_BASE: return "extension.semantic_metadata.base";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_DISABLED: return "extension.semantic_metadata.disabled";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_INVALID: return "extension.semantic_metadata.invalid";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_INVALID_TARGET: return "extension.semantic_metadata.invalid_target";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE: return "extension.semantic_metadata.duplicate";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_REDECL_CONFLICT: return "extension.semantic_metadata.redecl_conflict";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE_ID: return "extension.semantic_metadata.duplicate_id";
+        case FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE_RELATIONSHIP: return "extension.semantic_metadata.duplicate_relationship";
         case FISICS_DIAG_CODE_LEXER_GENERIC: return "lexer.generic";
         case FISICS_DIAG_CODE_CODEGEN_GENERIC: return "codegen.generic";
         case FISICS_DIAG_CODE_BUILD_GENERIC: return "build.generic";
@@ -191,7 +241,7 @@ const char* fisics_diag_stage_name_from_code(int code_id) {
         return "lex";
     }
     if (code_id >= FISICS_DIAG_CODE_EXTENSION_GENERIC &&
-        code_id <= FISICS_DIAG_CODE_EXTENSION_UNITS_CONVERSION_REQUIRES_FLOATING) {
+        code_id <= FISICS_DIAG_CODE_EXTENSION_METADATA_DUPLICATE_RELATIONSHIP) {
         return "extension";
     }
     if (code_id >= FISICS_DIAG_CODE_PREPROCESSOR_GENERIC &&

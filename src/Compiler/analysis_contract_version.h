@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
+
+#define FISICS_ANALYSIS_CONTRACT_ID "fisiCs.analysis.contract"
+#define FISICS_ANALYSIS_CONTRACT_MAJOR 1
+#define FISICS_ANALYSIS_CONTRACT_MINOR 9
+#define FISICS_ANALYSIS_CONTRACT_PATCH 0
+#define FISICS_ANALYSIS_CONTRACT_VERSION_STRING "1.9.0"
