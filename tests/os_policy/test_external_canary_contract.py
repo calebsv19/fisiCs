@@ -19,7 +19,87 @@ class ExternalCanaryContractTests(unittest.TestCase):
         self.assertGreaterEqual(len(contracts), 3)
         for path in contracts:
             with self.subTest(contract=path.name):
-                self.assertEqual(canary.load_contract(path)["schema_version"], 1)
+                self.assertIn(canary.load_contract(path)["schema_version"], (1, 2))
+
+    def test_schema_two_normalizes_multiple_sources(self) -> None:
+        path = canary.LANE_ROOT / "canaries/edu48_simulation_kernel_canary.json"
+        data = deepcopy(json.loads(path.read_text(encoding="utf-8")))
+        data["schema_version"] = 2
+        source = {
+            "path": data["origin"]["source_path"],
+            "sha256": data["origin"]["source_sha256"],
+            "candidate_object_sha256": data["candidate_object_sha256"],
+            "accepted_object_sha256": data["candidate_object_sha256"],
+            "object_contract": data["object_contract"],
+        }
+        second = deepcopy(source)
+        second["path"] = "nested/second_source.c"
+        data["sources"] = [source, second]
+        data.pop("candidate_object_sha256")
+        data.pop("object_contract")
+        data["origin"].pop("source_path")
+        data["origin"].pop("source_sha256")
+        temporary = canary.LANE_ROOT / "canaries/.external-contract-test.json"
+        try:
+            temporary.write_text(json.dumps(data), encoding="utf-8")
+            loaded = canary.load_contract(temporary)
+            self.assertEqual([item["path"] for item in canary.contract_sources(loaded)], [
+                "simulation_kernel.c",
+                "nested/second_source.c",
+            ])
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def test_schema_two_rejects_duplicate_source_paths(self) -> None:
+        path = canary.LANE_ROOT / "canaries/edu48_simulation_kernel_canary.json"
+        data = deepcopy(json.loads(path.read_text(encoding="utf-8")))
+        data["schema_version"] = 2
+        source = {
+            "path": data["origin"]["source_path"],
+            "sha256": data["origin"]["source_sha256"],
+            "candidate_object_sha256": data["candidate_object_sha256"],
+            "accepted_object_sha256": data["candidate_object_sha256"],
+            "object_contract": data["object_contract"],
+        }
+        data["sources"] = [source, deepcopy(source)]
+        data.pop("candidate_object_sha256")
+        data.pop("object_contract")
+        data["origin"].pop("source_path")
+        data["origin"].pop("source_sha256")
+        temporary = canary.LANE_ROOT / "canaries/.external-contract-test.json"
+        try:
+            temporary.write_text(json.dumps(data), encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "duplicates"):
+                canary.load_contract(temporary)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def test_schema_two_rejects_unapproved_object_delta(self) -> None:
+        path = canary.LANE_ROOT / "canaries/edu48_simulation_kernel_canary.json"
+        data = deepcopy(json.loads(path.read_text(encoding="utf-8")))
+        data["schema_version"] = 2
+        source = {
+            "path": data["origin"]["source_path"],
+            "sha256": data["origin"]["source_sha256"],
+            "candidate_object_sha256": data["candidate_object_sha256"],
+            "accepted_object_sha256": data["candidate_object_sha256"],
+            "object_contract": data["object_contract"],
+            "approved_object_delta": {"kind": "anything-goes"},
+        }
+        second = deepcopy(source)
+        second["path"] = "second.c"
+        data["sources"] = [source, second]
+        data.pop("candidate_object_sha256")
+        data.pop("object_contract")
+        data["origin"].pop("source_path")
+        data["origin"].pop("source_sha256")
+        temporary = canary.LANE_ROOT / "canaries/.external-contract-test.json"
+        try:
+            temporary.write_text(json.dumps(data), encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "supported delta"):
+                canary.load_contract(temporary)
+        finally:
+            temporary.unlink(missing_ok=True)
 
     def test_runtime_driver_must_remain_in_canaries(self) -> None:
         path = canary.LANE_ROOT / "canaries/edu62_control_kernel_canary.json"

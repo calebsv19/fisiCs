@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "lane_id": "os-dev-edu69-control-simulation-canary",
+  "description": "Optional immutable EDU-69 C continuity canary. It covers only defined static-output-buffer and bounded simulation behavior; it grants no output-object, storage, transport, or guest authority.",
+  "origin": {"repo_name": "os-dev", "tag": "edu-69-crash-safe-versioned-program-produced-output-object", "tag_object": "de7d0ed42a11da785c12c7d89c06b497a5468841", "commit": "83a0db96169bc808d18eee5c0d30307861b02188"},
+  "accepted_compiler": {"relative_path": "build-toolchain/fisics", "sha256": "1e3c373baf48faf72b76cee2bcc54a4f2501f2eb1e3ad582995ebc301110173d"},
+  "runtime_driver": "edu69_control_simulation_driver.c",
+  "expected_stdout_path": "edu69_control_simulation.stdout",
+  "expected_stdout": "OS-DEV-EDU69 source=control+simulation policy=static-output result=PASS\n",
+  "sources": [
+    {"path": "control_kernel.c", "sha256": "570f318a8d657e12981138e3e2863f72efc2e6c250db92586ee70f7a3f7f336b", "candidate_object_sha256": "dddb403fc272897d86627051c7bf5f8a8ec9a10c35f888ed71f890f136061169", "accepted_object_sha256": "8b63db3a9db5d6286762a254a6c9b6c054b5cabc192c1701ec9e92209f1763c5", "approved_object_delta": {"kind": "static_bss_address_relocation"}, "object_contract": {"required_exports": ["edu21_control_validate_request", "edu28_artifact_meta_valid", "edu28_fnv1a32", "edu42_program_partition_result", "edu67_program_partition_result"], "allowed_undefined": ["edu42_program_valid", "edu42_simulate_damped_partition", "edu67_simulate_input_bound"], "allowed_relocations": ["R_X86_64_PC32", "R_X86_64_PLT32"], "forbidden_instructions": ["cli", "hlt", "in", "iretq", "out", "sti", "syscall", "sysretq"], "forbid_red_zone": true}},
+    {"path": "simulation_kernel.c", "sha256": "f7edad24413b982f6e01d0b912e8197df3aa650fd5c85a0b874de6df9f57c42e", "candidate_object_sha256": "b228d87035f281713e41916c6830e2c7a96c3ce0327759921e0389171a993946", "accepted_object_sha256": "b228d87035f281713e41916c6830e2c7a96c3ce0327759921e0389171a993946", "object_contract": {"required_exports": ["edu12_reduce_result", "edu12_simulate_partition", "edu32_workload_valid", "edu42_program_result", "edu42_program_valid", "edu42_simulate_damped_partition", "edu67_simulate_input_bound"], "allowed_undefined": [], "allowed_relocations": ["R_X86_64_PC32", "R_X86_64_PLT32"], "forbidden_instructions": ["cli", "hlt", "in", "iretq", "out", "sti", "syscall", "sysretq"], "forbid_red_zone": true}}
+  ]
+}

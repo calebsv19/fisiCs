@@ -286,7 +286,18 @@ make os-policy
 ```
 
 Run an optional immutable-source integration-drift canary only against a
-deliberately selected checkout. The default is the EDU-48 continuity source;
+deliberately selected checkout. It reads each C input from the pinned signed
+tag, verifies the tag object, commit, and per-source SHA-256 digest, and never
+requires the checkout's current worktree files to equal that historical tag.
+Schema-1 single-source receipts remain supported; schema-2 receipts carry an
+ordered list of repository-relative source paths with an individual source
+digest, candidate object digest, and object contract for each translation unit.
+Schema-2 remains strict byte identity by default. Its only approved
+non-identity receipt is `static_bss_address_relocation`: both complete object
+hashes stay pinned, while the runner proves exactly one historical
+`R_X86_64_64 .bss` relocation became exactly one current
+`R_X86_64_PC32 .bss` relocation. It is not a general object-equivalence mode.
+The default is the EDU-48 continuity source;
 the EDU-58 contract covers only hardware-blind dynamic-result queue-record
 validation, and the EDU-62 contract covers only hardware-blind operation-43
 request validation added for bounded output-object retrieval. Each requires
@@ -294,6 +305,27 @@ fisiCs, Clang, GNU GCC, and the Clang
 AddressSanitizer/UndefinedBehaviorSanitizer screen to agree on the pinned
 runtime transcript. None grants host storage, transport, output-object, queue,
 or guest authority.
+
+The EDU-83 schema-2 receipt covers only Wire-v26 operation-47 multi-chunk
+object declaration: exact version gating, 32-byte payload geometry, bounded
+length, nonzero identities/checksums, checksum precedence, and static C
+linkage to the retained simulation source. It does not claim object storage,
+publication, transport, or guest behavior.
+
+The EDU-85 schema-2 receipt covers only Wire-v27 operation-55 output-chunk
+selection: exact version gating, 32-byte payload geometry, selector slot
+bounds, a one-through-28-byte selector, required zero padding, malformed
+selector rejection, and checksum precedence. It does not claim output storage,
+publication, transport, or guest behavior.
+
+Post-EDU-85 source intake is sparse: EDU-86, 87, 89 through 92, 95, 96, and
+98 through 103 contain no new compiler-owned C source. EDU-88, EDU-93,
+EDU-94, and EDU-97 extend the versioned control request surface. Their
+immutable control objects share the documented static-BSS relocation receipt;
+the EDU-97 schema-2 receipt closes the accumulated family by covering
+operation-75 durable-snapshot admission under Wire-v30 and Wire-v31, malformed
+snapshot geometry, backward-version rejection, and checksum precedence. It
+does not claim persistence, transaction, mapping, or guest behavior.
 
 ```sh
 python3 tests/os_policy/run_external_os_dev_canary.py \

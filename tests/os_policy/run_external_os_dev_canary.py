@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Run a bounded, noncanonical compiler canary against signed ``os-dev`` input.
 
-The checked-in contract intentionally pins a tag, its object, source hash, and
-the compiler accepted by the downstream replay.  This runner extracts the
-source from the immutable tag into a temporary directory; it never writes into
-the downstream checkout and does not claim OS, loader, or guest authority.
+The checked-in contract pins a tag, one or more source hashes, and the compiler
+accepted by the downstream replay. This runner extracts those sources from the
+immutable tag into a temporary directory; it never writes into the downstream
+checkout and does not claim OS, loader, or guest authority.
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -76,15 +77,83 @@ def canary_asset_path(value: str, label: str) -> Path:
     return resolved
 
 
+def contract_sources(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """Normalize v1 single-source and v2 multi-source contracts."""
+    origin = data["origin"]
+    if data["schema_version"] == 1:
+        return [{
+            "path": origin["source_path"],
+            "sha256": origin["source_sha256"],
+            "candidate_object_sha256": data["candidate_object_sha256"],
+            "object_contract": data["object_contract"],
+        }]
+    sources = data.get("sources")
+    if not isinstance(sources, list) or len(sources) < 2:
+        raise RuntimeError("schema_version 2 requires at least two sources")
+    paths: set[str] = set()
+    for index, source in enumerate(sources):
+        if not isinstance(source, dict):
+            raise RuntimeError(f"source {index} must be an object")
+        for key in ("path", "sha256", "candidate_object_sha256", "accepted_object_sha256"):
+            if not isinstance(source.get(key), str) or not source[key]:
+                raise RuntimeError(f"source {index} {key} must be a non-empty string")
+        if not isinstance(source.get("object_contract"), dict):
+            raise RuntimeError(f"source {index} object_contract must be an object")
+        path = Path(source["path"])
+        if path.is_absolute() or ".." in path.parts:
+            raise RuntimeError(f"source {index} path must be repository-relative")
+        if source["path"] in paths:
+            raise RuntimeError(f"source {index} path duplicates {source['path']}")
+        paths.add(source["path"])
+        delta = source.get("approved_object_delta")
+        if delta is not None and delta != {"kind": "static_bss_address_relocation"}:
+            raise RuntimeError(
+                f"source {index} approved_object_delta is not the one supported delta"
+            )
+    return sources
+
+
+def bss_relocation_counts(object_path: Path, readobj: Path) -> dict[str, int]:
+    """Return relocation-type counts for relocations that target ``.bss``."""
+    output = run(
+        [str(readobj), "--relocations", str(object_path)],
+        cwd=FISICS_ROOT,
+        label=f"relocation inspection {object_path.name}",
+    ).stdout
+    return {
+        relocation: len(re.findall(rf"{relocation} \.bss\b", output))
+        for relocation in ("R_X86_64_64", "R_X86_64_PC32")
+    }
+
+
+def verify_approved_object_delta(
+    *, candidate: Path, accepted: Path, readobj: Path, delta: dict[str, Any]
+) -> dict[str, Any]:
+    """Verify the only permitted non-byte-identical object relationship."""
+    if delta != {"kind": "static_bss_address_relocation"}:
+        raise RuntimeError("unsupported approved object delta")
+    candidate_counts = bss_relocation_counts(candidate, readobj)
+    accepted_counts = bss_relocation_counts(accepted, readobj)
+    if candidate_counts != {"R_X86_64_64": 0, "R_X86_64_PC32": 1}:
+        raise RuntimeError(f"candidate static-storage relocation delta mismatch: {candidate_counts}")
+    if accepted_counts != {"R_X86_64_64": 1, "R_X86_64_PC32": 0}:
+        raise RuntimeError(f"accepted static-storage relocation delta mismatch: {accepted_counts}")
+    return {
+        "kind": delta["kind"],
+        "candidate_bss_relocations": candidate_counts,
+        "accepted_bss_relocations": accepted_counts,
+    }
+
+
 def load_contract(path: Path) -> dict[str, Any]:
     require_file(path, "canary contract")
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("schema_version") != 1:
-        raise RuntimeError("canary contract schema_version must be 1")
+    if data.get("schema_version") not in (1, 2):
+        raise RuntimeError("canary contract schema_version must be 1 or 2")
     origin = data.get("origin")
     if not isinstance(origin, dict):
         raise RuntimeError("canary contract origin must be an object")
-    for key in ("tag", "tag_object", "commit", "source_path", "source_sha256"):
+    for key in ("tag", "tag_object", "commit"):
         if not isinstance(origin.get(key), str) or not origin[key]:
             raise RuntimeError(f"canary origin {key} must be a non-empty string")
     accepted = data.get("accepted_compiler")
@@ -93,16 +162,21 @@ def load_contract(path: Path) -> dict[str, Any]:
     for key in ("relative_path", "sha256"):
         if not isinstance(accepted.get(key), str) or not accepted[key]:
             raise RuntimeError(f"canary accepted_compiler {key} must be a non-empty string")
-    if not isinstance(data.get("candidate_object_sha256"), str):
-        raise RuntimeError("canary candidate_object_sha256 must be a string")
+    if data["schema_version"] == 1:
+        for key in ("source_path", "source_sha256"):
+            if not isinstance(origin.get(key), str) or not origin[key]:
+                raise RuntimeError(f"canary origin {key} must be a non-empty string")
+        if not isinstance(data.get("candidate_object_sha256"), str):
+            raise RuntimeError("canary candidate_object_sha256 must be a string")
     if not isinstance(data.get("expected_stdout"), str):
         raise RuntimeError("canary expected_stdout must be a string")
     for key in ("runtime_driver", "expected_stdout_path"):
         if not isinstance(data.get(key), str) or not data[key]:
             raise RuntimeError(f"canary {key} must be a non-empty string")
         require_file(canary_asset_path(data[key], f"canary {key}"), f"canary {key}")
-    if not isinstance(data.get("object_contract"), dict):
+    if data["schema_version"] == 1 and not isinstance(data.get("object_contract"), dict):
         raise RuntimeError("canary object_contract must be an object")
+    contract_sources(data)
     return data
 
 
@@ -111,10 +185,10 @@ def compiler_version(compiler: Path) -> str:
 
 
 def compile_and_run_runtime(
-    *, compiler: Path, source: Path, driver: Path, output: Path, label: str
+    *, compiler: Path, sources: list[Path], driver: Path, output: Path, label: str
 ) -> str:
     run(
-        [str(compiler), str(source), str(driver), "-o", str(output)],
+        [str(compiler), *(str(source) for source in sources), str(driver), "-o", str(output)],
         cwd=FISICS_ROOT,
         label=f"{label} runtime compile",
     )
@@ -154,6 +228,7 @@ def main() -> int:
 
     contract = load_contract(args.contract)
     origin = contract["origin"]
+    sources_contract = contract_sources(contract)
     driver_path = canary_asset_path(contract["runtime_driver"], "canary runtime_driver")
     expected_path = canary_asset_path(
         contract["expected_stdout_path"], "canary expected_stdout_path"
@@ -196,16 +271,6 @@ def main() -> int:
             )
         signature_status = "unverified"
 
-    source_bytes = run(
-        ["git", "show", f"{origin['tag']}:{origin['source_path']}"],
-        cwd=checkout,
-        label="immutable source extraction",
-    ).stdout.encode("utf-8")
-    require_equal(sha256_bytes(source_bytes), origin["source_sha256"], "immutable source hash")
-    live_source = checkout / origin["source_path"]
-    require_file(live_source, "live os-dev source")
-    require_equal(sha256_path(live_source), origin["source_sha256"], "live source hash")
-
     accepted_compiler = (checkout / contract["accepted_compiler"]["relative_path"]).resolve()
     require_file(accepted_compiler, "accepted os-dev compiler")
     require_equal(sha256_path(accepted_compiler), contract["accepted_compiler"]["sha256"], "accepted compiler hash")
@@ -219,36 +284,63 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix=f"fisics-os-dev-{contract['lane_id']}-") as directory:
         root = Path(directory)
-        source = root / Path(origin["source_path"]).name
-        source.write_bytes(source_bytes)
-        candidate_a = root / "candidate-a.o"
-        candidate_b = root / "candidate-b.o"
-        accepted_object = root / "accepted.o"
-        for output in (candidate_a, candidate_b):
-            run(
-                [str(compiler), "--target", "x86_64-unknown-none", "-c", str(source), "-o", str(output)],
-                cwd=FISICS_ROOT,
-                label=f"candidate freestanding compile {output.name}",
+        sources: list[Path] = []
+        source_reports: list[dict[str, Any]] = []
+        for index, source_contract in enumerate(sources_contract):
+            source_bytes = run(
+                ["git", "show", f"{origin['tag']}:{source_contract['path']}"],
+                cwd=checkout,
+                label=f"immutable source extraction {source_contract['path']}",
+            ).stdout.encode("utf-8")
+            require_equal(sha256_bytes(source_bytes), source_contract["sha256"], f"immutable source hash {source_contract['path']}")
+            source = root / source_contract["path"]
+            source.parent.mkdir(parents=True, exist_ok=True)
+            source.write_bytes(source_bytes)
+            sources.append(source)
+            candidate_a = root / f"candidate-{index}-a.o"
+            candidate_b = root / f"candidate-{index}-b.o"
+            accepted_object = root / f"accepted-{index}.o"
+            for output in (candidate_a, candidate_b):
+                run([str(compiler), "--target", "x86_64-unknown-none", "-c", str(source), "-o", str(output)], cwd=FISICS_ROOT, label=f"candidate freestanding compile {source.name} {output.name}")
+            run([str(accepted_compiler), "--target", "x86_64-unknown-none", "-c", str(source), "-o", str(accepted_object)], cwd=FISICS_ROOT, label=f"accepted compiler freestanding compile {source.name}")
+            if candidate_a.read_bytes() != candidate_b.read_bytes():
+                raise RuntimeError(f"candidate repeated freestanding objects are not byte-identical: {source_contract['path']}")
+            require_equal(sha256_path(candidate_a), source_contract["candidate_object_sha256"], f"candidate object hash {source_contract['path']}")
+            accepted_hash = source_contract.get(
+                "accepted_object_sha256", source_contract["candidate_object_sha256"]
             )
-        run(
-            [str(accepted_compiler), "--target", "x86_64-unknown-none", "-c", str(source), "-o", str(accepted_object)],
-            cwd=FISICS_ROOT,
-            label="accepted compiler freestanding compile",
-        )
-        if candidate_a.read_bytes() != candidate_b.read_bytes():
-            raise RuntimeError("candidate repeated freestanding objects are not byte-identical")
-        require_equal(sha256_path(candidate_a), contract["candidate_object_sha256"], "candidate object hash")
-        if candidate_a.read_bytes() != accepted_object.read_bytes():
-            raise RuntimeError("candidate and accepted compiler objects differ")
-        object_verification = verify_object(
-            object_path=candidate_a,
-            readobj=Path(readobj),
-            objdump=Path(objdump),
-            contract=contract["object_contract"],
-        )
+            require_equal(
+                sha256_path(accepted_object), accepted_hash,
+                f"accepted object hash {source_contract['path']}",
+            )
+            delta = source_contract.get("approved_object_delta")
+            if delta is None:
+                if candidate_a.read_bytes() != accepted_object.read_bytes():
+                    raise RuntimeError(f"candidate and accepted compiler objects differ: {source_contract['path']}")
+                delta_verification = {"kind": "strict-byte-identity"}
+            else:
+                delta_verification = verify_approved_object_delta(
+                    candidate=candidate_a,
+                    accepted=accepted_object,
+                    readobj=Path(readobj),
+                    delta=delta,
+                )
+            source_reports.append({
+                "path": source_contract["path"],
+                "sha256": source_contract["sha256"],
+                "object_sha256": sha256_path(candidate_a),
+                "accepted_object_sha256": sha256_path(accepted_object),
+                "object_delta_verification": delta_verification,
+                "object_verification": verify_object(
+                    object_path=candidate_a,
+                    readobj=Path(readobj),
+                    objdump=Path(objdump),
+                    contract=source_contract["object_contract"],
+                ),
+            })
         fisics_stdout = compile_and_run_runtime(
             compiler=compiler,
-            source=source,
+            sources=sources,
             driver=driver_path,
             output=root / "candidate.out",
             label="candidate",
@@ -258,14 +350,14 @@ def main() -> int:
             raise RuntimeError("clang is required for the canary runtime differential")
         clang_output = root / "clang.out"
         run(
-            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", str(source), str(driver_path), "-o", str(clang_output)],
+            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", *(str(source) for source in sources), str(driver_path), "-o", str(clang_output)],
             cwd=FISICS_ROOT,
             label="Clang runtime compile",
         )
         clang_stdout = run([str(clang_output)], cwd=root, label="Clang runtime execution").stdout
         sanitized = root / "clang-sanitized.out"
         run(
-            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", str(source), str(driver_path), "-o", str(sanitized)],
+            ["clang", "-std=c99", "-Wall", "-Wextra", "-Wpedantic", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", *(str(source) for source in sources), str(driver_path), "-o", str(sanitized)],
             cwd=FISICS_ROOT,
             label="Clang sanitizer runtime compile",
         )
@@ -275,7 +367,7 @@ def main() -> int:
             raise RuntimeError("GNU GCC is required for the canary runtime differential")
         gcc_output = root / "gcc.out"
         run(
-            [str(gcc), "-std=c99", "-Wall", "-Wextra", "-Wpedantic", str(source), str(driver_path), "-o", str(gcc_output)],
+            [str(gcc), "-std=c99", "-Wall", "-Wextra", "-Wpedantic", *(str(source) for source in sources), str(driver_path), "-o", str(gcc_output)],
             cwd=FISICS_ROOT,
             label="GNU GCC runtime compile",
         )
@@ -292,8 +384,7 @@ def main() -> int:
             "live_dirty": bool(git(checkout, "status", "--porcelain", label="live dirty status")),
             "candidate_compiler": {"path": str(compiler), "sha256": sha256_path(compiler), "version": compiler_version(compiler)},
             "accepted_compiler": {"path": str(accepted_compiler), "sha256": sha256_path(accepted_compiler), "version": compiler_version(accepted_compiler)},
-            "object_sha256": sha256_path(candidate_a),
-            "object_verification": object_verification,
+            "sources": source_reports,
             "runtime_stdout_sha256": sha256_bytes(fisics_stdout.encode("utf-8")),
         }
     if args.report:
