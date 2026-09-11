@@ -251,17 +251,13 @@ release-build-clean:
 	@rm -f fisics fisics_shim_shadow libfisics_frontend.a \
 		libfisics_frontend_unsanitized.a libfisics_frontend_sanitized.a
 
-release-build:
-	@$(MAKE) release-build-clean
-	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off \
-		LLVM_LIBS='$(RELEASE_LLVM_LIBS)' \
-		PROFILE_LDFLAGS='$(RELEASE_LINK_FLAGS)' all
+include make/release-isolated.mk
 
 release-stage: release-build
 	@echo "Staging release tree..."
 	@rm -rf "$(RELEASE_STAGE_DIR)"
 	@mkdir -p "$(RELEASE_STAGE_DIR)/bin"
-	@cp -f "./$(BIN)" "$(RELEASE_BIN)"
+	@cp -f "$(RELEASE_BUILD_BIN)" "$(RELEASE_BIN)"
 	@cp -f README.md AGENTS.md LICENSE "$(RELEASE_STAGE_DIR)/"
 	@cp -R docs examples compilation include "$(RELEASE_STAGE_DIR)/"
 	@rm -rf "$(RELEASE_STAGE_DIR)/compilation/out"

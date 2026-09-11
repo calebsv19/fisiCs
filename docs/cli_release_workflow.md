@@ -40,7 +40,20 @@ Optional installer lane:
 
 ## Output Layout
 
-All release artifacts are written under `build/release/`.
+Release artifacts default to `build/release/`. Release compiler objects, the
+frontend archive and compiler executable are built under `RELEASE_ROOT/compiler-build/`;
+packaging preserves the ordinary compiler and frontend outputs.
+
+For a new isolated preparation, use:
+
+```sh
+make release-artifact-disposable RELEASE_ROOT=build/release-preparations/my-job
+```
+
+This target rejects existing roots, traversal and symlink ancestors, creates both
+ZIP and tar.gz archives, verifies their extracted compiler bytes and CLI smoke,
+and emits format-specific unsigned manifests. Select a fresh job root for each
+preparation. Authentication remains a separate approved release stage.
 
 - Stage tree: `build/release/stage/fisiCs-<version>-<platform>-<arch>-<channel>/`
 - Zip archive: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.zip`

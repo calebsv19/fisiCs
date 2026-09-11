@@ -30,8 +30,8 @@ class ReleaseAdapterContractTests(unittest.TestCase):
             "$(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c $(RELEASE_VERSION_FILE)",
         ):
             self.assertIn(rule, makefile)
-        release_build = makefile.split("release-build:", 1)[1].split("\n\n", 1)[0]
-        self.assertIn("release-build-clean", release_build)
+        release_build = (ROOT / "make/release-isolated.mk").read_text()
+        self.assertNotIn("release-build-clean", release_build)
         self.assertNotIn("$(MAKE) clean", release_build)
 
     def test_authenticated_manifest_is_format_specific_and_exact(self):
