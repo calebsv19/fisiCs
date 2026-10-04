@@ -112,3 +112,25 @@ input hashes, state/accounting hashes, totals, and unmatched-policy controls
 in `verification.json`. These are authored source-model accounting values,
 not physical combustion/CFD measurements. Exact continuation still requires
 pinned worker and adapter bytes; this comparison grants no stream migration.
+
+## Literal conversion
+
+Floating literals are converted from their complete spelling at their resolved
+semantic precision through LLVM's direct decimal/hexadecimal parser. Trailing
+`f/F`, `l/L` and imaginary suffixes are removed without removing hexadecimal
+`f/F` digits. Runtime values, direct scalar/aggregate/static initializers and
+floating leaves of folded initializers share this conversion. Literal spellings
+are not truncated to a fixed buffer.
+
+For example, `0x1.fp0f` has binary32 bits `0x3ff80000`. The decimal
+`1.0000000596046448f` rounds directly to `0x3f800001`; the unsuffixed double
+literal followed by conversion to float yields `0x3f800000`. The distinction
+between literal type and destination type is retained, including a float literal
+widened to double. The decimal nearest-rounding choice is a documented policy;
+it does not imply that every C implementation must choose the same neighboring
+decimal value.
+
+Run `make final-manifest MANIFEST=14-runtime-surface-float-literal-precision.json`
+for known bits and Clang comparisons at optimization levels 0/2/3. General
+constant-expression precision, dynamic rounding, and cross-target long-double
+behavior require their own evidence beyond these literal conversion checks.

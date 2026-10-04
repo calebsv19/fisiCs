@@ -8,6 +8,7 @@
 #include "codegen_initializers_aggregate.h"
 #include "codegen_types.h"
 #include "literal_utils.h"
+#include "codegen_float_literal.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,6 +111,17 @@ static bool cg_eval_const_float_expr_depth(CodegenContext* ctx,
         case AST_NUMBER_LITERAL:
         case AST_CHAR_LITERAL: {
             const char* text = expr->valueNode.value ? expr->valueNode.value : "0";
+            const ParsedType* parsed = cg_resolve_expression_type(ctx, expr);
+            if (expr->type == AST_NUMBER_LITERAL && parsed &&
+                parsed->kind == TYPE_PRIMITIVE &&
+                (parsed->primitiveType == TOKEN_FLOAT || parsed->primitiveType == TOKEN_DOUBLE) &&
+                !parsed->isComplex && !parsed->isImaginary) {
+                LLVMTypeRef type = cg_type_from_parsed(ctx, parsed);
+                LLVMValueRef literal = cg_float_literal_constant(type, text);
+                LLVMBool losesInfo = 0;
+                *outValue = LLVMConstRealGetDouble(literal, &losesInfo);
+                return true;
+            }
             char* end = NULL;
             double value = strtod(text, &end);
             if (end == text) return false;
@@ -771,6 +783,18 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         targetKind == LLVMFP128TypeKind) {
         if (expr->type == AST_NUMBER_LITERAL || expr->type == AST_CHAR_LITERAL) {
             const char* text = expr->valueNode.value ? expr->valueNode.value : "0";
+            const ParsedType* literalType = cg_resolve_expression_type(ctx, expr);
+            if (expr->type == AST_NUMBER_LITERAL && literalType &&
+                literalType->kind == TYPE_PRIMITIVE &&
+                (literalType->primitiveType == TOKEN_FLOAT || literalType->primitiveType == TOKEN_DOUBLE) &&
+                !literalType->isComplex && !literalType->isImaginary) {
+                LLVMTypeRef sourceType = cg_type_from_parsed(ctx, literalType);
+                LLVMValueRef literal = cg_float_literal_constant(sourceType, text);
+                if (sourceType == targetType) CG_CONST_INIT_RETURN(literal);
+                LLVMBool losesInfo = 0;
+                double value = LLVMConstRealGetDouble(literal, &losesInfo);
+                CG_CONST_INIT_RETURN(LLVMConstReal(targetType, value));
+            }
             double val = strtod(text, NULL);
             CG_CONST_INIT_RETURN(LLVMConstReal(targetType, val));
         }

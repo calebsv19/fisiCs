@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_float_literal_precision_O0",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_literal_precision.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "0"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_literal_precision.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O0",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "literal",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_float_literal_precision_O2",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_literal_precision.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "2"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_literal_precision.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O2",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "literal",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_float_literal_precision_O3",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_literal_precision.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "3"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_literal_precision.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O3",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "literal",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

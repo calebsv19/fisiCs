@@ -3,6 +3,7 @@
 #include "codegen_expr_internal.h"
 
 #include "literal_utils.h"
+#include "codegen_float_literal.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,19 +19,6 @@ LLVMValueRef codegenNumberLiteral(CodegenContext* ctx, ASTNode* node) {
     if (parsed && parsed->kind == TYPE_PRIMITIVE &&
         (parsed->primitiveType == TOKEN_FLOAT || parsed->primitiveType == TOKEN_DOUBLE)) {
         const char* text = node->valueNode.value ? node->valueNode.value : "0";
-        char buf[128];
-        size_t len = strlen(text);
-        size_t outLen = 0;
-        for (size_t i = 0; i < len && outLen + 1 < sizeof(buf); ++i) {
-            char c = text[i];
-            if (c == 'i' || c == 'I' || c == 'j' || c == 'J' ||
-                c == 'f' || c == 'F' || c == 'l' || c == 'L') {
-                continue;
-            }
-            buf[outLen++] = c;
-        }
-        buf[outLen] = '\0';
-        double value = strtod(buf, NULL);
         LLVMTypeRef floatTy = cg_type_from_parsed(ctx, parsed);
         if (parsed->isComplex || parsed->isImaginary) {
             LLVMTypeRef complexTy = cg_type_from_parsed(ctx, parsed);
@@ -40,7 +28,7 @@ LLVMValueRef codegenNumberLiteral(CodegenContext* ctx, ASTNode* node) {
             if (!elemTy || LLVMGetTypeKind(elemTy) == LLVMVoidTypeKind) {
                 elemTy = LLVMDoubleTypeInContext(ctx->llvmContext);
             }
-            imagValue = LLVMConstReal(elemTy, value);
+            imagValue = cg_float_literal_constant(elemTy, text);
             return cg_build_complex_value(ctx,
                                           LLVMConstNull(elemTy),
                                           imagValue,
@@ -53,7 +41,7 @@ LLVMValueRef codegenNumberLiteral(CodegenContext* ctx, ASTNode* node) {
         if (!floatTy || LLVMGetTypeKind(floatTy) == LLVMVoidTypeKind) {
             floatTy = LLVMDoubleTypeInContext(ctx->llvmContext);
         }
-        return LLVMConstReal(floatTy, value);
+        return cg_float_literal_constant(floatTy, text);
     }
 
     const ParsedType* parsedInt = cg_resolve_expression_type(ctx, node);
