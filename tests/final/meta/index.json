@@ -1273,6 +1273,10 @@
     "15-torture-differential-wave153-axis18-signed-division-tri-diff.json",
     "15-torture-differential-wave154-axis19-subobject-pointer-tri-diff.json",
     "15-torture-differential-wave155-axis20-static-storage-tri-diff.json",
-    "14-runtime-surface-float-literal-precision.json"
+    "14-runtime-surface-float-literal-precision.json",
+    "15-torture-differential-wave156-edu135-linear-drag-restart.json",
+    "15-torture-differential-wave157-e016-fullwidth-signal-policy.json",
+    "15-torture-differential-wave158-variadic-sret-count-boundaries.json",
+    "15-torture-differential-wave159-edu69-static-output-bridge.json"
   ]
 }

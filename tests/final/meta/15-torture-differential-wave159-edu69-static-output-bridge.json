@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [{
+    "id": "15__runtime_edu69_static_output_bridge",
+    "bucket": "torture-differential",
+    "input": "probes/runtime/15__probe_edu69_static_output_bridge_main.c",
+    "inputs": [
+      "probes/runtime/15__probe_edu69_static_output_bridge_main.c",
+      "probes/runtime/15__probe_edu69_static_output_bridge_lib.c"
+    ],
+    "expects": [],
+    "run": true,
+    "expect_exit": 0,
+    "expected_stdout": "expect/15__runtime_edu69_static_output_bridge.stdout",
+    "differential": true,
+    "differential_compiler": "cc",
+    "standard": "c99",
+    "tags": ["runtime", "edu69", "static-storage", "multitu", "probe-promotion", "wave159"],
+    "requires": [],
+    "status": "ok"
+  }]
+}

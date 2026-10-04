@@ -132,15 +132,12 @@ RUNTIME_PROBES = [
             / "runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_lib.c",
         ),
         note=(
-            "OS-P3 target-aware oracle reduction: the strict multi-TU "
-            "variadic long-double struct-return lane must match all available "
-            "compilers and one of the two observed target transcripts"
+            "OS-P3 strict multi-TU variadic long-double struct-return "
+            "lane must match all available compilers after the caller "
+            "supplies every counted variadic argument"
         ),
         expected_exit_code=0,
-        expected_stdout_variants=(
-            "2031059386 1405211949\n",
-            "485603065 1406966467\n",
-        ),
+        expected_stdout="3806585024 3550542583\n",
         expected_stderr="",
         extra_differential_compiler="gcc",
     ),

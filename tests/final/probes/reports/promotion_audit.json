@@ -1,13 +1,13 @@
 {
   "summary": {
-    "total_probes": 3615,
-    "total_final_tests": 5006,
-    "promoted": 3593,
+    "total_probes": 3617,
+    "total_final_tests": 5023,
+    "promoted": 3595,
     "probe_only": 22,
     "missing_promotion_candidate": 0,
     "promoted_match_kinds": {
-      "explicit-id": 511,
-      "id": 1507,
+      "explicit-id": 512,
+      "id": 1508,
       "path": 1573,
       "stem": 2
     },
@@ -106,7 +106,7 @@
       },
       {
         "bucket": "15",
-        "promoted": 642,
+        "promoted": 644,
         "probe_only": 21,
         "missing_promotion_candidate": 0
       }
@@ -126,7 +126,7 @@
       },
       {
         "family": "runtime",
-        "promoted": 1894,
+        "promoted": 1896,
         "probe_only": 8,
         "missing_promotion_candidate": 0
       }
@@ -150444,6 +150444,44 @@
     },
     {
       "family": "runtime",
+      "probe_id": "15__probe_axis3_variadic_sret_count_boundaries",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_axis3_variadic_sret_count_boundaries_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis3_variadic_sret_count_boundaries_main.c",
+        "probes/runtime/15__probe_axis3_variadic_sret_count_boundaries_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "multi-TU long-double variadic struct return must agree at complete argument counts 0, 1, 8, 9, and 10",
+      "promoted_test_id": null,
+      "classification": "promoted",
+      "reason": "stable final inventory match via id",
+      "match_kind": "id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_axis3_variadic_sret_count_boundaries",
+          "manifest": "15-torture-differential-wave158-variadic-sret-count-boundaries.json",
+          "input": "probes/runtime/15__probe_axis3_variadic_sret_count_boundaries_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_axis3_variadic_sret_count_boundaries_main.c",
+            "probes/runtime/15__probe_axis3_variadic_sret_count_boundaries_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "abi",
+            "variadic",
+            "long-double",
+            "struct-return",
+            "multitu",
+            "wave158"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
       "probe_id": "15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_fold_edge",
       "bucket": "15",
       "source": "probes/runtime/15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_fold_edge.c",
@@ -157736,6 +157774,43 @@
     },
     {
       "family": "runtime",
+      "probe_id": "15__probe_edu69_static_output_bridge_clang_gcc16_tri_diff",
+      "bucket": "15",
+      "source": "probes/runtime/15__probe_edu69_static_output_bridge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_edu69_static_output_bridge_main.c",
+        "probes/runtime/15__probe_edu69_static_output_bridge_lib.c"
+      ],
+      "mixed_inputs": [],
+      "missing_inputs": [],
+      "note": "EDU-69 reduction: a file-scope static output buffer passed to an external multi-TU sink must preserve defined C99 address and byte semantics across fisiCs, Clang, and GNU GCC 16",
+      "promoted_test_id": "15__runtime_edu69_static_output_bridge",
+      "classification": "promoted",
+      "reason": "stable final inventory match via explicit-id",
+      "match_kind": "explicit-id",
+      "matched_final_tests": [
+        {
+          "id": "15__runtime_edu69_static_output_bridge",
+          "manifest": "15-torture-differential-wave159-edu69-static-output-bridge.json",
+          "input": "probes/runtime/15__probe_edu69_static_output_bridge_main.c",
+          "inputs": [
+            "probes/runtime/15__probe_edu69_static_output_bridge_main.c",
+            "probes/runtime/15__probe_edu69_static_output_bridge_lib.c"
+          ],
+          "tags": [
+            "runtime",
+            "edu69",
+            "static-storage",
+            "multitu",
+            "probe-promotion",
+            "wave159"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
       "probe_id": "15__probe_fuzz_seeded_expr_volume_replay",
       "bucket": "15",
       "source": "probes/runtime/15__probe_fuzz_seeded_expr_volume_replay.c",
@@ -161721,7 +161796,7 @@
       ],
       "mixed_inputs": [],
       "missing_inputs": [],
-      "note": "OS-P3 target-aware oracle reduction: the strict multi-TU variadic long-double struct-return lane must match all available compilers and one of the two observed target transcripts",
+      "note": "OS-P3 strict multi-TU variadic long-double struct-return lane must match all available compilers after the caller supplies every counted variadic argument",
       "promoted_test_id": null,
       "classification": "promoted",
       "reason": "stable final inventory match via path",

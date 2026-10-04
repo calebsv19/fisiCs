@@ -12,8 +12,8 @@ DIAG_PROBES = [
         note='physics-units valid ballistics pilot should compile under overlay mode and expose stable sema markers for resolved units plus legal intermediate multiply steps',
         expect_any_diagnostic=False,
         required_substrings=[
-            'line 4: m [resolved, unit=meter, unit-resolved]',
-            'line 10: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]',
+            'line 6: m [resolved, unit=meter, unit-resolved]',
+            'line 14: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]',
             'binary-expression(*) [dim=m/s, resolved]',
             'binary-expression(*) [dim=m^2*kg/s^2, resolved]',
         ],

@@ -2,11 +2,11 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `3615`
-- Promoted stable coverage: `3593`
+- Total resolved probe inventory audited: `3617`
+- Promoted stable coverage: `3595`
 - Intentional probe-only coverage: `22`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `5006`
+- Stable final tests scanned: `5023`
 - Critical integrity errors: `0`
 - Ambiguous stem matches: `0`
 - Multi-owner best-rank matches: `568`
@@ -30,8 +30,8 @@
 
 ### Promoted Match Evidence
 
-- `explicit-id`: `511`
-- `id`: `1507`
+- `explicit-id`: `512`
+- `id`: `1508`
 - `path`: `1573`
 - `stem`: `2`
 
@@ -60,7 +60,7 @@
 - Bucket `12`: promoted `247`, probe-only `0`, missing `0`
 - Bucket `13`: promoted `184`, probe-only `0`, missing `0`
 - Bucket `14`: promoted `587`, probe-only `1`, missing `0`
-- Bucket `15`: promoted `642`, probe-only `21`, missing `0`
+- Bucket `15`: promoted `644`, probe-only `21`, missing `0`
 
 ## Missing Promotion Candidates
 

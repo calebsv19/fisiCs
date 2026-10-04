@@ -7,6 +7,15 @@ PROBE_DIR = Path(__file__).resolve().parent.parent.parent
 
 RUNTIME_PROBES = [
     RuntimeProbe(
+        probe_id='15__probe_axis3_variadic_sret_count_boundaries',
+        source=PROBE_DIR / 'runtime/15__probe_axis3_variadic_sret_count_boundaries_main.c',
+        note='multi-TU long-double variadic struct return must agree at complete argument counts 0, 1, 8, 9, and 10',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis3_variadic_sret_count_boundaries_main.c',
+                PROBE_DIR / 'runtime/15__probe_axis3_variadic_sret_count_boundaries_lib.c'],
+        expected_stdout='0 256 17\n1 264 569\n8 1000 877933843\n9 1504 3202013099\n10 1608 2587217176\n',
+        extra_differential_compiler='gcc',
+    ),
+    RuntimeProbe(
         probe_id='15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge',
         source=PROBE_DIR / 'runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_main.c',
         note='axis3 wave1: multi-TU variadic struct-return edge lane should match both clang and gcc when gcc is available',
@@ -24,6 +33,7 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c',
         note='axis3 wave2: multi-TU variadic struct-return permutation edge lane should match both clang and gcc when gcc is available',
         inputs=[PROBE_DIR / 'runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c', PROBE_DIR / 'runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_lib.c'],
+        expected_stdout='3806585024 3550542583\n',
         extra_differential_compiler='gcc',
     ),
     RuntimeProbe(

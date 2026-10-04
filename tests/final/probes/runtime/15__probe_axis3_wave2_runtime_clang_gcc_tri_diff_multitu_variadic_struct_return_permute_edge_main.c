@@ -32,6 +32,7 @@ int main(void) {
     last.tag = 0u;
 
     for (i = 0; i < 8; ++i) {
+        /* Count exactly nine (kind, value) pairs; an overread has no oracle. */
         last = axis3_w2_wide_collect(
             1.0L + (long double)i * 0.125L,
             0.75L + (long double)i * 0.0625L,
@@ -45,7 +46,8 @@ int main(void) {
             0, 2.0L + (long double)i * 0.0625L,
             1, 29 + i * 2,
             0, 3.25L + (long double)i * 0.03125L,
-            1, 37 + i
+            1, 37 + i,
+            0, 4.5L + (long double)i * 0.125L
         );
 
         acc ^= axis3_w2_wide_digest(last, (unsigned)(i * 23 + 11));
