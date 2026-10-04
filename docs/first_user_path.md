@@ -286,6 +286,8 @@ The full release example pack is documented in
 
 ## Notes
 
+- For exact numeric comparisons across compilers, match the
+  [floating-point evaluation policy](floating_point_policy.md), including contraction.
 - For the current supported boundary, read [supported_feature_matrix.md](./supported_feature_matrix.md).
 - For practical public canaries, read [../examples/canaries/README.md](../examples/canaries/README.md).
 - For overlay behavior and limits, read [extension_overlays.md](./extension_overlays.md).

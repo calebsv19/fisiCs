@@ -1,0 +1,327 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_fp_contract_off_default",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-Iinclude",
+        "-lm"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "0"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fp_contract_off_bits.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O0",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "contraction",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok",
+      "ir_contains": [
+        "fmul float",
+        "fadd float",
+        "fmul double"
+      ],
+      "ir_forbids": [
+        "fmul contract",
+        "fadd contract",
+        "fsub contract",
+        "fmul fast",
+        "fadd fast",
+        "llvm.fmuladd"
+      ]
+    },
+    {
+      "id": "14__runtime_fp_contract_off_explicit",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off",
+        "--error-ignored-cc"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "0"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fp_contract_off_bits.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O0",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "contraction",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok",
+      "ir_contains": [
+        "fmul float",
+        "fadd float",
+        "fmul double"
+      ],
+      "ir_forbids": [
+        "fmul contract",
+        "fadd contract",
+        "fsub contract",
+        "fmul fast",
+        "fadd fast",
+        "llvm.fmuladd"
+      ]
+    },
+    {
+      "id": "14__runtime_fp_contract_off_optimized",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off",
+        "--error-ignored-cc"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "2"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fp_contract_off_bits.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O2",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "contraction",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok",
+      "ir_contains": [
+        "fmul float",
+        "fadd float",
+        "fmul double"
+      ],
+      "ir_forbids": [
+        "fmul contract",
+        "fadd contract",
+        "fsub contract",
+        "fmul fast",
+        "fadd fast",
+        "llvm.fmuladd"
+      ]
+    },
+    {
+      "id": "14__runtime_fp_contract_off_optimized3",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off",
+        "--error-ignored-cc"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "3"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fp_contract_off_bits.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O3",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "contraction",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok",
+      "ir_contains": [
+        "fmul float",
+        "fadd float",
+        "fmul double"
+      ],
+      "ir_forbids": [
+        "fmul contract",
+        "fadd contract",
+        "fsub contract",
+        "fmul fast",
+        "fadd fast",
+        "llvm.fmuladd"
+      ]
+    },
+    {
+      "id": "14__runtime_fp_contract_off_units",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-Iinclude",
+        "-lm",
+        "-ffp-contract=off",
+        "--overlay=physics-units",
+        "-DFP_UNITS_CONTROL=1"
+      ],
+      "env": {
+        "FISICS_LLVM_OPT_LEVEL": "2"
+      },
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fp_contract_off_bits.stdout",
+      "differential": true,
+      "reference_args": [
+        "-O2",
+        "-ffp-contract=off",
+        "-Iinclude",
+        "-lm",
+        "-DFP_UNITS_CONTROL=1"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating-point",
+        "contraction",
+        "known-answer"
+      ],
+      "requires": [],
+      "status": "ok",
+      "ir_contains": [
+        "fmul float",
+        "fadd float",
+        "fmul double"
+      ],
+      "ir_forbids": [
+        "fmul contract",
+        "fadd contract",
+        "fsub contract",
+        "fmul fast",
+        "fadd fast",
+        "llvm.fmuladd"
+      ]
+    },
+    {
+      "id": "14__fp_contract_reject_on",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-ffp-contract=on"
+      ],
+      "expect_compile_exit": 1,
+      "expects": [],
+      "tags": [
+        "cli",
+        "floating-point",
+        "reject"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__fp_contract_reject_fast",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-ffp-contract=fast"
+      ],
+      "expect_compile_exit": 1,
+      "expects": [],
+      "tags": [
+        "cli",
+        "floating-point",
+        "reject"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__fp_contract_reject_fast-honor-pragmas",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-ffp-contract=fast-honor-pragmas"
+      ],
+      "expect_compile_exit": 1,
+      "expects": [],
+      "tags": [
+        "cli",
+        "floating-point",
+        "reject"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__fp_contract_reject_invalid",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-ffp-contract=invalid"
+      ],
+      "expect_compile_exit": 1,
+      "expects": [],
+      "tags": [
+        "cli",
+        "floating-point",
+        "reject"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__fp_contract_reject_empty",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fp_contract_off_bits.c",
+      "args": [
+        "-ffp-contract="
+      ],
+      "expect_compile_exit": 1,
+      "expects": [],
+      "tags": [
+        "cli",
+        "floating-point",
+        "reject"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

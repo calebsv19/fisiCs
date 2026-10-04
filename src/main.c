@@ -66,6 +66,8 @@ static void print_cli_usage(FILE* out, const char* argv0) {
             "  -D<name>[=value]           Define a preprocessor macro.\n"
             "  -L<dir>, -l<name>          Forward library search/name to the linker.\n"
             "  -c                         Compile only; do not link.\n"
+            "  -ffp-contract=off          Require separate FP operations (the default).\n"
+            "                             Other contraction modes are unsupported.\n"
             "  -o <path>                  Write output to path.\n"
             "  --target <triple>          Select an LLVM object target.\n"
             "                             x86_64-unknown-none selects freestanding ELF64\n"
@@ -1336,6 +1338,17 @@ int main(int argc, char **argv) {
             enableTrigraphs = true;
         } else if (strcmp(argv[i], "-c") == 0) {
             compileOnly = true;
+        } else if (strncmp(argv[i], "-ffp-contract=", 14) == 0) {
+            /* The frontend emits ordinary fmul/fadd/fsub without contract
+             * flags or fmuladd intrinsics. Keep that existing policy explicit;
+             * never silently accept a request for different rounding. */
+            if (strcmp(argv[i] + 14, "off") != 0) {
+                fprintf(stderr,
+                        "Error: unsupported floating-point contraction mode '%s'; "
+                        "fisiCs supports only -ffp-contract=off (the default)\n",
+                        argv[i] + 14);
+                goto fail;
+            }
         } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             outputName = argv[++i];
         } else if (strncmp(argv[i], "-I", 2) == 0) {

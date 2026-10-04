@@ -976,6 +976,7 @@
     "14-runtime-surface-wave321-header-wstdio-format-scan-runtime-promotion.json",
     "14-runtime-surface-wave322-header-stdlib-env-perror-runtime-promotion.json",
     "14-runtime-surface-wave323-header-math-loop-edge-runtime-promotion.json",
+    "14-runtime-surface-fp-contract-off.json",
     "14-runtime-surface-wave324-header-string-wchar-tokenize-runtime-promotion.json",
     "14-runtime-surface-wave325-header-string-stdio-stdlib-clean-runtime-promotion.json",
     "14-runtime-surface-wave326-aggregate-payload-byte-preservation.json",
