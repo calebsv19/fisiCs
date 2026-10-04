@@ -1,0 +1,189 @@
+{
+  "schema": "fisiCs.hardware_component_catalog",
+  "schema_version": 1,
+  "catalog_id": "catalog.esp.can_pass2.components",
+  "authority": {"kind": "project", "identity": "authority.esp.can_pass2"},
+  "bus_profiles": [
+    {
+      "profile_id": "bus.can.classical.kbps500",
+      "revision": "pass2-v1",
+      "transport_kind": "transport.can.classical.kbps500",
+      "controller_capability": "endpoint.can.network_anchor",
+      "participant_capability": "endpoint.can.participant",
+      "allocation_spaces": [
+        {
+          "space_id": "node_identity",
+          "value_kind": "canonical_id",
+          "minimum_uint64": null,
+          "maximum_uint64": null,
+          "claim_required": true,
+          "collision_policy": "shared"
+        }
+      ]
+    },
+    {
+      "profile_id": "bus.i2c.controller",
+      "revision": "pass2-v1",
+      "transport_kind": "transport.i2c.declared",
+      "controller_capability": "endpoint.i2c.controller",
+      "participant_capability": "endpoint.i2c.participant",
+      "allocation_spaces": [
+        {
+          "space_id": "address",
+          "value_kind": "uint64_decimal",
+          "minimum_uint64": "8",
+          "maximum_uint64": "119",
+          "claim_required": true,
+          "collision_policy": "exclusive"
+        }
+      ]
+    }
+  ],
+  "board_profiles": [
+    {
+      "profile_id": "board.espressif.esp32_c6_devkitc_1",
+      "revision": "can-endpoint-distance-v1",
+      "capability_ids": ["board.esp32_c6", "board.microcontroller", "topology.can.endpoint"],
+      "endpoints": [
+        {"endpoint_id": "anchor.can0", "capability_ids": ["endpoint.can.network_anchor"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio4", "capability_ids": ["endpoint.ultrasonic.trigger"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio5", "capability_ids": ["endpoint.ultrasonic.echo.protected_5v"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio10", "capability_ids": ["endpoint.twai.tx"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio11", "capability_ids": ["endpoint.twai.rx.protected"], "allocation_policy": "exclusive"}
+      ]
+    },
+    {
+      "profile_id": "board.espressif.esp32_c6_devkitc_1",
+      "revision": "can-middle-environment-v1",
+      "capability_ids": ["board.esp32_c6", "board.microcontroller", "topology.can.middle"],
+      "endpoints": [
+        {"endpoint_id": "controller.i2c0", "capability_ids": ["endpoint.i2c.controller"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio10", "capability_ids": ["endpoint.twai.tx"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio11", "capability_ids": ["endpoint.twai.rx.protected"], "allocation_policy": "exclusive"}
+      ]
+    },
+    {
+      "profile_id": "board.espressif.esp32_c6_devkitc_1",
+      "revision": "can-endpoint-supervisor-v1",
+      "capability_ids": ["board.esp32_c6", "board.microcontroller", "topology.can.endpoint"],
+      "endpoints": [
+        {"endpoint_id": "gpio10", "capability_ids": ["endpoint.twai.tx"], "allocation_policy": "exclusive"},
+        {"endpoint_id": "gpio11", "capability_ids": ["endpoint.twai.rx.protected"], "allocation_policy": "exclusive"}
+      ]
+    }
+  ],
+  "device_models": [
+    {
+      "model_id": "device.nxp.tja1050",
+      "revision": "declared-breakout-v1",
+      "capability_ids": ["device.can.transceiver"],
+      "driver_policy": "none",
+      "attachment_ports": [
+        {"port_id": "port.can", "connection_kind": "bus_participant", "required_capability": "endpoint.can.participant", "required_transport_kind": "transport.can.classical.kbps500", "required": true},
+        {"port_id": "port.rxd", "connection_kind": "direct_endpoint", "required_capability": "endpoint.twai.rx.protected", "required_transport_kind": null, "required": true},
+        {"port_id": "port.txd", "connection_kind": "direct_endpoint", "required_capability": "endpoint.twai.tx", "required_transport_kind": null, "required": true}
+      ],
+      "physical_ports": []
+    },
+    {
+      "model_id": "device.passive.can_termination_resistor",
+      "revision": "120_ohm_intent-v1",
+      "capability_ids": ["device.can.termination", "device.passive"],
+      "driver_policy": "none",
+      "attachment_ports": [
+        {"port_id": "port.can", "connection_kind": "bus_participant", "required_capability": "endpoint.can.participant", "required_transport_kind": "transport.can.classical.kbps500", "required": true}
+      ],
+      "physical_ports": []
+    },
+    {
+      "model_id": "device.sensor.hc_sr04",
+      "revision": "declared-v1",
+      "capability_ids": ["device.distance.ultrasonic"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {"port_id": "port.trigger", "connection_kind": "direct_endpoint", "required_capability": "endpoint.ultrasonic.trigger", "required_transport_kind": null, "required": true},
+        {"port_id": "port.echo", "connection_kind": "direct_endpoint", "required_capability": "endpoint.ultrasonic.echo.protected_5v", "required_transport_kind": null, "required": true}
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.distance",
+          "direction": "produces",
+          "required": true,
+          "requirement": {"mode": "exact_quantity", "quantity_kind": "quantity.distance.length", "dimension_system": null, "dimension_vector": [], "value_form": "scalar", "reference_kind": "linear"}
+        }
+      ]
+    },
+    {
+      "model_id": "device.sensor.aht20",
+      "revision": "completed-response-v1",
+      "capability_ids": ["device.environment"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {"port_id": "port.i2c", "connection_kind": "bus_participant", "required_capability": "endpoint.i2c.participant", "required_transport_kind": "transport.i2c.declared", "required": true}
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.temperature",
+          "direction": "produces",
+          "required": true,
+          "requirement": {"mode": "exact_quantity", "quantity_kind": "quantity.environment.air_temperature.absolute", "dimension_system": null, "dimension_vector": [], "value_form": "scalar", "reference_kind": "absolute"}
+        },
+        {
+          "port_id": "port.humidity",
+          "direction": "produces",
+          "required": true,
+          "requirement": {"mode": "exact_quantity", "quantity_kind": "quantity.environment.relative_humidity", "dimension_system": null, "dimension_vector": [], "value_form": "scalar", "reference_kind": "linear"}
+        }
+      ]
+    },
+    {
+      "model_id": "device.codework_esp.can_supervisor",
+      "revision": "distance-environment-v1",
+      "capability_ids": ["device.semantic_signal.observer"],
+      "driver_policy": "required",
+      "attachment_ports": [
+        {"port_id": "port.can", "connection_kind": "bus_participant", "required_capability": "endpoint.can.participant", "required_transport_kind": "transport.can.classical.kbps500", "required": true}
+      ],
+      "physical_ports": [
+        {
+          "port_id": "port.distance_input",
+          "direction": "consumes",
+          "required": true,
+          "requirement": {"mode": "exact_quantity", "quantity_kind": "quantity.distance.length", "dimension_system": null, "dimension_vector": [], "value_form": "scalar", "reference_kind": "linear"}
+        },
+        {
+          "port_id": "port.temperature_input",
+          "direction": "consumes",
+          "required": true,
+          "requirement": {"mode": "exact_quantity", "quantity_kind": "quantity.environment.air_temperature.absolute", "dimension_system": null, "dimension_vector": [], "value_form": "scalar", "reference_kind": "absolute"}
+        },
+        {
+          "port_id": "port.humidity_input",
+          "direction": "consumes",
+          "required": true,
+          "requirement": {"mode": "exact_quantity", "quantity_kind": "quantity.environment.relative_humidity", "dimension_system": null, "dimension_vector": [], "value_form": "scalar", "reference_kind": "linear"}
+        }
+      ]
+    }
+  ],
+  "driver_contracts": [
+    {
+      "driver_id": "driver.sensor.hc_sr04",
+      "revision": "sampled-echo-v1",
+      "supported_models": [{"model_id": "device.sensor.hc_sr04", "revision": "declared-v1"}],
+      "required_transport_kinds": []
+    },
+    {
+      "driver_id": "driver.sensor.aht20",
+      "revision": "completed-response-v1",
+      "supported_models": [{"model_id": "device.sensor.aht20", "revision": "completed-response-v1"}],
+      "required_transport_kinds": ["transport.i2c.declared"]
+    },
+    {
+      "driver_id": "driver.codework_esp.can_supervisor",
+      "revision": "distance-environment-v1",
+      "supported_models": [{"model_id": "device.codework_esp.can_supervisor", "revision": "distance-environment-v1"}],
+      "required_transport_kinds": ["transport.can.classical.kbps500"]
+    }
+  ]
+}

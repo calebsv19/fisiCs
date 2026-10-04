@@ -2,7 +2,7 @@
 
 Status: repository-owned operating contract
 
-Last verified: 2026-09-03
+Last verified: 2026-09-11
 
 This guide tells coding agents how to choose, author, inspect, and validate the
 current fisiCs extension and static-graph layers. It is an agent-facing router,
@@ -141,6 +141,13 @@ the earliest stale input and then rebuild downstream artifacts in order.
 Generated example output belongs under `build/`. Public authored fixtures and
 manifests belong under `examples/` or `tests/fixtures/`.
 
+For detached offline construction, use [Frozen Offline Graph Inputs](frozen_graph_inputs.md).
+Original source identities intentionally survive while receipt reads use captured
+copies. Require the expected closure/build receipt digest, not current live
+source availability. Never set `FISICS_GRAPH_SOURCE_SNAPSHOT` globally or treat
+an ordinary handoff receipt alone as proof of frozen-input replay. Full C export
+regeneration, including header/preprocessor dependencies, is a separate boundary.
+
 ## Evidence Vocabulary
 
 Use exact claim levels in reports and generated documentation:
@@ -177,9 +184,17 @@ Run the narrowest gate that proves the touched surface, then widen according to
 | E016 static hardware compatibility | `make integration-esp-hardware-compatibility ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
 | E016 deterministic positive/negative proof | `make integration-esp-deterministic-proof ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
 | E016 retained realization/evidence receipt | `make integration-esp-realization-evidence ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
+| Bounded three-node ESP sensor/CAN topology | `make integration-esp-can-topology ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
+| Software-only ESP sensor/CAN simulated projection | `make integration-esp-can-simulation ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
+| Explicit AHT20 graph-to-profile execution | `make integration-esp-aht20-binding ESP_WORK_ROOT=/absolute/path/to/ESP_Work BINDING_OUT=/new/result/directory` |
+| Software-only ESP Classical CAN frame/queue transport | `make integration-esp-can-transport ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
+| Software-only ESP CAN receiver/conformance projection | `make integration-esp-can-receiver ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
+| ESP protocol-v1 heartbeat/session stable-base projection | `make integration-esp-can-protocol-session ESP_WORK_ROOT=/absolute/path/to/ESP_Work` |
 | Project-neutral deployment/raw-observation receipt validation | `make integration-external-evidence-receipts` |
 | Public macro adoption or parity | `make examples-extension-portability` |
 | Static physical-system manifests or examples | `make examples-semantic-hardware` |
+| Declared device attachment handoff | `make test-attachment-handoff` |
+| Frozen offline graph input capture/replay | `make test-frozen-graph-inputs`, then existing graph-reader gates |
 | Overlay/compiler implementation | focused owning integration target, then the required confidence tier |
 | Public release claims | `docs/release_confidence_checklist.md`; release actions remain separately authorized |
 
@@ -219,6 +234,9 @@ For extension work, report:
    remains.
 
 ## Public References
+
+- [Declared Attachment Handoff And Verification](attachment_handoff_contract.md)
+- [Frozen Offline Graph Inputs And Closeout Boundary](frozen_graph_inputs.md)
 
 - [Extension Selection And Quickstart](extensions_guide.md)
 - [Portable Extension Authoring](extension_portability.md)

@@ -1,0 +1,54 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "esp.can_pass2.physical_contracts",
+  "quantity_kinds": [
+    {
+      "id": "quantity.distance.length",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [1, 0, 0, 0, 0, 0, 0, 0],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.environment.air_temperature.absolute",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [0, 0, 0, 0, 1, 0, 0, 0],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.environment.relative_humidity",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [0, 0, 0, 0, 0, 0, 0, 0],
+      "dimension_text": "dimensionless"
+    }
+  ],
+  "contracts": [
+    {
+      "contract_id": "contract.bench.ultrasonic.distance",
+      "subject": {"kind": "semantic_id", "id": "signal.bench.ultrasonic.distance"},
+      "quantity_kind": "quantity.distance.length",
+      "unit_policy": {"mode": "exact_unit", "unit": "meter"},
+      "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+      "reference_semantics": {"kind": "linear", "reference_subject": null, "period_binary64": null},
+      "frame_id": null
+    },
+    {
+      "contract_id": "contract.bench.environment.air_temperature",
+      "subject": {"kind": "semantic_id", "id": "signal.bench.environment.air_temperature"},
+      "quantity_kind": "quantity.environment.air_temperature.absolute",
+      "unit_policy": {"mode": "exact_unit", "unit": "kelvin"},
+      "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+      "reference_semantics": {"kind": "absolute", "reference_subject": null, "period_binary64": null},
+      "frame_id": null
+    },
+    {
+      "contract_id": "contract.bench.environment.relative_humidity",
+      "subject": {"kind": "semantic_id", "id": "signal.bench.environment.relative_humidity"},
+      "quantity_kind": "quantity.environment.relative_humidity",
+      "unit_policy": {"mode": "dimension_only", "unit": null},
+      "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+      "reference_semantics": {"kind": "linear", "reference_subject": null, "period_binary64": null},
+      "frame_id": null
+    }
+  ]
+}

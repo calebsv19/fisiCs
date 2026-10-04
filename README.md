@@ -44,6 +44,9 @@ programs before broader language or tooling ambitions.
   [`docs/semantic_metadata_physical_composition_contract.md`](docs/semantic_metadata_physical_composition_contract.md)
 - Hardware compatibility graph contract:
   [`docs/semantic_metadata_hardware_contract.md`](docs/semantic_metadata_hardware_contract.md)
+- Declared device/port handoff and frozen offline graph replay:
+  [`docs/attachment_handoff_contract.md`](docs/attachment_handoff_contract.md) and
+  [`docs/frozen_graph_inputs.md`](docs/frozen_graph_inputs.md)
 - Separate deployment/raw-observation receipt contract and ESP case study:
   [`docs/external_evidence_receipts.md`](docs/external_evidence_receipts.md) and
   [`docs/esp_compiler_bridge_case_study.md`](docs/esp_compiler_bridge_case_study.md)

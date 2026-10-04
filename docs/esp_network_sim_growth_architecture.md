@@ -5,6 +5,11 @@ simulation behavior
 
 Last reviewed: 2026-09-04
 
+The application-state description below remains a snapshot from that review.
+The later compiler-side Pass 1-6 software base and its replay artifacts are
+summarized in
+[ESP CAN Metadata And Simulation Lane Closeout](esp_can_metadata_lane_closeout.md).
+
 ## Purpose
 
 This document records how the ESP Network Sim should grow from its first

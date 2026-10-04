@@ -173,8 +173,28 @@ if len(self_edges) != 1:
 normalized = raw.decode().replace(str(pathlib.Path(sys.argv[2]).resolve()), "@TMP@")
 normalized = normalized.replace(str(pathlib.Path(sys.argv[3]).resolve()), "@ROOT@")
 normalized = normalized.replace(data["producer"]["version"], "@VERSION@")
+# Stable IDs depend on checkout paths. Verify each exact export join before
+# normalizing only those location-dependent IDs in the structural byte golden.
+attachments = {}
+for stem in ("controller", "physical_values"):
+    exported = json.loads((pathlib.Path(sys.argv[2]) / (stem + ".units.json")).read_text())
+    attachments.update({a["binding_id"]: a for a in exported["attachments"]})
+seen_ids = set()
+for binding in data["units_bindings"]:
+    exported = attachments.get(binding["binding_id"])
+    stable_id = binding["symbol_stable_id"]
+    if (exported is None or exported["symbol_stable_id"] != stable_id or
+        exported["symbol_name"] != binding["symbol_name"] or
+        exported["source"] != binding["source"]):
+        raise SystemExit("physical units binding lost its exact exported identity join")
+    if stable_id is None:
+        continue
+    if not stable_id.isdigit() or stable_id == "0" or stable_id in seen_ids:
+        raise SystemExit("physical units binding has invalid or duplicate stable ID")
+    seen_ids.add(stable_id)
+    normalized = normalized.replace(stable_id, "@SYMBOL:" + binding["symbol_name"] + "@")
 actual_digest = hashlib.sha256(normalized.encode()).hexdigest()
-expected_digest = "4184ff9770aaaaf9ebef46da52dcba2b8a3451411462cd589e565bc2aa7e4f18"
+expected_digest = "2440d7b15b4237a51c9860afe0351c19e3d54d881ec905e8774d9930deadee40"
 if actual_digest != expected_digest:
     raise SystemExit(f"physical graph differs from frozen normalized-byte golden: {actual_digest}")
 PY

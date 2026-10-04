@@ -1,0 +1,32 @@
+[
+  {
+    "attachment_id": "attachment.temperature",
+    "device_id": "device.van.temperature.front",
+    "adapter": {"id": "example.temperature_reader", "revision": "1"},
+    "ports": [{
+      "port_id": "port.measurement", "subject_id": "signal.cabin.temperature",
+      "physical_contract": {
+        "quantity_kind": "quantity.temperature.absolute",
+        "unit_policy": {"mode": "exact_unit", "unit": "kelvin"},
+        "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+        "reference_semantics": {"kind": "absolute", "reference_subject": null, "period_binary64": null},
+        "frame_id": null
+      }
+    }]
+  },
+  {
+    "attachment_id": "attachment.fan",
+    "device_id": "device.van.fan.front",
+    "adapter": null,
+    "ports": [{
+      "port_id": "port.command", "subject_id": "device.cabin.fan.command",
+      "physical_contract": {
+        "quantity_kind": "quantity.temperature.difference",
+        "unit_policy": {"mode": "exact_unit", "unit": "kelvin"},
+        "value_form": {"kind": "scalar", "component_count": null, "tensor_rank": null, "tensor_shape": []},
+        "reference_semantics": {"kind": "difference", "reference_subject": null, "period_binary64": null},
+        "frame_id": null
+      }
+    }]
+  }
+]

@@ -92,13 +92,25 @@ if data["coverage"] != {"unbound_required_ports": 0} or data["unbound_required_p
     raise SystemExit("positive canary has unbound required ports")
 if not raw.endswith(b"\n") or raw.endswith(b"\n\n"):
     raise SystemExit("hardware graph final newline contract changed")
+# The parent byte length changes with its embedded absolute source identities.
+# Independently verify the full parent receipt before normalizing hash and size.
+parent_bytes = (pathlib.Path(sys.argv[4]) / "one.json").read_bytes()
+parent_hash = 1469598103934665603
+for byte in parent_bytes:
+    parent_hash = ((parent_hash ^ byte) * 1099511628211) & ((1 << 64) - 1)
+receipt = data["physical_graph_receipt"]
+if (receipt["length_bytes"] != len(parent_bytes) or
+    receipt["hash_fnv1a64"] != f"{parent_hash:016x}"):
+    raise SystemExit("hardware graph lost its exact parent byte receipt")
 normalized = raw.decode().replace(str(pathlib.Path(sys.argv[2]).resolve()), "@TMP@")
 normalized = normalized.replace(str(pathlib.Path(sys.argv[3]).resolve()), "@ROOT@")
 normalized = normalized.replace(str(pathlib.Path(sys.argv[4]).resolve()), "@SM7_TMP@")
 normalized = normalized.replace(data["producer"]["version"], "@VERSION@")
 normalized = normalized.replace(data["physical_graph_receipt"]["hash_fnv1a64"], "@PHYSICAL_HASH@")
+normalized = normalized.replace('"length_bytes":' + str(receipt["length_bytes"]),
+                                '"length_bytes":"@PHYSICAL_LENGTH@"', 1)
 digest = hashlib.sha256(normalized.encode()).hexdigest()
-expected = "26eda12875a1f1cb95f0902abe42c5b67e14a44fddb670c50ce7a24fee0c5b3a"
+expected = "b192c04dd988a92f698fb1e8b683ebcc80143a83e30f03e0a26962be33debef4"
 if digest != expected:
     raise SystemExit(f"hardware graph differs from frozen normalized-byte golden: {digest}")
 print("SM8_DIGEST=" + digest)

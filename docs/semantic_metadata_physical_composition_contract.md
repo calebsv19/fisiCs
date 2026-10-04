@@ -2,6 +2,10 @@
 
 Status: implemented
 
+Optional detached operation: [Frozen Offline Graph Inputs](frozen_graph_inputs.md)
+captures units evidence, source bytes and catalogs, then regenerates this graph.
+It preserves existing graph schemas and does not regenerate C metadata exports.
+
 Physical manifest contract ID: `fisiCs.physical_project_manifest`
 
 Units evidence contract ID: `fisiCs.units_metadata`

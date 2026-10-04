@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Compiler/physical_project_graph.h"
+#include "Compiler/graph_source_snapshot.h"
 
 #include <errno.h>
 #include <math.h>
@@ -121,6 +122,11 @@ static bool add_input_size(const char* path, uint64_t* total,
 
 static bool verify_source(const char* path, size_t length, uint64_t expected,
                           FisicsSemanticProjectDiagnostic* d) {
+    char snapshot_path[PATH_MAX];
+    if (!fisics_graph_snapshot_source(path, snapshot_path)) {
+        diag(d, "invalid or missing frozen physical source: %s", path); return false;
+    }
+    path = snapshot_path;
     char* canonical = realpath(path, NULL);
     if (!canonical || strcmp(canonical, path) != 0) {
         free(canonical); diag(d, "physical units source is missing or not canonical: %s", path); return false;

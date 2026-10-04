@@ -11,6 +11,13 @@ evidence-language, and completion-report boundaries.
 For concise definitions of each capability, see
 [Metadata System Concepts](metadata_system_concepts.md).
 
+For a read-only handoff of declared device/port associations to an external
+tool, use [Attachment Handoff](attachment_handoff_contract.md). This source-tool
+interface checks retained graph references; it is not an execution overlay.
+For copied-input offline graph regeneration and detached verification, use
+[Frozen Offline Graph Inputs](frozen_graph_inputs.md). This is not full C-build
+reproducibility or model execution.
+
 ## Choose The Smallest Relevant Layer
 
 | Need | Use | Result |

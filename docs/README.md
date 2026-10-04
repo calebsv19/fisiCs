@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-09-04.
+Last audited: 2026-09-11.
 
 ## Repository Entry
 
@@ -38,7 +38,18 @@ Last audited: 2026-09-04.
 - `esp_portable_c_validation_contract.md`: frozen intake and evidence contract
   for validating small production-used ESP-owned C policy modules under
   `fisiCs`, Clang, and the separate ESP vendor build
-- `e016_sensor_metadata_bridge_plan.md`: audit-first next-milestone plan for
+- `esp_metadata_integration_roadmap.md`: current cross-system ownership,
+  implemented capability, evidence limits and proposed graph-to-profile steps
+- `attachment_handoff_contract.md`: compiler-owned, project-neutral declared
+  attachment audit, v1/v2 verification CLI/Python interface, portable example and
+  consumer migration boundaries
+- `attachment_handoff_provenance.md`: optional producer-parent byte receipts,
+  backward compatibility and evidence limits
+- `frozen_graph_inputs.md`: complete offline graph data-input snapshots,
+  detached replay/readback, source identity preservation and closeout boundaries
+- `esp_aht20_executable_binding.md`: bounded AHT20 graph-to-profile execution,
+  preflight rejection, retained artifacts and hardware-free readback
+- `e016_sensor_metadata_bridge_plan.md`: completed bridge implementation plan for
   composing the proven E016 portable C sensor carrier through semantic,
   physical, and hardware graphs while retaining separate deployment and
   observation evidence
@@ -48,6 +59,27 @@ Last audited: 2026-09-04.
 - `esp_compiler_bridge_case_study.md`: runnable explanation of the E016 shared
   C/Arduino boundary, compiler graph flow, retained realization mismatch, and
   smallest future ESP adoption step
+- `esp_metadata_preservation_checkpoint.md`: current cross-repository
+  preservation baseline, sensor-profile compiler adoption matrix, retained
+  mixed-graph hashes, reconciliation findings, and Pass 2 entry contract
+- `esp_can_topology_pass2.md`: completed deterministic three-node ESP/CAN
+  static topology, canonical environmental quantity migration, bounded
+  endpoint/middle termination-intent validation, and exact evidence boundaries
+- `esp_can_simulation_pass3.md`: software-only execution of the admitted ESP
+  AHT20 and ultrasonic models, exact binding to the Pass 2 graph hashes, and a
+  deterministic simulated producer/consumer projection
+- `esp_can_transport_pass4.md`: frame-level Classical CAN software model with
+  payload round trips, CRC and stuffing, arbitration, queues, latency,
+  loss/retry fault scenarios, and utilization receipts
+- `esp_can_receiver_pass5.md`: supervisor RX queue, protocol-conformance,
+  duplicate/order, latest-good, freshness-expiry, and compact debugger replay
+  proof with explicit v1 session/version limitations
+- `esp_can_protocol_session_pass6.md`: reconciliation with the actual ESP
+  extended-29-bit big-endian protocol, generated golden vectors, heartbeat
+  sessions, restart/timeout/recovery behavior, and stable-base assessment
+- `esp_can_metadata_lane_closeout.md`: canonical restart and closeout page for
+  the complete E016-to-Pass-6 metadata, static graph, simulation, transport,
+  receiver, and protocol-session evidence chain
 - `esp_network_sim_growth_architecture.md`: cross-system design handoff for
   deterministic CAN execution, event journaling, physics adapters, compiler
   graph intake, scaling, and physical-test boundaries

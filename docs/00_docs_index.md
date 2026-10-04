@@ -1,7 +1,18 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-09-04.
+ESP metadata routing refreshed: 2026-09-11; other sections retain their own audit dates.
+
+For current ESP/compiler integration and the next bounded work sequence, start
+with [ESP metadata integration](esp_metadata_integration_roadmap.md).
+
+For the reusable compiler-to-consumer boundary, use
+[Declared attachment handoff](attachment_handoff_contract.md), not the
+ESP-specific integration runner APIs.
+Use [Optional upstream provenance](attachment_handoff_provenance.md) for
+producer receipts and opt-in handoff v2 without changing existing graph formats.
+Use [Frozen Offline Graph Inputs](frozen_graph_inputs.md) for copied-input
+replay, detached verification and the compiler-owned milestone closeout.
 
 ## Start Here
 
@@ -176,6 +187,52 @@ claim-boundary receipts.
 Runnable E016 case study explaining how the same portable C is consumed by
 fisiCs and the ESP vendor toolchain, how terminal static graphs are produced,
 and why deployment/runtime/physical evidence remains separately owned.
+
+### `docs/esp_metadata_preservation_checkpoint.md`
+
+Current preservation and reconciliation baseline for compiler metadata across
+the active ESP sensor profiles, retained mixed-system graph bundle, protected
+native simulator Main Edit, and the software-only entry contract for the first
+representative multi-node CAN topology.
+
+### `docs/esp_can_topology_pass2.md`
+
+Completed deterministic three-node ESP sensor/CAN topology with canonical
+environmental quantities, endpoint/middle roles, two authored termination
+devices, digest-bound AHT20/ultrasonic profile intake, and focused negative
+proof while leaving simulation and physical evidence separate.
+
+### `docs/esp_can_simulation_pass3.md`
+
+Software-only execution of the admitted ESP AHT20 and ultrasonic profiles,
+exact binding to the Pass 2 graph hashes, deterministic simulated
+producer/consumer projection, and explicit CAN-model versus bench boundaries.
+
+### `docs/esp_can_transport_pass4.md`
+
+Deterministic software-only Classical CAN framing and payload encoding,
+per-node FIFO arbitration and capacity, latency, loss/retry scenarios, bus
+utilization receipts, and exact Pass 3 observation provenance.
+
+### `docs/esp_can_receiver_pass5.md`
+
+Deterministic supervisor receive queues, payload admission, sequence and
+latest-good state, freshness transitions, conformance vectors, debugger replay
+slices, and the explicit payload-v1 session/version gap.
+
+### `docs/esp_can_protocol_session_pass6.md`
+
+Actual ESP protocol-v1 extended-frame and big-endian projection, generated
+golden-vector compatibility, heartbeat session lifecycle, restart precondition,
+debug replay, and initial stable-base closure.
+
+### `docs/esp_can_metadata_lane_closeout.md`
+
+Canonical closeout and future restart page for the complete E016-to-Pass-6
+compiler metadata, static graph, sensor simulation, CAN behavior, receiver, and
+actual protocol-v1 evidence chain. It records the source-of-truth paths,
+deterministic hashes, regeneration command, evidence boundaries, known session
+limitation, protected worktree state, and smallest successor refinements.
 
 ### `docs/esp_network_sim_growth_architecture.md`
 

@@ -1,0 +1,15 @@
+{
+  "schema": "fisiCs.esp_aht20_executable_binding",
+  "schema_version": 1,
+  "adapter": "aht20_rear_left_v1",
+  "device_id": "device.can.aht20",
+  "profile_id": "environment.aht20.v1",
+  "profile_sha256": "d0e2b0784657e90ab44f768fc4d068742897d25ffc37a4ee972e021b72992a5d",
+  "scenario": "environment",
+  "sensor": "rear_left",
+  "instance": 12,
+  "ports": [
+    {"port_id": "port.temperature", "subject_id": "signal.bench.environment.air_temperature", "quantity_kind": "quantity.environment.air_temperature.absolute", "unit": "kelvin", "source_field": "temperature"},
+    {"port_id": "port.humidity", "subject_id": "signal.bench.environment.relative_humidity", "quantity_kind": "quantity.environment.relative_humidity", "unit": null, "source_field": "humidity"}
+  ]
+}

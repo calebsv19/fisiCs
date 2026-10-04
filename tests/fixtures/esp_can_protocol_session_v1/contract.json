@@ -1,0 +1,49 @@
+{
+  "schema": "fisiCs.esp_can_protocol_session_contract",
+  "schema_version": 1,
+  "project_id": "esp.can_pass2.sensor_backbone",
+  "source_inputs": {
+    "pass3_observation_sha256": "e142643a7a361431ceac65e38a9b595be58c81bc33e26ad74e5687b922581a35",
+    "pass5_receiver_sha256": "caf657b7c62ceba44da209feef08d1b1ac1a71289da709e0678c23c19ff56491"
+  },
+  "esp_protocol": {
+    "schema_identity_sha256": "2970b24a30d90795ac5f14c2953cc7f1cbe0c437873ed23ce241f115755e921f",
+    "protocol_version": 1,
+    "registry_version": 2,
+    "schema_path": "protocol/schema/protocol_v1.yaml",
+    "schema_sha256": "342db8e1521df7a1616ac0a76433f7eb053510b03c481afeaca12984eace4eaf",
+    "generated_header_path": "protocol/generated/cpp/VanCanProtocolV1.h",
+    "generated_header_sha256": "c6508b159c99007396c8cdfd6321f7e995ccd80c123cf8661cf7d329a80b5d4f",
+    "golden_vectors_path": "protocol/generated/fixtures/protocol_v1_golden.json",
+    "golden_vectors_sha256": "d9583b8bc4e552156c71a97f17aef7b603517a4772ecfb04fc99d19d50ca4dec",
+    "wire": {
+      "can": "classical",
+      "identifier": "extended_29_bit",
+      "byte_order": "big_endian",
+      "dlc": 8
+    }
+  },
+  "node_bindings": [
+    {"node_id": "node.can.distance_endpoint", "protocol_source": "BENCH_A", "source_id": 1, "session_id": 2684420097},
+    {"node_id": "node.can.environment_middle", "protocol_source": "BENCH_C", "source_id": 3, "session_id": 3221291009}
+  ],
+  "signal_bindings": [
+    {"semantic_id": "signal.bench.ultrasonic.distance", "protocol_source": "BENCH_A", "semantic_type": "DISTANCE", "type_id": 4, "instance": "BENCH_ULTRASONIC", "instance_id": 5, "encoding": "u16", "freshness_ms": 1000},
+    {"semantic_id": "signal.bench.environment.air_temperature", "protocol_source": "BENCH_C", "semantic_type": "AIR_TEMPERATURE", "type_id": 8, "instance": "BENCH_ENVIRONMENT_REAR_LEFT", "instance_id": 12, "encoding": "i16", "freshness_ms": 3000},
+    {"semantic_id": "signal.bench.environment.relative_humidity", "protocol_source": "BENCH_C", "semantic_type": "RELATIVE_HUMIDITY", "type_id": 9, "instance": "BENCH_ENVIRONMENT_REAR_LEFT", "instance_id": 12, "encoding": "u16", "freshness_ms": 3000}
+  ],
+  "runtime_policy": {
+    "bitrate": 500000,
+    "publication_quantum_us": 1000000,
+    "heartbeat_period_us": 1000000,
+    "heartbeat_timeout_us": 2500000,
+    "startup_signal_delay_us": 1000,
+    "startup_requirement": "initial_heartbeat_must_complete_before_signal_release",
+    "session_change": "clear_source_sequences_and_latest_good",
+    "offline_signal": "reject",
+    "same_session_recovery": "retain_sequence_state",
+    "producer_restart_requirement": "flush_pending_signal_frames_before_new_session_heartbeat"
+  },
+  "expected_projection_sha256": "ca9ad1479d14c1e313ef648d523c4cbc261ced34a77d94e063cbe1d9ea36da08",
+  "expected_replay_sha256": "dff8b1229c833224907083d852a87aaa6aee511d893fab99f91d779cff66a5a4"
+}

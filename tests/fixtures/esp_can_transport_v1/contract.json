@@ -1,0 +1,90 @@
+{
+  "schema": "fisiCs.esp_can_transport_contract",
+  "schema_version": 1,
+  "project_id": "esp.can_pass2.sensor_backbone",
+  "source_observation": {
+    "schema": "fisiCs.esp_can_simulated_observation",
+    "sha256": "e142643a7a361431ceac65e38a9b595be58c81bc33e26ad74e5687b922581a35",
+    "records": 149
+  },
+  "frame_format": {
+    "name": "classical_can_2_0a_standard_data_frame",
+    "identifier_bits": 11,
+    "dlc": 8,
+    "crc": "can_crc15_poly_0x4599",
+    "bit_stuffing": "sof_through_crc_sequence_after_five_equal_bits",
+    "acknowledgement": "modeled_outcome_not_electrical_dominance"
+  },
+  "payload_codec": {
+    "name": "fisiCs.sensor_scalar_le_v1",
+    "size_bytes": 8,
+    "layout": [
+      "sequence:u16le",
+      "raw_value:i32le",
+      "status:u8(valid_bit0,fresh_bit1,usable_bit2)",
+      "quality:u8"
+    ]
+  },
+  "routes": [
+    {
+      "semantic_id": "signal.bench.ultrasonic.distance",
+      "can_id": 384,
+      "producer_node": "node.can.distance_endpoint",
+      "consumer_node": "node.can.supervisor_endpoint"
+    },
+    {
+      "semantic_id": "signal.bench.environment.air_temperature",
+      "can_id": 640,
+      "producer_node": "node.can.environment_middle",
+      "consumer_node": "node.can.supervisor_endpoint"
+    },
+    {
+      "semantic_id": "signal.bench.environment.relative_humidity",
+      "can_id": 641,
+      "producer_node": "node.can.environment_middle",
+      "consumer_node": "node.can.supervisor_endpoint"
+    }
+  ],
+  "bus": {
+    "bus_id": "bus.can.sensor_backbone",
+    "bitrate": 500000,
+    "publication_quantum_us": 1000000,
+    "queue_policy": "per_node_fifo_drop_newest",
+    "arbitration_policy": "lowest_standard_identifier_wins_between_node_heads",
+    "retry_policy": "immediate_after_intermission_reenter_arbitration"
+  },
+  "scenarios": [
+    {
+      "scenario_id": "baseline_transient_ack_loss",
+      "queue_capacity_by_node": {
+        "node.can.distance_endpoint": 16,
+        "node.can.environment_middle": 8
+      },
+      "max_attempts": 3,
+      "faults": [
+        {
+          "kind": "ack_loss_once",
+          "semantic_id": "signal.bench.ultrasonic.distance",
+          "sequence": 2,
+          "attempt": 1
+        }
+      ]
+    },
+    {
+      "scenario_id": "constrained_queue_persistent_ack_loss",
+      "queue_capacity_by_node": {
+        "node.can.distance_endpoint": 4,
+        "node.can.environment_middle": 8
+      },
+      "max_attempts": 2,
+      "faults": [
+        {
+          "kind": "ack_loss_always",
+          "semantic_id": "signal.bench.ultrasonic.distance",
+          "sequence": 2
+        }
+      ]
+    }
+  ],
+  "expected_transport_sha256": "366c64620d01fb4c38fc327bcef81a3e412728914f80df08954d36b0c2f18437"
+}

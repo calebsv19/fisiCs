@@ -7,6 +7,12 @@ Start with the basic example. Use the portable example when the same source
 must compile cleanly with both fisiCs and Clang. Run the hardware-project
 example only after those two paths are clear.
 
+After generating the hardware graph, the
+[attachment handoff example](../../docs/attachment_handoff_contract.md) shows
+how an independent consumer can verify declared device/port associations.
+`make test-attachment-handoff` regenerates the public graphs and checks the
+handoff interface without ESP hardware or simulation dependencies.
+
 ## Basic Declaration Metadata
 
 `basic/main.c` attaches stable identities, domains, roles, and

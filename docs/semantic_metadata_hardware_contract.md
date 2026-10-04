@@ -2,6 +2,11 @@
 
 Status: implemented and validated
 
+Optional detached operation: [Frozen Offline Graph Inputs](frozen_graph_inputs.md)
+captures the complete offline data inputs and rebuilds this graph after its
+semantic and physical predecessors. Static assessment remains separate from
+runtime or physical acceptance.
+
 Hardware manifest contract ID: `fisiCs.hardware_project_manifest`
 
 Hardware catalog contract ID: `fisiCs.hardware_component_catalog`

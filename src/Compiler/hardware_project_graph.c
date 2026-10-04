@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Compiler/hardware_project_graph.h"
+#include "Compiler/graph_source_snapshot.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -183,6 +184,12 @@ static bool read_json_file(const char *path, uint64_t *aggregate,
 static bool verify_source(const char *path, size_t expected_length,
                           uint64_t expected_hash,
                           FisicsSemanticProjectDiagnostic *d) {
+  char snapshot_path[PATH_MAX];
+  if (!fisics_graph_snapshot_source(path, snapshot_path)) {
+    diag(d, "invalid or missing frozen hardware source: %s", path);
+    return false;
+  }
+  path = snapshot_path;
   char *canonical = realpath(path, NULL);
   if (!canonical || strcmp(canonical, path) != 0) {
     free(canonical);

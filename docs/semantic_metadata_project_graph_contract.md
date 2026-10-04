@@ -2,6 +2,10 @@
 
 Status: implemented and validated
 
+Optional detached operation: [Frozen Offline Graph Inputs](frozen_graph_inputs.md)
+preserves source identity while verifying receipts against captured source bytes.
+The default remains live-source checking; snapshot mode never falls back to it.
+
 Project manifest contract ID: `fisiCs.semantic_project_manifest`
 
 Project graph contract ID: `fisiCs.semantic_project_graph`

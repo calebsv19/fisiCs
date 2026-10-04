@@ -1,0 +1,69 @@
+{
+  "schema": "fisiCs.esp_can_receiver_contract",
+  "schema_version": 1,
+  "project_id": "esp.can_pass2.sensor_backbone",
+  "source_transport": {
+    "schema": "fisiCs.esp_can_transport_projection",
+    "sha256": "366c64620d01fb4c38fc327bcef81a3e412728914f80df08954d36b0c2f18437",
+    "scenario_id": "baseline_transient_ack_loss",
+    "frames": 149,
+    "deliveries": 149
+  },
+  "receiver": {
+    "node_id": "node.can.supervisor_endpoint",
+    "payload_codec": "fisiCs.sensor_scalar_le_v1",
+    "sequence_policy": "strictly_increasing_per_semantic_identity",
+    "latest_good_policy": "valid_and_fresh_and_usable_only",
+    "overflow_policy": "drop_newest",
+    "service_policy": "single_fifo_fixed_service_time"
+  },
+  "routes": [
+    {
+      "semantic_id": "signal.bench.ultrasonic.distance",
+      "can_id": 384,
+      "freshness_timeout_us": 1500000
+    },
+    {
+      "semantic_id": "signal.bench.environment.air_temperature",
+      "can_id": 640,
+      "freshness_timeout_us": 2500000
+    },
+    {
+      "semantic_id": "signal.bench.environment.relative_humidity",
+      "can_id": 641,
+      "freshness_timeout_us": 2500000
+    }
+  ],
+  "queue_scenarios": [
+    {
+      "scenario_id": "nominal_receiver",
+      "capacity": 16,
+      "service_time_us": 150
+    },
+    {
+      "scenario_id": "constrained_receiver",
+      "capacity": 2,
+      "service_time_us": 800
+    }
+  ],
+  "conformance_vectors": [
+    {"case_id": "accepted_initial", "mutation": "none", "expected": "accepted_latest_good"},
+    {"case_id": "duplicate", "mutation": "duplicate", "expected": "rejected_duplicate"},
+    {"case_id": "out_of_order", "mutation": "out_of_order", "expected": "rejected_out_of_order"},
+    {"case_id": "sequence_reset_without_session", "mutation": "sequence_reset", "expected": "rejected_out_of_order"},
+    {"case_id": "unknown_can_id", "mutation": "unknown_can_id", "expected": "rejected_unknown_can_id"},
+    {"case_id": "wrong_dlc", "mutation": "wrong_dlc", "expected": "rejected_dlc"},
+    {"case_id": "reserved_status", "mutation": "reserved_status", "expected": "rejected_payload"},
+    {"case_id": "wrong_codec", "mutation": "wrong_codec", "expected": "rejected_codec"},
+    {"case_id": "invalid_sample", "mutation": "invalid", "expected": "accepted_degraded"},
+    {"case_id": "stale_sample", "mutation": "stale", "expected": "accepted_degraded"},
+    {"case_id": "unusable_sample", "mutation": "unusable", "expected": "accepted_degraded"}
+  ],
+  "wire_capabilities": {
+    "session_identity": "absent_from_payload_v1",
+    "in_frame_codec_version": "absent_from_payload_v1",
+    "sequence_reset_without_session": "reject_as_out_of_order"
+  },
+  "expected_receiver_sha256": "caf657b7c62ceba44da209feef08d1b1ac1a71289da709e0678c23c19ff56491",
+  "expected_replay_sha256": "122a22e966fae44f47ed24faa148fca8bd32b327caffd1ef9702c873a4bf4520"
+}

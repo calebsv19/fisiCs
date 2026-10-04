@@ -1,0 +1,89 @@
+{
+  "schema": "fisiCs.esp_can_topology_external_contract",
+  "schema_version": 1,
+  "project_id": "esp.can_pass2.sensor_backbone",
+  "external_inputs": [
+    {
+      "role": "protocol_schema",
+      "path": "protocol/schema/protocol_v1.yaml",
+      "sha256": "342db8e1521df7a1616ac0a76433f7eb053510b03c481afeaca12984eace4eaf"
+    },
+    {
+      "role": "aht20_profile",
+      "path": "simulation/profiles/aht20_family_v1/profile.json",
+      "sha256": "d0e2b0784657e90ab44f768fc4d068742897d25ffc37a4ee972e021b72992a5d"
+    },
+    {
+      "role": "aht20_binding",
+      "path": "simulation/profiles/aht20_family_v1/binding.json",
+      "sha256": "9039e87ce7d43aa8d0c3aff237bba20fb1ec69d44355624ece88db2e363a8c6d"
+    },
+    {
+      "role": "ultrasonic_profile",
+      "path": "simulation/profiles/ultrasonic_family_v1/profile.json",
+      "sha256": "c7637ff9f8c3bf5c7f4724a1c86a741c6f811d7c9b00dffdbc0ac5df2fc14d9e"
+    },
+    {
+      "role": "ultrasonic_binding",
+      "path": "simulation/profiles/ultrasonic_family_v1/binding.json",
+      "sha256": "b713a3430e5324d121693564dc2c928c30f9e6a75a1bf41799f30020974a8b0b"
+    }
+  ],
+  "profile_expectations": [
+    {"role": "aht20_profile", "id": "environment.aht20.v1", "adapter": "family_v1", "state": "admitted"},
+    {"role": "ultrasonic_profile", "id": "distance.ultrasonic.v1", "adapter": "family_v1", "state": "admitted"}
+  ],
+  "protocol_expectations": {
+    "schema_identity_sha256": "2970b24a30d90795ac5f14c2953cc7f1cbe0c437873ed23ce241f115755e921f",
+    "semantic_types": ["AIR_TEMPERATURE", "RELATIVE_HUMIDITY", "DISTANCE"],
+    "instances": ["BENCH_ENVIRONMENT_REAR_LEFT", "BENCH_ULTRASONIC"]
+  },
+  "semantic_mappings": [
+    {
+      "semantic_type": "DISTANCE",
+      "instance": "BENCH_ULTRASONIC",
+      "canonical_semantic_identity": "signal.bench.ultrasonic.distance",
+      "physical_contract_id": "contract.bench.ultrasonic.distance",
+      "wire_unit": "meter",
+      "physical_unit": "meter",
+      "scale_numerator": 1,
+      "scale_denominator": 1000,
+      "offset_numerator": 0,
+      "offset_denominator": 1
+    },
+    {
+      "semantic_type": "AIR_TEMPERATURE",
+      "instance": "BENCH_ENVIRONMENT_REAR_LEFT",
+      "canonical_semantic_identity": "signal.bench.environment.air_temperature",
+      "physical_contract_id": "contract.bench.environment.air_temperature",
+      "wire_unit": "degree_Celsius",
+      "physical_unit": "kelvin",
+      "scale_numerator": 1,
+      "scale_denominator": 100,
+      "offset_numerator": 27315,
+      "offset_denominator": 100
+    },
+    {
+      "semantic_type": "RELATIVE_HUMIDITY",
+      "instance": "BENCH_ENVIRONMENT_REAR_LEFT",
+      "canonical_semantic_identity": "signal.bench.environment.relative_humidity",
+      "physical_contract_id": "contract.bench.environment.relative_humidity",
+      "wire_unit": "percent_RH",
+      "physical_unit": "fraction",
+      "scale_numerator": 1,
+      "scale_denominator": 10000,
+      "offset_numerator": 0,
+      "offset_denominator": 1
+    }
+  ],
+  "topology_expectations": {
+    "nodes": 3,
+    "buses": 2,
+    "devices": 8,
+    "connections": 15,
+    "signal_bindings": 6,
+    "endpoint_nodes": ["node.can.distance_endpoint", "node.can.supervisor_endpoint"],
+    "middle_nodes": ["node.can.environment_middle"],
+    "termination_devices": ["device.can.distance_termination", "device.can.supervisor_termination"]
+  }
+}

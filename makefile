@@ -441,7 +441,7 @@ integration-compile-link: $(BIN)
 	@./tests/integration/compile_and_link.sh ./$(BIN)
 
 integration-diags-pack: $(BIN)
-	@./tests/integration/run_emit_diags_pack.sh ./$(BIN)
+	@FISICS_TEST_SHARED_ROOT="$(abspath $(SHARED_ROOT))" ./tests/integration/run_emit_diags_pack.sh ./$(BIN)
 
 integration-diags-json-metadata: $(BIN)
 	@bash ./tests/integration/run_emit_diags_json_metadata.sh ./$(BIN)
@@ -580,6 +580,61 @@ integration-esp-realization-evidence: $(BIN) integration-esp-portable-c-contract
 		--compiler "$(abspath $(BIN))" \
 		--contract ./tests/fixtures/esp_portable_c/e016_realization_v1.json \
 		--build-root "$(abspath build/integration-esp-portable-c)"
+
+integration-esp-can-topology: $(BIN)
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_can_topology.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--fixture-root "$(abspath tests/fixtures/esp_can_topology_v1)" \
+		--build-root "$(abspath build/integration-esp-can-topology)"
+
+integration-esp-can-simulation: $(BIN)
+	@test -n "$(ESP_WORK_ROOT)" || (echo "ERROR: set ESP_WORK_ROOT to the exact ESP_Work Git root" >&2; exit 2)
+	@python3 ./tests/integration/run_esp_can_simulation.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--compiler "$(abspath $(BIN))" \
+		--fixture-root "$(abspath tests/fixtures/esp_can_simulation_v1)" \
+		--build-root "$(abspath build/integration-esp-can-simulation)"
+
+.PHONY: integration-esp-aht20-binding
+.PHONY: test-attachment-handoff
+test-attachment-handoff: examples-semantic-hardware
+	@FISICS_TEST_COMPILER="$(abspath $(BIN))" FISICS_EXAMPLES_BUILD_DIR="$(abspath $(EXAMPLES_BUILD_DIR))" python3 -B tests/integration/test_attachment_handoff.py
+	@FISICS_TEST_COMPILER="$(abspath $(BIN))" FISICS_EXAMPLES_BUILD_DIR="$(abspath $(EXAMPLES_BUILD_DIR))" python3 -B tests/integration/test_attachment_physical_cases.py
+	@FISICS_TEST_COMPILER="$(abspath $(BIN))" FISICS_EXAMPLES_BUILD_DIR="$(abspath $(EXAMPLES_BUILD_DIR))" python3 -B tests/integration/test_attachment_provenance.py
+
+.PHONY: test-frozen-graph-inputs
+test-frozen-graph-inputs: examples-semantic-hardware
+	@FISICS_TEST_COMPILER="$(abspath $(BIN))" FISICS_EXAMPLES_BUILD_DIR="$(abspath $(EXAMPLES_BUILD_DIR))" python3 -B tests/integration/test_frozen_graph_inputs.py
+
+# Source-receipt snapshot routing is a compiler reader contract, not an optional runtime test.
+test: test-frozen-graph-inputs
+
+integration-esp-aht20-binding: $(BIN)
+	@test -n "$(ESP_WORK_ROOT)" -a -n "$(BINDING_OUT)" || (echo "ERROR: set ESP_WORK_ROOT and a new BINDING_OUT directory" >&2; exit 2)
+	@python3 -B ./tests/integration/run_esp_aht20_binding.py --esp-work-root "$(ESP_WORK_ROOT)" --compiler "$(abspath $(BIN))" --out "$(BINDING_OUT)"
+	@FISICS_TEST_COMPILER="$(abspath $(BIN))" python3 -B ./tests/integration/test_esp_aht20_binding.py
+
+integration-esp-can-transport: integration-esp-can-simulation
+	@python3 ./tests/integration/run_esp_can_transport.py \
+		--fixture-root "$(abspath tests/fixtures/esp_can_transport_v1)" \
+		--build-root "$(abspath build/integration-esp-can-transport)" \
+		--observation "$(abspath build/integration-esp-can-simulation/simulated-observation.json)" \
+		--pass3-receipt "$(abspath build/integration-esp-can-simulation/receipt.json)"
+
+integration-esp-can-receiver: integration-esp-can-transport
+	@python3 ./tests/integration/run_esp_can_receiver.py \
+		--fixture-root "$(abspath tests/fixtures/esp_can_receiver_v1)" \
+		--build-root "$(abspath build/integration-esp-can-receiver)" \
+		--transport "$(abspath build/integration-esp-can-transport/transport.json)" \
+		--pass4-receipt "$(abspath build/integration-esp-can-transport/receipt.json)"
+
+integration-esp-can-protocol-session: integration-esp-can-receiver
+	@python3 ./tests/integration/run_esp_can_protocol_session.py \
+		--esp-work-root "$(ESP_WORK_ROOT)" \
+		--fixture-root "$(abspath tests/fixtures/esp_can_protocol_session_v1)" \
+		--build-root "$(abspath build/integration-esp-can-protocol-session)"
 
 integration-external-evidence-receipts:
 	@python3 ./tests/integration/test_external_evidence_receipts.py
@@ -1253,7 +1308,7 @@ test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests inte
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
-	@MallocNanoZone=0 ./tests/preprocessor/run_pp_expr.sh
+	@MallocNanoZone=0 FISICS_TEST_SHARED_ROOT="$(abspath $(SHARED_ROOT))" ./tests/preprocessor/run_pp_expr.sh
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_if.sh
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_ifdef_keyword.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_nested.sh ./$(BIN)
@@ -1441,7 +1496,7 @@ os-policy: $(BIN) os-policy-contract
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run dev-smoke examples examples-hello examples-sdl examples-physics-units examples-semantic-metadata examples-semantic-metadata-compare examples-semantic-hardware examples-extension-portability examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
+.PHONY: all clean run dev-smoke examples examples-hello examples-sdl examples-physics-units examples-semantic-metadata examples-semantic-metadata-compare examples-semantic-hardware examples-extension-portability examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep integration-esp-can-topology integration-esp-can-simulation integration-esp-can-transport integration-esp-can-receiver integration-esp-can-protocol-session \
         release-clean release-contract release-adapter-contract-test release-build-clean release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-verify-authenticated release-pkg release-all \
@@ -1473,3 +1528,10 @@ tests: test frontend-api-test
 test-final-monitor-contract:
 	@python3 -B scripts/test_run_make_final_monitored.py
 .PHONY: test-final-monitor-contract
+
+# Hardware-free compiler/declaration/projection gate; no external ESP execution.
+test-esp-aht20-binding-contract: $(BIN)
+	@FISICS_TEST_COMPILER="$(abspath $(BIN))" python3 -B tests/integration/test_esp_aht20_binding.py
+.PHONY: test-esp-aht20-binding-contract
+
+test: test-attachment-handoff test-final-monitor-contract test-esp-aht20-binding-contract

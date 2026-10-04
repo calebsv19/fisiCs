@@ -1,0 +1,61 @@
+{
+  "schema": "fisiCs.hardware_topology",
+  "schema_version": 1,
+  "project_id": "esp.can_pass2.sensor_backbone",
+  "nodes": [
+    {"node_id": "node.can.distance_endpoint", "board_profile": {"profile_id": "board.espressif.esp32_c6_devkitc_1", "revision": "can-endpoint-distance-v1"}},
+    {"node_id": "node.can.environment_middle", "board_profile": {"profile_id": "board.espressif.esp32_c6_devkitc_1", "revision": "can-middle-environment-v1"}},
+    {"node_id": "node.can.supervisor_endpoint", "board_profile": {"profile_id": "board.espressif.esp32_c6_devkitc_1", "revision": "can-endpoint-supervisor-v1"}}
+  ],
+  "buses": [
+    {
+      "bus_id": "bus.can.sensor_backbone",
+      "owner_node_id": "node.can.distance_endpoint",
+      "scope": "project_shared",
+      "bus_profile": {"profile_id": "bus.can.classical.kbps500", "revision": "pass2-v1"},
+      "controller_endpoint_id": "anchor.can0"
+    },
+    {
+      "bus_id": "bus.can.environment_middle.i2c0",
+      "owner_node_id": "node.can.environment_middle",
+      "scope": "node_local",
+      "bus_profile": {"profile_id": "bus.i2c.controller", "revision": "pass2-v1"},
+      "controller_endpoint_id": "controller.i2c0"
+    }
+  ],
+  "devices": [
+    {"device_id": "device.can.distance_tja1050", "owner_node_id": "node.can.distance_endpoint", "model": {"model_id": "device.nxp.tja1050", "revision": "declared-breakout-v1"}, "driver": null},
+    {"device_id": "device.can.environment_tja1050", "owner_node_id": "node.can.environment_middle", "model": {"model_id": "device.nxp.tja1050", "revision": "declared-breakout-v1"}, "driver": null},
+    {"device_id": "device.can.supervisor_tja1050", "owner_node_id": "node.can.supervisor_endpoint", "model": {"model_id": "device.nxp.tja1050", "revision": "declared-breakout-v1"}, "driver": null},
+    {"device_id": "device.can.distance_termination", "owner_node_id": "node.can.distance_endpoint", "model": {"model_id": "device.passive.can_termination_resistor", "revision": "120_ohm_intent-v1"}, "driver": null},
+    {"device_id": "device.can.supervisor_termination", "owner_node_id": "node.can.supervisor_endpoint", "model": {"model_id": "device.passive.can_termination_resistor", "revision": "120_ohm_intent-v1"}, "driver": null},
+    {"device_id": "device.can.ultrasonic", "owner_node_id": "node.can.distance_endpoint", "model": {"model_id": "device.sensor.hc_sr04", "revision": "declared-v1"}, "driver": {"driver_id": "driver.sensor.hc_sr04", "revision": "sampled-echo-v1"}},
+    {"device_id": "device.can.aht20", "owner_node_id": "node.can.environment_middle", "model": {"model_id": "device.sensor.aht20", "revision": "completed-response-v1"}, "driver": {"driver_id": "driver.sensor.aht20", "revision": "completed-response-v1"}},
+    {"device_id": "device.can.supervisor", "owner_node_id": "node.can.supervisor_endpoint", "model": {"model_id": "device.codework_esp.can_supervisor", "revision": "distance-environment-v1"}, "driver": {"driver_id": "driver.codework_esp.can_supervisor", "revision": "distance-environment-v1"}}
+  ],
+  "connections": [
+    {"connection_id": "connection.can.distance_tja1050.can", "device_id": "device.can.distance_tja1050", "attachment_port_id": "port.can", "target": {"kind": "bus", "bus_id": "bus.can.sensor_backbone", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "node_identity", "value_uint64": null, "value_id": "node.can.distance_endpoint"}]},
+    {"connection_id": "connection.can.distance_tja1050.rxd", "device_id": "device.can.distance_tja1050", "attachment_port_id": "port.rxd", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio11"}, "allocation_claims": []},
+    {"connection_id": "connection.can.distance_tja1050.txd", "device_id": "device.can.distance_tja1050", "attachment_port_id": "port.txd", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio10"}, "allocation_claims": []},
+    {"connection_id": "connection.can.environment_tja1050.can", "device_id": "device.can.environment_tja1050", "attachment_port_id": "port.can", "target": {"kind": "bus", "bus_id": "bus.can.sensor_backbone", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "node_identity", "value_uint64": null, "value_id": "node.can.environment_middle"}]},
+    {"connection_id": "connection.can.environment_tja1050.rxd", "device_id": "device.can.environment_tja1050", "attachment_port_id": "port.rxd", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio11"}, "allocation_claims": []},
+    {"connection_id": "connection.can.environment_tja1050.txd", "device_id": "device.can.environment_tja1050", "attachment_port_id": "port.txd", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio10"}, "allocation_claims": []},
+    {"connection_id": "connection.can.supervisor_tja1050.can", "device_id": "device.can.supervisor_tja1050", "attachment_port_id": "port.can", "target": {"kind": "bus", "bus_id": "bus.can.sensor_backbone", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "node_identity", "value_uint64": null, "value_id": "node.can.supervisor_endpoint"}]},
+    {"connection_id": "connection.can.supervisor_tja1050.rxd", "device_id": "device.can.supervisor_tja1050", "attachment_port_id": "port.rxd", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio11"}, "allocation_claims": []},
+    {"connection_id": "connection.can.supervisor_tja1050.txd", "device_id": "device.can.supervisor_tja1050", "attachment_port_id": "port.txd", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio10"}, "allocation_claims": []},
+    {"connection_id": "connection.can.distance_termination", "device_id": "device.can.distance_termination", "attachment_port_id": "port.can", "target": {"kind": "bus", "bus_id": "bus.can.sensor_backbone", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "node_identity", "value_uint64": null, "value_id": "node.can.distance_endpoint"}]},
+    {"connection_id": "connection.can.supervisor_termination", "device_id": "device.can.supervisor_termination", "attachment_port_id": "port.can", "target": {"kind": "bus", "bus_id": "bus.can.sensor_backbone", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "node_identity", "value_uint64": null, "value_id": "node.can.supervisor_endpoint"}]},
+    {"connection_id": "connection.can.ultrasonic.trigger", "device_id": "device.can.ultrasonic", "attachment_port_id": "port.trigger", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio4"}, "allocation_claims": []},
+    {"connection_id": "connection.can.ultrasonic.echo", "device_id": "device.can.ultrasonic", "attachment_port_id": "port.echo", "target": {"kind": "direct_endpoint", "bus_id": null, "board_endpoint_id": "gpio5"}, "allocation_claims": []},
+    {"connection_id": "connection.can.aht20.i2c", "device_id": "device.can.aht20", "attachment_port_id": "port.i2c", "target": {"kind": "bus", "bus_id": "bus.can.environment_middle.i2c0", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "address", "value_uint64": "56", "value_id": null}]},
+    {"connection_id": "connection.can.supervisor.can", "device_id": "device.can.supervisor", "attachment_port_id": "port.can", "target": {"kind": "bus", "bus_id": "bus.can.sensor_backbone", "board_endpoint_id": null}, "allocation_claims": [{"space_id": "node_identity", "value_uint64": null, "value_id": "node.can.supervisor_endpoint"}]}
+  ],
+  "signal_bindings": [
+    {"binding_id": "binding.can.ultrasonic.distance", "device_id": "device.can.ultrasonic", "physical_port_id": "port.distance", "physical_contract_id": "contract.bench.ultrasonic.distance"},
+    {"binding_id": "binding.can.aht20.temperature", "device_id": "device.can.aht20", "physical_port_id": "port.temperature", "physical_contract_id": "contract.bench.environment.air_temperature"},
+    {"binding_id": "binding.can.aht20.humidity", "device_id": "device.can.aht20", "physical_port_id": "port.humidity", "physical_contract_id": "contract.bench.environment.relative_humidity"},
+    {"binding_id": "binding.can.supervisor.distance", "device_id": "device.can.supervisor", "physical_port_id": "port.distance_input", "physical_contract_id": "contract.bench.ultrasonic.distance"},
+    {"binding_id": "binding.can.supervisor.temperature", "device_id": "device.can.supervisor", "physical_port_id": "port.temperature_input", "physical_contract_id": "contract.bench.environment.air_temperature"},
+    {"binding_id": "binding.can.supervisor.humidity", "device_id": "device.can.supervisor", "physical_port_id": "port.humidity_input", "physical_contract_id": "contract.bench.environment.relative_humidity"}
+  ]
+}

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SHARED_ROOT="${FISICS_TEST_SHARED_ROOT:-$ROOT_DIR/third_party/codework_shared}"
+
 BIN="${1:-./fisics}"
 SRC="${2:-test_files/missing_expr_semicolon.c}"
 
@@ -143,8 +146,8 @@ int main(int argc, char** argv) {
 EOF
 
 cc -std=c11 -Wall -Wextra -Wpedantic \
-  -I../shared/core/core_pack/include -I../shared/core/core_base/include \
-  "$inspector_c" ../shared/core/core_pack/src/core_pack.c ../shared/core/core_base/src/core_base.c \
+  -I"$SHARED_ROOT/core/core_pack/include" -I"$SHARED_ROOT/core/core_base/include" \
+  "$inspector_c" "$SHARED_ROOT/core/core_pack/src/core_pack.c" "$SHARED_ROOT/core/core_base/src/core_base.c" \
   -o "$inspector_bin"
 
 "$inspector_bin" "$pack_path"

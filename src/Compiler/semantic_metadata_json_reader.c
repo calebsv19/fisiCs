@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Compiler/semantic_metadata_json_reader.h"
+#include "Compiler/graph_source_snapshot.h"
 
 #include <errno.h>
 #include <inttypes.h>
@@ -162,6 +163,12 @@ static bool verify_source(const char* path,
                           size_t expected_length,
                           uint64_t expected_hash,
                           FisicsSemanticProjectDiagnostic* diagnostic) {
+    char snapshot_path[PATH_MAX];
+    if (!fisics_graph_snapshot_source(path, snapshot_path)) {
+        set_diagnostic(diagnostic, "invalid or missing frozen semantic source: %s", path);
+        return false;
+    }
+    path = snapshot_path;
     char* canonical = realpath(path, NULL);
     if (!canonical || strcmp(canonical, path) != 0) {
         set_diagnostic(diagnostic, "metadata source path is missing or not canonical: %s", path);
