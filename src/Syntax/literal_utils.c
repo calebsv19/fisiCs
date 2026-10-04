@@ -392,3 +392,20 @@ LiteralDecodeResult decode_c_string_literal_wide(const char* raw,
 
     return res;
 }
+
+FloatingLiteralSuffix parse_floating_literal_suffix(const char* text) {
+    FloatingLiteralSuffix suffix = {0};
+    suffix.coreLength = text ? strlen(text) : 0;
+    while (suffix.coreLength) {
+        char c = text[suffix.coreLength - 1];
+        if (c == 'i' || c == 'I' || c == 'j' || c == 'J') {
+            suffix.imaginary = true;
+        } else if (c == 'f' || c == 'F' || c == 'l' || c == 'L') {
+            suffix.precisionSuffix = c;
+        } else {
+            break;
+        }
+        --suffix.coreLength;
+    }
+    return suffix;
+}

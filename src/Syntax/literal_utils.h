@@ -22,6 +22,15 @@ typedef struct {
     unsigned long long value; // truncated value (mod 2^bits)
 } IntegerLiteralInfo;
 
+typedef struct {
+    size_t coreLength;
+    bool imaginary;
+    char precisionSuffix;
+} FloatingLiteralSuffix;
+
+/* For lexer-validated floating spellings; suffix order may be fi or if. */
+FloatingLiteralSuffix parse_floating_literal_suffix(const char* text);
+
 bool parse_integer_literal_info(const char* text,
                                 const struct TargetLayout* layout,
                                 IntegerLiteralInfo* out);

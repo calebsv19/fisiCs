@@ -134,3 +134,15 @@ Run `make final-manifest MANIFEST=14-runtime-surface-float-literal-precision.jso
 for known bits and Clang comparisons at optimization levels 0/2/3. General
 constant-expression precision, dynamic rounding, and cross-target long-double
 behavior require their own evidence beyond these literal conversion checks.
+
+Imaginary and precision suffixes are accepted in both orders (`1.0fi` and
+`1.0iF`, including the system `complex.h` spelling). Semantic analysis, codegen
+type resolution and direct conversion use the same suffix decoder, preserving
+the declared float/double/long-double component precision. The known-answer
+regression covers both orders, uppercase/J variants, imaginary decimal rounding,
+and component type sizes.
+
+Mixed real/complex arithmetic selects component precision from both operands.
+Complex operands are widened component by component before arithmetic, rather
+than reinterpreting a float pair as a double pair. The literal regression also
+covers both operand orders, multiplication and division with mixed precision.

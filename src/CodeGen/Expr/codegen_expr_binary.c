@@ -154,9 +154,25 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     bool rhsComplex = cg_parsed_type_is_complex_value(rhsParsed);
 
     if (lhsComplex || rhsComplex) {
-        const ParsedType* complexParsed = lhsComplex ? lhsParsed : rhsParsed;
-        LLVMTypeRef complexType = cg_type_from_parsed(ctx, complexParsed);
-        LLVMTypeRef elemType = cg_complex_element_type(ctx, complexParsed);
+        ParsedType common = *(lhsComplex ? lhsParsed : rhsParsed);
+        common.isComplex = true;
+        common.isImaginary = false;
+        /* Both real and complex operands contribute component precision. */
+        const ParsedType* operands[2] = {lhsParsed, rhsParsed};
+        for (unsigned i = 0; i < 2; ++i) {
+            const ParsedType* operand = operands[i];
+            if (operand && operand->kind == TYPE_PRIMITIVE &&
+                (operand->primitiveType == TOKEN_FLOAT || operand->primitiveType == TOKEN_DOUBLE)) {
+                if (operand->isLong) {
+                    common.isLong = true;
+                    common.primitiveType = TOKEN_DOUBLE;
+                } else if (operand->primitiveType == TOKEN_DOUBLE) {
+                    common.primitiveType = TOKEN_DOUBLE;
+                }
+            }
+        }
+        LLVMTypeRef complexType = cg_type_from_parsed(ctx, &common);
+        LLVMTypeRef elemType = cg_complex_element_type(ctx, &common);
         LLVMValueRef lhsC = cg_promote_to_complex(ctx, L, lhsParsed, complexType, elemType);
         LLVMValueRef rhsC = cg_promote_to_complex(ctx, R, rhsParsed, complexType, elemType);
 

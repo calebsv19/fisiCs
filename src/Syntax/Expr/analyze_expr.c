@@ -152,25 +152,10 @@ static unsigned scope_int_bits(Scope* scope) {
 static TypeInfo typeFromLiteral(const char* text, Scope* scope, bool* outOverflow) {
     if (outOverflow) *outOverflow = false;
     if (literalLooksFloat(text)) {
-        size_t len = text ? strlen(text) : 0;
-        bool hasImag = false;
-        size_t coreLen = len;
-        if (coreLen > 0 &&
-            (text[coreLen - 1] == 'i' || text[coreLen - 1] == 'I' ||
-             text[coreLen - 1] == 'j' || text[coreLen - 1] == 'J')) {
-            hasImag = true;
-            coreLen--;
-        }
-        if (coreLen > 1 &&
-            (text[coreLen - 2] == 'i' || text[coreLen - 2] == 'I' ||
-             text[coreLen - 2] == 'j' || text[coreLen - 2] == 'J') &&
-            (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F' ||
-             text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L')) {
-            hasImag = true;
-            coreLen--;
-        }
-        bool isFloat = coreLen > 0 && (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');
-        bool isLongDouble = coreLen > 0 && (text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L');
+        FloatingLiteralSuffix suffix = parse_floating_literal_suffix(text);
+        bool hasImag = suffix.imaginary;
+        bool isFloat = suffix.precisionSuffix == 'f' || suffix.precisionSuffix == 'F';
+        bool isLongDouble = suffix.precisionSuffix == 'l' || suffix.precisionSuffix == 'L';
         FloatKind fk = isFloat ? FLOAT_KIND_FLOAT : (isLongDouble ? FLOAT_KIND_LONG_DOUBLE : FLOAT_KIND_DOUBLE);
         TypeInfo info = makeFloatTypeInfo(fk, hasImag, NULL);
         info.isImaginary = hasImag;

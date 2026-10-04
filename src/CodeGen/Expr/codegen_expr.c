@@ -122,7 +122,12 @@ LLVMValueRef cg_promote_to_complex(CodegenContext* ctx,
                                    LLVMTypeRef complexType,
                                    LLVMTypeRef elemType) {
     if (LLVMGetTypeKind(LLVMTypeOf(value)) == LLVMStructTypeKind) {
-        return value;
+        if (LLVMTypeOf(value) == complexType) return value;
+        LLVMValueRef real = LLVMBuildExtractValue(ctx->builder, value, 0, "complex.real");
+        LLVMValueRef imag = LLVMBuildExtractValue(ctx->builder, value, 1, "complex.imag");
+        real = cg_cast_value(ctx, real, elemType, NULL, NULL, "complex.real.promote");
+        imag = cg_cast_value(ctx, imag, elemType, NULL, NULL, "complex.imag.promote");
+        return cg_build_complex_value(ctx, real, imag, complexType, "complex.promote");
     }
     LLVMValueRef casted = value;
     if (LLVMTypeOf(value) != elemType) {

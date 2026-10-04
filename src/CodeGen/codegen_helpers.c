@@ -86,28 +86,10 @@ static ParsedType cg_make_float_literal_type(const char* text) {
     memset(&t, 0, sizeof(t));
     t.kind = TYPE_PRIMITIVE;
     t.primitiveType = TOKEN_DOUBLE;
-    size_t len = text ? strlen(text) : 0;
-    bool hasImag = false;
-    size_t coreLen = len;
-
-    if (coreLen > 0 &&
-        (text[coreLen - 1] == 'i' || text[coreLen - 1] == 'I' ||
-         text[coreLen - 1] == 'j' || text[coreLen - 1] == 'J')) {
-        hasImag = true;
-        coreLen--;
-    }
-    if (coreLen > 1 &&
-        (text[coreLen - 2] == 'i' || text[coreLen - 2] == 'I' ||
-         text[coreLen - 2] == 'j' || text[coreLen - 2] == 'J') &&
-        (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F' ||
-         text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L')) {
-        hasImag = true;
-        coreLen--;
-    }
-    bool isFloat = coreLen > 0 &&
-                   (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');
-    bool isLong = coreLen > 0 &&
-                  (text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L');
+    FloatingLiteralSuffix suffix = parse_floating_literal_suffix(text);
+    bool hasImag = suffix.imaginary;
+    bool isFloat = suffix.precisionSuffix == 'f' || suffix.precisionSuffix == 'F';
+    bool isLong = suffix.precisionSuffix == 'l' || suffix.precisionSuffix == 'L';
     if (isFloat) {
         t.primitiveType = TOKEN_FLOAT;
     } else {
