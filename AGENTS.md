@@ -99,3 +99,9 @@ For a public release-readiness pass, use this order:
 
 Signed/notarized distribution, bridge publishing, website metadata, and
 production-registry promotion are separate maintainer approval lanes.
+
+## Persistent compiler development lane
+
+Use [docs/main_edit_worktree.md](docs/main_edit_worktree.md) for ordinary compiler
+edits. Canonical `main` is the accepted source; the retained
+`codex/fisics-main-edit` checkout is the default writer lane.

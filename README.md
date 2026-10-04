@@ -418,3 +418,6 @@ See [`LICENSE`](LICENSE).
 
 - Build artifacts and scratch outputs are ignored (`build/`, `data/`, local binaries).
 - `TOP_README.md` is retained as a legacy pointer; this `README.md` is now the canonical GitHub-facing summary.
+
+Maintainer source development uses the persistent
+[compiler Main Edit worktree](docs/main_edit_worktree.md).
