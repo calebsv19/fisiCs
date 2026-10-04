@@ -41,7 +41,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--first-check-buffer-seconds", type=int, default=30, help="Buffer added to the timing baseline before the first audit")
     parser.add_argument("--stall-seconds", type=int, default=900, help="Observational no-output stall threshold")
     parser.add_argument("--label", default="make final", help="Human-readable command label")
-    parser.add_argument("--no-record-history", action="store_true", help="Skip CSV and notes updates even on success")
+    parser.add_argument("--no-record-history", action="store_true", help="Skip all timing history writes, including baseline JSON, even on success")
     parser.add_argument(
         "command",
         nargs=argparse.REMAINDER,
@@ -448,10 +448,13 @@ def main() -> int:
         )
         print(f"avg_seconds_per_test={avg_seconds_per_test:.6f}")
     else:
-        baseline_payload["csv_path"] = str(csv_path)
-        write_json_atomic(baseline_path, baseline_payload)
         print(f"Timing history unchanged: {csv_path}")
-        print(f"Baseline JSON refreshed from current history: {baseline_path}")
+        if not args.no_record_history:
+            baseline_payload["csv_path"] = str(csv_path)
+            write_json_atomic(baseline_path, baseline_payload)
+            print(f"Baseline JSON refreshed from current history: {baseline_path}")
+        else:
+            print(f"Timing baseline unchanged: {baseline_path}")
         print(f"run_id={run_id}")
 
     if last_log_path is not None:

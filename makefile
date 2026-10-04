@@ -503,7 +503,7 @@ integration-examples-physics-units: $(BIN)
 integration-examples-semantic-metadata: $(BIN)
 	@bash ./examples/semantic_metadata/run_basic.sh ./$(BIN)
 	@bash ./examples/semantic_metadata/compare_compilers.sh ./$(BIN)
-	@bash ./examples/semantic_metadata/run_hardware_project.sh ./$(BIN)
+	@bash ./examples/semantic_metadata/run_hardware_project.sh "$(abspath $(BIN))" "$(abspath $(EXAMPLES_BUILD_DIR))/semantic_metadata/hardware_project"
 
 integration-extension-portability-macros: $(BIN)
 	@bash ./tests/integration/run_extension_portability_macros.sh ./$(BIN)
@@ -766,7 +766,7 @@ examples-semantic-metadata-compare: $(BIN)
 	@bash ./examples/semantic_metadata/compare_compilers.sh ./$(BIN)
 
 examples-semantic-hardware: $(BIN)
-	@bash ./examples/semantic_metadata/run_hardware_project.sh ./$(BIN)
+	@bash ./examples/semantic_metadata/run_hardware_project.sh "$(abspath $(BIN))" "$(abspath $(EXAMPLES_BUILD_DIR))/semantic_metadata/hardware_project"
 
 examples-extension-portability: integration-extension-portability-macros
 
@@ -1339,7 +1339,7 @@ BUILD_MANIFEST_CONTRACT_TEST := $(BUILD_DIR)/tests/build_manifest_contract
 
 $(BUILD_DIR)/tests/%: tests/unit/%.c $(LIB_FRONTEND)
 	@mkdir -p $(BUILD_DIR)/tests
-	$(CC) $(CFLAGS) $(INCLUDES) $< -L. -lfisics_frontend -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< "$(LIB_FRONTEND)" -o $@ $(LDFLAGS)
 
 frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
 	@echo "Running frontend API tests..."
@@ -1378,7 +1378,7 @@ HARNESS_BIN := $(BUILD_DIR)/tests/frontend_harness
 
 $(HARNESS_BIN): $(HARNESS_SRC) $(LIB_FRONTEND)
 	@mkdir -p $(BUILD_DIR)/tests
-	$(CC) $(CFLAGS) $(INCLUDES) $(HARNESS_SRC) -L. -lfisics_frontend -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(HARNESS_SRC) "$(LIB_FRONTEND)" -o $@ $(LDFLAGS)
 
 frontend-harness: $(HARNESS_BIN)
 	@$(HARNESS_BIN)
@@ -1468,3 +1468,8 @@ tests: test frontend-api-test
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         os-policy-contract os-policy-object os-policy-runtime os-policy-guest os-policy \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate
+
+# Portable validation of the monitored-run history boundary.
+test-final-monitor-contract:
+	@python3 -B scripts/test_run_make_final_monitored.py
+.PHONY: test-final-monitor-contract

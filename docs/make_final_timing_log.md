@@ -126,3 +126,18 @@ make final-timing-rollup
 - Treat recent snapshot values as historical trend points, not per-change
   acceptance evidence.
 - Clang comparisons are optional and can be added later as a separate column set once standardized.
+
+## Non-recording validation
+
+To retain local status/log receipts without modifying the timing CSV, notes or
+derived baseline (whether the child succeeds or fails), run:
+
+```bash
+python3 -B scripts/run_make_final_monitored.py --no-record-history \
+  --runs-root build/make_final_runs -- make final
+make test-final-monitor-contract
+```
+
+`--no-record-history` still reads existing history for its predicted first audit.
+Only the requested run directory is written. Missing history/baseline files are
+not created. The runner returns the child command's exit status.
