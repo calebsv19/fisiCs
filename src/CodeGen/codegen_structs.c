@@ -58,6 +58,33 @@ static bool cg_structs_type_contains_pointer(LLVMTypeRef type, unsigned depth) {
     return false;
 }
 
+/* A union's active member can use bytes that are padding in its LLVM
+   carrier. Typed aggregate loads/stores omit such padding. Detect holes
+   recursively before choosing a carrier for the whole union value. */
+static bool cg_structs_type_has_padding(LLVMTargetDataRef td,
+                                        LLVMTypeRef type,
+                                        unsigned depth) {
+    if (!td || !type || depth > 32 || !LLVMTypeIsSized(type)) return true;
+    LLVMTypeKind kind = LLVMGetTypeKind(type);
+    if (kind == LLVMArrayTypeKind) {
+        return cg_structs_type_has_padding(td, LLVMGetElementType(type), depth + 1);
+    }
+    if (kind == LLVMStructTypeKind) {
+        uint64_t end = 0;
+        unsigned count = LLVMCountStructElementTypes(type);
+        for (unsigned i = 0; i < count; ++i) {
+            LLVMTypeRef field = LLVMStructGetTypeAtIndex(type, i);
+            uint64_t size = LLVMABISizeOfType(td, field);
+            if (size == 0) continue;
+            if (LLVMOffsetOfElement(td, type, i) != end ||
+                cg_structs_type_has_padding(td, field, depth + 1)) return true;
+            end += size;
+        }
+        return end != LLVMABISizeOfType(td, type);
+    }
+    return LLVMStoreSizeOfType(td, type) != LLVMABISizeOfType(td, type);
+}
+
 static LLVMTypeRef cg_structs_union_storage_type_for_layout(CodegenContext* ctx,
                                                             uint64_t size,
                                                             uint32_t align) {
@@ -83,7 +110,7 @@ static LLVMTypeRef cg_structs_union_storage_type_for_layout(CodegenContext* ctx,
 
     LLVMModuleRef module = cg_context_get_module(ctx);
     LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
-    LLVMTypeRef members[3];
+    LLVMTypeRef members[4];
     unsigned used = 0;
     uint32_t carrierAlign = td
         ? (uint32_t)LLVMABIAlignmentOfType(td, alignTy)
@@ -98,8 +125,17 @@ static LLVMTypeRef cg_structs_union_storage_type_for_layout(CodegenContext* ctx,
     }
     members[used++] = alignTy;
     if (size > alignTySize) {
-        members[used++] = LLVMArrayType(LLVMInt8TypeInContext(llvmCtx),
-                                       (unsigned)(size - alignTySize));
+        uint64_t remaining = size - alignTySize;
+        /* Whole integer words retain pointer relocations in constant union
+           storage as well as all bytes of non-pointer active members. */
+        if (remaining >= alignTySize) {
+            members[used++] = LLVMArrayType(alignTy,
+                                           (unsigned)(remaining / alignTySize));
+        }
+        if (remaining % alignTySize) {
+            members[used++] = LLVMArrayType(LLVMInt8TypeInContext(llvmCtx),
+                                           (unsigned)(remaining % alignTySize));
+        }
     }
     LLVMTypeRef storage = LLVMStructTypeInContext(llvmCtx, members, used, false);
     if (td && (LLVMABISizeOfType(td, storage) != size ||
@@ -1143,6 +1179,15 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
             if (rem != 0) finalSize += ((uint64_t)finalAlign - rem);
         }
         if (finalSize == 0) finalSize = 1;
+
+        if (cg_structs_type_has_padding(td, maxAlignTy, 0)) {
+            LLVMTypeRef byteComplete =
+                cg_structs_union_storage_type_for_layout(ctx, finalSize, finalAlign);
+            if (byteComplete) {
+                maxAlignTy = byteComplete;
+                maxAlignTySize = finalSize;
+            }
+        }
 
         LLVMTypeRef members[3];
         unsigned used = 0;
