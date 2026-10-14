@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (91:6): Conflicting types for variable 'x' across translation units

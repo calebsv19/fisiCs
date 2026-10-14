@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (1:5): Conflicting types for function 'f' across translation units

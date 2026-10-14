@@ -357,7 +357,8 @@ static bool stable_spelling_path_for_ctx(const CompilerContext* ctx,
 }
 
 void main_cross_tu_var_defs_free(CrossTUVarDefList* defs) {
-    if (!defs || !defs->items) return;
+    if (!defs) return;
+    main_cross_tu_index_free(defs);
     for (size_t i = 0; i < defs->count; ++i) {
         CrossTUVarDef* item = &defs->items[i];
         free(item->name);
@@ -488,7 +489,9 @@ static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
                                    int column,
                                    bool virtualSpelling) {
     if (!defs || !sym || !sym->name) return false;
+    if (!main_cross_tu_index_reserve(defs)) return false;
     if (defs->count == defs->capacity) {
+        if (defs->capacity > (size_t)-1 / 2u / sizeof(CrossTUVarDef)) return false;
         size_t newCap = defs->capacity ? defs->capacity * 2u : 8u;
         CrossTUVarDef* grown =
             (CrossTUVarDef*)realloc(defs->items, sizeof(CrossTUVarDef) * newCap);
@@ -537,6 +540,7 @@ static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
     out->isTentative = sym->isTentative ||
                        (!sym->hasDefinition && sym->storage != STORAGE_EXTERN);
     out->storage = sym->storage;
+    main_cross_tu_index_append(defs, defs->count);
     defs->count++;
     return true;
 }
@@ -718,7 +722,9 @@ static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
         return;
     }
 
-    for (size_t i = 0; i < ctx->defs->count; ++i) {
+    for (size_t i = main_cross_tu_index_first(ctx->defs, sym->name, sym->kind);
+         i != CROSS_TU_INDEX_NONE;
+         i = ctx->defs->items[i].nextInBucket) {
         const CrossTUVarDef* prior = &ctx->defs->items[i];
         if (!prior->name || strcmp(prior->name, sym->name) != 0) continue;
         if (prior->kind != sym->kind) continue;

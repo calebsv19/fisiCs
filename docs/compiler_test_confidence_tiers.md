@@ -190,3 +190,43 @@ benchmark claims.
 - `docs/compiler_test_regression_intake.md`
 - `docs/make_final_timing_log.md`
 - `tests/real_projects/README.md`
+
+## Cross-Translation-Unit Ledger Checks
+
+The CLI keeps all external declaration records and indexes candidate comparisons
+by symbol name and kind. Compatible records are not coalesced: incomplete arrays,
+non-prototype functions and declaration/definition transitions can require an
+earlier record to reject a later conflict. Candidate iteration retains original
+ledger order, including after index growth, to preserve diagnostic provenance.
+
+Focused checks:
+
+```bash
+make cross-tu-index-test
+make integration-cross-tu-ledger
+make final-manifest MANIFEST=14-runtime-surface-cross-tu-index.json
+```
+
+The index contract covers collisions, ordered lookup, moving entry storage and
+allocation failure. The CLI contract exercises growth and prior-TU destruction,
+both input orders, source provenance and rejection before linker invocation.
+For exact baseline/candidate diagnostic and runtime comparison, pass a separately
+built baseline to `tests/integration/run_cross_tu_ledger_contract.py --compiler
+/path/to/candidate --baseline /path/to/baseline --out /fresh/output/directory`.
+
+On macOS, the optional bounded benchmark uses the real linker and
+`/usr/bin/time -l` (which requires access to macOS resource counters):
+
+```bash
+python3 tests/performance/cross_tu_ledger.py \
+  --compiler /path/to/candidate --baseline /path/to/baseline \
+  --out /fresh/benchmark/directory
+```
+
+It limits compilation to 30 seconds per case, at most three repetitions and a
+six-minute experiment budget. It records binary/input hashes, elapsed time,
+frontend phase totals, RSS, runtime success and a late-conflict refusal. The
+large candidate case must complete within the budget; the performance gate also
+requires a 2x median improvement at the largest completed baseline size.
+Run this separately from concurrent build/test work. A benchmark pass does not
+replace the owning application's full build and behavioral qualification.

@@ -1535,3 +1535,16 @@ test-esp-aht20-binding-contract: $(BIN)
 .PHONY: test-esp-aht20-binding-contract
 
 test: test-attachment-handoff test-final-monitor-contract test-esp-aht20-binding-contract
+
+# Private CLI ledger index: independent ordering oracle and allocation failures.
+.PHONY: cross-tu-index-test
+cross-tu-index-test: $(BUILD_DIR)/tests/main_cross_tu_index_contract
+	@$(BUILD_DIR)/tests/main_cross_tu_index_contract
+
+test: cross-tu-index-test
+
+.PHONY: integration-cross-tu-ledger
+integration-cross-tu-ledger: $(BIN)
+	@python3 -B tests/integration/run_cross_tu_ledger_contract.py --compiler "$(abspath $(BIN))"
+
+test: integration-cross-tu-ledger

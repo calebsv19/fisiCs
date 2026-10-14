@@ -69,13 +69,30 @@ typedef struct {
     bool hasDefinition;
     bool isTentative;
     StorageClass storage;
+    size_t nextInBucket; /* Ledger index, never a pointer into the movable array. */
 } CrossTUVarDef;
+
+#define CROSS_TU_INDEX_NONE ((size_t)-1)
+
+typedef struct {
+    size_t head;
+    size_t tail;
+} CrossTUIndexBucket;
 
 typedef struct {
     CrossTUVarDef* items;
     size_t count;
     size_t capacity;
+    CrossTUIndexBucket* buckets;
+    size_t bucketCount;
 } CrossTUVarDefList;
+
+/* reserve may rehash existing entries; append cannot allocate or fail. */
+bool main_cross_tu_index_reserve(CrossTUVarDefList* defs);
+void main_cross_tu_index_append(CrossTUVarDefList* defs, size_t entry);
+size_t main_cross_tu_index_first(const CrossTUVarDefList* defs,
+                               const char* name, SymbolKind kind);
+void main_cross_tu_index_free(CrossTUVarDefList* defs);
 
 typedef struct {
     bool found;

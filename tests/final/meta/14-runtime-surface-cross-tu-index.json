@@ -1,0 +1,415 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__cross_tu_index_array_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_array_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_array_late_0.c",
+        "cases/14__cross_tu_index_array_late_1.c",
+        "cases/14__cross_tu_index_array_late_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_array_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_array_complete",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_array_complete_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_array_complete_0.c",
+        "cases/14__cross_tu_index_array_complete_1.c",
+        "cases/14__cross_tu_index_array_complete_2.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_prototype_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_prototype_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_prototype_late_0.c",
+        "cases/14__cross_tu_index_prototype_late_1.c",
+        "cases/14__cross_tu_index_prototype_late_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_prototype_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_prototype_complete",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_prototype_complete_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_prototype_complete_0.c",
+        "cases/14__cross_tu_index_prototype_complete_1.c",
+        "cases/14__cross_tu_index_prototype_complete_2.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_extern_definition_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_extern_definition_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_extern_definition_late_0.c",
+        "cases/14__cross_tu_index_extern_definition_late_1.c",
+        "cases/14__cross_tu_index_extern_definition_late_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_extern_definition_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_first_conflict",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_first_conflict_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_first_conflict_0.c",
+        "cases/14__cross_tu_index_first_conflict_1.c",
+        "cases/14__cross_tu_index_first_conflict_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_first_conflict.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_qualifier_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_qualifier_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_qualifier_late_0.c",
+        "cases/14__cross_tu_index_qualifier_late_1.c",
+        "cases/14__cross_tu_index_qualifier_late_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_qualifier_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_fnptr_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_fnptr_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_fnptr_late_0.c",
+        "cases/14__cross_tu_index_fnptr_late_1.c",
+        "cases/14__cross_tu_index_fnptr_late_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_fnptr_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_alias_lifetime",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_alias_lifetime_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_alias_lifetime_0.c",
+        "cases/14__cross_tu_index_alias_lifetime_1.c",
+        "cases/14__cross_tu_index_alias_lifetime_2.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_static_partition",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_static_partition_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_static_partition_0.c",
+        "cases/14__cross_tu_index_static_partition_1.c",
+        "cases/14__cross_tu_index_static_partition_2.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_name_kind_partition",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_name_kind_partition_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_name_kind_partition_0.c",
+        "cases/14__cross_tu_index_name_kind_partition_1.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_pointer_qualifier",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_pointer_qualifier_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_pointer_qualifier_0.c",
+        "cases/14__cross_tu_index_pointer_qualifier_1.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_pointer_qualifier.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_function_param_adjust",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_function_param_adjust_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_function_param_adjust_0.c",
+        "cases/14__cross_tu_index_function_param_adjust_1.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_variadic_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_variadic_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_variadic_late_0.c",
+        "cases/14__cross_tu_index_variadic_late_1.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_variadic_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_promotion_late",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_promotion_late_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_promotion_late_0.c",
+        "cases/14__cross_tu_index_promotion_late_1.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_promotion_late.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    },
+    {
+      "id": "14__cross_tu_index_nested_fnptr",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_nested_fnptr_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_nested_fnptr_0.c",
+        "cases/14__cross_tu_index_nested_fnptr_1.c"
+      ],
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true
+    },
+    {
+      "id": "14__cross_tu_index_line_provenance",
+      "bucket": "runtime-surface",
+      "input": "cases/14__cross_tu_index_line_provenance_0.c",
+      "inputs": [
+        "cases/14__cross_tu_index_line_provenance_0.c",
+        "cases/14__cross_tu_index_line_provenance_1.c",
+        "cases/14__cross_tu_index_line_provenance_2.c"
+      ],
+      "expects": [
+        "expect/14__cross_tu_index_line_provenance.diag"
+      ],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "multitu",
+        "cross-tu-index"
+      ],
+      "requires": [],
+      "status": "ok",
+      "args": [
+        "-o",
+        "tests/final/.cross-tu-index-reject"
+      ],
+      "capture_frontend_diag": true
+    }
+  ]
+}
