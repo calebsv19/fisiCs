@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__units_frame_local_valid",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude"
+      ],
+      "clang_args": [
+        "-Iinclude",
+        "-ffp-contract=off"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_frame_local_valid.stdout",
+      "differential": true
+    },
+    {
+      "id": "15__units_frame_local_failure_1",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=1"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_2",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=2"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_3",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=3"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_4",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=4"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_5",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=5"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_6",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=6"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_7",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=7"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_8",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=8"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_9",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=9"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_10",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=10"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_frame_local_failure_11",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_frame_local_failures.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-Iinclude",
+        "-DFAIL_KIND=11"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "frame-local",
+        "p261"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

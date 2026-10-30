@@ -20,9 +20,11 @@ static double route_state(UnitsCompoundLiteralState state) {
     double distance_m
         [[fisics::dim(length)]]
         [[fisics::unit(meter)]] = state.speed_mps * state.dt_s;
-    double score
-        [[fisics::dim(energy)]]
-        [[fisics::unit(joule)]] = state.reserve_j + distance_m;
+    /* Dimensionless checksum of the numerical magnitudes. */
+    double one_joule [[fisics::dim(energy)]] [[fisics::unit(joule)]] = 1.0;
+    double one_meter [[fisics::dim(length)]] [[fisics::unit(meter)]] = 1.0;
+    double score [[fisics::dim(scalar)]] =
+        state.reserve_j / one_joule + distance_m / one_meter;
     return score;
 }
 

@@ -1,0 +1,383 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "structural.frame.p73",
+  "quantity_kinds": [
+    {
+      "id": "quantity.pressure",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        -1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "pressure"
+    },
+    {
+      "id": "quantity.area",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "area"
+    },
+    {
+      "id": "quantity.inertia",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "second_moment_of_area"
+    },
+    {
+      "id": "quantity.displacement",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.translational_stiffness",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force/length"
+    },
+    {
+      "id": "quantity.force",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force"
+    },
+    {
+      "id": "quantity.torque",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force*length"
+    },
+    {
+      "id": "quantity.angle",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "scalar"
+    },
+    {
+      "id": "quantity.rotational_stiffness",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force*length"
+    },
+    {
+      "id": "quantity.force_per_angle",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force"
+    },
+    {
+      "id": "quantity.moment_per_displacement",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force"
+    },
+    {
+      "id": "quantity.line_load",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force/length"
+    },
+    {
+      "id": "quantity.energy",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "energy"
+    },
+    {
+      "id": "quantity.ratio",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "scalar"
+    },
+    {
+      "id": "quantity.geometric_length",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.length_squared",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "area"
+    },
+    {
+      "id": "quantity.length_cubed",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length*length*length"
+    },
+    {
+      "id": "quantity.section_modulus",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length*length*length"
+    },
+    {
+      "id": "quantity.axial_rigidity",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force"
+    },
+    {
+      "id": "quantity.flexural_rigidity",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        3,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force*length*length"
+    },
+    {
+      "id": "quantity.coupling_coefficient",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force"
+    },
+    {
+      "id": "quantity.temperature.absolute",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.temperature.difference",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.thermal_expansion_coefficient",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1/temperature"
+    },
+    {
+      "id": "quantity.mechanical_strain",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "scalar"
+    }
+  ],
+  "contracts": []
+}

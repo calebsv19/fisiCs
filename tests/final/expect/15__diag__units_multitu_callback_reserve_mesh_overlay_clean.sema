@@ -331,7 +331,7 @@ Extension Units Annotations: 5
   - line 9: s*A [resolved, unit=ampere_hour, unit-resolved]
   - line 22: s*A [resolved, unit=milliampere_hour, unit-resolved]
   - line 25: m [resolved, unit=foot, unit-resolved]
-Extension Units Expr Results: 17
+Extension Units Expr Results: 20
   - line 6: number-literal [dim=1, resolved]
   - line 6: number-literal [dim=1, resolved]
   - line 6: number-literal [dim=1, resolved]
@@ -347,5 +347,8 @@ Extension Units Expr Results: 17
   - line 12: number-literal [dim=1, resolved]
   - line 12: number-literal [dim=1, resolved]
   - line 13: number-literal [dim=1, resolved]
+  - line 19: expr [dim=m, resolved, unit=meter]
+  - line 20: expr [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 21: expr [dim=s*A, resolved, unit=ampere_hour]
   - line 22: number-literal [dim=1, resolved]
   - line 23: number-literal [dim=1, resolved]

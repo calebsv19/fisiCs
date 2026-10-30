@@ -1,0 +1,83 @@
+{
+  "reason": "Soundness/resource-bound guards added after focused feedback; original44 matrix retained",
+  "cases": [
+    {
+      "id": "annotated-array-wrong",
+      "file": "annotated-array-wrong.c",
+      "classification": "negative",
+      "sha256": "bff6eb515fc31ff20807a5534784a3c867f9ccc41cc3c5a3dad3bec5707d2e6a"
+    },
+    {
+      "id": "fully-trusted",
+      "file": "fully-trusted.c",
+      "classification": "unknown",
+      "sha256": "9168ee43729739e1a6576e561f0af0a0a275010e3b6feab7e76a412cb40e329e"
+    },
+    {
+      "id": "memset",
+      "file": "memset.c",
+      "classification": "unknown",
+      "sha256": "c27ab0691ad4cb35ed95b4daacf5e052abbc4184f3dab8054dd22f5acd2af194"
+    },
+    {
+      "id": "root-limit",
+      "file": "root-limit.c",
+      "classification": "unknown",
+      "sha256": "118b0ffafe8a3cc82a6096e45dc33814cc6de77a7f69cdf29a816ccaf493a8c3"
+    },
+    {
+      "id": "expression-limit",
+      "file": "expression-limit.c",
+      "classification": "unknown",
+      "sha256": "380ba19f2eb65e1a55c3ed65f1eba5a878a8036eedb0c318edaefe728068bccd"
+    },
+    {
+      "id": "capacity-729",
+      "file": "capacity-729.c",
+      "classification": "positive",
+      "sha256": "2ebd98a3f205ecc08c165a2c75ba5523c008d92f70c2d839f7fbf75e4b0d829f"
+    },
+    {
+      "id": "map-collision-wrong",
+      "file": "map-collision-wrong.c",
+      "classification": "negative",
+      "sha256": "8eaeb84ef787bed49126ed16ebe870ea1cc5a7e36f12a4f6eebebc1eaf846490"
+    },
+    {
+      "id": "old-current-wrong",
+      "file": "old-current-wrong.c",
+      "classification": "negative",
+      "sha256": "fb55a8d5bfe0f56ec78e9659125d34b86587c0d513695905d44c43b4048788cc"
+    },
+    {
+      "id": "unit-kg-gram",
+      "file": "unit-kg-gram.c",
+      "classification": "unknown",
+      "sha256": "b541f371bfaa2f87b428770c394a5bfa3dd7d4f4feff6f90aa456ac120b9ae37"
+    },
+    {
+      "id": "unit-equal",
+      "file": "unit-equal.c",
+      "classification": "unknown",
+      "sha256": "2d0d317e2ca0446a4299909105e4a2539abf8a1cd308c2d345c22fe056dea17f"
+    },
+    {
+      "id": "octal-mutable",
+      "file": "octal-mutable.c",
+      "classification": "unknown",
+      "sha256": "c6e66229008bc3604b53dd6e98d7cbecb8aae2fab20cf699f335b0766ff15908"
+    },
+    {
+      "id": "octal-map",
+      "file": "octal-map.c",
+      "classification": "unknown",
+      "sha256": "d5a51116cbd5752c5f3c12a93cb691ef888414df017d9aca02b0ad08e8c97e5c"
+    },
+    {
+      "id": "octal-immutable",
+      "file": "octal-immutable.c",
+      "classification": "unknown",
+      "sha256": "e064356be5e7a26f20a11bbe2176994df27302048e109c370c042cb0b5e0384a"
+    }
+  ]
+}

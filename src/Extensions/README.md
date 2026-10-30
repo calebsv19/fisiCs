@@ -23,8 +23,8 @@ Phase 2 scope:
 
 Current scaffold ownership:
 
-- declaration-side units annotations are normalized into one canonical extension-state slot per owner declaration node
-- repeated `[[fisics::dim(...)]]` or `[[fisics::unit(...)]]` use against the same owner node is tracked as duplicate scaffold input and rejected during semantic validation
+- declaration-side units annotations are normalized into one canonical extension-state slot per owner declaration node and declarator index
+- repeated `[[fisics::dim(...)]]` or `[[fisics::unit(...)]]` use against the same effective declarator is tracked as duplicate scaffold input and rejected during semantic validation
 - canonical text and parsed `Dim8` payloads are compiler-owned scaffold data, not a stable exported API
 - concrete unit identity now also lives on the same owner annotation slot as an internal registry pointer plus copied source text
 - expression-side units results are a separate node-keyed side table used for inferred expression dimensions and debug visibility
@@ -127,9 +127,70 @@ Current extension diagnostic namespace:
   - `4109` incompatible explicit conversion path
   - `4110` explicit conversion requires a resolved source unit
   - `4111` explicit conversion currently requires a floating scalar source
+  - `4112` argument dimension does not match its declared parameter
+  - `4113` return expression dimension does not match its declared result
+  - `4114` function redeclaration contradicts a known result dimension
+  - `4115` square root needs fractional exponents or an unsupported concrete-unit root
+  - `4116` hypot/fmax arguments have conflicting physical dimensions
+
 - extension diagnostics stay in `FISICS_DIAG_CATEGORY_EXTENSION`; they do not reuse core parser/semantic code ranges
+
+Declared function results use existing dimension/unit attributes on the return
+type. Header contracts reach callers in other TUs; definitions including that
+header inherit omitted annotations and check resolved return expressions. Known
+external result-contract contradictions also use the existing cross-TU ledger.
+Unknown bodies remain unchecked; see [declared function results](../../docs/extension_overlays.md#declared-function-results).
+
+Access metadata is captured from C's resolved member/element/dereference types
+in `Units/units_access_semantics.c`. The expression pass preserves resolved
+physical dimensions independently of optional units. Actual lexical type identity
+replaces global same-name field guessing. Record-pointer aliases retain field
+contracts; unannotated storage and general scalar-pointer dataflow remain unknown
+or unsupported. See [annotated access](../../docs/extension_overlays.md#annotated-member-array-and-pointer-access).
+
+Real square-root calls use `Units/units_math_semantics.c`: direct standard math
+header declarations and the compiler's generic sqrt route are captured by lexical
+identity, then exact even-exponent roots and seeded unit roots feed expression
+metadata. Unknown inputs remain unknown; odd exponents are errors. The same module preserves fabs metadata and validates matching hypot/fmax
+arguments, including concrete units and typed zeroes. See [physical square roots](../../docs/extension_overlays.md#physical-square-roots).
 
 Out of scope here:
 
 - runtime-aware lowering
 - custom sigil syntax
+
+
+## Checking coverage contract
+
+The internal `Units/units_coverage_model` observes existing facts and assesses an
+explicit finite set of compatibility obligations. Declared/inferred origins are
+separate from checked/trusted/unchecked/contradictory assessments. Missing origins
+and dependency edges remain visible; no pipeline hook, export or strict mode is
+added by this module. See [the contract](../../docs/units_coverage_contract.md).
+Run `make units-coverage-contract-test` or the full frontend contract suite.
+
+
+`Units/units_coverage_report` now enumerates a named function's source AST,
+including unknown paths, and reconstructs supported local dependency/check edges.
+`Units/units_source_provenance` retains token/macro source filenames before
+preprocessor destruction; resolved symbol/field origins remain context-owned.
+The report-only CLI publishes separately versioned JSON/text through
+`Compiler/units_coverage_output`, with no old-ABI changes.
+`Units/units_coverage_policy` adds opt-in selected-function enforcement with narrow
+ordinary-control exclusions and explicit category trust permissions.
+See [strict coverage](../../docs/units_coverage_strict.md).
+See [selected-function reporting](../../docs/units_coverage_reporting.md).
+
+
+P5.3's `PhysicalSemantics` modules consume the shared catalog/policy model and
+reuse captured C type/access/call bindings. The explicit physical overlay implies
+units, checks supported kinds independently, and records unknown/trust facts in
+optional context-owned state. It introduces no runtime payload or public frontend
+v1 structure extension. See `docs/physical_semantics.md` and the dedicated physical
+source/model gates. `physical_semantics_affine` applies explicit pairs/origins to
+the scalar point/difference table and preserves assumption provenance. The affine
+gate is `make physical-affine-contract-test`. P5.5 `physical_coverage` reuses AST
+obligation keys while keeping physical verdicts independent; `physical_provenance`
+captures actual resolver-buffer source receipts. Compiler/physical_receipt modules
+write the separate schema and compare fresh external physical signatures. See
+`docs/physical_coverage.md` and `make physical-coverage-contract-test`.

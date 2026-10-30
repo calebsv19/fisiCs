@@ -65,5 +65,10 @@ double probe_gpu_feedback_ladder_score(
     double window_m
         [[fisics::dim(length)]]
         [[fisics::unit(meter)]] = fisics_convert_unit(window_ft, "meter");
-    return (state.energy_j / window_s) + (state.charge_ah / window_m);
+    /* A dimensionless numerical checksum, not a sum of physical quantities. */
+    double one_meter [[fisics::dim(length)]] [[fisics::unit(meter)]] = 1.0;
+    double one_joule [[fisics::dim(energy)]] [[fisics::unit(joule)]] = 1.0;
+    double one_ampere_hour [[fisics::dim(charge)]] [[fisics::unit(ampere_hour)]] = 1.0;
+    double one_second [[fisics::dim(time)]] [[fisics::unit(second)]] = 1.0;
+    return ((state.energy_j / one_joule) / (window_s / one_second)) + ((state.charge_ah / one_ampere_hour) / (window_m / one_meter));
 }

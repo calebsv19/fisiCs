@@ -1,0 +1,276 @@
+{
+  "status": "frozen before compiler edits",
+  "contract": "finite straight-line local uninitialized arrays; explicit writes; constant integer maps; all other control/escape paths refused",
+  "cases": [
+    {
+      "id": "write-read",
+      "file": "write-read.c",
+      "classification": "positive",
+      "sha256": "8aee09809b8d856476d7f0075057c86d2ee340e6c9735a4fbee78bd29c559329"
+    },
+    {
+      "id": "accumulate",
+      "file": "accumulate.c",
+      "classification": "positive",
+      "sha256": "149c729952c9779377940f2305ab074e81b1ec1d650dc03e2845f377d9ca8b32"
+    },
+    {
+      "id": "overwrite",
+      "file": "overwrite.c",
+      "classification": "positive",
+      "sha256": "869fd946a62f007b1f708f34e35ca942ec0d6674ef3c993b49c1486b4f4a3dab"
+    },
+    {
+      "id": "typed-zero",
+      "file": "typed-zero.c",
+      "classification": "positive",
+      "sha256": "27e2425fd4d43f0d416d6c8b021c7cb15d37a6b798dd771235e8e5b6b99f787b"
+    },
+    {
+      "id": "wrong-read",
+      "file": "wrong-read.c",
+      "classification": "negative",
+      "sha256": "5d09fd3cbb4da6af3b43dd9737b6b5d5af1e95a4f0c204c248cd12e4af01e5ee"
+    },
+    {
+      "id": "wrong-overwrite",
+      "file": "wrong-overwrite.c",
+      "classification": "negative",
+      "sha256": "0d1c3b4601f6fabf46a6aebadce3a497c676a71fef0d44a073392d7ffd582274"
+    },
+    {
+      "id": "wrong-accumulation",
+      "file": "wrong-accumulation.c",
+      "classification": "negative",
+      "sha256": "50b658ca8a24d393906cb639fc86a75fecc6542ada0f5650162b326f9b44fcad"
+    },
+    {
+      "id": "read-before-write",
+      "file": "read-before-write.c",
+      "classification": "unknown",
+      "sha256": "45afe8a27436d2fa67d941b1cd38034d286e0a7587bb4139e4f54290f1dac300"
+    },
+    {
+      "id": "partial",
+      "file": "partial.c",
+      "classification": "unknown",
+      "sha256": "11b4056af3e96f169312776f0fd9a680f886296176b7d0e5bfc1fbbf507f43c9"
+    },
+    {
+      "id": "bare-zero",
+      "file": "bare-zero.c",
+      "classification": "unknown",
+      "sha256": "934bade827725586ee6c0688d9f415cf9ca3d8359f0a8ab15297ccf7507019f9"
+    },
+    {
+      "id": "self-first",
+      "file": "self-first.c",
+      "classification": "unknown",
+      "sha256": "fdf862c3051d3786834d551f6e65e94f701d85444153d6b3e606bfc81b67d17a"
+    },
+    {
+      "id": "uninitialized-add",
+      "file": "uninitialized-add.c",
+      "classification": "unknown",
+      "sha256": "f9d679fb6877ac6a23dd7c6a2d8e32451414bf45f16115030b9f16f8a130e88d"
+    },
+    {
+      "id": "raw-overwrite",
+      "file": "raw-overwrite.c",
+      "classification": "unknown",
+      "sha256": "cc2630c393c1ea8698274ba00933314406640005e1e2271ea091817780ae8d44"
+    },
+    {
+      "id": "address",
+      "file": "address.c",
+      "classification": "unknown",
+      "sha256": "6c8f38977f1fde2820cd173d01addeb6396510a89db8d7c5d7b1edcf09c5a905"
+    },
+    {
+      "id": "pointer-alias",
+      "file": "pointer-alias.c",
+      "classification": "unknown",
+      "sha256": "16e2089916d8764e0ea3ea9f5c7038d6ced01e20071eb5f34380176e189ba6ae"
+    },
+    {
+      "id": "partial-row",
+      "file": "partial-row.c",
+      "classification": "unknown",
+      "sha256": "3eb6026de66890a0e46282e318d61973e355c70161b7cac81b411a93f0a00f37"
+    },
+    {
+      "id": "branch",
+      "file": "branch.c",
+      "classification": "unknown",
+      "sha256": "5d7a5733c7ed7abd5fe5bd28912be354da2209a8c506812dc35eb9a76eb84507"
+    },
+    {
+      "id": "loop",
+      "file": "loop.c",
+      "classification": "unknown",
+      "sha256": "a986a157e8856d117ea41c05298c02c28e9318773a4192bab739aa8cb9d252f6"
+    },
+    {
+      "id": "goto",
+      "file": "goto.c",
+      "classification": "unknown",
+      "sha256": "a051cff23430f429466932c4f15ab1619fdb680fb48e02150748ed1ff1197aeb"
+    },
+    {
+      "id": "nested-write",
+      "file": "nested-write.c",
+      "classification": "unknown",
+      "sha256": "7c6513b83e926ab3d7e83735eebd9107ed3c299c58f0c579be9efb033cce3d4c"
+    },
+    {
+      "id": "out-of-range",
+      "file": "out-of-range.c",
+      "classification": "unknown",
+      "sha256": "a2d500162a5ead52ddcc9adb8d5fa1ae602047d22d3c7e069abf3f99a84b4a8c"
+    },
+    {
+      "id": "negative-index",
+      "file": "negative-index.c",
+      "classification": "unknown",
+      "sha256": "10a918af7bef1d8acd5ceb795589a7a154b83a78605219672c81dfde38b86c99"
+    },
+    {
+      "id": "dynamic",
+      "file": "dynamic.c",
+      "classification": "unknown",
+      "sha256": "a03b1ab145a8143a55b4c643cbda9e8b05d6eecd8c0862b3387b840e553b5c35"
+    },
+    {
+      "id": "late-address",
+      "file": "late-address.c",
+      "classification": "unknown",
+      "sha256": "c2f79ff25c86b045af6e97a9319c3cff045653a8a0590b1c662383cd2b31fa01"
+    },
+    {
+      "id": "map",
+      "file": "map.c",
+      "classification": "positive",
+      "sha256": "18c1010857eebfd30d62977e0fe870600c729f743935d18515cd6d20614ef8c9"
+    },
+    {
+      "id": "repeated-map",
+      "file": "repeated-map.c",
+      "classification": "positive",
+      "sha256": "0c480d1ef7f69ad6122317aca40043d7fb732ea0af8b668d4f0d82f70cbbb745"
+    },
+    {
+      "id": "matrix",
+      "file": "matrix.c",
+      "classification": "positive",
+      "sha256": "b10d2fa14fb2b0e851f095e168a524fe12d923e46c40ad58183846bfe9bb22bf"
+    },
+    {
+      "id": "independent",
+      "file": "independent.c",
+      "classification": "positive",
+      "sha256": "8284d0159070c5b0085217b2f8a98bd76c726bdfbc25b77b1004cb1bf1b27d71"
+    },
+    {
+      "id": "shadow",
+      "file": "shadow.c",
+      "classification": "positive",
+      "sha256": "b10cd8d466c1c1a7a728a74710f5027b6c950ad047957e7b12b8c7be4a45fb2d"
+    },
+    {
+      "id": "wrong-buffer",
+      "file": "wrong-buffer.c",
+      "classification": "negative",
+      "sha256": "c74281ce46167fffa3b5e90b4fe9ea3b309fbd21f23b9cc3b9031099db944748"
+    },
+    {
+      "id": "unknown-call",
+      "file": "unknown-call.c",
+      "classification": "unknown",
+      "sha256": "9481a67af9016026bf86919810b24887d0ac4df06a1d39bffd94923392bf0d9c"
+    },
+    {
+      "id": "trusted-producer",
+      "file": "trusted-producer.c",
+      "classification": "trust",
+      "sha256": "9e205f15005a852e4488d0210989ff40709d2b0d81b433797e81622d23c4dd64"
+    },
+    {
+      "id": "unknown-producer",
+      "file": "unknown-producer.c",
+      "classification": "unknown",
+      "sha256": "5282befc533a6cefab3ed81c3a5a90460835675499c963d15be423674c2db924"
+    },
+    {
+      "id": "concrete-unit",
+      "file": "concrete-unit.c",
+      "classification": "unknown",
+      "sha256": "0f1020205db6b4a593c80c9bffc5600d86942aa1043f9b5f28d406434ebd35bb"
+    },
+    {
+      "id": "static",
+      "file": "static.c",
+      "classification": "unknown",
+      "sha256": "6959a24d621b45997c085f1a5b6eb2fbd4be92413cf4e472b7b0f5920df54034"
+    },
+    {
+      "id": "volatile",
+      "file": "volatile.c",
+      "classification": "unknown",
+      "sha256": "0a884cf6d927d13f2f93ab61bc8979306ab036150053f278cc967d9db4803432"
+    },
+    {
+      "id": "too-large",
+      "file": "too-large.c",
+      "classification": "unknown",
+      "sha256": "3bff747cadce1a390ab10102d5e74e2a3c4a6afda4096b2d0f605615cff0476f"
+    },
+    {
+      "id": "mutable-map",
+      "file": "mutable-map.c",
+      "classification": "unknown",
+      "sha256": "46202f26f2e5eb4fda58e99f215f4df8ab393a1d529cce6ad9d704d11a232dda"
+    },
+    {
+      "id": "index-overflow",
+      "file": "index-overflow.c",
+      "classification": "unknown",
+      "sha256": "5c9c8c2d49638b6802c9aaa60ad3dc7f2b614b9f7aa3090914f43eae999f3c08"
+    },
+    {
+      "id": "map-escape",
+      "file": "map-escape.c",
+      "classification": "unknown",
+      "sha256": "b0ce54443720caaef712bd2af7986caddafca1cf7d0c693faa558db673c20588"
+    },
+    {
+      "id": "assembly-tt",
+      "file": "assembly-tt.c",
+      "classification": "positive",
+      "sha256": "4c02c99baba831184a44f52af5bedabcab8cf896cf2a964587425f1bce3d70e3"
+    },
+    {
+      "id": "assembly-tr",
+      "file": "assembly-tr.c",
+      "classification": "positive",
+      "sha256": "da5f970c85f84d7e2de58e169915c1fa406d06b5c77416b0b40cc6b46d247e07"
+    },
+    {
+      "id": "assembly-rt",
+      "file": "assembly-rt.c",
+      "classification": "positive",
+      "sha256": "2b5dad7ef49096f2e1cc906e536f32005a1077a87e5920881e1f6cfffb473c4f"
+    },
+    {
+      "id": "assembly-rr",
+      "file": "assembly-rr.c",
+      "classification": "positive",
+      "sha256": "35ed8c4545fcc70d5c7b8d1ff679b57d12859b37b93f117cb67a72fa7f0d393d"
+    }
+  ],
+  "corrections": [
+    "Use existing qualified coupling policy for TR/RT, absent from snapshot-only policy; no new physical rules.",
+    "Original fully trusted fixture correctly failed nonvacuity; corrected explicit-trust fixture adds independent checked write, original retained as refusal control.",
+    "Rebase historical absolute temporary catalog path to retained exact catalog; original path no longer exists."
+  ],
+  "policy_sha256": "bbd77ff1ef5c3d86f0b6a1fed0c76e639fbb009b86b9b6cd632990645836467e"
+}

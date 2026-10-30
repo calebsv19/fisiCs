@@ -1,5 +1,8 @@
 # fisiCs Extension Selection And Quickstart
 
+For the dimension-to-energy authoring sequence and executable checks, use the
+[Physical Authoring And Verification Path](physics_authoring_path.md).
+
 This is the shortest public guide for choosing and using the current fisiCs
 extension and static graph layers. Ordinary C compilation remains the default;
 every extension is explicit.

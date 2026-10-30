@@ -20,6 +20,10 @@ typedef void (*FisicsUnitsAnnotationCallback)(const FisicsUnitsAnnotation* annot
 const FisicsUnitsAnnotation* fisics_extension_lookup_units_annotation(
     const struct CompilerContext* ctx,
     const struct ASTNode* ownerNode);
+const FisicsUnitsAnnotation* fisics_extension_lookup_units_declarator_annotation(
+    const struct CompilerContext* ctx,
+    const struct ASTNode* ownerNode,
+    size_t declaratorIndex);
 const FisicsUnitsAnnotation* fisics_extension_units_annotation_at(
     const struct CompilerContext* ctx,
     size_t index);

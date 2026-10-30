@@ -1,0 +1,198 @@
+{
+  "schema": "fisiCs.units_coverage_acceptance.v1",
+  "source": "tests/fixtures/solver_physics/coverage_acceptance.c",
+  "policy": "selected_function_v1",
+  "cases": [
+    {
+      "id": "advance",
+      "function": "acceptance_advance",
+      "exit": 0,
+      "group": "required_physics",
+      "controls": 3,
+      "trust": 0
+    },
+    {
+      "id": "omit_dt",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_DT"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_scale",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_SCALE"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_position",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_POSITION"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_velocity",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_VELOCITY"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_acceleration",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_ACCELERATION"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_delta",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_DELTA"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_next",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_NEXT"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "omit_return",
+      "function": "acceptance_advance",
+      "defines": [
+        "OMIT_RETURN"
+      ],
+      "exit": 1,
+      "group": "metadata_removal",
+      "paired_with": "advance",
+      "blocked": true,
+      "stable_total": true
+    },
+    {
+      "id": "boundary_base",
+      "function": "acceptance_boundary",
+      "exit": 0,
+      "group": "boundary"
+    },
+    {
+      "id": "unit_base",
+      "function": "acceptance_units",
+      "exit": 0,
+      "group": "unit"
+    },
+    {
+      "id": "opaque_boundary",
+      "function": "acceptance_boundary",
+      "defines": [
+        "OPAQUE_BOUNDARY"
+      ],
+      "exit": 1,
+      "group": "unsupported_boundary",
+      "blocked": true,
+      "incomplete": false
+    },
+    {
+      "id": "sizeof_boundary",
+      "function": "acceptance_boundary",
+      "defines": [
+        "SIZEOF_BOUNDARY"
+      ],
+      "exit": 1,
+      "group": "unsupported_boundary",
+      "blocked": true,
+      "incomplete": true
+    },
+    {
+      "id": "aggregate_boundary",
+      "function": "acceptance_boundary",
+      "defines": [
+        "AGGREGATE_BOUNDARY"
+      ],
+      "exit": 1,
+      "group": "unsupported_boundary",
+      "blocked": true,
+      "incomplete": true
+    },
+    {
+      "id": "unit_mismatch",
+      "function": "acceptance_units",
+      "defines": [
+        "WRONG_UNIT"
+      ],
+      "exit": 1,
+      "group": "unit",
+      "contradictory": true
+    },
+    {
+      "id": "frame_build_without_permission",
+      "function": "frame_local_build",
+      "exit": 1,
+      "group": "typed_structural",
+      "blocked": true
+    },
+    {
+      "id": "frame_build",
+      "function": "frame_local_build",
+      "exit": 0,
+      "group": "typed_structural",
+      "literal_permission": true
+    },
+    {
+      "id": "frame_apply_without_permission",
+      "function": "frame_local_apply",
+      "exit": 1,
+      "group": "typed_structural",
+      "blocked": true
+    },
+    {
+      "id": "frame_apply",
+      "function": "frame_local_apply",
+      "exit": 0,
+      "group": "typed_structural",
+      "literal_permission": true
+    }
+  ],
+  "prerequisite_suites": [
+    "run_units_coverage_contracts.py",
+    "run_units_coverage_strict_contracts.py"
+  ]
+}

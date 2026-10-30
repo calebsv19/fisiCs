@@ -9,6 +9,7 @@
 #include <ctype.h>
 
 #include "Compiler/compiler_context.h"
+#include "Extensions/extension_units_call_contracts.h"
 #include "Compiler/diagnostic_metadata.h"
 #include "Syntax/Decls/analyze_decls_internal.h"
 
@@ -737,6 +738,8 @@ static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
                 cross_tu_function_signatures_match(&prior->signature,
                                                    &currentSignature,
                                                    ctx->globalScope);
+            if (cc_overlay_physics_units_enabled(ctx->compilerCtx))
+                returnCompat = returnCompat && fisics_units_return_contracts_compatible(&prior->type,&currentType);
             if (returnCompat && sigCompat) continue;
             if (!cross_tu_set_type_conflict(ctx->conflict,
                                             SYMBOL_FUNCTION,

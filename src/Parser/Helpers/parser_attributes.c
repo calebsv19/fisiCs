@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Parser/Helpers/parser_attributes.h"
+#include "Extensions/PhysicalSemantics/physical_semantics.h"
 
 #include "Parser/Helpers/parser_helpers.h"
 #include <stdlib.h>
@@ -250,6 +251,7 @@ static ASTAttribute* parseGNUAttribute(Parser* parser) {
 }
 
 static ASTAttribute* parseCXXAttribute(Parser* parser) {
+    SourceRange physicalLocation = parser->currentToken.location;
     advance(parser); /* consume '[' */
     advance(parser); /* consume second '[' */
     char* payload = collectBalancedRegion(parser, TOKEN_LBRACKET, TOKEN_RBRACKET, 1);
@@ -261,6 +263,7 @@ static ASTAttribute* parseCXXAttribute(Parser* parser) {
         return NULL;
     }
     ASTAttribute* attr = astAttributeCreate(AST_ATTRIBUTE_SYNTAX_CXX, payload);
+    fisics_physical_attribute_seen(parser->ctx, attr, physicalLocation);
     free(payload);
     return attr;
 }

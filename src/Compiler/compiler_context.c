@@ -268,6 +268,7 @@ bool cc_compat_relaxed_atomic_enabled(const CompilerContext* ctx) {
 
 void cc_set_overlay_features(CompilerContext* ctx, FisicsOverlayFeatures features) {
     if (!ctx) return;
+    if (features & FISICS_OVERLAY_PHYSICS_SEMANTICS) features |= FISICS_OVERLAY_PHYSICS_UNITS;
     ctx->overlayFeatures = features;
 }
 

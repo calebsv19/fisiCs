@@ -1,0 +1,428 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "cosmic.scalar.v7",
+  "quantity_kinds": [
+    {
+      "id": "quantity.energy",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "energy"
+    },
+    {
+      "id": "quantity.torque",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "energy"
+    },
+    {
+      "id": "quantity.position",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.displacement",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.temperature.absolute",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.temperature.difference",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.angle",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1"
+    },
+    {
+      "id": "quantity.ratio",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1"
+    },
+    {
+      "id": "quantity.unprofiled",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1"
+    },
+    {
+      "id": "quantity.gravitational_constant",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        3,
+        -1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length^3/mass/time^2"
+    },
+    {
+      "id": "quantity.gravitational_parameter",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        3,
+        0,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length^3/time^2"
+    },
+    {
+      "id": "quantity.gravity_pair_strength",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        3,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length^3/time^2"
+    },
+    {
+      "id": "quantity.mass",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass"
+    },
+    {
+      "id": "quantity.area",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length^2"
+    },
+    {
+      "id": "quantity.geometric_length",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.velocity",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "speed"
+    },
+    {
+      "id": "quantity.speed_squared",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "speed^2"
+    },
+    {
+      "id": "quantity.specific_energy",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "energy/mass"
+    },
+    {
+      "id": "quantity.acceleration",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "acceleration"
+    },
+    {
+      "id": "quantity.force",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "force"
+    },
+    {
+      "id": "quantity.momentum",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length/time"
+    },
+    {
+      "id": "quantity.orbital_angular_momentum",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length^2/time"
+    },
+    {
+      "id": "quantity.moment_of_inertia",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length^2"
+    },
+    {
+      "id": "quantity.angular_rate",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1/time"
+    },
+    {
+      "id": "quantity.duration",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "time"
+    },
+    {
+      "id": "quantity.inverse_length",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1/length"
+    },
+    {
+      "id": "quantity.acceleration_squared",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        -4,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "acceleration^2"
+    },
+    {
+      "id": "quantity.specific_angular_momentum",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length^2/time"
+    }
+  ],
+  "contracts": []
+}

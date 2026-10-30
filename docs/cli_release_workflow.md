@@ -216,3 +216,15 @@ Configurable bridge variables (defaults in `makefile`):
 
 This lane ends at signed/notarized local artifacts.
 Publishing to domain/VPS and Homebrew tap updates use the generated bridge bundle/checklist.
+
+
+## Optional physics developer sources
+
+The staged CLI archive also contains `developer/`, with a manifest-bound matching
+compiler/frontend/adapter source kit and its start instructions. It is generated
+from the selected release source without private solver fixtures or system SDK
+headers. The ready-built CLI remains under `bin/`; extracting/building the
+optional kit is explicit and changes no installed/default compiler. The kit's
+experimental matrix-flow workflow requires its documented LLVM22 analysis
+configuration and separately supplied reviewed source fixture. Package acceptance
+must exercise the extracted kit as well as the ordinary CLI.

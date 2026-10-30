@@ -1,5 +1,8 @@
 # fisiCs Extension Agent Guide
 
+For guided formula authoring, strict coverage interpretation and the executable
+unit-to-energy walkthrough, use the [Physical Authoring Path](physics_authoring_path.md).
+
 Status: repository-owned operating contract
 
 Last verified: 2026-09-11
@@ -30,6 +33,7 @@ Choose the smallest layer that can answer the user's request:
 | --- | --- | --- |
 | Compile ordinary portable C | no overlay | object, executable, or normal tests |
 | Validate physical arithmetic | `physics-units` | diagnostics, semantic dump, units JSON |
+| Check declared quantity kinds at supported C boundaries | `physics-semantics` with explicit policy | physical diagnostics, debug facts and separate selected physical receipts |
 | Check direct allocation/free lifecycle | `memory-check` | instrumented runtime report |
 | Attach stable meaning to declarations | `semantic-metadata` | semantic dump or translation-unit metadata export JSON |
 | Resolve identities across source files | semantic project graph | fresh translation-unit inputs and resolved project graph |
@@ -265,3 +269,57 @@ Future migration of external customer repositories must be separately scoped.
 For each customer, inventory direct attributes, preserve fisiCs-only fixtures,
 migrate only shared-source surfaces, and prove strict Clang plus fisiCs
 semantic and runtime parity before changing its adoption status.
+
+
+## Physical source checking
+
+The opt-in [physical semantics overlay](physical_semantics.md) implies units and
+requires one explicit policy plus one direct source. It retains existing graph and
+units schemas. Its current gate is `make physical-semantics-contract-test`; the
+catalog/model gate is `make physical-policy-contract-test`. Literal assumptions,
+declared-interface trust and unknown boundaries are distinct from checked physical
+compatibility. New source macros erase for Clang without enabling an overlay.
+
+P5.5 [physical coverage](physical_coverage.md) adds opt-in selected strict checking
+and separately versioned receipts. `--physical-semantics-check` compares fresh
+external declaration contracts across receipts; it neither links nor proves all
+callee bodies. Existing graph readers do not consume this schema. The dedicated
+gate is `make physical-coverage-contract-test`.
+
+P6.3.2 [frame declarations](physical_frames.md) add a v6 compiler model and source
+declaration checks. Use `make physical-frame-contract-test` for that bounded lane.
+The model/declaration gate is separate from the newer propagation gate below;
+bounded [rotation calls](physical_rotations.md) now qualify declared contracts;
+[exact v6 source coverage receipts](physical_coverage.md#version-6-frame-evidence)
+now preserve context facets and directed helper identities. Existing v1–v5 policies retain their established behavior.
+
+P6.3.3 [frame/axis propagation](physical_frame_propagation.md) now checks supported
+same-frame operations, component construction and context erasure. Its permanent
+gate is `make physical-frame-flow-contract-test`. Internal same-frame coverage can
+qualify. P6.3.4 [explicit rotations](physical_rotations.md) use exact directed
+contracts and retain implementation/basis trust; use `make physical-rotation-contract-test`.
+P6.3.5–7 add [bounded points](physical_points.md), exact v6 receipts and
+real-source numerical/ABI/resource qualification. Solver adoption remains separate.
+
+## Energy qualifier model
+
+[Energy forms and declared transfers](physical_energy_forms.md) add opt-in v7
+aggregation, conservative mixed results, exact directed helper contracts and
+separate declared implementation trust. Dim8 and v1–v6 behavior remain intact.
+Use `make physical-energy-contract-test`; solver adoption remains separate.
+
+
+Thermal scalar prerequisite work uses [bounded thermal compiler contracts](physical_thermal_contracts.md)
+and `make physical-thermal-contract-test`. Absolute-temperature reconstruction,
+stored-energy reference, runtime math domains and actual solver adoption remain
+separate boundaries.
+
+[Finite Cosmic spatial contracts](physical_cosmic_spatial_contracts.md) add opt-in
+v7 unary norms, exact vector products and directed transforms for canonical
+binary64 quantities. `make physical-cosmic-spatial-contract-test` owns model,
+frame/axis and exact receipt qualification. Actual solver numerical/ABI adoption
+and trusted helper-body qualification remain separate.
+
+Finite [population and external-field scalar contracts](physical_cosmic_population_contracts.md) distinguish specific external potential from mass-weighted external energy under an explicit v7 policy; raw hook/controller boundaries remain separate.
+
+[Finite discrete interaction contracts](physical_cosmic_interaction_contracts.md) cover stiffness/damping, dissipative power, explicit storage/loss forms and typed inertia/RHS boundaries; process-body trust and runtime rollback remain separate proof layers.

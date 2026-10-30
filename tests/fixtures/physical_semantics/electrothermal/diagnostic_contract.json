@@ -1,0 +1,14 @@
+{
+  "schema": "fisics.electrothermal_diagnostic_contract.v1",
+  "native_energy_abs_j": 1e-10,
+  "mapping_abs_j": 1e-16,
+  "temperature_abs_k": 1e-08,
+  "boundary": "left_face_j_minus_right_face_j_positive_into_solid",
+  "storage": "native_material_relative_initial_energy_is_not_imported_heat",
+  "time": "exact_stored_sample_not_global_completed_steps",
+  "pending": "remaining_allocated_horizon_at_each_sample_not_consumed",
+  "unallocated": "full_electrical_horizon_not_deposited",
+  "temperature_control": "constant_capacity_weighted_change_only",
+  "compiler_checked": false,
+  "observations": "canonical_hex_trace_live_json_checked_with_existing_tolerances"
+}

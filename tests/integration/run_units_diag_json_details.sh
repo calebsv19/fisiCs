@@ -26,7 +26,20 @@ sub_src="$tmpdir/units_sub_mismatch.c"
 sub_json="$tmpdir/units_sub_mismatch.json"
 compare_src="$tmpdir/units_compare_mismatch.c"
 compare_json="$tmpdir/units_compare_mismatch.json"
+argument_src="$tmpdir/units_argument_mismatch.c"
+argument_json="$tmpdir/units_argument_mismatch.json"
 
+return_src="$tmpdir/units_return_mismatch.c"
+return_json="$tmpdir/units_return_mismatch.json"
+contract_src="$tmpdir/units_return_contract_mismatch.c"
+contract_json="$tmpdir/units_return_contract_mismatch.json"
+cat >"$return_src" <<'SRC'
+double [[fisics::dim(length)]] f(double t [[fisics::dim(time)]]) {return t;}
+SRC
+cat >"$contract_src" <<'SRC'
+double [[fisics::dim(length)]] f(void);
+double [[fisics::dim(time)]] f(void);
+SRC
 cat >"$assign_src" <<'SRC'
 double distance [[fisics::dim(length)]] = 3.0;
 double elapsed [[fisics::dim(time)]] = 2.0;
@@ -82,13 +95,25 @@ int main(void) {
 }
 SRC
 
+cat >"$argument_src" <<'SRC'
+void accept(double value [[fisics::dim(length)]]);
+int main(void) {
+    double elapsed [[fisics::dim(time)]] = 2.0;
+    accept(elapsed);
+    return 0;
+}
+SRC
+
 for fixture in \
   "$assign_json:$assign_src" \
   "$convert_json:$convert_src" \
   "$implicit_json:$implicit_src" \
   "$add_json:$add_src" \
   "$sub_json:$sub_src" \
-  "$compare_json:$compare_src"; do
+  "$compare_json:$compare_src" \
+  "$argument_json:$argument_src" \
+  "$return_json:$return_src" \
+  "$contract_json:$contract_src"; do
   json_path="${fixture%%:*}"
   src_path="${fixture#*:}"
   compiler_status=0
@@ -99,11 +124,11 @@ for fixture in \
   fi
 done
 
-python3 - "$assign_json" "$convert_json" "$implicit_json" "$add_json" "$sub_json" "$compare_json" <<'PY'
+python3 - "$assign_json" "$convert_json" "$implicit_json" "$add_json" "$sub_json" "$compare_json" "$argument_json" "$return_json" "$contract_json" <<'PY'
 import json
 import sys
 
-assign_path, convert_path, implicit_path, add_path, sub_path, compare_path = sys.argv[1:7]
+assign_path, convert_path, implicit_path, add_path, sub_path, compare_path, argument_path = sys.argv[1:8]
 
 def load(path):
     with open(path, "r", encoding="utf-8") as fh:
@@ -128,6 +153,17 @@ def assert_dim_details(diag, context):
         raise SystemExit(f"bad {context} lhs dim vector: {details!r}")
     if details.get("rhs_dim") != [0, 0, 1, 0, 0, 0, 0, 0]:
         raise SystemExit(f"bad {context} rhs dim vector: {details!r}")
+
+for path, code, name in [(sys.argv[8],4113,"return_dim_mismatch"), (sys.argv[9],4114,"return_contract_mismatch")]:
+    result = find_diag(path,"extension.units."+name)
+    assert_dim_details(result,"return")
+    if result.get("code_id") != code:
+        raise SystemExit(f"bad return code: {result!r}")
+
+argument = find_diag(argument_path, "extension.units.argument_dim_mismatch")
+assert_dim_details(argument, "argument")
+if argument.get("code_id") != 4112:
+    raise SystemExit(f"bad argument diagnostic code: {argument!r}")
 
 assign = find_diag(assign_path, "extension.units.assign_dim_mismatch")
 assert_dim_details(assign, "assignment")

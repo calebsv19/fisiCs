@@ -1,0 +1,38 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "structural.dynamic.coupling.p9",
+  "quantity_kinds": [
+    {
+      "id": "quantity.inertia_translation_rotation",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length"
+    },
+    {
+      "id": "quantity.inertia_rotation_translation",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length"
+    }
+  ],
+  "contracts": []
+}

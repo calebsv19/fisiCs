@@ -358,7 +358,13 @@ bool codegenLValue(CodegenContext* ctx,
             if (baseParsedResolved && baseParsedResolved->kind != TYPE_INVALID) {
                 baseParsed = baseParsedResolved;
             }
-            if (cg_expand_surface_typedef_parsed_type(ctx, baseParsed, &expandedBaseParsed)) {
+            /* Index lowering can re-enter codegenLValue and overwrite its
+             * scratch result type. Own the base type until this access ends,
+             * including ordinary arrays that do not expand a typedef. */
+            if (baseParsed) {
+                if (!cg_expand_surface_typedef_parsed_type(ctx, baseParsed, &expandedBaseParsed)) {
+                    expandedBaseParsed = parsedTypeClone(baseParsed);
+                }
                 baseParsed = &expandedBaseParsed;
                 expandedBaseOwned = true;
             }

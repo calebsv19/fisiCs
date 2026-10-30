@@ -260,6 +260,7 @@ release-stage: release-build
 	@cp -f "$(RELEASE_BUILD_BIN)" "$(RELEASE_BIN)"
 	@cp -f README.md AGENTS.md LICENSE "$(RELEASE_STAGE_DIR)/"
 	@cp -R docs examples compilation include "$(RELEASE_STAGE_DIR)/"
+	@python3 -B tools/matrix_flow/developer_kit.py --compiler-root "$(CURDIR)" --out "$(RELEASE_STAGE_DIR)/developer"
 	@rm -rf "$(RELEASE_STAGE_DIR)/compilation/out"
 	@find "$(RELEASE_STAGE_DIR)/examples" -type d -name build -prune -exec rm -rf {} +
 	@printf "name=fisiCs\nversion=%s\nchannel=%s\nplatform=%s\narch=%s\n" \
@@ -458,6 +459,27 @@ integration-macro-trace-diag-json: $(BIN)
 integration-diagnostic-explain-cli: $(BIN)
 	@bash ./tests/integration/run_diagnostic_explain_cli.sh ./$(BIN)
 
+integration-units-frame-recovery-contracts: $(BIN)
+	@python3 -B tests/integration/run_units_frame_recovery_contracts.py --compiler "$(BIN)"
+
+integration-units-frame-boundary-contracts: $(BIN)
+	@python3 -B tests/integration/run_units_frame_boundary_contracts.py --compiler "$(BIN)"
+
+integration-units-frame-local-contracts: $(BIN)
+	@python3 tests/integration/run_units_frame_local_contracts.py --compiler "$(BIN)"
+
+integration-units-math-contracts: $(BIN)
+	@python3 tests/integration/run_units_math_contracts.py --compiler "$(BIN)"
+
+integration-units-sqrt-contracts: $(BIN)
+	@python3 tests/integration/run_units_sqrt_contracts.py --compiler "$(BIN)"
+
+integration-units-access-contracts: $(BIN)
+	@python3 tests/integration/run_units_access_contracts.py --compiler "$(BIN)"
+
+integration-units-return-contracts: $(BIN)
+	@python3 tests/integration/run_units_return_contracts.py --compiler "$(BIN)"
+
 integration-units-diag-json-details: $(BIN)
 	@bash ./tests/integration/run_units_diag_json_details.sh ./$(BIN)
 
@@ -643,6 +665,12 @@ integration-external-evidence-receipts:
 		--observation receipts/observation.json \
 		--output "$(abspath build/external-evidence-receipts/fixture.chain.receipt.json)"
 	@echo "external evidence receipt contract passed"
+
+.PHONY: integration-solver-physics
+# Fresh explicit output is required; default mode fails on checking gaps.
+integration-solver-physics: $(BIN)
+	@test -n "$(SOLVER_PHYSICS_OUT)" || { echo "Set SOLVER_PHYSICS_OUT to a fresh output directory" >&2; exit 2; }
+	@python3 tests/integration/run_solver_physics_qualification.py --compiler "$(abspath $(BIN))" --out "$(SOLVER_PHYSICS_OUT)" $(SOLVER_PHYSICS_ARGS)
 
 integration-cli-units-metadata: $(BIN)
 	@bash ./tests/integration/run_units_metadata_json.sh ./$(BIN)
@@ -1304,7 +1332,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-cli-semantic-metadata integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-external-evidence-receipts integration-x86_64-freestanding-object integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
+test: physical-coverage-contract-test physical-affine-contract-test physical-semantics-contract-test physical-policy-contract-test spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-cli-semantic-metadata integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-external-evidence-receipts integration-x86_64-freestanding-object integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-units-return-contracts integration-units-access-contracts integration-units-sqrt-contracts integration-units-math-contracts integration-units-frame-local-contracts integration-units-frame-boundary-contracts integration-units-frame-recovery-contracts integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1518,7 +1546,7 @@ tests: test frontend-api-test
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-header test-binary-header-shadow test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-cli-metadata integration-cli-semantic-metadata integration-esp-portable-c-contract integration-esp-portable-c integration-esp-semantic-physical-contract integration-esp-semantic-physical integration-esp-hardware-compatibility-contract integration-esp-hardware-compatibility integration-esp-deterministic-proof-contract integration-esp-deterministic-proof integration-esp-realization-evidence-contract integration-esp-realization-evidence integration-external-evidence-receipts integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
+        integration-cli-metadata integration-cli-semantic-metadata integration-esp-portable-c-contract integration-esp-portable-c integration-esp-semantic-physical-contract integration-esp-semantic-physical integration-esp-hardware-compatibility-contract integration-esp-hardware-compatibility integration-esp-deterministic-proof-contract integration-esp-deterministic-proof integration-esp-realization-evidence-contract integration-esp-realization-evidence integration-external-evidence-receipts integration-cli-units-metadata integration-semantic-project-graph integration-physical-project-graph integration-hardware-project-graph integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-units-return-contracts integration-units-access-contracts integration-units-sqrt-contracts integration-units-math-contracts integration-units-frame-local-contracts integration-units-frame-boundary-contracts integration-units-frame-recovery-contracts integration-x86_64-freestanding-object integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-semantic-metadata integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-examples-semantic-metadata integration-extension-portability-macros integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
         runtime-memory-check runtime-clean examples-memory-check \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         os-policy-contract os-policy-object os-policy-runtime os-policy-guest os-policy \
@@ -1548,3 +1576,232 @@ integration-cross-tu-ledger: $(BIN)
 	@python3 -B tests/integration/run_cross_tu_ledger_contract.py --compiler "$(abspath $(BIN))"
 
 test: integration-cross-tu-ledger
+
+.PHONY: integration-units-declarator-contracts
+integration-units-declarator-contracts: $(BIN)
+	@out=$$(mktemp -d); rmdir "$$out"; \
+	python3 -B tests/integration/run_units_declarator_contracts.py --compiler "$(abspath $(BIN))" --out "$$out"; \
+	status=$$?; if [ $$status -eq 0 ]; then rm -rf "$$out"; else echo "Retained failed declarator contracts: $$out"; fi; exit $$status
+
+test: integration-units-declarator-contracts
+
+.PHONY: units-coverage-contract-test
+units-coverage-contract-test: $(BUILD_DIR)/tests/frontend_api_contract_units_coverage
+	@$(BUILD_DIR)/tests/frontend_api_contract_units_coverage
+
+.PHONY: integration-units-coverage-contracts
+integration-units-coverage-contracts: $(BIN)
+	@out=$$(mktemp -d); rmdir "$$out"; \
+	python3 -B tests/integration/run_units_coverage_contracts.py --compiler "$(abspath $(BIN))" --out "$$out"; \
+	status=$$?; if [ $$status -eq 0 ]; then rm -rf "$$out"; else echo "Retained failed coverage contracts: $$out"; fi; exit $$status
+
+test: integration-units-coverage-contracts
+
+.PHONY: integration-units-coverage-strict-contracts
+integration-units-coverage-strict-contracts: $(BIN)
+	@out=$$(mktemp -d); rmdir "$$out"; \
+	python3 -B tests/integration/run_units_coverage_strict_contracts.py --compiler "$(abspath $(BIN))" --out "$$out"; \
+	status=$$?; if [ $$status -eq 0 ]; then rm -rf "$$out"; else echo "Retained failed strict coverage contracts: $$out"; fi; exit $$status
+
+test: integration-units-coverage-strict-contracts
+
+.PHONY: integration-units-coverage-acceptance
+integration-units-coverage-acceptance: $(BIN)
+	@out=$$(mktemp -d); rmdir "$$out"; \
+	python3 -B tests/integration/run_units_coverage_acceptance.py --compiler "$(abspath $(BIN))" --out "$$out"; \
+	status=$$?; if [ $$status -eq 0 ]; then rm -rf "$$out"; else echo "Retained failed P3 acceptance: $$out"; fi; exit $$status
+
+test: integration-units-coverage-acceptance
+
+.PHONY: integration-units-storage-contracts
+integration-units-storage-contracts: $(BIN)
+	@out=$$(mktemp -d); rmdir "$$out"; \
+	python3 -B tests/integration/run_units_storage_contracts.py --compiler "$(abspath $(BIN))" --out "$$out"; \
+	status=$$?; if [ $$status -eq 0 ]; then rm -rf "$$out"; else echo "Retained failed storage contracts: $$out"; fi; exit $$status
+
+test: integration-units-storage-contracts
+
+# External actual-source qualification: explicit owner root and fresh output only.
+.PHONY: integration-units-structural-source-contracts
+integration-units-structural-source-contracts: $(BIN)
+	@test -n "$(STRUCTURAL_SOURCE_ROOT)" -a -n "$(STRUCTURAL_SOURCE_OUT)"
+	python3 tests/integration/run_units_structural_source_contracts.py --compiler $(BIN) --source-root "$(STRUCTURAL_SOURCE_ROOT)" --base-root "$(STRUCTURAL_BASE_ROOT)" --out "$(STRUCTURAL_SOURCE_OUT)"
+
+# Standalone physical catalog/policy model (no source overlay enabled by this gate).
+.PHONY: physical-policy-contract-test
+physical-policy-contract-test: $(BUILD_DIR)/tests/physical_policy_loader
+	@python3 tests/integration/run_physical_policy_contracts.py --probe $(BUILD_DIR)/tests/physical_policy_loader
+
+.PHONY: physical-semantics-contract-test
+physical-semantics-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_semantics_contract
+	@$(BUILD_DIR)/tests/physical_semantics_contract tests/fixtures/physical_semantics/policy.json
+	@python3 tests/integration/run_physical_semantics_contracts.py --compiler $(abspath $(BIN))
+
+.PHONY: physical-affine-contract-test
+physical-affine-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_affine_contract
+	@$(BUILD_DIR)/tests/physical_affine_contract tests/fixtures/physical_semantics/policy.json
+	@python3 tests/integration/run_physical_affine_contracts.py --compiler $(abspath $(BIN))
+
+.PHONY: physical-coverage-contract-test
+physical-coverage-contract-test: $(BIN)
+	@python3 tests/integration/run_physical_coverage_contracts.py --compiler $(abspath $(BIN))
+
+# Bounded actual-source physical acceptance; external owner remains read-only.
+.PHONY: integration-physical-solver-acceptance
+integration-physical-solver-acceptance: $(BIN)
+	@test -n "$(STRUCTURAL_SOURCE_ROOT)" -a -n "$(STRUCTURAL_BASE_ROOT)" -a -n "$(PHYSICAL_SOLVER_OUT)"
+	@mkdir "$(PHYSICAL_SOLVER_OUT)"
+	python3 tests/integration/run_units_structural_source_contracts.py --physical --compiler $(BIN) --source-root "$(STRUCTURAL_SOURCE_ROOT)" --base-root "$(STRUCTURAL_BASE_ROOT)" --out "$(PHYSICAL_SOLVER_OUT)/structural"
+	python3 tests/integration/run_physical_solver_acceptance.py --compiler $(BIN) --structural-output "$(PHYSICAL_SOLVER_OUT)/structural" --base-root "$(STRUCTURAL_BASE_ROOT)" --out "$(PHYSICAL_SOLVER_OUT)/acceptance"
+
+.PHONY: physical-operation-contract-test
+physical-operation-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@python3 tests/integration/run_physical_operation_contracts.py --compiler $(BIN) --probe $(BUILD_DIR)/tests/physical_operations_contract
+
+test: physical-operation-contract-test
+
+.PHONY: physical-scalar-contract-test
+physical-scalar-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@python3 tests/integration/run_physical_scalar_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_operations_contract)
+
+test: physical-scalar-contract-test
+
+.PHONY: physical-mechanical-contract-test
+physical-mechanical-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_mechanical_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_operations_contract)
+
+test: physical-mechanical-contract-test
+
+# Joined actual-source mechanical acceptance; costs remain an explicit serial step.
+.PHONY: integration-mechanical-solver-acceptance
+integration-mechanical-solver-acceptance: $(BIN)
+	@test -n "$(STRUCTURAL_SOURCE_ROOT)" -a -n "$(STRUCTURAL_BASE_ROOT)" -a -n "$(PHYSICAL_SOLVER_OUT)"
+	@mkdir "$(PHYSICAL_SOLVER_OUT)"
+	PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_units_structural_source_contracts.py --mechanical --compiler $(abspath $(BIN)) --source-root "$(STRUCTURAL_SOURCE_ROOT)" --base-root "$(STRUCTURAL_BASE_ROOT)" --out "$(PHYSICAL_SOLVER_OUT)/structural"
+	PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_solver_acceptance.py --mechanical --compiler $(abspath $(BIN)) --structural-output "$(PHYSICAL_SOLVER_OUT)/structural" --base-root "$(STRUCTURAL_BASE_ROOT)" --out "$(PHYSICAL_SOLVER_OUT)/acceptance"
+
+.PHONY: physical-representation-contract-test
+physical-representation-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_representations_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_representation_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_representations_contract)
+
+test: physical-representation-contract-test
+
+.PHONY: integration-representation-solver-acceptance
+integration-representation-solver-acceptance: $(BIN)
+	@test -n "$(MATH_SOURCE_ROOT)" -a -n "$(STRUCTURAL_SOURCE_ROOT)" -a -n "$(REPRESENTATION_SOLVER_OUT)"
+	PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_representation_pilots.py --compiler $(abspath $(BIN)) --math-root "$(MATH_SOURCE_ROOT)" --structural-root "$(STRUCTURAL_SOURCE_ROOT)" --out "$(REPRESENTATION_SOLVER_OUT)"
+
+.PHONY: physical-frame-contract-test
+physical-frame-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_frames_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_frame_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_frames_contract)
+
+test: physical-frame-contract-test
+
+.PHONY: physical-frame-flow-contract-test
+physical-frame-flow-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_frame_flow_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_frame_flow_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_frame_flow_contract)
+
+test: physical-frame-flow-contract-test
+
+.PHONY: physical-rotation-contract-test
+physical-rotation-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_frame_flow_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_rotation_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_frame_flow_contract)
+
+test: physical-rotation-contract-test
+
+.PHONY: physical-frame-completion-contract-test
+physical-frame-completion-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_frame_flow_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_frame_completion_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_frame_flow_contract)
+
+test: physical-frame-completion-contract-test
+
+.PHONY: aggregate-hfa-contract-test
+aggregate-hfa-contract-test: $(BIN)
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_aggregate_hfa_contracts.py --compiler $(abspath $(BIN))
+
+test: aggregate-hfa-contract-test
+
+.PHONY: physical-energy-contract-test
+physical-energy-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_energy_contract $(BUILD_DIR)/tests/physical_frame_flow_contract
+	@PYTHONDONTWRITEBYTECODE=1 python3 tests/integration/run_physical_energy_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_energy_contract) --flow-probe $(abspath $(BUILD_DIR)/tests/physical_frame_flow_contract)
+
+test: physical-energy-contract-test
+
+# Bounded compiler-only thermal prerequisite qualification; no solver adoption.
+.PHONY: physical-thermal-contract-test
+physical-thermal-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@python3 -B tests/integration/run_physical_thermal_contracts.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_operations_contract)
+
+test: physical-thermal-contract-test
+
+# External numerical owners are explicit; this gate is not part of make test.
+.PHONY: integration-thermal-owner-acceptance
+integration-thermal-owner-acceptance: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@test -n "$(THERMAL_CORE_ROOT)" -a -n "$(THERMAL_HOST_ROOT)" -a -n "$(THERMAL_BASELINE_CORE)" -a -n "$(THERMAL_BASELINE_BIN)" -a -n "$(THERMAL_PHYSICS_ROOT)" -a -n "$(THERMAL_ACCEPTANCE_OUT)" || (echo "Set all THERMAL owner, frozen baseline, PhysicsSim and fresh output variables; see docs/physical_thermal_contracts.md"; exit 2)
+	@python3 -B tests/integration/run_thermal_owner_acceptance.py --compiler $(abspath $(BIN)) --probe $(abspath $(BUILD_DIR)/tests/physical_operations_contract) --core-root "$(THERMAL_CORE_ROOT)" --host-root "$(THERMAL_HOST_ROOT)" --baseline-core "$(THERMAL_BASELINE_CORE)" --baseline-bin "$(THERMAL_BASELINE_BIN)" --physics-root "$(THERMAL_PHYSICS_ROOT)" --out "$(THERMAL_ACCEPTANCE_OUT)"
+
+.PHONY: physical-cosmic-contract-test
+physical-cosmic-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@root=$$(mktemp -d "$${TMPDIR:-/tmp}/fisics-cosmic.XXXXXX"); python3 -B tests/integration/run_physical_cosmic_contracts.py --compiler "$(abspath $(BIN))" --probe "$(abspath $(BUILD_DIR)/tests/physical_operations_contract)" --out "$$root/results"; code=$$?; if [ $$code -eq 0 ]; then rm -rf "$$root"; else echo "Failed Cosmic contract evidence: $$root"; fi; exit $$code
+
+test: physical-cosmic-contract-test
+
+.PHONY: physical-cosmic-math-contract-test
+physical-cosmic-math-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@root=$$(mktemp -d "$${TMPDIR:-/tmp}/fisics-cosmic-math.XXXXXX"); python3 -B tests/integration/run_physical_cosmic_math_contracts.py --compiler "$(abspath $(BIN))" --probe "$(abspath $(BUILD_DIR)/tests/physical_operations_contract)" --out "$$root/results"; code=$$?; if [ $$code -eq 0 ]; then rm -rf "$$root"; else echo "Failed Cosmic math evidence: $$root"; fi; exit $$code
+test: physical-cosmic-math-contract-test
+
+# Pair/adaptive encounter scalar model extends the planar policy explicitly.
+.PHONY: physical-cosmic-encounter-contract-test
+physical-cosmic-encounter-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@root=$$(mktemp -d "$${TMPDIR:-/tmp}/fisics-cosmic-encounter.XXXXXX"); python3 -B tests/integration/run_physical_cosmic_math_contracts.py --fixture cosmic_encounter --compiler "$(abspath $(BIN))" --probe "$(abspath $(BUILD_DIR)/tests/physical_operations_contract)" --out "$$root/results"; code=$$?; if [ $$code -eq 0 ]; then rm -rf "$$root"; else echo "Failed Cosmic encounter evidence: $$root"; fi; exit $$code
+test: physical-cosmic-encounter-contract-test
+
+.PHONY: physical-cosmic-spatial-contract-test
+physical-cosmic-spatial-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@root=$$(mktemp -d "$${TMPDIR:-/tmp}/fisics-cosmic-spatial.XXXXXX"); python3 -B tests/integration/run_physical_cosmic_spatial_contracts.py --compiler "$(abspath $(BIN))" --probe "$(abspath $(BUILD_DIR)/tests/physical_operations_contract)" --out "$$root/results"; code=$$?; if [ $$code -eq 0 ]; then rm -rf "$$root"; else echo "Failed Cosmic spatial evidence: $$root"; fi; exit $$code
+test: physical-cosmic-spatial-contract-test
+
+.PHONY: physical-cosmic-population-contract-test
+physical-cosmic-population-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@root=$$(mktemp -d "$${TMPDIR:-/tmp}/fisics-cosmic-population.XXXXXX"); python3 -B tests/integration/run_physical_cosmic_math_contracts.py --fixture cosmic_population --compiler "$(abspath $(BIN))" --probe "$(abspath $(BUILD_DIR)/tests/physical_operations_contract)" --out "$$root/results"; code=$$?; if [ $$code -eq 0 ]; then rm -rf "$$root"; else echo "Failed Cosmic population evidence: $$root"; fi; exit $$code
+test: physical-cosmic-population-contract-test
+
+.PHONY: physical-cosmic-interaction-contract-test
+physical-cosmic-interaction-contract-test: $(BIN) $(BUILD_DIR)/tests/physical_operations_contract
+	@root=$$(mktemp -d "$${TMPDIR:-/tmp}/fisics-cosmic-interaction.XXXXXX"); python3 -B tests/integration/run_physical_cosmic_math_contracts.py --fixture cosmic_interaction --compiler "$(abspath $(BIN))" --probe "$(abspath $(BUILD_DIR)/tests/physical_operations_contract)" --out "$$root/results"; code=$$?; if [ $$code -eq 0 ]; then rm -rf "$$root"; else echo "Failed Cosmic interaction evidence: $$root"; fi; exit $$code
+test: physical-cosmic-interaction-contract-test
+
+.PHONY: integration-electrothermal-contracts
+integration-electrothermal-contracts:
+	@test -n "$(THERMAL_PHYSICS_ROOT)" -a -n "$(ELECTROTHERMAL_COMPILER)" -a -n "$(THERMAL_CORE_ROOT)" -a -n "$(THERMAL_HOST_ROOT)" -a -n "$(ELECTROTHERMAL_ESP_ROOT)" -a -n "$(ELECTROTHERMAL_NATIVE)" -a -n "$(ELECTROTHERMAL_NATIVE_IDENTITY)" -a -n "$(ELECTROTHERMAL_LEGACY_NATIVE)" -a -n "$(ELECTROTHERMAL_OUT)" || (echo "Set explicit ELECTROTHERMAL tool/owner/output variables; see docs/physical_thermal_contracts.md"; exit 2)
+	@python3 -B tests/integration/run_electrothermal_boundary_contracts.py --compiler "$(ELECTROTHERMAL_COMPILER)" --core-root "$(THERMAL_CORE_ROOT)" --host-root "$(THERMAL_HOST_ROOT)" --esp-root "$(ELECTROTHERMAL_ESP_ROOT)" --native "$(ELECTROTHERMAL_NATIVE)" --native-identity "$(ELECTROTHERMAL_NATIVE_IDENTITY)" --legacy-native "$(ELECTROTHERMAL_LEGACY_NATIVE)" --physics-root "$(THERMAL_PHYSICS_ROOT)" --out "$(ELECTROTHERMAL_OUT)"
+
+# Final joined boundary qualification is opt-in and never part of make test.
+.PHONY: integration-electrothermal-acceptance
+integration-electrothermal-acceptance:
+	@test -n "$(ELECTROTHERMAL_COMPILER)" -a -n "$(THERMAL_CORE_ROOT)" -a -n "$(THERMAL_HOST_ROOT)" -a -n "$(ELECTROTHERMAL_ESP_ROOT)" -a -n "$(THERMAL_PHYSICS_ROOT)" -a -n "$(THERMAL_BASELINE_CORE)" -a -n "$(THERMAL_BASELINE_BIN)" -a -n "$(ELECTROTHERMAL_LEGACY_NATIVE)" -a -n "$(ELECTROTHERMAL_ACCEPTANCE_OUT)" -a -n "$(ELECTROTHERMAL_ACCEPTANCE_SCRATCH)" || (echo "Set explicit tools, owners, baseline and fresh ELECTROTHERMAL_ACCEPTANCE_OUT/SCRATCH; see docs/physical_thermal_contracts.md"; exit 2)
+	@python3 -B tests/integration/run_electrothermal_acceptance.py --compiler "$(ELECTROTHERMAL_COMPILER)" --core-root "$(THERMAL_CORE_ROOT)" --host-root "$(THERMAL_HOST_ROOT)" --esp-root "$(ELECTROTHERMAL_ESP_ROOT)" --physics-root "$(THERMAL_PHYSICS_ROOT)" --baseline-core "$(THERMAL_BASELINE_CORE)" --baseline-bin "$(THERMAL_BASELINE_BIN)" --legacy-native "$(ELECTROTHERMAL_LEGACY_NATIVE)" --out "$(ELECTROTHERMAL_ACCEPTANCE_OUT)" --scratch "$(ELECTROTHERMAL_ACCEPTANCE_SCRATCH)"
+
+# Explicit opt-in; no default compiler or solver adoption.
+.PHONY: integration-thermostructural-source
+integration-thermostructural-source: $(BIN)
+	@test -n "$(THERMOSTRUCTURAL_CORE_ROOT)" -a -n "$(THERMOSTRUCTURAL_OUT)" || (echo 'Set THERMOSTRUCTURAL_CORE_ROOT and fresh THERMOSTRUCTURAL_OUT' >&2; exit 2)
+	python3 -B tests/integration/run_thermostructural_source_contracts.py --compiler "$(abspath $(BIN))" --core-root "$(THERMOSTRUCTURAL_CORE_ROOT)" --out "$(THERMOSTRUCTURAL_OUT)"
+
+.PHONY: integration-physical-storage-snapshots
+integration-physical-storage-snapshots: $(BIN)
+	@out=$$(mktemp -d); \
+	if python3 -B tests/integration/run_physical_storage_snapshots.py --compiler "$(abspath $(BIN))" --out "$$out/results"; then \
+	  rm -rf "$$out"; \
+	else echo "Storage snapshot failure evidence retained: $$out"; exit 1; fi
+
+.PHONY: physical-mutable-storage-contract-test
+physical-mutable-storage-contract-test: $(BIN)
+	@mkdir -p "$(BUILD_DIR)"
+	@out=$$(mktemp -d "$(BUILD_DIR)/physical-mutable-storage.XXXXXX"); \
+	if python3 -B tests/integration/run_physical_mutable_storage.py --compiler "$(abspath $(BIN))" --out "$$out/check"; then \
+	  cp "$$out/check/results.json" "$(BUILD_DIR)/physical-mutable-storage-results.json"; \
+	  rm -rf "$$out"; \
+	else echo "Mutable storage failure evidence retained at $$out"; exit 1; fi
+test: physical-mutable-storage-contract-test

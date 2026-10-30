@@ -22,6 +22,8 @@ struct ASTNode;
  * first without entangling it with the first extension error policy.
  *
  * Current Phase 5 Slice 3 behavior adds the first mismatch diagnostics:
+ * - declaration/field/array initializer checks are delegated to the focused
+ *   units_initializer_semantics module, preserving numeric literal authoring
  * - simple `=` assignments emit extension diagnostics on dimension mismatch
  * - `+` and `-` emit extension diagnostics on dimension mismatch
  *
@@ -36,4 +38,8 @@ struct ASTNode;
  * - `*` and `/` now emit the reserved `4105` diagnostic when exponent math
  *   exceeds the int8-backed `Dim8` range instead of failing silently
  */
+/* Declared call results override legacy body inference; resolved return
+ * expressions are checked against their captured definition contract. */
+/* Member, array and typed dereference results consume lexical C type snapshots;
+ * field names alone never identify a physical annotation. */
 void fisics_units_run_expr_semantics(struct ASTNode* root, struct Scope* globalScope);

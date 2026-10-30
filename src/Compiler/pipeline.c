@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
+#include "Extensions/Units/units_source_provenance.h"
+#include "Extensions/PhysicalSemantics/physical_semantics.h"
+#include "Extensions/PhysicalSemantics/physical_semantics_internal.h"
+#include "Extensions/PhysicalSemantics/physical_provenance.h"
+#include "Extensions/extension_hooks.h"
+
 #include "Compiler/pipeline.h"
 #include "Compiler/pipeline_internal.h"
 
@@ -350,6 +356,10 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            ASTNode** outAst,
                                            SemanticModel** outModel,
                                            size_t* outSemanticErrors) {
+    if (fisics_physical_enabled(ctx) && (!ctx->extensionState || !ctx->extensionState->physicalState)) {
+        compiler_report_diag(ctx,(SourceRange){0},DIAG_ERROR,4301,"use the CLI policy option; frontend v1 has no policy field","physics-semantics requires a prepared physical policy model");
+        return false;
+    }
     (void)ctx; // ctx is valid for logging below
     log_layout_state(ctx, "frontend entry");
     initErrorList(ctx);
@@ -519,9 +529,17 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     preprocessed.count = 0;
     preprocessed.capacity = 0;
 
+    if (!physical_capture_sources(ctx, preprocessor_get_resolver(&preprocessor))) {
+        compiler_report_diag(ctx,(SourceRange){0},DIAG_ERROR,4305,"physical receipt requires complete source closure","unable to capture analyzed physical source dependencies");
+        goto cleanup;
+    }
     cc_take_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
     log_layout_state(ctx, "after include graph move");
 
+    if (!fisics_units_retain_source_ranges(ctx,&parserTokens)) {
+        fprintf(stderr,"Error: unable to retain physical metadata source provenance\n");
+        goto cleanup;
+    }
     Parser parser;
     initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);
 
@@ -773,6 +791,8 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     const char* sourceForFrontend = NULL;
     size_t sourceLength = 0;
 
+    if (!fisics_physical_prepare(ctx,options->physicalPolicyPath)) goto cleanup;
+    if (physical_state(ctx)) physical_state(ctx)->capture_sources=options->capturePhysicalClosure;
     if (options->preprocessMode == PREPROCESS_EXTERNAL) {
         const char* cmd = options->externalPreprocessCmd;
         if (!cmd || !cmd[0]) {

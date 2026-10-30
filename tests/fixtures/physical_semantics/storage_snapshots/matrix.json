@@ -1,0 +1,307 @@
+{
+  "status": "frozen before repair",
+  "cases": [
+    {
+      "id": "vector",
+      "file": "vector.c",
+      "classification": "positive",
+      "sha256": "ec32cab6edda1ca17766709d9f0787cdcc1a01ecb11f9656849f8bb63bca13ca"
+    },
+    {
+      "id": "matrix",
+      "file": "matrix.c",
+      "classification": "positive",
+      "sha256": "38ffe708a1eb3729e44c44f677098806b93293113e2e7e0db389947d5ab63578"
+    },
+    {
+      "id": "wrong-slot",
+      "file": "wrong-slot.c",
+      "classification": "negative",
+      "sha256": "8fa1cc11a3f8fe780df342767f9802e5c28a2c90b71c83194689351b5e73ece2"
+    },
+    {
+      "id": "wrong-row",
+      "file": "wrong-row.c",
+      "classification": "negative",
+      "sha256": "6f7c5b69e07590190834ac7df9587d9c3ccd1cc2468afe08b07c24af6619563a"
+    },
+    {
+      "id": "mutable",
+      "file": "mutable.c",
+      "classification": "unknown",
+      "sha256": "b1734522b80c42281c3844ab3bb97de77235af67c39c0ebca7f7bdd135d27098"
+    },
+    {
+      "id": "unknown-producer",
+      "file": "unknown-producer.c",
+      "classification": "unknown",
+      "sha256": "e1ad5df5d17a796054a8b279c41f24e332221c6d2179b2d858086c0790dffa2d"
+    },
+    {
+      "id": "dynamic-index",
+      "file": "dynamic-index.c",
+      "classification": "unknown",
+      "sha256": "9e71a37a33d632bf5d9d8a56e72999309e81c381a39cab47a7274776d92822b8"
+    },
+    {
+      "id": "missing-guard",
+      "file": "missing-guard.c",
+      "classification": "unknown",
+      "sha256": "27fa2260540e7b69e34abbba15dda24d6295c6458cd18a85fd78ff585204f00e"
+    },
+    {
+      "id": "guarded-dynamic",
+      "file": "guarded-dynamic.c",
+      "classification": "unknown",
+      "sha256": "ac1bca8eb4ffe68d5c3611f82badc089720f054bf1ae0e4b0232c1e11cc8a023"
+    },
+    {
+      "id": "pointer-alias",
+      "file": "pointer-alias.c",
+      "classification": "unknown",
+      "sha256": "9016dba4e4ac10e65ba833c5affc60cdc2735dbc6740a6d7ccb4db9ef22685ca"
+    },
+    {
+      "id": "escape-before",
+      "file": "escape-before.c",
+      "classification": "unknown",
+      "sha256": "7404c201d4ad280fef01f05d3469c8272b378daed290f4d34972d83990d62ad5"
+    },
+    {
+      "id": "escape-after",
+      "file": "escape-after.c",
+      "classification": "unknown",
+      "sha256": "79fade5f5ea9ae4c1b066fb673616f97e810f946214119464d25dca8eaa288a2"
+    },
+    {
+      "id": "element-address",
+      "file": "element-address.c",
+      "classification": "unknown",
+      "sha256": "da5bddea1c30722708ac007f9605a1e449e61b546a32036e7ab0b77e29e46918"
+    },
+    {
+      "id": "cast-write",
+      "file": "cast-write.c",
+      "classification": "unknown",
+      "sha256": "3d36dfcb936b20bb59389995fad9f6064d7a220280358910b0c155a906997a2b"
+    },
+    {
+      "id": "partial-init",
+      "file": "partial-init.c",
+      "classification": "unknown",
+      "sha256": "abb5fe84cad442d0b696d9458d84b0773e84befb379d623b3117838c4782c18f"
+    },
+    {
+      "id": "designated",
+      "file": "designated.c",
+      "classification": "unknown",
+      "sha256": "81f791b671ceb73aa4b1da97db78c6fef9e8b0f731c524d966a2e1d8cb73aa5c"
+    },
+    {
+      "id": "flat-braces",
+      "file": "flat-braces.c",
+      "classification": "unknown",
+      "sha256": "ca087360d6e7442e321d27914732c9e973e7ea55d0e8fe6ccfea18e0a7124afd"
+    },
+    {
+      "id": "shadow",
+      "file": "shadow.c",
+      "classification": "positive",
+      "sha256": "d68f7cb93314805402f3a9a220ed8fc37f096ecfeb32d97d596c6d3c64b816d5"
+    },
+    {
+      "id": "independent-buffers",
+      "file": "independent-buffers.c",
+      "classification": "positive",
+      "sha256": "4bb88556d8e592b5c7a7ef9b03e811f79a916865df176b6ddf0e3a00c1401607"
+    },
+    {
+      "id": "wrong-buffer",
+      "file": "wrong-buffer.c",
+      "classification": "negative",
+      "sha256": "2e94d2063de66ff7d52a9427dbba99d1dad20825c307d3e30016cd63f4bd5f9d"
+    },
+    {
+      "id": "copy-element",
+      "file": "copy-element.c",
+      "classification": "positive",
+      "sha256": "1b60acfb0a487649565a6fcb1e93e24384410ae1a7fdcd1028d74af1cc40f899"
+    },
+    {
+      "id": "copy-swapped",
+      "file": "copy-swapped.c",
+      "classification": "negative",
+      "sha256": "569b91c82120a546d6683bb72c520d222715542ceef8487f269bddda77772599"
+    },
+    {
+      "id": "unrelated-call",
+      "file": "unrelated-call.c",
+      "classification": "unknown",
+      "sha256": "1c89959df8c9e46179fd5de02102e2737723d13d4eec408637c7be653f38ebf4",
+      "note": "The snapshot may be checked; the existing void-call strict obligation is not supported."
+    },
+    {
+      "id": "scalar-call",
+      "file": "scalar-call.c",
+      "classification": "unknown",
+      "sha256": "5f8583b9ecd173c72f02998aa633b1aad8afeeaf59ef9022b120a0bae36ae9c5",
+      "note": "The snapshot may be checked; the existing void-call strict obligation is not supported."
+    },
+    {
+      "id": "ternary-valid",
+      "file": "ternary-valid.c",
+      "classification": "positive",
+      "sha256": "0a558246e2a1c4024be689dab6be33d95e629ad36224cb1028d5820cf3d214c6"
+    },
+    {
+      "id": "ternary-wrong",
+      "file": "ternary-wrong.c",
+      "classification": "negative",
+      "sha256": "44cf79e9e4e57092ce02e136c7697f0dbacaea5993642088bdd3af125b43954b"
+    },
+    {
+      "id": "volatile",
+      "file": "volatile.c",
+      "classification": "unknown",
+      "sha256": "cae224948c95d06ad6dbc49245f60af201105567f61e88a7ce6f4b43205fb2db"
+    },
+    {
+      "id": "static-storage",
+      "file": "static-storage.c",
+      "classification": "unknown",
+      "sha256": "0145335ba120a2033a5b1e64d34b66bfa6fda0b679243bddc664b17a4c2cacae"
+    },
+    {
+      "id": "compound-read",
+      "file": "compound-read.c",
+      "classification": "unknown",
+      "sha256": "93300b2c058b3a711a9fb20160011fd44610ebd56e7072cfba123e73fb8ab135"
+    },
+    {
+      "id": "return-raw",
+      "file": "return-raw.c",
+      "classification": "unknown",
+      "sha256": "a9eee23d59900a57eb1503e4b7691fe63304b54711beb3cde8cdbfcc98359a19"
+    },
+    {
+      "id": "stripped",
+      "file": "stripped.c",
+      "classification": "unknown",
+      "sha256": "2b6b72e44b9649d04ad5302d6347793201448c0b5e4672d17d48a7336e20f535"
+    },
+    {
+      "id": "same-kind",
+      "file": "same-kind.c",
+      "classification": "positive",
+      "sha256": "e011512a5df9c64a10f371f4f1f842bbf1996fe40f05dc6cf8cbb09051fbf8e9"
+    },
+    {
+      "id": "cross-product",
+      "file": "cross-product.c",
+      "classification": "positive",
+      "sha256": "32edf9016345f4e66848e536814ccec541e09adc8aa07b074ac2d61cc8992f97"
+    },
+    {
+      "id": "wrong-cross-product",
+      "file": "wrong-cross-product.c",
+      "classification": "unknown",
+      "sha256": "a11c79dd066cd78f0ce95e9fb9d57982047fc8e51a30c8b23fc3124cbf46b3ed"
+    },
+    {
+      "id": "literal",
+      "file": "literal.c",
+      "classification": "unknown",
+      "sha256": "3913ae032c318a0b9918a159179b6b09013596560adbc62ca39907c8b59793ff"
+    },
+    {
+      "id": "rank-three",
+      "file": "rank-three.c",
+      "classification": "unknown",
+      "sha256": "a962b92e97659125b1adca56e94b5fa63a903120bab2af5fd868d10e3133729d"
+    },
+    {
+      "id": "goto",
+      "file": "goto.c",
+      "classification": "unknown",
+      "sha256": "491a0fc9d80fbec79c359c049e608818be9849805948eef6f51d8cf05d740aba"
+    },
+    {
+      "id": "declared-producer",
+      "file": "declared-producer.c",
+      "classification": "trust",
+      "sha256": "9c9df2ced7d139a2a9ac9a55a65884044bf6b60d6b6f011313c651e034ff70c9"
+    },
+    {
+      "id": "callback",
+      "file": "callback.c",
+      "classification": "unknown",
+      "sha256": "0a1352345656728db14831967e45e25f5db4b03312bee466b0c33a0640d94892"
+    },
+    {
+      "id": "partial-row",
+      "file": "partial-row.c",
+      "classification": "unknown",
+      "sha256": "5049ca6e41fb90982894ace40f046bdac41dd3e6ded6bef5dc827b603bbdcf24"
+    },
+    {
+      "id": "unknown-call-cast",
+      "file": "unknown-call-cast.c",
+      "classification": "unknown",
+      "sha256": "a7f27afd7b4aa06a7d3d61312312c6ce96a94997665934010f4ab8a234413483"
+    },
+    {
+      "id": "out-of-range",
+      "file": "out-of-range.c",
+      "classification": "unknown",
+      "sha256": "bb16043b94aae62ee96ab56f2cf59f8d61a517d6df255b5354db53c6b0e59101"
+    },
+    {
+      "id": "index-expression",
+      "file": "index-expression.c",
+      "classification": "unknown",
+      "sha256": "33985319b73a3b4e03acf218d72be327c172dd89e2eb8b746e189a64bed12260"
+    },
+    {
+      "id": "rectangular",
+      "file": "rectangular.c",
+      "classification": "positive",
+      "sha256": "22c6e805717d272ee6785e5aefaffea81211077bf8be6c3b415632f697efc60c",
+      "note": "Post-repair edge guard: rectangular row stride and finite element limit, expectation fixed before execution."
+    },
+    {
+      "id": "rectangular-wrong",
+      "file": "rectangular-wrong.c",
+      "classification": "negative",
+      "sha256": "94efa6d92246592b9be960188f71e596d7473a22dd582a296e92b5f2a14afdf8",
+      "note": "Post-repair edge guard: rectangular row stride and finite element limit, expectation fixed before execution."
+    },
+    {
+      "id": "limit64",
+      "file": "limit64.c",
+      "classification": "positive",
+      "sha256": "5ddccc2e6b1579e31d9fd3071bc04936e2d83d730fd84c3f4aa5cb6d5046a3be",
+      "note": "Post-repair edge guard: rectangular row stride and finite element limit, expectation fixed before execution."
+    },
+    {
+      "id": "over-limit65",
+      "file": "over-limit65.c",
+      "classification": "unknown",
+      "sha256": "327cd7dcdd9814a6e41264efe5dfcada68aeafd179c84f3c8d1f79bac712a17b",
+      "note": "Post-repair edge guard: rectangular row stride and finite element limit, expectation fixed before execution."
+    },
+    {
+      "id": "unit-mismatch",
+      "file": "unit-mismatch.c",
+      "classification": "unknown",
+      "sha256": "97dce06880da85a5b2ed3364a2a88a04cbcbaa9a05d6b533effa4d78c95b8f81",
+      "note": "Post-review soundness guard, frozen before repair: this finite path must not erase concrete unit scale."
+    },
+    {
+      "id": "unit-same",
+      "file": "unit-same.c",
+      "classification": "unknown",
+      "sha256": "b63321a48439e9732a0777bd7227edcf58fa245afbde5b109fcb8f7e5d9b03fa",
+      "note": "Post-review soundness guard, frozen before repair: this finite path must not erase concrete unit scale."
+    }
+  ]
+}

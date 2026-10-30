@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__units_argument_valid",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_argument_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=0"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "argument",
+        "p22"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_argument_valid.stdout",
+      "differential": true
+    },
+    {
+      "id": "15__units_argument_direct",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_argument_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=1"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "argument",
+        "p22"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_argument_pointer",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_argument_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=2"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "argument",
+        "p22"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_argument_member",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_argument_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=3"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "argument",
+        "p22"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_argument_dimensionless",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_argument_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=4"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "argument",
+        "p22"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_argument_second",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_argument_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=5"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "argument",
+        "p22"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

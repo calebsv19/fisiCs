@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_array_subscripts",
+      "bucket": "initializers-layout",
+      "input": "cases/08__runtime_nested_array_subscripts.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_array_subscripts.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "array",
+        "nested-subscript",
+        "lvalue",
+        "type-lifetime"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

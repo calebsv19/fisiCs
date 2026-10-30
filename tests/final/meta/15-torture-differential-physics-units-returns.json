@@ -1,0 +1,313 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__units_return_valid",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_caller.c",
+        "cases/15__units_return_helper.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=0"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_return_valid.stdout",
+      "differential": true,
+      "input": "cases/15__units_return_caller.c"
+    },
+    {
+      "id": "15__units_return_valid_reverse",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_helper.c",
+        "cases/15__units_return_caller.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=0"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_return_valid.stdout",
+      "differential": true,
+      "input": "cases/15__units_return_helper.c"
+    },
+    {
+      "id": "15__units_return_consumer",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_caller.c",
+        "cases/15__units_return_helper.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=1"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_caller.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_consumer_reverse",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_helper.c",
+        "cases/15__units_return_caller.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=1"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_helper.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_assignment",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_caller.c",
+        "cases/15__units_return_helper.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=2"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_caller.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_assignment_reverse",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_helper.c",
+        "cases/15__units_return_caller.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=2"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_helper.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_definition",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_caller.c",
+        "cases/15__units_return_helper.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=3"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_caller.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_definition_reverse",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_helper.c",
+        "cases/15__units_return_caller.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=3"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_helper.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_contract_dim",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_caller.c",
+        "cases/15__units_return_helper.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=4"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_caller.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_contract_dim_reverse",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_helper.c",
+        "cases/15__units_return_caller.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=4"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_helper.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_contract_unit",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_caller.c",
+        "cases/15__units_return_helper.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=5"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_caller.c",
+      "link": true
+    },
+    {
+      "id": "15__units_return_contract_unit_reverse",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__units_return_helper.c",
+        "cases/15__units_return_caller.c"
+      ],
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=5"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "return",
+        "p23"
+      ],
+      "requires": [],
+      "status": "ok",
+      "input": "cases/15__units_return_helper.c",
+      "link": true
+    }
+  ]
+}

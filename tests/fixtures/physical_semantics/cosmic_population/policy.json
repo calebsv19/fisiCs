@@ -1,0 +1,2154 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 7,
+  "policy_id": "cosmic.population.external.v7",
+  "catalog_paths": [
+    "catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.acceleration",
+    "quantity.angle",
+    "quantity.angular_rate",
+    "quantity.area",
+    "quantity.duration",
+    "quantity.energy",
+    "quantity.force",
+    "quantity.geometric_length",
+    "quantity.gravitational_constant",
+    "quantity.gravitational_parameter",
+    "quantity.gravity_pair_strength",
+    "quantity.inverse_length",
+    "quantity.mass",
+    "quantity.moment_of_inertia",
+    "quantity.momentum",
+    "quantity.orbital_angular_momentum",
+    "quantity.ratio",
+    "quantity.specific_energy",
+    "quantity.speed_squared",
+    "quantity.torque",
+    "quantity.velocity",
+    "quantity.acceleration_squared",
+    "quantity.specific_angular_momentum",
+    "quantity.kinetic_specific_factor",
+    "quantity.inverse_velocity",
+    "quantity.inverse_speed_squared",
+    "quantity.eccentricity_numerator",
+    "quantity.specific_external_potential",
+    "quantity.external_potential_energy"
+  ],
+  "affine_pairs": [
+    {
+      "absolute_kind": "quantity.position",
+      "difference_kind": "quantity.displacement"
+    },
+    {
+      "absolute_kind": "quantity.temperature.absolute",
+      "difference_kind": "quantity.temperature.difference"
+    }
+  ],
+  "origins": [
+    {
+      "id": "origin.world",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.local",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.kelvin.zero",
+      "absolute_kind": "quantity.temperature.absolute"
+    },
+    {
+      "id": "origin.planar",
+      "absolute_kind": "quantity.position"
+    }
+  ],
+  "operation_rules": [
+    {
+      "id": "rule.cosmic.r0",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.gravitational_constant",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.gravitational_parameter",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r0.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.gravitational_constant"
+      ],
+      "result_kind": "quantity.gravitational_parameter",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r1",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.gravitational_parameter",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.gravity_pair_strength",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r1.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.gravitational_parameter"
+      ],
+      "result_kind": "quantity.gravity_pair_strength",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r2",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravity_pair_strength",
+        "quantity.area"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r3",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r4",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.acceleration"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r4.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r5",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r5.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r6",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r7",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r8",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.speed_squared"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r8.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.speed_squared",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r9",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.specific_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r10",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.specific_energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r10.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.specific_energy",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.external.phi",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravitational_parameter",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.specific_external_potential",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r12",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravitational_parameter",
+        "quantity.area"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r13",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.area",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r14",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.area"
+      ],
+      "result_kind": "quantity.moment_of_inertia",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r14.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.area",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.moment_of_inertia",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r15",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.momentum"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r15.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r16",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.moment_of_inertia",
+        "quantity.angular_rate"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r16.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.moment_of_inertia"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r17",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.orbital_angular_momentum",
+        "quantity.moment_of_inertia"
+      ],
+      "result_kind": "quantity.angular_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r18",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r18.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.angular_rate"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r19",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r19.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.force"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r20",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r21",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravity_pair_strength",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r22",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.gravity_pair_strength",
+        "quantity.inverse_length"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.r22.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_length",
+        "quantity.gravity_pair_strength"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.gravitational_constant",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.gravitational_constant",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.gravitational_constant",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.gravitational_constant",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravitational_constant",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.gravitational_constant",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.gravitational_parameter",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.gravitational_parameter",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.gravitational_parameter",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.gravitational_parameter",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravitational_parameter",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.gravitational_parameter",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.gravity_pair_strength",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.gravity_pair_strength",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.gravity_pair_strength",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.gravity_pair_strength",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravity_pair_strength",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.gravity_pair_strength",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.mass",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.mass",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.mass",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.mass",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.area",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.area",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.area",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.area",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.area",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.area",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.geometric_length",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.velocity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.velocity",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.speed_squared",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.speed_squared",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.speed_squared",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.speed_squared",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.specific_energy",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.specific_energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.specific_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.specific_energy",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.specific_energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.specific_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.acceleration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.acceleration",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.force",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.force",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.momentum",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.momentum",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.orbital_angular_momentum",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.orbital_angular_momentum",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.orbital_angular_momentum",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.orbital_angular_momentum",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.moment_of_inertia",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.moment_of_inertia",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.moment_of_inertia",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.moment_of_inertia",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.moment_of_inertia",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.moment_of_inertia",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.angular_rate",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angular_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.angular_rate",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angular_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.angle",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.angle",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.energy",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.energy",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.duration",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.inverse_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_length",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.inverse_length",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.inverse_length",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.divide.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.gravitational_constant.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.gravitational_constant"
+      ],
+      "result_kind": "quantity.gravitational_constant",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.gravitational_parameter.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.gravitational_parameter"
+      ],
+      "result_kind": "quantity.gravitational_parameter",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.gravity_pair_strength.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.gravity_pair_strength"
+      ],
+      "result_kind": "quantity.gravity_pair_strength",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.mass.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.mass",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.area.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.area"
+      ],
+      "result_kind": "quantity.area",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.geometric_length.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.velocity.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.speed_squared.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.speed_squared"
+      ],
+      "result_kind": "quantity.speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.specific_energy.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.specific_energy"
+      ],
+      "result_kind": "quantity.specific_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.acceleration.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.acceleration"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.force.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.force"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.momentum.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.momentum"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.orbital_angular_momentum.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.orbital_angular_momentum"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.moment_of_inertia.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.moment_of_inertia"
+      ],
+      "result_kind": "quantity.moment_of_inertia",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.angular_rate.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.angular_rate"
+      ],
+      "result_kind": "quantity.angular_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.angle.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.energy.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.duration.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.scale.multiply.inverse_length.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.inverse_length"
+      ],
+      "result_kind": "quantity.inverse_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.acceleration_duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.velocity_duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r0",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.area",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r1",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.acceleration"
+      ],
+      "result_kind": "quantity.acceleration_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r2",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.acceleration"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r3",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r4",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r5",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.inverse_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r6",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r7",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r8",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.specific_angular_momentum"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r9",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.extension.r10",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r0",
+      "operation": "sqrt",
+      "operand_kinds": [
+        "quantity.area"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r1",
+      "operation": "sqrt",
+      "operand_kinds": [
+        "quantity.speed_squared"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r2",
+      "operation": "sqrt",
+      "operand_kinds": [
+        "quantity.acceleration_squared"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r3",
+      "operation": "hypot",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r4",
+      "operation": "hypot",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r5",
+      "operation": "hypot",
+      "operand_kinds": [
+        "quantity.acceleration",
+        "quantity.acceleration"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.planar.math.r6",
+      "operation": "atan2",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r0",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.speed_squared",
+        "quantity.kinetic_specific_factor"
+      ],
+      "result_kind": "quantity.specific_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r0.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.kinetic_specific_factor",
+        "quantity.speed_squared"
+      ],
+      "result_kind": "quantity.specific_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r1",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r1.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r2",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.specific_angular_momentum",
+        "quantity.gravitational_parameter"
+      ],
+      "result_kind": "quantity.inverse_velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r3",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.inverse_velocity"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r3.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_velocity",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r4",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_velocity",
+        "quantity.specific_angular_momentum"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r4.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.specific_angular_momentum",
+        "quantity.inverse_velocity"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r5",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.gravitational_parameter",
+        "quantity.specific_energy"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r6",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.gravitational_parameter"
+      ],
+      "result_kind": "quantity.inverse_speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r7",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.inverse_velocity"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r7.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_velocity",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r8",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r9",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.r10",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.scale.specific_angular_momentum",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.specific_angular_momentum",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.scale.specific_angular_momentum.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.specific_angular_momentum"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.divide.specific_angular_momentum",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.specific_angular_momentum",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.scale.inverse_velocity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_velocity",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.scale.inverse_velocity.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.inverse_velocity"
+      ],
+      "result_kind": "quantity.inverse_velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.divide.inverse_velocity",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.inverse_velocity",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.scale.inverse_speed_squared",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_speed_squared",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.scale.inverse_speed_squared.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.inverse_speed_squared"
+      ],
+      "result_kind": "quantity.inverse_speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.divide.inverse_speed_squared",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.inverse_speed_squared",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_speed_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.math.r0",
+      "operation": "sqrt",
+      "operand_kinds": [
+        "quantity.inverse_speed_squared"
+      ],
+      "result_kind": "quantity.inverse_velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.math.r1",
+      "operation": "hypot",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.encounter.math.r2",
+      "operation": "atan2",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.external.acceleration",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.specific_external_potential",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.acceleration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.external.energy",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mass",
+        "quantity.specific_external_potential"
+      ],
+      "result_kind": "quantity.external_potential_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.cosmic.external.energy.reverse",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.specific_external_potential",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.external_potential_energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    }
+  ],
+  "representations": [
+    {
+      "id": "rep.cosmic.polar",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.cosmic.axial",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "axial"
+    }
+  ],
+  "shape_helpers": [
+    {
+      "id": "helper.cosmic.norm_displacement",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.displacement"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.geometric_length",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.norm_velocity",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.velocity"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.velocity",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.norm_acceleration",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.acceleration"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.acceleration",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.norm_angular_rate",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.angular_rate"
+      ],
+      "operand_representations": [
+        "rep.cosmic.axial"
+      ],
+      "result_kind": "quantity.angular_rate",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.norm_specific_angular_momentum",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.specific_angular_momentum"
+      ],
+      "operand_representations": [
+        "rep.cosmic.axial"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.norm_orbital_angular_momentum",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.orbital_angular_momentum"
+      ],
+      "operand_representations": [
+        "rep.cosmic.axial"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.norm_ratio",
+      "operation": "norm",
+      "operand_kinds": [
+        "quantity.ratio"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.ratio",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.dot_velocity",
+      "operation": "dot",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.velocity"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar",
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.speed_squared",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.dot_direction",
+      "operation": "dot",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar",
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.ratio",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.cross_specific_angular",
+      "operation": "cross",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.velocity"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar",
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.specific_angular_momentum",
+      "result_representation": "rep.cosmic.axial",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.cross_orbital_angular",
+      "operation": "cross",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.momentum"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar",
+        "rep.cosmic.polar"
+      ],
+      "result_kind": "quantity.orbital_angular_momentum",
+      "result_representation": "rep.cosmic.axial",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cosmic.cross_eccentricity",
+      "operation": "cross",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.specific_angular_momentum"
+      ],
+      "operand_representations": [
+        "rep.cosmic.polar",
+        "rep.cosmic.axial"
+      ],
+      "result_kind": "quantity.eccentricity_numerator",
+      "result_representation": "rep.cosmic.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    }
+  ],
+  "frame_contexts": [
+    {
+      "id": "context.cosmic.prototype",
+      "observer_id": "observer.cosmic",
+      "state_id": "state.prototype"
+    }
+  ],
+  "reference_points": [
+    {
+      "id": "point.cosmic.world_zero",
+      "context_id": "context.cosmic.prototype"
+    },
+    {
+      "id": "point.cosmic.local_zero",
+      "context_id": "context.cosmic.prototype"
+    },
+    {
+      "id": "point.cosmic.planar_zero",
+      "context_id": "context.cosmic.prototype"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame.world",
+      "context_id": "context.cosmic.prototype",
+      "dimension": 3,
+      "convention": "cartesian_orthonormal_right_handed",
+      "origin_point": "point.cosmic.world_zero",
+      "affine_origin": "origin.world"
+    },
+    {
+      "id": "frame.local",
+      "context_id": "context.cosmic.prototype",
+      "dimension": 3,
+      "convention": "cartesian_orthonormal_right_handed",
+      "origin_point": "point.cosmic.local_zero",
+      "affine_origin": "origin.local"
+    },
+    {
+      "id": "frame.planar",
+      "context_id": "context.cosmic.prototype",
+      "dimension": 3,
+      "convention": "cartesian_orthonormal_right_handed",
+      "origin_point": "point.cosmic.planar_zero",
+      "affine_origin": "origin.planar"
+    }
+  ],
+  "frame_transforms": [
+    {
+      "id": "transform.cosmic.planar_to_world.position",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "map_point",
+      "input_kind": "quantity.position",
+      "output_kind": "quantity.position",
+      "input_representation": "rep.cosmic.polar",
+      "output_representation": "rep.cosmic.polar",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "transform.cosmic.planar_to_world.displacement",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.displacement",
+      "output_kind": "quantity.displacement",
+      "input_representation": "rep.cosmic.polar",
+      "output_representation": "rep.cosmic.polar",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "transform.cosmic.planar_to_world.velocity",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.velocity",
+      "output_kind": "quantity.velocity",
+      "input_representation": "rep.cosmic.polar",
+      "output_representation": "rep.cosmic.polar",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "transform.cosmic.planar_to_world.acceleration",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.acceleration",
+      "output_kind": "quantity.acceleration",
+      "input_representation": "rep.cosmic.polar",
+      "output_representation": "rep.cosmic.polar",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "transform.cosmic.planar_to_world.angular_rate",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.angular_rate",
+      "output_kind": "quantity.angular_rate",
+      "input_representation": "rep.cosmic.axial",
+      "output_representation": "rep.cosmic.axial",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "transform.cosmic.planar_to_world.specific_angular_momentum",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.specific_angular_momentum",
+      "output_kind": "quantity.specific_angular_momentum",
+      "input_representation": "rep.cosmic.axial",
+      "output_representation": "rep.cosmic.axial",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "transform.cosmic.planar_to_world.orbital_angular_momentum",
+      "source_frame": "frame.planar",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.orbital_angular_momentum",
+      "output_kind": "quantity.orbital_angular_momentum",
+      "input_representation": "rep.cosmic.axial",
+      "output_representation": "rep.cosmic.axial",
+      "provenance": "declared_implementation_and_basis"
+    }
+  ],
+  "energy_forms": [
+    "energy.thermal",
+    "energy.chemical",
+    "energy.kinetic",
+    "energy.mixed",
+    "energy.gravitational"
+  ],
+  "energy_transfers": [
+    {
+      "id": "transfer.chemical_to_thermal",
+      "source_form": "energy.chemical",
+      "target_form": "energy.thermal",
+      "process": "process.combustion"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 1,
+  "policy_id": "compiler.p53",
+  "catalog_paths": [
+    "catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.energy",
+    "quantity.torque",
+    "quantity.angle",
+    "quantity.ratio"
+  ],
+  "affine_pairs": [
+    {
+      "absolute_kind": "quantity.position",
+      "difference_kind": "quantity.displacement"
+    },
+    {
+      "absolute_kind": "quantity.temperature.absolute",
+      "difference_kind": "quantity.temperature.difference"
+    }
+  ],
+  "origins": [
+    {
+      "id": "origin.world",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.local",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.kelvin.zero",
+      "absolute_kind": "quantity.temperature.absolute"
+    }
+  ]
+}

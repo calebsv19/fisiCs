@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "Compiler/physical_project_manifest.h"
+#include "Compiler/physical_contract_catalog.h"
 
 typedef struct FisicsPhysicalSourceReceipt {
     char* artifact_path;
@@ -32,60 +33,6 @@ typedef struct FisicsPhysicalUnitsBinding {
     size_t record_index;
     bool has_record_index;
 } FisicsPhysicalUnitsBinding;
-
-typedef struct FisicsPhysicalQuantityKind {
-    char* id;
-    char* dimension_system;
-    int8_t dimension[8];
-    char* dimension_text;
-    char* catalog_path;
-} FisicsPhysicalQuantityKind;
-
-typedef enum FisicsPhysicalSubjectKind {
-    FISICS_PHYSICAL_SUBJECT_SEMANTIC_ID = 0,
-    FISICS_PHYSICAL_SUBJECT_SOURCE_IDENTITY
-} FisicsPhysicalSubjectKind;
-
-typedef enum FisicsPhysicalUnitPolicy {
-    FISICS_PHYSICAL_UNIT_DIMENSION_ONLY = 0,
-    FISICS_PHYSICAL_UNIT_EXACT,
-    FISICS_PHYSICAL_UNIT_CONVERTIBLE
-} FisicsPhysicalUnitPolicy;
-
-typedef enum FisicsPhysicalContractState {
-    FISICS_PHYSICAL_STATE_SOURCE_COMPATIBLE = 0,
-    FISICS_PHYSICAL_STATE_SOURCE_UNVERIFIED,
-    FISICS_PHYSICAL_STATE_EXTERNAL_DECLARED
-} FisicsPhysicalContractState;
-
-typedef struct FisicsPhysicalContract {
-    char* contract_id;
-    FisicsPhysicalSubjectKind subject_kind;
-    char* subject_id;
-    char* quantity_kind;
-    FisicsPhysicalUnitPolicy unit_policy;
-    char* expected_unit;
-    char* value_form;
-    size_t component_count;
-    bool has_component_count;
-    size_t tensor_rank;
-    bool has_tensor_rank;
-    size_t* tensor_shape;
-    size_t tensor_shape_count;
-    char* reference_kind;
-    char* reference_subject;
-    char* period_binary64;
-    char* frame_id;
-    char* catalog_path;
-    FisicsPhysicalContractState state;
-    size_t record_index;
-    bool has_record_index;
-    size_t binding_index;
-    bool has_binding_index;
-    char* conversion_model;
-    char* conversion_scale_binary64;
-    char* conversion_offset_binary64;
-} FisicsPhysicalContract;
 
 typedef struct FisicsPhysicalSemanticRecord {
     char* source_identity;

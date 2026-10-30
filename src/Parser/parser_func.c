@@ -290,6 +290,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             if (declNode) {
                 astNodeCloneTypeAttributes(declNode, &funcReturnType);
                 astNodeAppendAttributes(declNode, funcAttrs, funcAttrCount);
+                fisics_extension_note_declaration(parser ? parser->ctx : NULL, declNode);
                 funcAttrs = NULL;
                 funcAttrCount = 0;
             }
@@ -320,6 +321,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             if (def) {
                 astNodeCloneTypeAttributes(def, &funcReturnType);
                 astNodeAppendAttributes(def, funcAttrs, funcAttrCount);
+        fisics_extension_note_declaration(parser ? parser->ctx : NULL, def);
                 funcAttrs = NULL;
                 funcAttrCount = 0;
             }
@@ -461,6 +463,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             decl->functionDecl.funcName->line = funcName->line;
             astNodeCloneTypeAttributes(decl, &funcReturnType);
             astNodeAppendAttributes(decl, funcAttrs, funcAttrCount);
+            fisics_extension_note_declaration(parser ? parser->ctx : NULL, decl);
             funcAttrs = NULL;
             funcAttrCount = 0;
         }
@@ -481,6 +484,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         if (def) {
         astNodeCloneTypeAttributes(def, &funcReturnType);
         astNodeAppendAttributes(def, funcAttrs, funcAttrCount);
+        fisics_extension_note_declaration(parser ? parser->ctx : NULL, def);
         funcAttrs = NULL;
         funcAttrCount = 0;
     }

@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include "Extensions/Units/units_model.h"
+#include "Extensions/Units/units_math_semantics.h"
 #include "Extensions/Units/units_registry.h"
 #include "Extensions/SemanticMetadata/semantic_metadata_model.h"
 #include "Parser/Helpers/parsed_type.h"
@@ -15,10 +16,12 @@ struct CompilerContext;
 struct DesignatedInit;
 struct Scope;
 struct Symbol;
+struct FisicsPhysicalState;
 
 typedef struct FisicsUnitsAnnotation {
     /* Pipeline-lifetime owner key for the current declaration-side scaffold. */
     struct ASTNode* node;
+    size_t declaratorIndex; /* Zero for functions; independent slot for each variable. */
     /* Compiler-owned copies of the source expression and canonical spelling. */
     char* dimExprText;
     char* canonicalText;
@@ -57,10 +60,15 @@ typedef struct FisicsUnitsExprBinding {
     const FisicsUnitsAnnotation* annotation;
     ParsedType symbolType;
     bool hasSymbolType;
+    struct ASTNode* originNode; /* Actual resolved declaration, including raw storage. */
+    struct ASTNode* functionDefinition;
     struct DesignatedInit* initializer;
 } FisicsUnitsExprBinding;
 
 typedef struct FisicsExtensionState {
+    struct FisicsPhysicalState* physicalState; /* Allocated only for the explicit physical overlay. */
+    char** unitsSourceFiles; /* Context-lifetime filenames used by retained AST ranges. */
+    size_t unitsSourceFileCount;
     /* Compiler-owned semantic-metadata projection, keyed by resolved symbol. */
     FisicsSemanticMetadataRecord* semanticMetadataRecords;
     size_t semanticMetadataRecordCount;
@@ -71,7 +79,7 @@ typedef struct FisicsExtensionState {
 
     /*
      * Current Phase 2/2.5 declaration-side storage.
-     * One canonical slot per owner node, with per-attribute duplicate counters
+     * One canonical slot per owner node and declarator index, with per-attribute duplicate counters
      * recording repeated [[fisics::dim(...)]] / [[fisics::unit(...)]] use
      * against that same owner in the current scaffold.
      */
@@ -97,6 +105,11 @@ typedef struct FisicsExtensionState {
     size_t unitsExprBindingCount;
     size_t unitsExprBindingCapacity;
 
+    /* Trusted real math calls identified while lexical symbols are live. */
+    FisicsUnitsMathCall* unitsMathCalls;
+    size_t unitsMathCallCount;
+    size_t unitsMathCallCapacity;
+
     /*
      * Call-edge parameter contracts captured during core semantic analysis so
      * the units pass can validate indirect callee argument boundaries without
@@ -116,3 +129,5 @@ void fisics_extension_run_semantic_scaffold(struct ASTNode* root, struct Scope* 
 
 size_t fisics_extension_units_annotation_count(const struct CompilerContext* ctx);
 size_t fisics_extension_units_resolved_count(const struct CompilerContext* ctx);
+
+void fisics_extension_note_units_prefix(struct CompilerContext*,struct ASTNode*,struct ASTAttribute**,size_t);

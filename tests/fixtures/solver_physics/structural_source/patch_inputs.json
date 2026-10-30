@@ -1,0 +1,8 @@
+{
+  "src/core_structural_frame_physical.h": null,
+  "src/core_structural_frame_element.c": "dc88debeacb72a2df514932815538ce590747d29ffd74bb46911210ecfed6996",
+  "src/core_structural_frame_loads.c": "fbe206504056d60337568442f175527c494da1aae7bc8653f8e012cc2a55cdf6",
+  "src/core_structural_frame_recovery.c": "f08aba1f43eea3329b51b2e78ea3f6f933d37d5e057d87fc744d460a0a4286ad",
+  "VERSION": "8da6a2ee5c36bb2770de645cbcd689209f5935b380d68729e107d0250a633b53",
+  "README.md": "7911b82c2497c83ba4a3d92be9945f46d0fe688570880ac7a487deddee29fc98"
+}

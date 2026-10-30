@@ -1,0 +1,119 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 7,
+  "policy_id": "pilot.energy.v7",
+  "catalog_paths": [
+    "../catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.energy",
+    "quantity.torque",
+    "quantity.angle",
+    "quantity.ratio"
+  ],
+  "affine_pairs": [
+    {
+      "absolute_kind": "quantity.position",
+      "difference_kind": "quantity.displacement"
+    },
+    {
+      "absolute_kind": "quantity.temperature.absolute",
+      "difference_kind": "quantity.temperature.difference"
+    }
+  ],
+  "origins": [
+    {
+      "id": "origin.world",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.local",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.kelvin.zero",
+      "absolute_kind": "quantity.temperature.absolute"
+    }
+  ],
+  "operation_rules": [
+    {
+      "id": "rule.multiply.quantity.energy.quantity.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.quantity.energy.quantity.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.quantity.ratio.quantity.energy",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.quantity.energy.unary",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.quantity.energy.quantity.energy",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    }
+  ],
+  "representations": [],
+  "shape_helpers": [],
+  "frame_contexts": [],
+  "reference_points": [],
+  "frames": [],
+  "frame_transforms": [],
+  "energy_forms": [
+    "energy.thermal",
+    "energy.chemical",
+    "energy.kinetic",
+    "energy.mixed"
+  ],
+  "energy_transfers": [
+    {
+      "id": "transfer.chemical_to_thermal",
+      "source_form": "energy.chemical",
+      "target_form": "energy.thermal",
+      "process": "process.combustion"
+    }
+  ]
+}

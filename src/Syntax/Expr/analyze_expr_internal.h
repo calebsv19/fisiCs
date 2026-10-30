@@ -37,4 +37,6 @@ bool parsedTypeTopLevelConst(const ParsedType* type);
 bool parsedTypePrependPointer(ParsedType* t);
 void typeInfoAdoptParsedType(TypeInfo* info, ParsedType* ownedParsed);
 
+ASTNode* analyzeExprLookupFieldOrigin(const TypeInfo* base,const char* fieldName,Scope* scope);
+
 #endif // ANALYZE_EXPR_INTERNAL_H

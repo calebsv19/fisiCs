@@ -10,6 +10,7 @@
 #include "literal_utils.h"
 #include "Compiler/compiler_context.h"
 #include "Extensions/extension_units_expr_bindings.h"
+#include "Extensions/Units/units_access_semantics.h"
 #include "Extensions/extension_units_view.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
@@ -812,6 +813,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                             if (!owned) {
                                 parsedTypeFree(&targetParsed);
                             }
+                            if (scope) fisics_units_capture_access_type(scope->ctx, node, targetInfo.originalType);
                             return targetInfo;
                         }
                         parsedTypeFree(&targetParsed);
@@ -889,15 +891,24 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_FUNCTION_CALL:
             return analyzeFunctionCallExpression(node, scope);
 
-        case AST_POINTER_DEREFERENCE:
-            return analyzePointerDereferenceExpression(node, scope);
+        case AST_POINTER_DEREFERENCE: {
+            TypeInfo result = analyzePointerDereferenceExpression(node, scope);
+            if (scope) fisics_units_capture_access_type(scope->ctx, node, result.originalType);
+            return result;
+        }
 
         case AST_DOT_ACCESS:
-        case AST_POINTER_ACCESS:
-            return analyzeMemberAccessExpression(node, scope);
+        case AST_POINTER_ACCESS: {
+            TypeInfo result = analyzeMemberAccessExpression(node, scope);
+            if (scope) fisics_units_capture_access_type(scope->ctx, node, result.originalType);
+            return result;
+        }
 
-        case AST_ARRAY_ACCESS:
-            return analyzeArrayAccessExpression(node, scope);
+        case AST_ARRAY_ACCESS: {
+            TypeInfo result = analyzeArrayAccessExpression(node, scope);
+            if (scope) fisics_units_capture_access_type(scope->ctx, node, result.originalType);
+            return result;
+        }
 
         case AST_COMPOUND_LITERAL:
             return analyzeCompoundLiteralExpression(node, scope);

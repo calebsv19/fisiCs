@@ -361,6 +361,14 @@ bool cg_expr_initializes_whole_aggregate(CodegenContext* ctx,
     if (expr->type == AST_COMPOUND_LITERAL) {
         return true;
     }
+    /* A string initializes the entire character-array subobject even when its
+     * declared extent exceeds the literal. Do not consume following struct
+     * fields through brace elision into that array. */
+    if (expr->type == AST_STRING_LITERAL && destKind == LLVMArrayTypeKind) {
+        LLVMTypeRef elementType = LLVMGetElementType(destType);
+        return LLVMGetTypeKind(elementType) == LLVMIntegerTypeKind &&
+               LLVMGetIntTypeWidth(elementType) == 8;
+    }
 
     const ParsedType* exprParsed = cg_resolve_expression_type(ctx, expr);
     if (!exprParsed || exprParsed->kind == TYPE_INVALID) {

@@ -102,8 +102,10 @@ int main(void) {
     double average_power
         [[fisics::dim(power)]]
         [[fisics::unit(watt)]] = total_energy / burn_time;
+    double reference_pressure
+        [[fisics::dim(pressure)]] [[fisics::unit(bar)]] = 1.0;
     double chamber_ratio
-        [[fisics::dim(scalar)]] = chamber_bar / 1.0;
+        [[fisics::dim(scalar)]] = chamber_bar / reference_pressure;
 
     printf("%.6f %.6f %.6f %.6f %.6f %.6f\n",
            launch_speed_mps,

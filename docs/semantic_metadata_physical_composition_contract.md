@@ -679,3 +679,21 @@ to redefine units, quantity identity, evidence status, or provenance.
 Completion still does not establish that hardware exists or works, that a model
 is accurate, that telemetry is fresh, or that any physical outcome has been
 accepted.
+
+
+## Reusable reader and separate arithmetic policy
+
+The graph's strict catalog v1 reader and model definitions are shared through
+`src/Compiler/physical_contract_catalog.{h,c}`. Entity/frame/source joins remain
+graph-owned, with the same graph schema and validation order. The internal
+[physical policy/model loader](physical_policy_model.md) reuses this catalog
+without adding fields to catalog v1. The separate explicitly opt-in
+[physical source checker](physical_semantics.md) now consumes that model; it does
+not change graph v1 acceptance or add source-kind facts to existing graph receipts.
+
+P5.5 [physical source coverage receipts](physical_coverage.md) use a distinct
+versioned schema with actual resolver-buffer read-set closure and a dedicated
+external-declaration consistency checker. Existing physical/semantic/hardware graph
+v1 readers do not import that receipt. Graph consumption needs an explicit future
+adapter; a source strict verdict or matching cross-TU signature is not a static
+project-graph or runtime physical acceptance verdict.

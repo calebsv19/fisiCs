@@ -849,9 +849,11 @@ def run_diag_probe(probe, fisics_bin):
         cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
         disable_codegen = str(env.get("DISABLE_CODEGEN", "")).strip() not in ("", "0")
-        if len(sources) > 1 and not disable_codegen:
-            # Force full multi-input compilation/linking path for cross-TU diagnostics.
-            cmd += ["-o", str(Path(tmp) / "diag.out")]
+        if not disable_codegen:
+            # Keep single-source objects out of the source tree as well as
+            # containing the full multi-input link path. Diagnostics and
+            # code generation stay enabled under their existing contracts.
+            cmd += ["-o", str(Path(tmp) / ("diag.out" if len(sources)>1 else "diag.o"))]
         exit_code, out, timed_out = run_cmd(cmd, COMPILE_TIMEOUT_SEC, env=env)
     if timed_out:
         return ("BLOCKED", f"compile timeout ({COMPILE_TIMEOUT_SEC}s)", out.strip())

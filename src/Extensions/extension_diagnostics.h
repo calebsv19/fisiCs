@@ -36,6 +36,10 @@ void fisics_extension_diag_unit_dim_mismatch(struct CompilerContext* ctx,
                                              const char* unitText,
                                              FisicsDim8 declDim,
                                              FisicsDim8 unitDim);
+void fisics_extension_diag_units_argument_dim_mismatch(struct CompilerContext* ctx,
+                                                       const struct ASTNode* argument,
+                                                       FisicsDim8 expectedDim,
+                                                       FisicsDim8 actualDim);
 void fisics_extension_diag_units_assign_dim_mismatch(struct CompilerContext* ctx,
                                                      const struct ASTNode* node,
                                                      FisicsDim8 lhsDim,
@@ -81,3 +85,13 @@ void fisics_extension_diag_units_conversion_requires_source_unit(struct Compiler
 void fisics_extension_diag_units_conversion_requires_floating(struct CompilerContext* ctx,
                                                               const struct ASTNode* node,
                                                               const char* calleeName);
+
+void fisics_extension_diag_units_return_dim_mismatch(struct CompilerContext* ctx, const struct ASTNode* node, FisicsDim8 expected, FisicsDim8 actual);
+
+void fisics_extension_diag_units_return_contract_mismatch(struct CompilerContext* ctx, const struct ASTNode* node, FisicsDim8 expected, FisicsDim8 actual);
+
+void fisics_extension_diag_units_sqrt_unsupported(struct CompilerContext* ctx,
+    const struct ASTNode* node, FisicsDim8 input, const FisicsUnitDef* unit, const char* reason);
+
+void fisics_extension_diag_units_math_argument_dim_mismatch(struct CompilerContext* ctx,
+    const struct ASTNode* node, const char* operation, FisicsDim8 lhs, FisicsDim8 rhs);

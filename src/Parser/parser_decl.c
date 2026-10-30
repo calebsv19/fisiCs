@@ -176,6 +176,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
          
         size_t parsedAttrCount = 0;
         ASTAttribute** parsedAttrs = parserParseAttributeSpecifiers(parser, &parsedAttrCount);
+        parsedTypeAdoptAttributes(&decl.type, astAttributeListClone(parsedAttrs, parsedAttrCount), parsedAttrCount);
         astAttributeListAppend(&trailingAttrs, &trailingAttrCount, parsedAttrs, parsedAttrCount);
 
         varNames[varCount] = varName;
@@ -604,6 +605,7 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount, bool* outHa
 
             size_t fieldAttrCount = 0;
             ASTAttribute** fieldAttrs = parserParseAttributeSpecifiers(parser, &fieldAttrCount);
+            parsedTypeAdoptAttributes(&decl.type, astAttributeListClone(fieldAttrs, fieldAttrCount), fieldAttrCount);
 
             ASTNode** names = malloc(sizeof(ASTNode*));
             DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
@@ -638,7 +640,8 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount, bool* outHa
             }
             if (fieldDecl) {
                 astNodeCloneTypeAttributes(fieldDecl, &decl.type);
-                astNodeAppendAttributes(fieldDecl, fieldAttrs, fieldAttrCount);
+                astAttributeListDestroy(fieldAttrs, fieldAttrCount);
+                free(fieldAttrs);
                 fisics_extension_note_declaration(parser ? parser->ctx : NULL, fieldDecl);
                 fieldAttrs = NULL;
                 fieldAttrCount = 0;

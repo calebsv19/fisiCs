@@ -1,0 +1,11 @@
+{
+  "samples": 9,
+  "wall_ratio": 1.5,
+  "wall_allowance_seconds": 0.05,
+  "rss_ratio": 1.5,
+  "rss_allowance_bytes": 8388608,
+  "strict_seconds": 1,
+  "strict_rss_bytes": 268435456,
+  "cache_policy": "fresh processes and outputs; warmup both modes; alternating paired order; OS cache uncontrolled",
+  "parallelism": 1
+}

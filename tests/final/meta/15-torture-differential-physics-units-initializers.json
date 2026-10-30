@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__units_initializer_constants",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_initializer_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=0"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "initializer",
+        "p21"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_initializer_constants.stdout",
+      "differential": true
+    },
+    {
+      "id": "15__units_initializer_scalar",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_initializer_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=1"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "initializer",
+        "p21"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_initializer_array",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_initializer_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=2"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "initializer",
+        "p21"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_initializer_field",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_initializer_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=3"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "initializer",
+        "p21"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_initializer_known_return",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_initializer_dimensions.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=4"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "initializer",
+        "p21"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

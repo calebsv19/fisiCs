@@ -1,0 +1,1132 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 7,
+  "policy_id": "compiler.thermal.v7",
+  "catalog_paths": [
+    "catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.energy",
+    "quantity.torque",
+    "quantity.angle",
+    "quantity.ratio",
+    "quantity.power",
+    "quantity.duration",
+    "quantity.heat_capacity",
+    "quantity.thermal_conductance",
+    "quantity.temperature_rate",
+    "quantity.inverse_duration"
+  ],
+  "affine_pairs": [
+    {
+      "absolute_kind": "quantity.position",
+      "difference_kind": "quantity.displacement"
+    },
+    {
+      "absolute_kind": "quantity.temperature.absolute",
+      "difference_kind": "quantity.temperature.difference"
+    }
+  ],
+  "origins": [
+    {
+      "id": "origin.world",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.local",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.kelvin.zero",
+      "absolute_kind": "quantity.temperature.absolute"
+    }
+  ],
+  "operation_rules": [
+    {
+      "id": "rule.multiply.power.duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.power",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.duration.power",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.power"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.energy.duration",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.heat_capacity.temperature.difference",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.heat_capacity",
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.temperature.difference.heat_capacity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.energy.heat_capacity",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.thermal_conductance.temperature.difference",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.thermal_conductance",
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.temperature.difference.thermal_conductance",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.thermal_conductance"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.power.heat_capacity",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.power",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.thermal_conductance.heat_capacity",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.thermal_conductance",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.inverse_duration.duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_duration",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.duration.inverse_duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.inverse_duration"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.heat_capacity.heat_capacity",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.heat_capacity",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.energy.energy",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.energy.energy",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.energy",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.energy.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.energy.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.energy",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.energy",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.energy"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.torque.torque",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.torque"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.torque.torque",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.torque"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.torque",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.torque"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.torque.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.torque.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.torque",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.torque"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.angle.angle",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.angle.angle",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.angle",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.angle.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.angle.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.angle",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.ratio.ratio",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.ratio.ratio",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.ratio",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.ratio.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.power.power",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.power",
+        "quantity.power"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.power.power",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.power",
+        "quantity.power"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.power",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.power"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.power.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.power",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.power.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.power",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.power",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.power"
+      ],
+      "result_kind": "quantity.power",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.duration.duration",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.duration.duration",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.duration",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.duration.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.duration.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.duration"
+      ],
+      "result_kind": "quantity.duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.heat_capacity.heat_capacity",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.heat_capacity",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.heat_capacity",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.heat_capacity.heat_capacity",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.heat_capacity",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.heat_capacity",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.heat_capacity",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.heat_capacity",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.heat_capacity.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.heat_capacity",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.heat_capacity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.heat_capacity.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.heat_capacity",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.heat_capacity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.heat_capacity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.heat_capacity"
+      ],
+      "result_kind": "quantity.heat_capacity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.thermal_conductance.thermal_conductance",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.thermal_conductance",
+        "quantity.thermal_conductance"
+      ],
+      "result_kind": "quantity.thermal_conductance",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.thermal_conductance.thermal_conductance",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.thermal_conductance",
+        "quantity.thermal_conductance"
+      ],
+      "result_kind": "quantity.thermal_conductance",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.thermal_conductance",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.thermal_conductance"
+      ],
+      "result_kind": "quantity.thermal_conductance",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.thermal_conductance.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.thermal_conductance",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.thermal_conductance",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.thermal_conductance.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.thermal_conductance",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.thermal_conductance",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.thermal_conductance",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.thermal_conductance"
+      ],
+      "result_kind": "quantity.thermal_conductance",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.temperature_rate.temperature_rate",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.temperature_rate",
+        "quantity.temperature_rate"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.temperature_rate.temperature_rate",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.temperature_rate",
+        "quantity.temperature_rate"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.temperature_rate",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.temperature_rate"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.temperature_rate.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.temperature_rate",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.temperature_rate.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.temperature_rate",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.temperature_rate",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.temperature_rate"
+      ],
+      "result_kind": "quantity.temperature_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.inverse_duration.inverse_duration",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.inverse_duration",
+        "quantity.inverse_duration"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.inverse_duration.inverse_duration",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.inverse_duration",
+        "quantity.inverse_duration"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.inverse_duration",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.inverse_duration"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.inverse_duration.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.inverse_duration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.inverse_duration.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.inverse_duration",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.inverse_duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.inverse_duration"
+      ],
+      "result_kind": "quantity.inverse_duration",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.position.position",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.position",
+        "quantity.position"
+      ],
+      "result_kind": "quantity.position",
+      "reference_role": "absolute",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.position.position",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.position",
+        "quantity.position"
+      ],
+      "result_kind": "quantity.position",
+      "reference_role": "absolute",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.displacement.displacement",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.displacement.displacement",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.displacement",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.displacement.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.displacement.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.displacement",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.temperature.absolute.temperature.absolute",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.temperature.absolute",
+        "quantity.temperature.absolute"
+      ],
+      "result_kind": "quantity.temperature.absolute",
+      "reference_role": "absolute",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.temperature.absolute.temperature.absolute",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.temperature.absolute",
+        "quantity.temperature.absolute"
+      ],
+      "result_kind": "quantity.temperature.absolute",
+      "reference_role": "absolute",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmin.temperature.difference.temperature.difference",
+      "operation": "fmin",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fmax.temperature.difference.temperature.difference",
+      "operation": "fmax",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "same",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.fabs.temperature.difference",
+      "operation": "fabs",
+      "operand_kinds": [
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "preserve",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.temperature.difference.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.temperature.difference.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.temperature.difference",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.temperature.difference",
+      "reference_role": "difference",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.expm1.ratio",
+      "operation": "expm1",
+      "operand_kinds": [
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.log.ratio",
+      "operation": "log",
+      "operand_kinds": [
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    }
+  ],
+  "representations": [],
+  "shape_helpers": [],
+  "frame_contexts": [],
+  "reference_points": [],
+  "frames": [],
+  "frame_transforms": [],
+  "energy_forms": [
+    "energy.thermal",
+    "energy.chemical",
+    "energy.kinetic",
+    "energy.mixed"
+  ],
+  "energy_transfers": [
+    {
+      "id": "transfer.chemical_to_thermal",
+      "source_form": "energy.chemical",
+      "target_form": "energy.thermal",
+      "process": "process.combustion"
+    }
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 6,
+  "policy_id": "pilot.frames.v6",
+  "catalog_paths": [
+    "catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.force",
+    "quantity.torque",
+    "quantity.ratio"
+  ],
+  "affine_pairs": [
+    {
+      "absolute_kind": "quantity.position",
+      "difference_kind": "quantity.displacement"
+    }
+  ],
+  "origins": [
+    {
+      "id": "origin.world",
+      "absolute_kind": "quantity.position"
+    },
+    {
+      "id": "origin.member_a",
+      "absolute_kind": "quantity.position"
+    }
+  ],
+  "operation_rules": [],
+  "representations": [
+    {
+      "id": "rep.record.float.r1.n2.polar",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 2,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.float.r1.n2.polar",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 2,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.float.r2.n2.tensor",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 2,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.float.r2.n2.tensor",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 2,
+      "fields": [],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.record.float.r1.n3.polar",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.float.r1.n3.axial",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.array.float.r1.n3.polar",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.float.r1.n3.axial",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.record.float.r2.n3.tensor",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 3,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.float.r2.n3.tensor",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 3,
+      "fields": [],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.record.double.r1.n2.polar",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 2,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.double.r1.n2.polar",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 2,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.double.r2.n2.tensor",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 2,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.double.r2.n2.tensor",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 2,
+      "fields": [],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.record.double.r1.n3.polar",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.double.r1.n3.axial",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.array.double.r1.n3.polar",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.double.r1.n3.axial",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.record.double.r2.n3.tensor",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 3,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.double.r2.n3.tensor",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 3,
+      "fields": [],
+      "parity": "tensor"
+    }
+  ],
+  "shape_helpers": [],
+  "frame_contexts": [
+    {
+      "id": "context.structural.static_a",
+      "observer_id": "observer.structural",
+      "state_id": "state.static_a"
+    }
+  ],
+  "reference_points": [
+    {
+      "id": "point.world_zero",
+      "context_id": "context.structural.static_a"
+    },
+    {
+      "id": "point.member_a_zero",
+      "context_id": "context.structural.static_a"
+    },
+    {
+      "id": "point.member_a_load",
+      "context_id": "context.structural.static_a"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame.world",
+      "context_id": "context.structural.static_a",
+      "dimension": 3,
+      "convention": "cartesian_orthonormal_right_handed",
+      "origin_point": "point.world_zero",
+      "affine_origin": "origin.world"
+    },
+    {
+      "id": "frame.member_a",
+      "context_id": "context.structural.static_a",
+      "dimension": 3,
+      "convention": "cartesian_orthonormal_right_handed",
+      "origin_point": "point.member_a_zero",
+      "affine_origin": "origin.member_a"
+    }
+  ],
+  "frame_transforms": [
+    {
+      "id": "transform.member_a_to_world.force",
+      "source_frame": "frame.member_a",
+      "target_frame": "frame.world",
+      "operation": "rotate_vector",
+      "input_kind": "quantity.force",
+      "input_representation": "rep.record.double.r1.n3.polar",
+      "output_kind": "quantity.force",
+      "output_representation": "rep.record.double.r1.n3.polar",
+      "provenance": "declared_implementation_and_basis"
+    }
+  ]
+}

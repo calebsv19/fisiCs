@@ -1,0 +1,143 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "compiler.p53",
+  "quantity_kinds": [
+    {
+      "id": "quantity.energy",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "energy"
+    },
+    {
+      "id": "quantity.torque",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "energy"
+    },
+    {
+      "id": "quantity.position",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.displacement",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length"
+    },
+    {
+      "id": "quantity.temperature.absolute",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.temperature.difference",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "temperature"
+    },
+    {
+      "id": "quantity.angle",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1"
+    },
+    {
+      "id": "quantity.ratio",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1"
+    },
+    {
+      "id": "quantity.unprofiled",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1"
+    }
+  ],
+  "contracts": []
+}

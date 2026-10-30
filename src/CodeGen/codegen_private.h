@@ -420,3 +420,5 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
 #endif
 
 #endif /* CODEGEN_PRIVATE_H */
+
+bool cg_aarch64_hfa(CodegenContext *, LLVMTypeRef);

@@ -275,7 +275,7 @@ static void print_argv(const char* prefix, const StringList* argv) {
     fputc('\n', stderr);
 }
 
-static CompileOptions make_compile_options(const MainDriverConfig* config,
+CompileOptions main_make_compile_options(const MainDriverConfig* config,
                                            const char* inputPath,
                                            const char* depsJsonPath) {
     CompileOptions options = {
@@ -297,6 +297,7 @@ static CompileOptions make_compile_options(const MainDriverConfig* config,
         .dialect = config->dialect,
         .compatFeatures = config->compatFeatures,
         .overlayFeatures = config->overlayFeatures,
+        .physicalPolicyPath = config->physicalPolicyPath,
         .dumpAst = config->dumpAst,
         .dumpSemantic = config->dumpSemantic,
         .dumpIR = config->dumpIR,
@@ -380,7 +381,7 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
             return 1;
         }
 
-        CompileOptions options = make_compile_options(config, cPath, config->depsJsonPath);
+        CompileOptions options = main_make_compile_options(config, cPath, config->depsJsonPath);
         if (!config->semanticMetadataJsonPath && !config->unitsMetadataJsonPath &&
             should_use_clang_frontend_fallback(&options)) {
             fprintf(stderr,
@@ -567,7 +568,7 @@ static int run_link_mode(const MainDriverConfig* config) {
             break;
         }
 
-        CompileOptions options = make_compile_options(config, cPath, NULL);
+        CompileOptions options = main_make_compile_options(config, cPath, NULL);
         if (!config->semanticMetadataJsonPath && !config->unitsMetadataJsonPath &&
             should_use_clang_frontend_fallback(&options)) {
             fprintf(stderr,

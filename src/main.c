@@ -19,6 +19,7 @@
 #include "main_internal.h"
 #include "Compiler/build_graph.h"
 #include "Compiler/build_manifest.h"
+#include "Compiler/physical_receipt.h"
 #include "Compiler/diagnostic_metadata.h"
 #include "Compiler/hardware_project_graph.h"
 #include "Compiler/hardware_project_graph_json.h"
@@ -75,6 +76,14 @@ static void print_cli_usage(FILE* out, const char* argv0) {
             "  --dump-ast                 Print parsed AST.\n"
             "  --dump-sema                Print semantic analysis output.\n"
             "  --dump-ir                  Print LLVM IR.\n"
+            "  --units-coverage-function <name>\n"
+            "  --emit-units-coverage-json <path>\n"
+            "  --emit-units-coverage-text <path>\n"
+            "                             Report selected-function units coverage without codegen.\n"
+            "  --units-coverage-strict    Require nonempty, complete checked scope.\n"
+            "  --units-coverage-allow-declared-boundaries\n"
+            "  --units-coverage-allow-literal-assumptions\n"
+            "                             Explicit strict-policy trust permissions.\n"
             "  --emit-build-graph-json <path>\n"
             "                             Write source or manifest build graph JSON.\n"
             "  --emit-semantic-metadata-json <path>\n"
@@ -84,6 +93,13 @@ static void print_cli_usage(FILE* out, const char* argv0) {
             "  --semantic-project-manifest <path>\n"
             "  --emit-semantic-project-graph-json <path>\n"
             "                             Assemble one strict multi-TU semantic graph.\n"
+            "  --overlay=physics-semantics --physical-semantics-policy <path>\n"
+            "                             Opt-in physical kinds; implies physics-units.\n"
+            "  --physical-semantics-function <name> --emit-physical-semantics-json <path>\n"
+            "  --physical-semantics-strict [--physical-semantics-allow-literal-assumptions]\n"
+            "                             [--physical-semantics-allow-declared-boundaries]\n"
+            "  --physical-semantics-check <receipt> <receipt> [...]\n"
+            "                             Check fresh cross-TU physical declaration receipts.\n"
             "  --physical-project-manifest <path>\n"
             "  --emit-physical-project-graph-json <path>\n"
             "                             Assemble one static physical compatibility graph.\n"
@@ -1170,6 +1186,10 @@ int main(int argc, char **argv) {
         return run_semantic_project_cli(argc, argv);
     }
 
+    if (argc>1 && !strcmp(argv[1],"--physical-semantics-check")) {
+        for(int i=2;i<argc;i++)if(argv[i][0]=='-')return 1;
+        return physical_receipt_check((size_t)(argc-2),(const char *const *)(argv+2));
+    }
     profiler_init();
     if (profiler_enabled()) {
         atexit(profiler_shutdown);
@@ -1192,6 +1212,10 @@ int main(int argc, char **argv) {
     const char* buildGraphJsonPath = NULL;
     const char* semanticMetadataJsonPath = NULL;
     const char* unitsMetadataJsonPath = NULL;
+    PhysicalCoveragePolicy physicalCoveragePolicy={0};
+    const char *physicalFunction=NULL,*physicalJson=NULL;
+    FisicsCoveragePolicy coveragePolicy={0};
+    const char *coverageFunction = NULL, *coverageJsonPath = NULL, *coverageTextPath = NULL;
     const char* buildManifestPath = NULL;
     const char* compileDbPath = NULL;
     const char* diagsJsonPath = NULL;
@@ -1219,6 +1243,7 @@ int main(int argc, char **argv) {
     CCDialect dialect = CC_DIALECT_C99;
     CCCompatFeatures compatFeatures = CC_COMPAT_NONE;
     FisicsOverlayFeatures overlayFeatures = FISICS_OVERLAY_NONE;
+    const char* physicalPolicyPath = NULL;
     StringList includePaths = {0};
     StringList macroDefines = {0};
     StringList forcedIncludes = {0};
@@ -1305,6 +1330,30 @@ int main(int argc, char **argv) {
                 goto fail;
             }
             unitsMetadataJsonPath = argv[++i];
+        } else if (!strcmp(argv[i],"--physical-semantics-function") || !strcmp(argv[i],"--emit-physical-semantics-json")) {
+            const char **slot=!strcmp(argv[i],"--physical-semantics-function")?&physicalFunction:&physicalJson;
+            if(*slot || i+1>=argc || !argv[i+1][0] || argv[i+1][0]=='-'){fprintf(stderr,"Error: physical report option requires one nonempty value\n");goto fail;}*slot=argv[++i];
+        } else if (!strcmp(argv[i],"--physical-semantics-strict") || !strcmp(argv[i],"--physical-semantics-allow-literal-assumptions") || !strcmp(argv[i],"--physical-semantics-allow-declared-boundaries")) {
+            bool *slot=!strcmp(argv[i],"--physical-semantics-strict")?&physicalCoveragePolicy.strict:!strcmp(argv[i],"--physical-semantics-allow-literal-assumptions")?&physicalCoveragePolicy.allow_literals:&physicalCoveragePolicy.allow_declared;
+            if(*slot){fprintf(stderr,"Error: duplicate physical strict option\n");goto fail;}*slot=true;
+        } else if (strcmp(argv[i], "--units-coverage-strict") == 0 ||
+                   strcmp(argv[i], "--units-coverage-allow-declared-boundaries") == 0 ||
+                   strcmp(argv[i], "--units-coverage-allow-literal-assumptions") == 0) {
+            bool* slot=strcmp(argv[i],"--units-coverage-strict")==0?&coveragePolicy.enabled:
+                strcmp(argv[i],"--units-coverage-allow-declared-boundaries")==0?&coveragePolicy.allowDeclaredBoundaries:&coveragePolicy.allowLiteralAssumptions;
+            if(*slot){fprintf(stderr,"Error: duplicate %s\n",argv[i]);goto fail;}
+            *slot=true;
+        } else if (strcmp(argv[i], "--units-coverage-function") == 0 ||
+                   strcmp(argv[i], "--emit-units-coverage-json") == 0 ||
+                   strcmp(argv[i], "--emit-units-coverage-text") == 0) {
+            const char* flag = argv[i];
+            if (i + 1 >= argc || !argv[i+1][0] || argv[i+1][0] == '-') {
+                fprintf(stderr,"Error: %s requires a nonempty value\n",flag);goto fail;
+            }
+            const char** slot = strcmp(flag,"--units-coverage-function") == 0 ? &coverageFunction :
+                strcmp(flag,"--emit-units-coverage-json") == 0 ? &coverageJsonPath : &coverageTextPath;
+            if (*slot) {fprintf(stderr,"Error: duplicate %s\n",flag);goto fail;}
+            *slot = argv[++i];
         } else if (strcmp(argv[i], "--build-manifest") == 0 && i + 1 < argc) {
             buildManifestPath = argv[++i];
         } else if (strcmp(argv[i], "--emit-compile-db") == 0 && i + 1 < argc) {
@@ -1432,6 +1481,9 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "Error: unknown extensions mode '%s'\n", mode);
                 goto fail;
             }
+        } else if (strcmp(argv[i], "--physical-semantics-policy") == 0) {
+            if (physicalPolicyPath || i + 1 >= argc) { fprintf(stderr,"Error: physical policy option requires one path exactly once\n"); goto fail; }
+            physicalPolicyPath = argv[++i];
         } else if (strncmp(argv[i], "--overlay=", 10) == 0) {
             const char* mode = argv[i] + 10;
             if (!fisics_parse_overlay_mode(mode, &overlayFeatures)) {
@@ -1486,6 +1538,26 @@ int main(int argc, char **argv) {
             fprintf(stderr, "Run '%s --help' for usage.\n", argv[0] && argv[0][0] ? argv[0] : "fisics");
             goto fail;
         }
+    }
+    bool physicalCoverageMode=physicalFunction || physicalJson || physicalCoveragePolicy.strict || physicalCoveragePolicy.allow_literals || physicalCoveragePolicy.allow_declared;
+    bool coverageMode = coverageFunction || coverageJsonPath || coverageTextPath || coveragePolicy.enabled ||
+        coveragePolicy.allowDeclaredBoundaries || coveragePolicy.allowLiteralAssumptions;
+    if((coveragePolicy.allowDeclaredBoundaries || coveragePolicy.allowLiteralAssumptions) && !coveragePolicy.enabled) {
+        fprintf(stderr,"Error: units coverage trust permissions require --units-coverage-strict\n");goto fail;
+    }
+    if(physicalCoverageMode && (!physicalFunction || !physicalJson || inputCFiles.count!=1 || inputOFiles.count || coverageMode ||
+        outputName || buildManifestPath || semanticMetadataJsonPath || unitsMetadataJsonPath || buildGraphJsonPath || depsJsonPath ||
+        diagsJsonPath || diagsPackPath || linkerPath || linkerLibs.count || linkerSearchPaths.count || linkerFrameworks.count ||
+        forcedIncludes.count || dumpAst || dumpSemantic || dumpIR || dumpTokens || dumpLayout || listDiagnostics || explainDiagnosticQuery ||
+        ((physicalCoveragePolicy.allow_literals || physicalCoveragePolicy.allow_declared) && !physicalCoveragePolicy.strict))) {
+        fprintf(stderr,"Error: physical report requires one function, one source, one dedicated JSON output; trust requires strict mode\n");goto fail;
+    }
+    if (coverageMode && (!coverageFunction || (!coverageJsonPath && !coverageTextPath) ||
+        inputCFiles.count != 1 || inputOFiles.count || outputName || buildManifestPath ||
+        semanticMetadataJsonPath || unitsMetadataJsonPath || buildGraphJsonPath || depsJsonPath ||
+        diagsJsonPath || diagsPackPath || linkerPath || linkerLibs.count || linkerSearchPaths.count ||
+        linkerFrameworks.count || explainDiagnosticQuery || listDiagnostics || dumpLayout)) {
+        fprintf(stderr,"Error: units coverage requires one function, one C input, report paths, and no other output/terminal mode\n");goto fail;
     }
     if (explainDiagnosticQuery) {
         const FisicsDiagnosticExplanation* explanation =
@@ -1624,6 +1696,14 @@ int main(int argc, char **argv) {
         errorIgnoredInterop = true;
     }
 
+    if (!main_physical_options_valid(overlayFeatures,physicalPolicyPath,inputCFiles.count,inputOFiles.count,buildManifestPath != NULL,preprocessMode)) goto fail;
+    if(physicalCoverageMode && (!(overlayFeatures & FISICS_OVERLAY_PHYSICS_SEMANTICS) || preprocessMode!=PREPROCESS_INTERNAL)) {
+        fprintf(stderr,"Error: physical coverage requires physics-semantics and internal preprocessing\n");goto fail;
+    }
+    if (coverageMode && ((overlayFeatures & FISICS_OVERLAY_PHYSICS_UNITS) == 0 ||
+        preprocessMode != PREPROCESS_INTERNAL || depsJsonPath || buildGraphJsonPath || diagsJsonPath || diagsPackPath)) {
+        fprintf(stderr,"Error: units coverage requires --overlay=physics-units, internal preprocessing, and dedicated report outputs\n");goto fail;
+    }
     if (dumpLayout) {
         const TargetLayout* tl = tl_from_triple(targetTriple);
         tl_dump(tl, stdout);
@@ -1754,7 +1834,7 @@ int main(int argc, char **argv) {
         return llvm_shutdown_and_return(0);
     }
 
-    bool driverMode = compileOnly || outputName || semanticMetadataJsonPath || unitsMetadataJsonPath || inputOFiles.count > 0 ||
+    bool driverMode = physicalCoverageMode || coverageMode || compileOnly || outputName || semanticMetadataJsonPath || unitsMetadataJsonPath || inputOFiles.count > 0 ||
                       linkerSearchPaths.count > 0 || linkerLibs.count > 0 ||
                       linkerFrameworks.count > 0 || linkerPath;
     if (driverMode) {
@@ -1765,6 +1845,7 @@ int main(int argc, char **argv) {
             .buildGraphJsonPath = buildGraphJsonPath,
             .semanticMetadataJsonPath = semanticMetadataJsonPath,
             .unitsMetadataJsonPath = unitsMetadataJsonPath,
+            .physicalPolicyPath = physicalPolicyPath,
             .diagsJsonPath = diagsJsonPath,
             .diagsPackPath = diagsPackPath,
             .targetTriple = targetTriple,
@@ -1794,7 +1875,10 @@ int main(int argc, char **argv) {
             .linkerLibs = &linkerLibs,
             .linkerFrameworks = &linkerFrameworks
         };
-        int driverStatus = main_run_driver_mode(&driverConfig);
+        int driverStatus = physicalCoverageMode ?
+            main_run_physical_coverage(&driverConfig,physicalFunction,physicalJson,physicalCoveragePolicy) : coverageMode ?
+            main_run_coverage_mode(&driverConfig,coverageFunction,coverageJsonPath,coverageTextPath,coveragePolicy) :
+            main_run_driver_mode(&driverConfig);
         if (driverStatus != 0) {
             goto fail;
         }
@@ -1834,6 +1918,7 @@ int main(int argc, char **argv) {
         .dialect = dialect,
         .compatFeatures = compatFeatures,
         .overlayFeatures = overlayFeatures,
+        .physicalPolicyPath = physicalPolicyPath,
         .dumpAst = dumpAst || ENABLE_AST_PRINT,
         .dumpSemantic = dumpSemantic || ENABLE_SYNTAX_CHECK,
         .dumpIR = dumpIR || (enableCodegen && ENABLE_CODEGEN),

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "parser_main.h"
+#include "Extensions/PhysicalSemantics/physical_semantics.h"
 #include "Parser/Helpers/parser_helpers.h"
 #include "parser_func.h"
 #include "parser_stmt.h"
@@ -506,6 +507,7 @@ ASTNode* parseStatement(Parser* parser) {
 attach_attrs:
     if (stmtAttrCount > 0) {
         if (parsed) {
+            fisics_physical_attach_prefix(parser->ctx,parsed,stmtAttrs,stmtAttrCount);
             astNodeAppendAttributes(parsed, stmtAttrs, stmtAttrCount);
         } else {
             astAttributeListDestroy(stmtAttrs, stmtAttrCount);

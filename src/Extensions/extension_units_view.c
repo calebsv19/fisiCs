@@ -14,10 +14,15 @@ static FILE* effective_out(FILE* out) {
 const FisicsUnitsAnnotation* fisics_extension_lookup_units_annotation(
     const CompilerContext* ctx,
     const ASTNode* ownerNode) {
+    return fisics_extension_lookup_units_declarator_annotation(ctx, ownerNode, 0);
+}
+
+const FisicsUnitsAnnotation* fisics_extension_lookup_units_declarator_annotation(
+    const CompilerContext* ctx, const ASTNode* ownerNode, size_t declaratorIndex) {
     if (!ctx || !ctx->extensionState || !ownerNode) return NULL;
     for (size_t i = 0; i < ctx->extensionState->unitsAnnotationCount; ++i) {
         const FisicsUnitsAnnotation* ann = &ctx->extensionState->unitsAnnotations[i];
-        if (ann->node == ownerNode) {
+        if (ann->node == ownerNode && ann->declaratorIndex == declaratorIndex) {
             return ann;
         }
     }

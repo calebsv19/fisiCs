@@ -1,0 +1,1016 @@
+{
+  "schema": "fisiCs.experimental.matrix_flow_inputs.v1",
+  "core": [
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_modes.c",
+      "sha256": "954d930937b54dabec7bdba0871ef164a4eee4a6a8aceb66686c820eb5846446"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_owner.c",
+      "sha256": "92253c1db8bbfef2f294380ad3303fcc1656efa8ad2603c993043a50d4ccf9df"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_nonlinear_frame_braces.c",
+      "sha256": "6aa15e6e5e424632ecb546c5b19d8bacd73951c9ad0dadae4fbaa33bdc17ad10"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_softening_internal.h",
+      "sha256": "8ee3f5b5eb16fe052b7dd2cbccd898df0eb8a6b74c72dfe4814e3b3bb16b31cd"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_softening_beam.c",
+      "sha256": "44930d53093445ae4745915259c34845327c1c5dbf8abc2c890618ed89548f9d"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_progressive_frame_events.c",
+      "sha256": "9df5b48aca58c627a15f25ae63113733b310570a5492c25f954ea4c16cb45576"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_softening_state.c",
+      "sha256": "3c8b616b1f1ea0f056d466b17d5441b90384e9a2de9040112ccda193d9a80a69"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_internal.h",
+      "sha256": "349cc3d4b2c6766efc2e15c6d77baac0d0c1ea1adca426d8ff92033f430242c8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_validate.c",
+      "sha256": "036c5dd60c700520a38ce127011cca4d704632dcd9b6352aa6cd6f920c1051f5"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_recovery.c",
+      "sha256": "c82b46e207b92273e85b3a20c5dbca83e1e4608e2cbf731d62f07e51516051f0"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_physical.h",
+      "sha256": "623e01182ff970593af1db57a441268c84a9065aff83af5ee9d0f4c4d3872fc8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_section_recovery.c",
+      "sha256": "2f091255638a4267550ae2e001901834bfb21a965604f3f896f56d5f1e0f8a7f"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_support_motion.c",
+      "sha256": "9a02d7cfa11f0bb486f2be9b0dd53d1cc140ae1e69387199caf3eba3e297f5f4"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_connections.c",
+      "sha256": "a6d550c7a606e6bb6e7092e5a8d1206b8afa6c9cb6e8886ab86c07bb6d20bfea"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_section_inertia.c",
+      "sha256": "1d0c384ea67c717a5415b761b8cc06c4ccccf6e5f48b07d87c47378da3eb4a96"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_stability.c",
+      "sha256": "71cb16cddb3d496f5d1e58fb704f82287fe38cb42366578f3040c766f66ca75a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_thermal.c",
+      "sha256": "1e19a1203189e2dde49d2ab0eb7840fcb3d18951af25dad0a1e34d3238b2719b"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_uniaxial_state.c",
+      "sha256": "83215c7b7edea4fd43bb3c01c24ee4ca867c5cbad3cf5ce60370a71c87c890e5"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_linear.c",
+      "sha256": "5aa8443e44951f2c7cac67fb688bb72036c3d0fe94c1a6b3542b6ed42914e39e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_progressive_frame.c",
+      "sha256": "e7194f75ab74d1027290a7403639517f210e9be4b7451c8a8f4814668309d8bb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_joint_failure_locator.c",
+      "sha256": "6e6be7c403c8ba83ec777358afb5492b341b05cd8bff3dea477639c77c0c3070"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plate_element.c",
+      "sha256": "0a1357689e7ef59b71bc7eaac3c08ecd230bdd0c600316db91e25761d71868c9"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_loaded_frame_element.c",
+      "sha256": "186638392a998a7a42256ff4b76abdcb8c25b17bdb272258359a6f31060fadac"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_run.c",
+      "sha256": "3fc046dde5f76d9698164f3b80b85278cc0c880a1673b89a030b78f32da55a77"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_damage_onset.c",
+      "sha256": "211e99a49b0093a2f4d72ce08cb56ec385598bab5a3bd79e8c1b35104b78ffed"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_motion.c",
+      "sha256": "973a7797e480b5a02322b6da2970432e5b1dd00144fa0a720b75013d7d60bc0b"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_nonlinear_frame_fields.c",
+      "sha256": "f7f0f18456d3c979f406a5c6db9578369c6b04c0eef2e67d732fc102f923a1cf"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame_element.c",
+      "sha256": "cb6365c3bec62f10a299a70323efd6ae36d3e3220248b051dc16b86fcc1e89ca"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_support_energy.c",
+      "sha256": "da12eebf2a654b26b942a8423158c2f9c5cffb552de61079d16a95337d8d48c9"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_element.c",
+      "sha256": "961129bb08cb673eeca99b7cc5484ced39d679c99535821f5fd25a8f4aff5728"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_thermal_strain.c",
+      "sha256": "41c6a68401dd9f9205cb5f083ce668e9b7321c66114cc0b099e1be515ac50e5e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_transient.c",
+      "sha256": "e567f2d5cae7722860d2f400d0114a6cca6f52d72f93abc9b17093f8c9482e9c"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_model.c",
+      "sha256": "773b35264d7406f6f8d43e9bfb5454be1b90540121bbd2ae4bd5e95fcee4a56a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_validate.c",
+      "sha256": "cd09cebc3c28b6a7e6bd5c2203fae69d6bb224dffa9a4dd627c179e835bf2e2f"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_internal.h",
+      "sha256": "e3b723cc09fa8b1ef2d2adde33339c9c0755a0d71bd1752128e9ca40b4b9efb3"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_nonlinear_frame_internal.h",
+      "sha256": "80fb348f077a2d84ec6d464b0c0876ef3c0ec6047219f8e1b12f7c27f8972a80"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_mesh.c",
+      "sha256": "8b17d4ec343f9655932ef2ef71082d006cef74e48712701ed8d68344a6d87008"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_loaded_frame_solve.c",
+      "sha256": "1c76c1b8c6e38810716b2ee39d973de4efa88e6a5ec3232b0755eae472dab657"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_inertia.c",
+      "sha256": "b6b20515f0feb62e379d7bc98b4a95dc0890940ad613a3ae9afea85280cded34"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_assemble.c",
+      "sha256": "dcef48baba79720da9a7030ba62cd886ac9edf5061cac96e0bd86f3ff1730764"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_constraints.c",
+      "sha256": "adf80f7556b5952398057b4045c15c89f1d2dd257500173ae3f48427611dbfcd"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_linear.c",
+      "sha256": "08c1975a2feade6044bcf385e86200869549a63a9cf928272e981f3f1b763064"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam.c",
+      "sha256": "16b1e036954bee8ba2bdb57b2f7e6a2f7e020f833a76690d73044b17abdad097"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_softening_beam_internal.h",
+      "sha256": "bf50bed15944e0f11a7ddc9d61d0002e2fde07c26ba87fb278f0fbaf74fb95bb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_compile.c",
+      "sha256": "14b5fe52c5f64a3a71352384d92ddbe27bdb85afcf8e08dad5bce8b6c264fe76"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_inspection_internal.h",
+      "sha256": "e6dfdab30fbb0d2733bb5721fd341bb9cd38ead5f564575a07b21f79c8cc843a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_internal.h",
+      "sha256": "50abea5d3c01ee7e6915d409d91b5e8c8ab3bd8e5d08701403804e27349d8707"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_panel.c",
+      "sha256": "55003c600ea049fba922231f4dbb5fb32223ba26eb24d6c58ebceb03b4342bdf"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_motion_internal.h",
+      "sha256": "cac66825c8b7dbf15f7d556998712419f978ae35c38d2360df9bcfe3443867d8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_inspection.c",
+      "sha256": "61406a3bfc42dbf999404e7fb406fdfc5cc3724e914fd2d03b7e65f94ab82084"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam_element.c",
+      "sha256": "7817ce13834b7a27dadb407b5b61584a5dbdedee5790b33e1baa7340734a09f0"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_shell_element.c",
+      "sha256": "5fe6e4b5377ceca2973bf6673ef4659bb86f23cb21683fdf84d85355625dc5d7"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_shell_recovery.c",
+      "sha256": "7ab609ade736c99c13cfbc2d5a2abf3df7f5315fbd5754dab67e45c1a55fff25"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plate_run.c",
+      "sha256": "7b94befbbd75bdfa56e3a569868765e6b6423d142b5fac2261886f13c7c7f789"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_thermal_physical.h",
+      "sha256": "9035a5cda2e5f1a43a8d266fda416eeb79692d97e85fa2839394988ee2054085"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_loaded_frame.c",
+      "sha256": "27b929104bd75e6bda5fe637f05d82cbfc4dce1d40c09fa6f19fc3b74418d893"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_shell_validate.c",
+      "sha256": "157ce1158f197e65e4b6f773b48e4847a049d4d83a3f1ed3cac4594d3c48fa2e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame_internal.h",
+      "sha256": "e1b2f2befe523d90b72ed555871148bf8c5f1da8026b16686b9101b5a2c7ca07"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_constraints.c",
+      "sha256": "1dfd30fd04bc01e54f3a4331eaa5063520a3417aa4d6823baa5df2b893e0d76c"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam_internal.h",
+      "sha256": "5ab598f7b97dbcd774e388e67f65d33c6cdabf704cd65bdca47721258bc1ff22"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_axial_solve.c",
+      "sha256": "c02fc61702d3efb8a78aae56948793e3d07e08e37975ebfc2854f9fcc3223565"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_inertia.c",
+      "sha256": "ad340992b3d7c9b49592665211a55fca24e6743e764000ad1748da6ed1ef4870"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_analysis.c",
+      "sha256": "f595928b583a563b5d0b09d1592d1bba1a0cbd99246fa9f44c80e2867b36e44a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_energy.h",
+      "sha256": "22c956caf4b9cd148b96b85873efe19d356b35eb8a59b579a5cbe6b388fe6dcb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_element.c",
+      "sha256": "f6200685396ff01041a5a5ac048e71dfe156eb2dc9364328e8e886e598d4281a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_inspection_panel.c",
+      "sha256": "e490b92284e5acb86636408a7cc683e2512a80d5d3a6bf03d388b42e84900fd5"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_compile.c",
+      "sha256": "032ae279178c3563dd8f2e7c1ca0e949125ed13c635b620916866d082450b387"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_assemble.c",
+      "sha256": "c0a82f442d840719d76272dc691e64dc58a34e88b6c8f97df6708f0a4f216085"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_corotational.c",
+      "sha256": "2a92c445a66b8848cd5a3051443d1c55d421d3946cba4c40314972e9a58aaf81"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_history.c",
+      "sha256": "edefc2d52cd23846e49929b3f6a7c060196757ee88cecbd294fc4f1c80e2eb4e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_dynamic_internal.h",
+      "sha256": "b4f19907d91459f427248c573cd13e7f6764ac155bda2c16be6392a48ab034fb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_compile.c",
+      "sha256": "898589c76802537a30b4472b9099c58635100d990622b064fcc27e8011adc1a9"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plate_constraints.c",
+      "sha256": "9d27003965504956837c3dc83607e8909f1e57c77703e66c01c74a6cae34a988"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_motion_integrate.c",
+      "sha256": "5382e38a35b7b73ddbf23c609f85bb10df3a819bc4ee0913360f16e8b3f0588e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_energy.h",
+      "sha256": "926720262a408defc9a936d6845d83f5593a44a92dd867dc39782887146e6de3"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_redundant_frame.c",
+      "sha256": "51bdad05148a7fb3892ffbf0377b70409a37bfd69d01293dbf1dbbd0b346e702"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_damping.c",
+      "sha256": "8202ed118222d7896dd0d032756c2bc7ef6a0cf50fd894b36aed1cde000ccdfb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plate_loads.c",
+      "sha256": "8df0b4a6fa9ba7166e745ba293940fde03c6384c1db418fbf70dc4fbeda50f22"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_joint_failure.c",
+      "sha256": "c8f8e181ef1e2f3889f43cc6f84e6e92634a4b1aac0c3c56448ab38f43902b6e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plate_recovery.c",
+      "sha256": "74fee37f8294d725cf5889a8c4634555874fe407c2d16f40c38d17a8906dead9"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_loads.c",
+      "sha256": "edae8f91e9aeb78e43365c41138b15c77f5ed149f1e163030c20acc4581eca1f"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_system.c",
+      "sha256": "8b69675c1f7270cddda88951bd965991b845d4a85eca280040fc467ca1878940"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame_clone.c",
+      "sha256": "ca67fcc45ef524e76280e73de37c15bf4cd49c7a4026599f859f1b86e1420121"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame_joints.c",
+      "sha256": "443d6c3330b12a5aa59c152d2bebd27f5b0a48f1b6588b3f907c773b3e87cc45"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_nonlinear_frame_step.c",
+      "sha256": "a5869789b2d668504e86950a552693fa3d838476c386aaef984027ffaee1be10"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_softening_beam_separation.c",
+      "sha256": "b891ebe083ea1b066a0cae50be52079771e74062ec4ee724af8092b0a1ed0156"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_softening.c",
+      "sha256": "3cf8c8ade2403d2830eb47bfc5e0452825cc759fd389936441966d5aac170085"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plate_internal.h",
+      "sha256": "a53ef7ea49acb01d8da78a19cac81eb26e937e78450ca44fc24cb09aee4829d8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_nonlinear_frame.c",
+      "sha256": "ecdebd51620d6fd6bdb647d7808ff24b56db48f51bc8b5d02e8126ec45b678c4"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_axial_inertia.c",
+      "sha256": "acf01ebc7a9a9b9148f2c118c89e37da38ee26af72a1d3d8b4a8e9b917e29f6a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_uniaxial.c",
+      "sha256": "dfbc91ee66c6173cdb95afc15b3b113261863e272c8a495e15dfa08bbb68579a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_transient_restore.c",
+      "sha256": "fd4166cd408a47577b292facd4ecc530fa9f1e277dd8e63dee73af4a7031b4c2"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_vibration.c",
+      "sha256": "d2b7e8c181cf27b7e1400b9378e7846d140393eb8a3185df71b89724b60c9ada"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_axial_internal.h",
+      "sha256": "3bf90d92c367991d2835587dbd0577e87d33c8924b9303783312725f94ecf043"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_inspection_frame.c",
+      "sha256": "42688f1a0a836b649f7938a7951d80d581139ca5f06807872811d3e1a6985d50"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_dynamic.c",
+      "sha256": "c0b339df9f039d0059a5d6a66359e835c0498ebb7f035d8233a0a810c773874f"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_uniaxial_internal.h",
+      "sha256": "570b81648c4e6e91a32df0fa1698f364078a56bf1b818d89eb3147ed1444d5af"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_basis.c",
+      "sha256": "e198660ac6a719bbf301fbf96b694de70cac856d0c7b7399888377b4c91de94f"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_brace.c",
+      "sha256": "57153a64de94087c515d5dacac0f3985cfd6a6b9df031c45696908bad2d5bba5"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame.c",
+      "sha256": "d843c20e853e2776fba71f112efbaaf3233852e77eae77d2539554ddd329149e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_result.c",
+      "sha256": "e6ac1365034dd761c153b7de134ff23cdee3c04e0e0980ac5d1bcc1e8b727c5b"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_transient_forces.c",
+      "sha256": "5afc517d09506f27c751992bc021a55da0814ea406752fec048258f0af7182e5"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_assemble.c",
+      "sha256": "02e8806903f4da04e77f4e08d3dfd0a9aacf80b7bf848f14b6d7433d31bfaad8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_transient.c",
+      "sha256": "b77d38e35e4710a6b75e4f28ad734f512869c694b59a9fbf383fdf5e9b48712e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_boundaries.h",
+      "sha256": "11607d1bdc7f0f698b03f5b41925d18e34922f3a1a5b96277ee2dc1dcb692be0"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_joint_failure_internal.h",
+      "sha256": "784d95df693adc2e3dc88c6f83fcbf99c49e0a847cd4a988995546f4b2f0a105"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_internal.h",
+      "sha256": "bdf17dd05122a3c41fe8e23460dd575d32fea8a9b13cc304b339e64819448917"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_validate.c",
+      "sha256": "61dc00f22e7a8cfbe61478080da0ef5bb245179030d5a8241997a56cbcbf9743"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_recovery.c",
+      "sha256": "a963521048e4560e351650a4e4f65e8dd0ece36bfc7c8433f8918b0a77183180"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_loads.c",
+      "sha256": "4bce92baae28650b088271abf17baa2dca756f48820047ad34907ecdfc3a3a98"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_linear.c",
+      "sha256": "19efbada0585bc2af34eb013d099a938808002900b8e5499a2bf1a1519f778e3"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_frame_recovery.c",
+      "sha256": "6cf4dd5e322d10e87dc056de9211024765d619ec04d3d7161a9601f06e6e03a2"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_support_patterns.c",
+      "sha256": "19884a9cb65c1cb11cb687f2ff9cbd1fb3344a8000eff9879bedc63ae52ff3bd"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_internal.h",
+      "sha256": "f1ccede21233058445f151711505a24939083b5d612a4198cde47ad227073964"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_element.c",
+      "sha256": "b157f36a03c7381ddf82e2db3cd3819a214591c20892fc16ba4e37bf1be22f61"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_nonlinear_frame_substep.c",
+      "sha256": "86cc49bc1c1173fda8a94ac8107b338693b1ef827519657283316fa3859a5070"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_axial.c",
+      "sha256": "b27b61b99ee235f04d1be6565e615ff88823c66e9f17451809d9f90937c8fc56"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_loaded_frame_internal.h",
+      "sha256": "45bc57df05a99205b7b8d3e6508b53989ee5832fca2a67339fa8fba6ef970875"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_system_internal.h",
+      "sha256": "5ffba7bdbd4535beec6b47cca079e9e433d6145b58cda26e1b1c9c4501f562fc"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_material.c",
+      "sha256": "87a3961f06da534ed9b3001d9987c504e94efb5e7a9fcaa950828421e721842a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_redundant_frame_internal.h",
+      "sha256": "57c27e2d50408d1238088687c9ad0b34ae06e3163ab3fdbcbc0bc7dbf069998b"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam_solve.c",
+      "sha256": "f745896bf82ee8876379a1f125c5ca9650300bff42fdb84e8bdd0e9f06b9d258"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_condense.c",
+      "sha256": "1e8a56e3f8b2fb5444d62830a201ce3b3edcc85c4a6226ec3f0aa0db706b99be"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_transient_internal.h",
+      "sha256": "d4f122a4a5729c9137e74089cf45e2d33a3910fad04ddc1c0b33af4d8908e9eb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_operators.c",
+      "sha256": "05fb86fc905c9c1660582216646d0d65ffc8231bd585270b59d61738f2d91201"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_validate.c",
+      "sha256": "b1378be895363bf968316f357165e53ca67942beb8c87e250f4d39c885f9cadb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_redundant_frame_locator.c",
+      "sha256": "b7ed6bd962640b37e88da4564e053a64052de32a651db3aa508ec030b4c2094a"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_internal.h",
+      "sha256": "2b29adb2c1b99ca6564eec044d91933c7ec56076c8f790d6f7d6a39e3318bf29"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_progressive_frame_internal.h",
+      "sha256": "680e2a7ef8908cfd022611c15fcf19fee1ea614055c25827bb683bc9642ca8e5"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_transient_fields.c",
+      "sha256": "867b232281dc3e13c752cda55a96ddbb681e6ff5472ee70444047386dcf514ae"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_membrane_reduce.c",
+      "sha256": "d7302c0500ad12fd14a46877c6e884c8cea557b0d4c9114010e564f34eb52e7d"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_transient_forcing.c",
+      "sha256": "01f5380e9ad6372a3d5c04667da4eeeca119c6c2fae0a81f1736555904144bbc"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_initial.c",
+      "sha256": "1e894b1614d3e326a85c5ed31d3a4488a320e4a52898063cc0efa56df6bd9548"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_spatial_shell_assemble.c",
+      "sha256": "a9d62dfa91f231fac192ee81d7c0e5db50564123a9df8f5d35413116bde283aa"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_dynamic_system.h",
+      "sha256": "3c9270811d7902b81503c9f1b22feca4af8f66f99a0a1e315bc6cc4730bd76a5"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_joint_failure.h",
+      "sha256": "d09a169a73504cde6b0e5408def032c201ad55c7e22b2eab4bedab934b2f65d3"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_redundant_frame.h",
+      "sha256": "57043c19e44b7950dc00b4198bb74ee30c92302be26bb405ff7a0fb25a1ccc18"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_spatial_shell.h",
+      "sha256": "5b5b3d7abca79f4bb691254e21ce4c493096081e696c48b04ef2cc2e17d2c110"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_spatial_dynamic.h",
+      "sha256": "e9621881ad4a7a0f758b91f4e205507c8f4b4ade0cb5f3f18ef9acc18a102afe"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_brace.h",
+      "sha256": "2964a009462cd5df85c70c54fa51de80ec26808192f3b153e4148d1422fd0a96"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_plastic_frame.h",
+      "sha256": "7681cfa1b109f2230edfee4b7db32abe7b752291dbe53e723b9f44be9f038daa"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_uniaxial.h",
+      "sha256": "133c9b89a7111276963353d2e5a6cd91d5678b0f8a92b4a257b7a438fbaac5f7"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_nonlinear_frame.h",
+      "sha256": "96be2321e66a0573b9d3ef06ce83f50b3286a1e74869799c2f1c58f9a3bdfd1a"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_softening.h",
+      "sha256": "06a60c00eea516c7032788861dfffdd23039c687ce0db503a2ad74c6e1751207"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_dynamic.h",
+      "sha256": "a68216ab349f6d65276a33723e5539c64a9adfc97a94d4cb52f54a7c1a76b7f1"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_spatial_frame.h",
+      "sha256": "b9e9c514a2b398294a4fe34aea4363353507d6007f251c41780225df93b2a168"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_spatial.h",
+      "sha256": "27225c36349525e2651aabf5455ad562181b0af13bad4de8ccc40699c6497b7e"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_axial.h",
+      "sha256": "edc739400886e8830f1d46b4eb42f14b55e2be6b309294218cf0dd162c1fef3d"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_progressive_frame.h",
+      "sha256": "ba2d5d1775aab7631fa7f097ca05ca76f7a1a352e491892385f4ddaac7a6942b"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_membrane.h",
+      "sha256": "8be0c3ee68b7bfce50cb1f50572747739177f86f7e1855340a710ab9faf34e80"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_support_motion.h",
+      "sha256": "8586de03f43d670dbe56f70ee8ef4fbbb97e23444278adbfdf6902ba8d241d32"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_section_recovery.h",
+      "sha256": "a5204bc8efb72a09ce7c8a8bd4739bf44a7e49023af4e68d5c8d0b1ae7b1c965"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_fiber_thermal.h",
+      "sha256": "cf2b499481e6027c18665b210770f6d478283abe2cc789fc1a37f01c88513d1f"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_softening_beam.h",
+      "sha256": "35fe1ce52eeea24e0d22a08b835e88cff4ae0b98cfdd1ac46c50fd8b7f5bf4ac"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_transient.h",
+      "sha256": "31bd197c0ff5c730bf93f56573f71149c917f3bb7c0c1546937562c57606e987"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_plate.h",
+      "sha256": "650f3d271ecbea45a6611f834e41464db13313608c056cd53c08cc2b83e49f1e"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_thermal_strain.h",
+      "sha256": "87a75564f669782761998abfee51910b31dc02b3d614050d2b09079c0307fab3"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_frame_motion.h",
+      "sha256": "e8762c554d22a8a9483aa7be1e94c78c2f4b738a567294fddbe695a9ffccd5c8"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_damage_onset.h",
+      "sha256": "4fbac1e6f39d2f6b532ca171a822d8da14348b1b49c2991b138d1c4c603d046c"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_inspection.h",
+      "sha256": "1f4fbf32387a56990053191ac2a761935fa85d4e2dce0a8a5a54604863bc462e"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural.h",
+      "sha256": "e601ae27f37d35c4116eba87e36c3d6cbea5ae2be5ea6f14167a77a8dc614f9f"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_fiber_beam.h",
+      "sha256": "53340e46623c9003b8cd78eef10aa08234393a8ef5769c01a99fca01d3dd6bd5"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_loaded_frame.h",
+      "sha256": "bdade22c112c3420b2359b45026b0aa198856905cc0227716122072069bac267"
+    },
+    {
+      "ref": "core/core_base/src/core_base.c",
+      "sha256": "c3077de1bc89b57367cb4c6851c1d10fc70c1078433201114239401be9e036e1"
+    },
+    {
+      "ref": "core/core_base/include/core_base.h",
+      "sha256": "fc2ea14b5cac03ae962483caafcec17f9e62d89972a9c44a66d598f876dd2b9f"
+    },
+    {
+      "ref": "core/core_structural/Makefile",
+      "sha256": "27bb67c399fbffacd090efd7853ea12bdf44c9cad21ea5067fd18cb51f4c2afa"
+    },
+    {
+      "ref": "core/core_structural/VERSION",
+      "sha256": "7f05cc1abd68df0bb6e371103933abca1865ece1ab9bca975114cd15af76fca4"
+    },
+    {
+      "ref": "core/core_base/VERSION",
+      "sha256": "44e161e4495cac2cf7858043e9e6418e9579f0ddcfae826f9a372622968ce066"
+    }
+  ],
+  "readset": [
+    {
+      "ref": "sdk/Availability.h",
+      "sha256": "d39d74d343b5f3dc147525c5f4ba99c1ae9133bccc57eb6205a74d0ba99d92cb"
+    },
+    {
+      "ref": "sdk/AvailabilityInternal.h",
+      "sha256": "ccfbc22a9626cc963bf432c2345e1771a742a375f6c69a4ae8bd26d167bcc496"
+    },
+    {
+      "ref": "sdk/AvailabilityInternalLegacy.h",
+      "sha256": "c870957de1ab12b504c5d3d54f894630dee0aac25acd29946438aa6729005a31"
+    },
+    {
+      "ref": "sdk/AvailabilityVersions.h",
+      "sha256": "b21562cab2207b5b73707fce43d311eee4a34a82ea545af78938b14edc4bae2e"
+    },
+    {
+      "ref": "sdk/_bounds.h",
+      "sha256": "3d9f049f5fac54421170fa34a845b244dce7b83a3c68ddd589909df759854700"
+    },
+    {
+      "ref": "sdk/_ctermid.h",
+      "sha256": "73ac20b763ff6e1c328563bbd125e3eaa78a367eb92c867626a047ae4ab391b3"
+    },
+    {
+      "ref": "sdk/_printf.h",
+      "sha256": "d90a7023063c22dfb77d3034163d2c35908f3103b458a83659b7f7b38d2d0cb2"
+    },
+    {
+      "ref": "sdk/_stdio.h",
+      "sha256": "8417242466f6df6890587974393e97bb0aeac8caeb80cdf82a4e03a97e6d4660"
+    },
+    {
+      "ref": "sdk/_string.h",
+      "sha256": "18ce21b76c6876087aae9053dcdb81182adbdb0405afc82f36d8edc000c06b3a"
+    },
+    {
+      "ref": "sdk/_strings.h",
+      "sha256": "76b984c39538b145bcb8a930538e07ce446e9d4ace00916d6110c775151d800e"
+    },
+    {
+      "ref": "sdk/_types.h",
+      "sha256": "532c4b0f11274f6b10875db65e154e6cedaa20fdd189f5f40a8780c9a4c39449"
+    },
+    {
+      "ref": "sdk/_types/_intmax_t.h",
+      "sha256": "215f90a4efdca4991735be55a1ff701964dde07d8b4a8382ec8ed41ecbf5f115"
+    },
+    {
+      "ref": "sdk/_types/_uint16_t.h",
+      "sha256": "adf29323b0ecb87cbc43ac3ff25c096de7a214ceb90007c2828616151c66ad37"
+    },
+    {
+      "ref": "sdk/_types/_uint32_t.h",
+      "sha256": "951131475ec815813c8ff40d5e875029cd968334fd3a42d5a65fbe7851d1718c"
+    },
+    {
+      "ref": "sdk/_types/_uint64_t.h",
+      "sha256": "a5692cddb9c42d1b55ebcd6fa445b212c4b0c46db4583aaf3293ed6386d3d0d6"
+    },
+    {
+      "ref": "sdk/_types/_uint8_t.h",
+      "sha256": "0a5c0353c8410f5e502db7971d987ac83a9ec3148905f10984c78152f541de68"
+    },
+    {
+      "ref": "sdk/_types/_uintmax_t.h",
+      "sha256": "0b154b16a3945edff78f00321d90a662d522e197c08e7de3b68f0ea44ae0d042"
+    },
+    {
+      "ref": "sdk/arm/_types.h",
+      "sha256": "4f0bde85f9a41cc7d30fff22ebd7e8f4eb206a55a926eda012a2e7481e3524fa"
+    },
+    {
+      "ref": "sdk/arm/types.h",
+      "sha256": "b9eccd5a3feb3a62e22e42936656c8822e7e3e8708d759b1512deee05f682f0d"
+    },
+    {
+      "ref": "sdk/float.h",
+      "sha256": "4346c126d6f51ea8b63ea394f609f2474b26fdb9257c65cf3d2b43aaef36cd3e"
+    },
+    {
+      "ref": "sdk/machine/_types.h",
+      "sha256": "f27264f8fdec9f164b4fc2b556f666ed7c5c0e5b88fd9f23db0b731ffa6cf864"
+    },
+    {
+      "ref": "sdk/machine/types.h",
+      "sha256": "76e7c59451d996fe674a6fc7e518366609a95875c9b9aec9fd590a3ac138dddd"
+    },
+    {
+      "ref": "sdk/math.h",
+      "sha256": "b61907fbb7aed8faf2d007aaadd7100e58bf2eb7907db1d0d34581c9a011fd86"
+    },
+    {
+      "ref": "sdk/secure/_common.h",
+      "sha256": "b1d2144ca87b151923029abde3e69b2430f2b39304837e2183b9019fc50a6e96"
+    },
+    {
+      "ref": "sdk/secure/_stdio.h",
+      "sha256": "78633fd545a6a80e6e6c863e767936aed80009b92145e7db78c44441c71b92c3"
+    },
+    {
+      "ref": "sdk/secure/_string.h",
+      "sha256": "66ece2d83b7528b0eb85a1f82c8aab0465cbd074397ea1aa6155706a0244cc67"
+    },
+    {
+      "ref": "sdk/secure/_strings.h",
+      "sha256": "d635b58e48cb88db18226bab8a3588505d07dcae8820d2244902242f9406c65e"
+    },
+    {
+      "ref": "sdk/stddef.h",
+      "sha256": "1e871643e931a1fe9ba76c2cc55dd32aa1a4b4cdf4584901b65b6203db321d2b"
+    },
+    {
+      "ref": "sdk/stdint.h",
+      "sha256": "9d070aad02d9f2ba1f2248d093b4194b62cf8d363778c737d1110f4736e5ed3c"
+    },
+    {
+      "ref": "sdk/stdio.h",
+      "sha256": "d2220614f42d3cb678ae0de176ba0ab3256e15fb45b3efdb5d17b8ac1f6a4b54"
+    },
+    {
+      "ref": "sdk/string.h",
+      "sha256": "4b1b9c05bfe370d423d7a6bf9e74b189bcc7f59c1cd97f23d6d94f2f3df6a4bc"
+    },
+    {
+      "ref": "sdk/sys/_posix_availability.h",
+      "sha256": "452bff9ae32655a49b65802e29b21c67a546be1446553f908ef9850a694746bd"
+    },
+    {
+      "ref": "sdk/sys/_pthread/_pthread_types.h",
+      "sha256": "741433612525badf767d48b1924d4c7ba564ccc5c1bab5cb7045c238850fa86b"
+    },
+    {
+      "ref": "sdk/sys/_symbol_aliasing.h",
+      "sha256": "327a4fcaf7a1b000cfcf9bef670fea8b6e2fbb5bb7ee520186b5c0ffeec3e3a5"
+    },
+    {
+      "ref": "sdk/sys/_types.h",
+      "sha256": "863c4f07045775002b63b7e616742d9f746e4a02da4441442d8fe1138bbd0ff9"
+    },
+    {
+      "ref": "sdk/sys/_types/_errno_t.h",
+      "sha256": "ca230b22b22becab1bb191bfe5a8dd4595ea0566f5c8cc9b299eca308ee5a271"
+    },
+    {
+      "ref": "sdk/sys/_types/_int16_t.h",
+      "sha256": "e40d40ad59c6dc98577b2c7cfdba1121ebfee17b29e093cbd10b7936df496d8e"
+    },
+    {
+      "ref": "sdk/sys/_types/_int32_t.h",
+      "sha256": "77127195e57f1690402377ddd72e3dcda684ddf591346f08ef4772dddcbbc281"
+    },
+    {
+      "ref": "sdk/sys/_types/_int64_t.h",
+      "sha256": "a2427b34e5e83996bd28d83cec920cf3b82a366af90e767234557bd11fa33a18"
+    },
+    {
+      "ref": "sdk/sys/_types/_int8_t.h",
+      "sha256": "607f6beede0251eb801e763493df26fd45d46eb951e4ff9cac17f1ac951b8cc0"
+    },
+    {
+      "ref": "sdk/sys/_types/_intptr_t.h",
+      "sha256": "b2a7ba9b9b2d357d75e59114874658f893b23ea6d1357815b027d8189075daba"
+    },
+    {
+      "ref": "sdk/sys/_types/_null.h",
+      "sha256": "3e021525d2a711070e9c78ea2791e020ef6105c51121d8496d617f89a83d2f92"
+    },
+    {
+      "ref": "sdk/sys/_types/_off_t.h",
+      "sha256": "7b07626d71084f1b3220e045089f54fd30f4d736be9cd0449042c5fe411fc569"
+    },
+    {
+      "ref": "sdk/sys/_types/_offsetof.h",
+      "sha256": "5c8098a8d25e17a963e3cb4b75b8be0136812c45f7e303d2f783ee1dc24d5218"
+    },
+    {
+      "ref": "sdk/sys/_types/_ptrdiff_t.h",
+      "sha256": "0b544d00a01bd306ca6d2f44c13422a140e37ed2498f88ea0602ccc520d6e55a"
+    },
+    {
+      "ref": "sdk/sys/_types/_rsize_t.h",
+      "sha256": "ac4928fae2b5d9d3728c1365c8e6552652cc22680158655151ddaf6a49ce795d"
+    },
+    {
+      "ref": "sdk/sys/_types/_seek_set.h",
+      "sha256": "353b2276ef8132f625b1b780e7593a43183fbf054c1bc906c0515f89dad335c8"
+    },
+    {
+      "ref": "sdk/sys/_types/_size_t.h",
+      "sha256": "3e1bcf6c23ad00e0fe2b5a4683e687299baf51cf26b0a4ebc73db6140378acc2"
+    },
+    {
+      "ref": "sdk/sys/_types/_ssize_t.h",
+      "sha256": "58eb3bdea24b27e6b5fb45e203e476faf2510b5c0aa81a0b45c17b528aa9c192"
+    },
+    {
+      "ref": "sdk/sys/_types/_u_int16_t.h",
+      "sha256": "9dabbd8280c28416a5ba115355678d2540588df1a7251bd9b4a13e30c309a71b"
+    },
+    {
+      "ref": "sdk/sys/_types/_u_int32_t.h",
+      "sha256": "196cba7a865c086bba457758d3b2605a4c1299c54a758366b7d420a585895f1d"
+    },
+    {
+      "ref": "sdk/sys/_types/_u_int64_t.h",
+      "sha256": "d096eee54a5acc2c3cd5cf71256d69198ada8f8d82cdb0a717bc8ed65650ad93"
+    },
+    {
+      "ref": "sdk/sys/_types/_u_int8_t.h",
+      "sha256": "7505dbbdf3ecca2b8e585871ad81c0e67a3cb63c97c47abe73fe262e071a3ebb"
+    },
+    {
+      "ref": "sdk/sys/_types/_uintptr_t.h",
+      "sha256": "f435cf25e4f06dace9c1884c066392bafd204c6d71f16696e71acde5912bc81f"
+    },
+    {
+      "ref": "sdk/sys/_types/_va_list.h",
+      "sha256": "688c84ca73e82898609ae7282c820e896e4b82b7dc14f4fc92b4263df5827de2"
+    },
+    {
+      "ref": "sdk/sys/_types/_wchar_t.h",
+      "sha256": "f0c3da0beecb5feb19ddede0ea9d5fbb9274e7b1de1b7cb91f64196ac1395008"
+    },
+    {
+      "ref": "sdk/sys/_types/_wint_t.h",
+      "sha256": "f6bb1d228df3635d191ee34fdd786fad6851f679ed9da7d6c48e12d3f437854e"
+    },
+    {
+      "ref": "sdk/sys/cdefs.h",
+      "sha256": "ac1a889ee7e6f3025e01be9981d26751489b9e63e926035201cae07ab9e6576f"
+    },
+    {
+      "ref": "sdk/sys/stdio.h",
+      "sha256": "a8078ae1cba1a46a66d0de6fe7f13bbc969cdb7e78fc2d4b9a5c5cdaaf16126b"
+    },
+    {
+      "ref": "compiler/include/fisics/extensions.h",
+      "sha256": "3842c5bf9854bbd698c4505e097274a52aaed4ebeb3651c7b76fc94379df7d64"
+    },
+    {
+      "ref": "compiler/include/stdbool.h",
+      "sha256": "08b0892a55b290f08c1341aa222f2c7a5b9a8199b514a1bd401d67f4600489c7"
+    },
+    {
+      "ref": "core/core_base/include/core_base.h",
+      "sha256": "fc2ea14b5cac03ae962483caafcec17f9e62d89972a9c44a66d598f876dd2b9f"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural.h",
+      "sha256": "e601ae27f37d35c4116eba87e36c3d6cbea5ae2be5ea6f14167a77a8dc614f9f"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_dynamic.h",
+      "sha256": "a68216ab349f6d65276a33723e5539c64a9adfc97a94d4cb52f54a7c1a76b7f1"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_fiber_beam.h",
+      "sha256": "53340e46623c9003b8cd78eef10aa08234393a8ef5769c01a99fca01d3dd6bd5"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_fiber_thermal.h",
+      "sha256": "cf2b499481e6027c18665b210770f6d478283abe2cc789fc1a37f01c88513d1f"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_frame_motion.h",
+      "sha256": "e8762c554d22a8a9483aa7be1e94c78c2f4b738a567294fddbe695a9ffccd5c8"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_plastic_frame.h",
+      "sha256": "7681cfa1b109f2230edfee4b7db32abe7b752291dbe53e723b9f44be9f038daa"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_redundant_frame.h",
+      "sha256": "57043c19e44b7950dc00b4198bb74ee30c92302be26bb405ff7a0fb25a1ccc18"
+    },
+    {
+      "ref": "core/core_structural/include/core_structural_uniaxial.h",
+      "sha256": "133c9b89a7111276963353d2e5a6cd91d5678b0f8a92b4a257b7a438fbaac5f7"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_energy.h",
+      "sha256": "22c956caf4b9cd148b96b85873efe19d356b35eb8a59b579a5cbe6b388fe6dcb"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_dynamic_internal.h",
+      "sha256": "50abea5d3c01ee7e6915d409d91b5e8c8ab3bd8e5d08701403804e27349d8707"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam.c",
+      "sha256": "16b1e036954bee8ba2bdb57b2f7e6a2f7e020f833a76690d73044b17abdad097"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam_internal.h",
+      "sha256": "5ab598f7b97dbcd774e388e67f65d33c6cdabf704cd65bdca47721258bc1ff22"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_fiber_beam_solve.c",
+      "sha256": "f745896bf82ee8876379a1f125c5ca9650300bff42fdb84e8bdd0e9f06b9d258"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_inertia.c",
+      "sha256": "b6b20515f0feb62e379d7bc98b4a95dc0890940ad613a3ae9afea85280cded34"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_internal.h",
+      "sha256": "f1ccede21233058445f151711505a24939083b5d612a4198cde47ad227073964"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_motion_integrate.c",
+      "sha256": "5382e38a35b7b73ddbf23c609f85bb10df3a819bc4ee0913360f16e8b3f0588e"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_motion_internal.h",
+      "sha256": "cac66825c8b7dbf15f7d556998712419f978ae35c38d2360df9bcfe3443867d8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_frame_physical.h",
+      "sha256": "623e01182ff970593af1db57a441268c84a9065aff83af5ee9d0f4c4d3872fc8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_internal.h",
+      "sha256": "349cc3d4b2c6766efc2e15c6d77baac0d0c1ea1adca426d8ff92033f430242c8"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame_internal.h",
+      "sha256": "e1b2f2befe523d90b72ed555871148bf8c5f1da8026b16686b9101b5a2c7ca07"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_plastic_frame_joints.c",
+      "sha256": "443d6c3330b12a5aa59c152d2bebd27f5b0a48f1b6588b3f907c773b3e87cc45"
+    },
+    {
+      "ref": "core/core_structural/src/core_structural_redundant_frame_internal.h",
+      "sha256": "57c27e2d50408d1238088687c9ad0b34ae06e3163ab3fdbcbc0bc7dbf069998b"
+    }
+  ],
+  "admission": "Only the exact reviewed reduced-owner cohort. Updated source or dependency needs review, not automatic pin refresh."
+}

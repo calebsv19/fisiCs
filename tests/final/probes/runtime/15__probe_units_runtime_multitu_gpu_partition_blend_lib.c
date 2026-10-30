@@ -62,5 +62,10 @@ double probe_gpu_partition_blend_score(
     double tick_s
         [[fisics::dim(time)]]
         [[fisics::unit(second)]] = fisics_convert_unit(tick_ms, "second");
-    return (state.energy_j / tick_s) + (state.charge_ah / window_m);
+    /* A dimensionless numerical checksum, not a sum of physical quantities. */
+    double one_meter [[fisics::dim(length)]] [[fisics::unit(meter)]] = 1.0;
+    double one_joule [[fisics::dim(energy)]] [[fisics::unit(joule)]] = 1.0;
+    double one_ampere_hour [[fisics::dim(charge)]] [[fisics::unit(ampere_hour)]] = 1.0;
+    double one_second [[fisics::dim(time)]] [[fisics::unit(second)]] = 1.0;
+    return ((state.energy_j / one_joule) / (tick_s / one_second)) + ((state.charge_ah / one_ampere_hour) / (window_m / one_meter));
 }

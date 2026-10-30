@@ -105,7 +105,7 @@ bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef 
         return false;
     }
     uint64_t size = LLVMABISizeOfType(td, returnType);
-    return size > 16u;
+    return size > 16u && !cg_aarch64_hfa(ctx,returnType);
 }
 
 bool cg_should_direct_aggregate_result_to_destination(CodegenContext* ctx,

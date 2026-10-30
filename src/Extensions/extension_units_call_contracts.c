@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Extensions/extension_units_call_contracts.h"
+#include "Extensions/PhysicalSemantics/physical_semantics.h"
 
 #include "AST/ast_node.h"
 #include "Compiler/compiler_context.h"
@@ -46,7 +47,7 @@ static FisicsUnitsCallArgContract* ensure_units_call_arg_contract(CompilerContex
     return contract;
 }
 
-static bool parse_param_units_contract(const ParsedType* paramType,
+bool fisics_units_parse_type_contract(const ParsedType* paramType,
                                        FisicsDim8* outDim,
                                        bool* outResolved,
                                        const FisicsUnitDef** outUnitDef,
@@ -111,11 +112,12 @@ bool fisics_extension_note_units_call_arg_contract_from_param_type(CompilerConte
                                                                    size_t argIndex,
                                                                    const ParsedType* paramType) {
     if (!ctx || !callNode || !paramType) return false;
+    fisics_physical_capture_call(ctx,callNode,argIndex,paramType);
     FisicsDim8 dim = fisics_dim_zero();
     bool resolved = false;
     const FisicsUnitDef* unitDef = NULL;
     bool unitResolved = false;
-    if (!parse_param_units_contract(paramType, &dim, &resolved, &unitDef, &unitResolved)) {
+    if (!fisics_units_parse_type_contract(paramType, &dim, &resolved, &unitDef, &unitResolved)) {
         return false;
     }
     FisicsUnitsCallArgContract* contract = ensure_units_call_arg_contract(ctx, callNode, argIndex);
@@ -139,4 +141,15 @@ const FisicsUnitsCallArgContract* fisics_extension_lookup_units_call_arg_contrac
         }
     }
     return NULL;
+}
+
+/* Unknown declarations do not assert a dimension. Contradictions are checked
+ * only when both sides carry a resolved declaration. */
+bool fisics_units_return_contracts_compatible(const ParsedType* a, const ParsedType* b) {
+    FisicsDim8 ad, bd;
+    bool ar=false, br=false, au=false, bu=false;
+    const FisicsUnitDef *av=NULL, *bv=NULL;
+    fisics_units_parse_type_contract(a,&ad,&ar,&av,&au);
+    fisics_units_parse_type_contract(b,&bd,&br,&bv,&bu);
+    return !ar || !br || (fisics_dim_equal(ad,bd) && (!au || !bu || av==bv));
 }

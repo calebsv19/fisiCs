@@ -26,7 +26,8 @@ static double sample_distance(double distance [[fisics::dim(m)]]) {
 
 int main(void) {
     struct MotionSample sample = {0};
-    return (int)(sample.accel + sample_distance(2.0));
+    double interval [[fisics::dim(time)]] = 1.0;
+    return (int)(sample.accel * interval * interval + sample_distance(2.0));
 }
 SRC
 
@@ -290,7 +291,7 @@ if [ ! -f "$TMP_DIR/overlay_ok.o" ]; then
   exit 1
 fi
 
-if ! grep -Fq "Extension Units Annotations: 4" "$TMP_OUTPUT"; then
+if ! grep -Fq "Extension Units Annotations: 5" "$TMP_OUTPUT"; then
   echo "Missing semantic dump units annotation count" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1

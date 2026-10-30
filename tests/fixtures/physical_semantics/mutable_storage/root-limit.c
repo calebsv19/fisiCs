@@ -1,0 +1,4 @@
+#include <fisics/extensions.h>
+#define E FISICS_DIM(energy) FISICS_QUANTITY_KIND("quantity.energy")
+#define Q FISICS_DIM(energy) FISICS_QUANTITY_KIND("quantity.torque")
+E double check(double a E){double a0[1];a0[0]=a;double a1[1];a1[0]=a;double a2[1];a2[0]=a;double a3[1];a3[0]=a;double a4[1];a4[0]=a;double a5[1];a5[0]=a;double a6[1];a6[0]=a;double a7[1];a7[0]=a;double a8[1];a8[0]=a;double a9[1];a9[0]=a;double a10[1];a10[0]=a;double a11[1];a11[0]=a;double a12[1];a12[0]=a;double a13[1];a13[0]=a;double a14[1];a14[0]=a;double a15[1];a15[0]=a;double a16[1];a16[0]=a;double a17[1];a17[0]=a;double a18[1];a18[0]=a;double a19[1];a19[0]=a;double a20[1];a20[0]=a;double a21[1];a21[0]=a;double a22[1];a22[0]=a;double a23[1];a23[0]=a;double a24[1];a24[0]=a;double a25[1];a25[0]=a;double a26[1];a26[0]=a;double a27[1];a27[0]=a;double a28[1];a28[0]=a;double a29[1];a29[0]=a;double a30[1];a30[0]=a;double a31[1];a31[0]=a;double a32[1];a32[0]=a;return a0[0];}

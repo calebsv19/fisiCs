@@ -516,7 +516,7 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
                     haveSize = true;
                 }
             }
-            if (haveSize && size > 16) {
+            if (haveSize && size > 16 && !cg_aarch64_hfa(ctx,valueType)) {
                 passIndirect = true;
             }
         }

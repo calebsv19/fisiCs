@@ -85,7 +85,7 @@ static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
 
 static const ParsedType* lookupFieldTypeInRecordDef(ASTNode* def,
                                                     const char* fieldName,
-                                                    Scope* scope) {
+                                                    Scope* scope, ASTNode** origin) {
     if (!def || !fieldName || !scope) {
         return NULL;
     }
@@ -100,6 +100,7 @@ static const ParsedType* lookupFieldTypeInRecordDef(ASTNode* def,
             if (!nameValue || strcmp(nameValue, fieldName) != 0) {
                 continue;
             }
+            if (origin) *origin = name;
             if (field->varDecl.declaredTypes) {
                 return &field->varDecl.declaredTypes[k];
             }
@@ -119,10 +120,10 @@ static const ParsedType* lookupFieldTypeInRecordDef(ASTNode* def,
                 const ParsedType* nested = NULL;
                 ASTNode* anonDef = resolveRecordDefinition(&anonInfo, scope);
                 if (anonDef) {
-                    nested = lookupFieldTypeInRecordDef(anonDef, fieldName, scope);
+                    nested = lookupFieldTypeInRecordDef(anonDef, fieldName, scope, origin);
                 }
                 if (!nested && anonType->inlineStructOrUnionDef) {
-                    nested = lookupFieldTypeInRecordDef(anonType->inlineStructOrUnionDef, fieldName, scope);
+                    nested = lookupFieldTypeInRecordDef(anonType->inlineStructOrUnionDef, fieldName, scope, origin);
                 }
                 if (nested) {
                     return nested;
@@ -143,7 +144,7 @@ const ParsedType* analyzeExprLookupFieldType(const TypeInfo* base,
         return NULL;
     }
     ASTNode* def = resolveRecordDefinition(base, scope);
-    return lookupFieldTypeInRecordDef(def, fieldName, scope);
+    return lookupFieldTypeInRecordDef(def, fieldName, scope, NULL);
 }
 
 bool analyzeExprLookupFieldIsBitfield(const TypeInfo* base,
@@ -427,4 +428,11 @@ bool evalOffsetofFieldPath(const ParsedType* baseType,
 
     *offsetOut = totalOffset;
     return true;
+}
+
+ASTNode* analyzeExprLookupFieldOrigin(const TypeInfo* base,const char* fieldName,Scope* scope) {
+    if (!base || !scope || !scope->ctx) return NULL;
+    ASTNode* origin=NULL;
+    (void)lookupFieldTypeInRecordDef(resolveRecordDefinition(base,scope),fieldName,scope,&origin);
+    return origin;
 }

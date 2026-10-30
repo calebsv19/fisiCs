@@ -217,10 +217,11 @@ static void collect_units_annotation_cb(const FisicsUnitsAnnotation* ann, void* 
     ASTNode* node = ann->node;
     if (node->type != AST_VARIABLE_DECLARATION) return;
 
-    for (size_t i = 0; i < node->varDecl.varCount; ++i) {
+    if (ann->declaratorIndex < node->varDecl.varCount) {
+        size_t i = ann->declaratorIndex;
         ASTNode* ident = node->varDecl.varNames ? node->varDecl.varNames[i] : NULL;
         const char* name = (ident && ident->type == AST_IDENTIFIER) ? ident->valueNode.value : NULL;
-        if (!name || !name[0]) continue;
+        if (!name || !name[0]) return;
 
         SourceRange range = ident ? ident->location : node->location;
         normalize_units_attachment_range(buf, &range);

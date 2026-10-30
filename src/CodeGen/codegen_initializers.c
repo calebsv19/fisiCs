@@ -116,6 +116,16 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
         CG_STORE_INIT_RETURN(true);
     }
 
+    /* Build the declared extent with zero-fill before the generic aggregate
+     * copy path: a short string must never copy past its own global storage. */
+    if (storeKind == LLVMArrayTypeKind && expr->type == AST_STRING_LITERAL) {
+        LLVMValueRef constArray = cg_build_const_initializer(ctx, expr, storeType, destParsed);
+        if (constArray && LLVMTypeOf(constArray) == storeType) {
+            LLVMBuildStore(ctx->builder, constArray, destPtr);
+            CG_STORE_INIT_RETURN(true);
+        }
+    }
+
     if (isAggregateStore) {
         /* Keep aggregate ternary selection in memory. Materializing both arms
          * as whole-aggregate SSA values creates enormous load/phi/store nodes
@@ -264,13 +274,7 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
         CG_STORE_INIT_RETURN(false);
     }
 
-    if (storeKind == LLVMArrayTypeKind && expr->type == AST_STRING_LITERAL) {
-        LLVMValueRef constArray = cg_build_const_initializer(ctx, expr, storeType, destParsed);
-        if (constArray && LLVMTypeOf(constArray) == storeType) {
-            LLVMBuildStore(ctx->builder, constArray, destPtr);
-            CG_STORE_INIT_RETURN(true);
-        }
-    }
+
 
     LLVMValueRef casted = cg_cast_value(ctx, value, storeType, cg_resolve_expression_type(ctx, expr), destParsed, "init.cast");
     LLVMBuildStore(ctx->builder, casted, destPtr);

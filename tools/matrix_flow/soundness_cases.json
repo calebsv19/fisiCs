@@ -1,0 +1,279 @@
+[
+  {
+    "id": "baseline",
+    "tu": null,
+    "old": null,
+    "new": null,
+    "expected": true
+  },
+  {
+    "id": "comment-only-envelope",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "/* harmless comment */ o->accepted.tick++;",
+    "expected": true
+  },
+  {
+    "id": "early-success-initialize",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "memset(o->mass,0,sizeof(o->mass));",
+    "new": "return CORE_STRUCTURAL_OK;memset(o->mass,0,sizeof(o->mass));",
+    "expected": false
+  },
+  {
+    "id": "bypass-assembly",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "memset(o->mass,0,sizeof(o->mass));",
+    "new": "goto done;memset(o->mass,0,sizeof(o->mass));",
+    "expected": false
+  },
+  {
+    "id": "bypass-consumer",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "goto done;o->accepted.tick++;",
+    "expected": false
+  },
+  {
+    "id": "zero-kinetic-local",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.kinetic_j=kinetic;",
+    "new": "kinetic=0;o->accepted.kinetic_j=kinetic;",
+    "expected": false
+  },
+  {
+    "id": "zero-kinetic-publication",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.kinetic_j=kinetic;",
+    "new": "o->accepted.kinetic_j=0;",
+    "expected": false
+  },
+  {
+    "id": "overwrite-inertial",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.kinetic_j=kinetic;",
+    "new": "o->accepted.inertial[0]=0;o->accepted.kinetic_j=kinetic;",
+    "expected": false
+  },
+  {
+    "id": "dead-kinetic",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "kinetic+=cs_de_kinetic",
+    "new": "kinetic+=0*cs_de_kinetic",
+    "expected": false
+  },
+  {
+    "id": "matrix-strong-update",
+    "tu": "core_structural_frame_inertia",
+    "old": "cd_transform(e,local,out);",
+    "new": "cd_transform(e,local,out);size_t z=e->length>0?0:3;out[z]=mass;",
+    "expected": false
+  },
+  {
+    "id": "narrow-cast-hidden",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[a*6+b]",
+    "new": "local[a*6+b+(unsigned char)256]",
+    "expected": false
+  },
+  {
+    "id": "sizeof-side-effect",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;size_t k=0;double q[2]={0};size_t z=sizeof(q[k++]);local[0]=mass*k;",
+    "expected": false
+  },
+  {
+    "id": "boolean-double-launder",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;_Bool z=256;local[0]=mass/l*(z/2);",
+    "expected": false
+  },
+  {
+    "id": "short-circuit-and",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "size_t z=0;if(0 && ++z)z=1;double l=e->length; if(z){}else{out[0]=mass/e->length;}",
+    "expected": false
+  },
+  {
+    "id": "short-circuit-or",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "size_t z=0;if(1 || ++z){}double l=e->length; if(z){}else{out[0]=mass/e->length;}",
+    "expected": false
+  },
+  {
+    "id": "long-double-underflow",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "if(1e-4000L==0){}else{out[0]=mass/e->length;}double l=e->length;",
+    "expected": false
+  },
+  {
+    "id": "state-address-escape",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "extern void escape(double *);escape(o->accepted.velocity);o->accepted.tick++;",
+    "expected": false
+  },
+  {
+    "id": "model-address-escape",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "extern void escape(void *);escape(o->active);o->accepted.tick++;",
+    "expected": false
+  },
+  {
+    "id": "live-root-zero-term",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "kinetic+=cs_de_kinetic((unsigned)i,(unsigned)j,o->accepted.velocity[i],o->mass[i][j],o->accepted.velocity[j]);",
+    "new": "kinetic+=0*cs_de_kinetic((unsigned)i,(unsigned)j,o->accepted.velocity[i],o->mass[i][j],o->accepted.velocity[j])+old.frame.state.applied[i]*old.frame.state.displacement[i];",
+    "expected": false
+  },
+  {
+    "id": "uncertain-definite-write",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "if(m->corotational){double rho=",
+    "new": "double hole[27];hole[map[0]]=o->settings.added_mass_kg[0];matrix[0]=hole[0];if(m->corotational){double rho=",
+    "expected": false
+  },
+  {
+    "id": "late-damping-reset",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.kinetic_j=kinetic;",
+    "new": "damping=0;o->accepted.kinetic_j=kinetic;",
+    "expected": false
+  },
+  {
+    "id": "late-damping-publication",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.damping_work_j+=damping;",
+    "new": "o->accepted.damping_work_j=0;",
+    "expected": false
+  },
+  {
+    "id": "late-displacement-rewrite",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.kinetic_j=kinetic;",
+    "new": "o->accepted.frame.state.displacement[0]=0;o->accepted.kinetic_j=kinetic;",
+    "expected": false
+  },
+  {
+    "id": "work-target-invalidation",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "for(size_t i=0;i<27;i++)t->load[i]=",
+    "new": "t->load[0]=0;for(size_t i=0;i<27;i++)t->load[i]=",
+    "expected": false
+  },
+  {
+    "id": "loop-control-not-executed",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;size_t z=0;if(0 && ++z)z=2;if(z)out[0]=mass/l;",
+    "expected": true
+  },
+  {
+    "id": "or-control-not-executed",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;size_t z=0;if(1 || ++z){}if(z)out[0]=mass/l;",
+    "expected": true
+  },
+  {
+    "id": "consumer-before-kinematics",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": " for(size_t i=0;i<n;i++){o->accepted.acceleration[i]=4/(dt*dt)*(w->result.displacement[i]-v.predictor[i]);o->accepted.velocity[i]=v.velocity_predictor[i]+dt*.5*o->accepted.acceleration[i];external+=cs_de_work((unsigned)i,endpoint_load!=NULL,old.frame.state.applied[i],t.load[i],old.frame.state.displacement[i],w->result.displacement[i]);}\n w->result.residual_n=w->result.residual_nm=0;\n for(size_t i=0;i<n;i++){o->accepted.inertial[i]=o->accepted.damping[i]=0;double residual=w->result.internal[i]-t.load[i];for(size_t j=0;j<n;j++){kinetic+=cs_de_kinetic((unsigned)i,(unsigned)j,o->accepted.velocity[i],o->mass[i][j],o->accepted.velocity[j]);damping+=cs_de_damping((unsigned)i,(unsigned)j,dt,o->settings.alpha_m_per_s,old.velocity[i],o->accepted.velocity[i],o->mass[i][j],old.velocity[j],o->accepted.velocity[j]);o->accepted.inertial[i]+=o->mass[i][j]*o->accepted.acceleration[j];o->accepted.damping[i]+=o->mass[i][j]*o->settings.alpha_m_per_s*o->accepted.velocity[j];residual+=o->mass[i][j]*(o->accepted.acceleration[j]+o->settings.alpha_m_per_s*o->accepted.velocity[j]);}if(m->fixed[i])w->result.reaction[i]=residual;else if(i%3==2)w->result.residual_nm=fmax(w->result.residual_nm,fabs(residual));else w->result.residual_n=fmax(w->result.residual_n,fabs(residual));}\n",
+    "new": " for(size_t i=0;i<n;i++){o->accepted.inertial[i]=o->accepted.damping[i]=0;double residual=w->result.internal[i]-t.load[i];for(size_t j=0;j<n;j++){kinetic+=cs_de_kinetic((unsigned)i,(unsigned)j,o->accepted.velocity[i],o->mass[i][j],o->accepted.velocity[j]);damping+=cs_de_damping((unsigned)i,(unsigned)j,dt,o->settings.alpha_m_per_s,old.velocity[i],o->accepted.velocity[i],o->mass[i][j],old.velocity[j],o->accepted.velocity[j]);o->accepted.inertial[i]+=o->mass[i][j]*o->accepted.acceleration[j];o->accepted.damping[i]+=o->mass[i][j]*o->settings.alpha_m_per_s*o->accepted.velocity[j];residual+=o->mass[i][j]*(o->accepted.acceleration[j]+o->settings.alpha_m_per_s*o->accepted.velocity[j]);}if(m->fixed[i])w->result.reaction[i]=residual;else if(i%3==2)w->result.residual_nm=fmax(w->result.residual_nm,fabs(residual));else w->result.residual_n=fmax(w->result.residual_n,fabs(residual));}\n w->result.residual_n=w->result.residual_nm=0;\n for(size_t i=0;i<n;i++){o->accepted.acceleration[i]=4/(dt*dt)*(w->result.displacement[i]-v.predictor[i]);o->accepted.velocity[i]=v.velocity_predictor[i]+dt*.5*o->accepted.acceleration[i];external+=cs_de_work((unsigned)i,endpoint_load!=NULL,old.frame.state.applied[i],t.load[i],old.frame.state.displacement[i],w->result.displacement[i]);}\n",
+    "expected": false
+  },
+  {
+    "id": "initialized-uncertain-noop",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "if(m->corotational){double rho=",
+    "new": "matrix[map[0]%2]=matrix[map[0]%2];if(m->corotational){double rho=",
+    "expected": true
+  },
+  {
+    "id": "zero-over-unknown",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "kinetic+=cs_de_kinetic",
+    "new": "kinetic+=(0/(dt*o->settings.alpha_m_per_s))*cs_de_kinetic",
+    "expected": false
+  },
+  {
+    "id": "zero-over-math",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "kinetic+=cs_de_kinetic",
+    "new": "kinetic+=sqrt(0/(dt*o->settings.alpha_m_per_s))*cs_de_kinetic",
+    "expected": false
+  },
+  {
+    "id": "overflow-zero-branch",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "double z=1e300,q=z*z; if(q*0==0){}else{out[0]=mass/e->length;}double l=e->length;",
+    "expected": false
+  },
+  {
+    "id": "bool-local-conversion",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "_Bool z=2;if(z==2){}else{out[0]=mass/e->length;}double l=e->length;",
+    "expected": false
+  },
+  {
+    "id": "bool-return-conversion",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "if(changed_bool(2)==2){}else{out[0]=mass/e->length;}double l=e->length;",
+    "prefix": "static _Bool changed_bool(int z){return z;}\n",
+    "expected": false
+  },
+  {
+    "id": "bool-local-valid",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "_Bool z=2;if(z==1){}else{out[0]=mass/e->length;}double l=e->length;",
+    "expected": true
+  },
+  {
+    "id": "bool-return-valid",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "if(changed_bool(2)==1){}else{out[0]=mass/e->length;}double l=e->length;",
+    "prefix": "static _Bool changed_bool(int z){return z;}\n",
+    "expected": true
+  },
+  {
+    "id": "long-double-local",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "long double z=1;double l=e->length;",
+    "expected": false
+  },
+  {
+    "id": "long-double-return",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "double z=changed_long(1);double l=e->length;",
+    "prefix": "static long double changed_long(int z){return z;}\n",
+    "expected": false
+  },
+  {
+    "id": "record-boolean-conversion",
+    "tu": "core_structural_frame_inertia",
+    "prefix": "typedef struct { _Bool value; } LocalFlag;\n",
+    "old": "double l=e->length;",
+    "new": "LocalFlag q={.value=2};if(q.value==2){}else{out[0]=mass/e->length;}double l=e->length;",
+    "expected": false
+  },
+  {
+    "id": "element-field-double-conversion",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double matrix[36];cd_consistent_mass",
+    "new": "element.cosine=1;if(element.cosine/2)element.length=1;double matrix[36];cd_consistent_mass",
+    "expected": false
+  }
+]

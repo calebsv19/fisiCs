@@ -14,6 +14,8 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR. Ty
   - Owns lifecycle concerns: LLVM context/module/builder creation, semantic-model wiring, scope stack, loop stack, named-type cache, label book-keeping, and public context accessors.
 - `codegen_helpers.c`
   - Reusable expression utilities (value classification, truthiness coercion, integer predicate selection, `cg_cast_value`, ternary arm merge/PHI builder, and expression-type resolution/call-result refinement).
+- `codegen_abi_hfa.c`
+  - Recognizes native/explicit AArch64 homogeneous aggregates of one through four float/double members for direct register passing/return, including3D double physical carriers. Larger/nonhomogeneous aggregates retain existing indirect lowering; other targets are unchanged.
 - `codegen_layout_abi.c`
   - Owns ABI/lowering and memory-layout helpers: parameter lowering, aggregate ABI pack/unpack for returns, size/align bridging, pointer element-type sizing, VLA byte sizing, entry allocas, load/store helpers, and pointer offset/difference builders.
 - `codegen_declarations.c`

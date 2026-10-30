@@ -160,6 +160,17 @@ void fisics_extension_diag_unit_dim_mismatch(CompilerContext* ctx,
     free(unitDimText);
 }
 
+void fisics_extension_diag_units_argument_dim_mismatch(CompilerContext* ctx,
+                                                       const ASTNode* argument,
+                                                       FisicsDim8 expectedDim,
+                                                       FisicsDim8 actualDim) {
+    report_dim_mismatch(ctx, argument, CDIAG_EXTENSION_UNITS_ARGUMENT_DIM_MISMATCH,
+                        "argument and parameter require identical dimensions",
+                        "argument",
+                        "units argument mismatch: parameter expects '%s' but argument is '%s'",
+                        expectedDim, actualDim);
+}
+
 void fisics_extension_diag_units_assign_dim_mismatch(CompilerContext* ctx,
                                                      const ASTNode* node,
                                                      FisicsDim8 lhsDim,
@@ -325,4 +336,41 @@ void fisics_extension_diag_units_conversion_requires_floating(CompilerContext* c
                          "the first explicit conversion lane currently supports only floating scalar source expressions",
                          "explicit units conversion helper '%s' currently requires a floating scalar source expression",
                          calleeName ? calleeName : "fisics_convert_unit");
+}
+
+void fisics_extension_diag_units_return_dim_mismatch(CompilerContext* ctx,const ASTNode* node,FisicsDim8 expected,FisicsDim8 actual) {
+    report_dim_mismatch(ctx,node,CDIAG_EXTENSION_UNITS_RETURN_DIM_MISMATCH,
+        "return value and declaration require identical dimensions","return",
+        "units return mismatch: expected '%s' but found '%s'",expected,actual);
+}
+
+void fisics_extension_diag_units_return_contract_mismatch(CompilerContext* ctx,const ASTNode* node,FisicsDim8 expected,FisicsDim8 actual) {
+    report_dim_mismatch(ctx,node,CDIAG_EXTENSION_UNITS_RETURN_CONTRACT_MISMATCH,
+        "return value and declaration require identical dimensions","return",
+        "units return contract mismatch: expected '%s' but found '%s'",expected,actual);
+}
+
+void fisics_extension_diag_units_sqrt_unsupported(CompilerContext* ctx,
+    const ASTNode* node, FisicsDim8 input, const FisicsUnitDef* unit, const char* reason) {
+    char* text = fisics_dim_to_string(input);
+    compiler_report_units_diag_with_details(ctx, node_loc(node), DIAG_ERROR,
+        CDIAG_EXTENSION_UNITS_SQRT_UNSUPPORTED,
+        "Dim8 keeps integer exponents; normalize units explicitly or use a representable quantity",
+        &input, NULL, "sqrt", unit, NULL,
+        "units square root unsupported for '%s': %s", text ? text : "<oom>", reason);
+    free(text);
+}
+
+void fisics_extension_diag_units_math_argument_dim_mismatch(CompilerContext* ctx,
+    const ASTNode* node, const char* operation, FisicsDim8 lhs, FisicsDim8 rhs) {
+    char* lhsText = fisics_dim_to_string(lhs);
+    char* rhsText = fisics_dim_to_string(rhs);
+    compiler_report_units_diag_with_details(ctx, node_loc(node), DIAG_ERROR,
+        CDIAG_EXTENSION_UNITS_MATH_ARGUMENT_DIM_MISMATCH,
+        "math arguments require matching dimensions; use an explicitly typed zero",
+        &lhs, &rhs, operation, NULL, NULL,
+        "units %s argument mismatch: first is '%s' but second is '%s'",
+        operation, lhsText ? lhsText : "<oom>", rhsText ? rhsText : "<oom>");
+    free(lhsText);
+    free(rhsText);
 }

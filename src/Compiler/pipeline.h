@@ -33,6 +33,7 @@ typedef struct {
     CCDialect dialect;
     CCCompatFeatures compatFeatures;
     FisicsOverlayFeatures overlayFeatures;
+    const char* physicalPolicyPath; /* Internal CLI contract; public frontend v1 is unchanged. */
     bool dumpAst;
     bool dumpSemantic;
     bool dumpIR;
@@ -42,6 +43,7 @@ typedef struct {
     bool warnIgnoredInterop;
     bool errorIgnoredInterop;
     bool captureSourceContract;
+    bool capturePhysicalClosure; /* Internal physical receipt only. */
 } CompileOptions;
 
 typedef struct {

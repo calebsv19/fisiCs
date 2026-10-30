@@ -77,6 +77,29 @@ int main(void) {
                      FISICS_DIAG_CATEGORY_EXTENSION,
                      "extension",
                      "extension.units.assign_dim_mismatch",
+                     "extension") ||
+        !expect_code(FISICS_DIAG_CODE_EXTENSION_UNITS_RETURN_DIM_MISMATCH,
+                     FISICS_DIAG_CATEGORY_EXTENSION,
+                     "extension",
+                     "extension.units.return_dim_mismatch",
+                     "extension") ||
+        !expect_code(FISICS_DIAG_CODE_EXTENSION_UNITS_RETURN_CONTRACT_MISMATCH,
+                     FISICS_DIAG_CATEGORY_EXTENSION,
+                     "extension",
+                     "extension.units.return_contract_mismatch",
+                     "extension") ||
+        !expect_code(FISICS_DIAG_CODE_EXTENSION_UNITS_MATH_ARGUMENT_DIM_MISMATCH,
+                     FISICS_DIAG_CATEGORY_EXTENSION, "extension",
+                     "extension.units.math_argument_dim_mismatch", "extension") ||
+        !expect_code(FISICS_DIAG_CODE_EXTENSION_UNITS_SQRT_UNSUPPORTED,
+                     FISICS_DIAG_CATEGORY_EXTENSION,
+                     "extension",
+                     "extension.units.sqrt_unsupported",
+                     "extension") ||
+        !expect_code(FISICS_DIAG_CODE_EXTENSION_UNITS_ARGUMENT_DIM_MISMATCH,
+                     FISICS_DIAG_CATEGORY_EXTENSION,
+                     "extension",
+                     "extension.units.argument_dim_mismatch",
                      "extension")) {
         return 1;
     }

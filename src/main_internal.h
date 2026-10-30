@@ -17,6 +17,7 @@ typedef struct {
     size_t capacity;
 } StringList;
 
+bool main_physical_options_valid(FisicsOverlayFeatures,const char*,size_t,size_t,bool,PreprocessMode);
 void string_list_free(StringList* list);
 bool string_list_push(StringList* list, const char* value);
 
@@ -46,6 +47,7 @@ typedef struct {
     CCDialect dialect;
     CCCompatFeatures compatFeatures;
     FisicsOverlayFeatures overlayFeatures;
+    const char* physicalPolicyPath;
     int enableCodegen;
     const StringList* includePaths;
     const StringList* macroDefines;
@@ -125,3 +127,12 @@ bool main_write_semantic_conflict_diag_json(const char* outPath,
 void main_print_semantic_conflict_text(const CrossTUTypeConflict* conflict);
 
 int main_run_driver_mode(const MainDriverConfig* config);
+
+CompileOptions main_make_compile_options(const MainDriverConfig* config,
+    const char* inputPath,const char* depsJsonPath);
+#include "Extensions/Units/units_coverage_policy.h"
+int main_run_coverage_mode(const MainDriverConfig* config,const char* function,
+    const char* jsonPath,const char* textPath,FisicsCoveragePolicy policy);
+
+#include "Extensions/PhysicalSemantics/physical_coverage.h"
+int main_run_physical_coverage(const MainDriverConfig *,const char *,const char *,PhysicalCoveragePolicy);

@@ -1,0 +1,381 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__units_math_helpers_valid",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=0"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_math_helpers_valid.stdout",
+      "differential": true
+    },
+    {
+      "id": "15__units_math_helpers_fabs_destination",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=1"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_hypot_dimensions",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=2"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_fmax_dimensions",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=3"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_hypot_units",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=4"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_fmax_units",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=5"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_fmax_zero",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=6"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_hypot_zero",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=7"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_argument",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=8"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_return",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=9"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_result_unit",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=10"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_unknown_unit",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=11"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_valid_generic",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=0",
+        "-DUSE_TGMATH"
+      ],
+      "expect_compile_exit": 0,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__units_math_helpers_valid.stdout",
+      "differential": true
+    },
+    {
+      "id": "15__units_math_helpers_hypot_dimensions_generic",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=2",
+        "-DUSE_TGMATH"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_fmax_dimensions_generic",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=3",
+        "-DUSE_TGMATH"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_hypot_units_generic",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=4",
+        "-DUSE_TGMATH"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_fmax_units_generic",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=5",
+        "-DUSE_TGMATH"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__units_math_helpers_fmax_zero_generic",
+      "bucket": "torture-differential",
+      "input": "cases/15__units_math_helpers.c",
+      "expects": [],
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units",
+        "-DFAIL_KIND=6",
+        "-DUSE_TGMATH"
+      ],
+      "expect_compile_exit": 1,
+      "tags": [
+        "physics",
+        "units",
+        "math",
+        "p252"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,520 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 5,
+  "policy_id": "test.p62",
+  "catalog_paths": [
+    "catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.force",
+    "quantity.displacement",
+    "quantity.energy",
+    "quantity.torque",
+    "quantity.ratio"
+  ],
+  "affine_pairs": [],
+  "origins": [],
+  "operation_rules": [],
+  "representations": [
+    {
+      "id": "rep.record.float.r1.n2.polar",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 2,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.float.r1.n2.polar",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 2,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.float.r2.n2.tensor",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 2,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.float.r2.n2.tensor",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 2,
+      "fields": [],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.record.float.r1.n3.polar",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.float.r1.n3.axial",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.array.float.r1.n3.polar",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.float.r1.n3.axial",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.record.float.r2.n3.tensor",
+      "storage": "record",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 3,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.float.r2.n3.tensor",
+      "storage": "array",
+      "scalar": "float",
+      "rank": 2,
+      "extent": 3,
+      "fields": [],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.record.double.r1.n2.polar",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 2,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.double.r1.n2.polar",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 2,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.double.r2.n2.tensor",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 2,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.double.r2.n2.tensor",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 2,
+      "fields": [],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.record.double.r1.n3.polar",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.record.double.r1.n3.axial",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.array.double.r1.n3.polar",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "polar"
+    },
+    {
+      "id": "rep.array.double.r1.n3.axial",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 1,
+      "extent": 3,
+      "fields": [],
+      "parity": "axial"
+    },
+    {
+      "id": "rep.record.double.r2.n3.tensor",
+      "storage": "record",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 3,
+      "fields": [
+        "axes"
+      ],
+      "parity": "tensor"
+    },
+    {
+      "id": "rep.array.double.r2.n3.tensor",
+      "storage": "array",
+      "scalar": "double",
+      "rank": 2,
+      "extent": 3,
+      "fields": [],
+      "parity": "tensor"
+    }
+  ],
+  "shape_helpers": [
+    {
+      "id": "helper.add.float.n2",
+      "operation": "add",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n2.polar",
+        "rep.record.float.r1.n2.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.float.r1.n2.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.subtract.float.n2",
+      "operation": "subtract",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n2.polar",
+        "rep.record.float.r1.n2.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.float.r1.n2.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.scale.float.n2",
+      "operation": "scale",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n2.polar",
+        null
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.float.r1.n2.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.dot.float.n2",
+      "operation": "dot",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.displacement"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n2.polar",
+        "rep.record.float.r1.n2.polar"
+      ],
+      "result_kind": "quantity.energy",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.add.float.n3",
+      "operation": "add",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n3.polar",
+        "rep.record.float.r1.n3.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.float.r1.n3.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.subtract.float.n3",
+      "operation": "subtract",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n3.polar",
+        "rep.record.float.r1.n3.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.float.r1.n3.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.scale.float.n3",
+      "operation": "scale",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n3.polar",
+        null
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.float.r1.n3.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.dot.float.n3",
+      "operation": "dot",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.displacement"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n3.polar",
+        "rep.record.float.r1.n3.polar"
+      ],
+      "result_kind": "quantity.energy",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cross.float.n3",
+      "operation": "cross",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.float.r1.n3.polar",
+        "rep.record.float.r1.n3.polar"
+      ],
+      "result_kind": "quantity.torque",
+      "result_representation": "rep.record.float.r1.n3.axial",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.add.double.n2",
+      "operation": "add",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n2.polar",
+        "rep.record.double.r1.n2.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.double.r1.n2.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.subtract.double.n2",
+      "operation": "subtract",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n2.polar",
+        "rep.record.double.r1.n2.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.double.r1.n2.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.scale.double.n2",
+      "operation": "scale",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n2.polar",
+        null
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.double.r1.n2.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.dot.double.n2",
+      "operation": "dot",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.displacement"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n2.polar",
+        "rep.record.double.r1.n2.polar"
+      ],
+      "result_kind": "quantity.energy",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.add.double.n3",
+      "operation": "add",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n3.polar",
+        "rep.record.double.r1.n3.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.double.r1.n3.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.subtract.double.n3",
+      "operation": "subtract",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n3.polar",
+        "rep.record.double.r1.n3.polar"
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.double.r1.n3.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.scale.double.n3",
+      "operation": "scale",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n3.polar",
+        null
+      ],
+      "result_kind": "quantity.force",
+      "result_representation": "rep.record.double.r1.n3.polar",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.dot.double.n3",
+      "operation": "dot",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.displacement"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n3.polar",
+        "rep.record.double.r1.n3.polar"
+      ],
+      "result_kind": "quantity.energy",
+      "result_representation": null,
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    },
+    {
+      "id": "helper.cross.double.n3",
+      "operation": "cross",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.force"
+      ],
+      "operand_representations": [
+        "rep.record.double.r1.n3.polar",
+        "rep.record.double.r1.n3.polar"
+      ],
+      "result_kind": "quantity.torque",
+      "result_representation": "rep.record.double.r1.n3.axial",
+      "preconditions": "common_cartesian_basis_right_handed",
+      "provenance": "declared_implementation_and_basis"
+    }
+  ]
+}

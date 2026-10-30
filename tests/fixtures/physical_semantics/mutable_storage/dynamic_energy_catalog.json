@@ -1,0 +1,128 @@
+{
+  "schema": "fisiCs.physical_contract_catalog",
+  "schema_version": 1,
+  "catalog_id": "structural.dynamic.energy.p713",
+  "quantity_kinds": [
+    {
+      "id": "quantity.mass",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass"
+    },
+    {
+      "id": "quantity.velocity",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "length/time"
+    },
+    {
+      "id": "quantity.angular_rate",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1/time"
+    },
+    {
+      "id": "quantity.moment_of_inertia",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length^2"
+    },
+    {
+      "id": "quantity.rotational_momentum",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        2,
+        1,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length^2/time"
+    },
+    {
+      "id": "quantity.momentum",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        1,
+        1,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "mass*length/time"
+    },
+    {
+      "id": "quantity.duration",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "time"
+    },
+    {
+      "id": "quantity.inverse_duration",
+      "dimension_system": "fisiCs.si_dim8.v1",
+      "dimension_vector": [
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dimension_text": "1/time"
+    }
+  ],
+  "contracts": []
+}

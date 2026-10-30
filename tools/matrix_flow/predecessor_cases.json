@@ -1,0 +1,624 @@
+[
+  {
+    "id": "legacy.baseline",
+    "original_id": "baseline",
+    "tu": null,
+    "old": null,
+    "new": null,
+    "expected": true,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.missing-output",
+    "original_id": "missing-output",
+    "tu": "core_structural_frame_inertia",
+    "old": "global[i*6+j]=v;",
+    "new": "if(i<5)global[i*6+j]=v;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.producer-dimension",
+    "original_id": "producer-dimension",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "double l=1;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.all-zero-producer",
+    "original_id": "all-zero-producer",
+    "tu": "core_structural_frame_inertia",
+    "old": "cd_transform(e,local,out);",
+    "new": "for(size_t q=0;q<36;q++)out[q]=0;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.transform-stride",
+    "original_id": "transform-stride",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[a*6+b]",
+    "new": "local[a*5+b]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.assembly-stride",
+    "original_id": "assembly-stride",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "matrix[6*i+j]",
+    "new": "matrix[5*i+j]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.translation-role",
+    "original_id": "translation-role",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "3*v->node_a,3*v->node_a+1",
+    "new": "3*v->node_a+2,3*v->node_a+1",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.rotation-bound",
+    "original_id": "rotation-bound",
+    "tu": "core_structural_plastic_frame_joints",
+    "old": "3*(m->nodes+j)+2",
+    "new": "3*(m->nodes+j+1)+2",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.partial-zero",
+    "original_id": "partial-zero",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "memset(o->mass,0,sizeof(o->mass))",
+    "new": "memset(o->mass,0,27*sizeof(double))",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.late-mass-write",
+    "original_id": "late-mass-write",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double rhs[27]={0};",
+    "new": "o->mass[0][0]=0;double rhs[27]={0};",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.mass-alias",
+    "original_id": "mass-alias",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double rhs[27]={0};",
+    "new": "double *escape=o->mass[0];escape[0]=0;double rhs[27]={0};",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.owner-escape",
+    "original_id": "owner-escape",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double rhs[27]={0};",
+    "new": "extern void escape(CoreStructuralFrameMotion *);escape(o);double rhs[27]={0};",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.active-count",
+    "original_id": "active-count",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "size_t n=3*(m->nodes+m->joints);CoreStructuralFrameMotionState",
+    "new": "size_t n=26;CoreStructuralFrameMotionState",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.dt-binding",
+    "original_id": "dt-binding",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double dt=o->settings.dt_s;CsFiberWork",
+    "new": "double dt=o->settings.alpha_m_per_s;CsFiberWork",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.old-state",
+    "original_id": "old-state",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "CoreStructuralFrameMotionState old=o->accepted",
+    "new": "CoreStructuralFrameMotionState old={0}",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.accumulator-init",
+    "original_id": "accumulator-init",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double kinetic=0,damping=0,external=0",
+    "new": "double kinetic=1,damping=0,external=0",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.unknown-producer",
+    "original_id": "unknown-producer",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "cd_consistent_mass(&element,",
+    "new": "unknown_mass(&element,",
+    "expected": false,
+    "source": "P9.24 predecessor67",
+    "extra_replacements": [
+      [
+        "#include \"core_structural_frame_motion_internal.h\"",
+        "#include \"core_structural_frame_motion_internal.h\"\nextern void unknown_mass(const CsFrameElement *,double,double *);"
+      ]
+    ]
+  },
+  {
+    "id": "legacy.concrete-unit",
+    "original_id": "concrete-unit",
+    "tu": "core_structural_frame_inertia",
+    "old": "double mass,double out[36]",
+    "new": "double mass [[fisics::dim(mass)]][[fisics::unit(kilogram)]],double out[36]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.consumer-column",
+    "original_id": "consumer-column",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->mass[i][j],o->accepted.velocity[j]",
+    "new": "o->mass[i][j],o->accepted.velocity[(j+1)%27]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.callback-escape",
+    "original_id": "callback-escape",
+    "tu": "core_structural_fiber_beam_solve",
+    "old": "size_t n=m->dofs;",
+    "new": "extern void escape(const void *);escape(m->model);size_t n=m->dofs;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.late-current-state-write",
+    "original_id": "late-current-state-write",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "w->result.residual_n=w->result.residual_nm=0;\n for(size_t i=0;i<n;i++){o->accepted.inertial",
+    "new": "o->accepted.velocity[0]=0;w->result.residual_n=w->result.residual_nm=0;\n for(size_t i=0;i<n;i++){o->accepted.inertial",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.solve-matrix-write",
+    "original_id": "solve-matrix-write",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "size_t map[27],n=0;",
+    "new": "matrix[0][0]=0;size_t map[27],n=0;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.work-state-poison",
+    "original_id": "work-state-poison",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double zero[27]={0},ignored[27];",
+    "new": "w->result.displacement[0]=o->settings.density_kg_m3[0];double zero[27]={0},ignored[27];",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.work-escape",
+    "original_id": "work-escape",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double zero[27]={0},ignored[27];",
+    "new": "extern void escape(void *);escape(w);double zero[27]={0},ignored[27];",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.static-local",
+    "original_id": "static-local",
+    "tu": "core_structural_frame_inertia",
+    "old": "double local[36]={0};",
+    "new": "static double local[36]={0};",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.volatile-local",
+    "original_id": "volatile-local",
+    "tu": "core_structural_frame_inertia",
+    "old": "double local[36]={0};",
+    "new": "volatile double local[36]={0};",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.null-cancel-edge",
+    "original_id": "null-cancel-edge",
+    "tu": "core_structural_fiber_beam_solve",
+    "old": "cs_fiber_cancel(cancel,context,d)",
+    "new": "cs_fiber_cancel((CoreStructuralFiberBeamCancel)1,context,d)",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.unknown-defined-interface",
+    "original_id": "unknown-defined-interface",
+    "tu": "core_structural_frame_inertia",
+    "old": "void cd_transform(",
+    "new": "extern void alien(const CsFrameElement *,const double *,double *);\nvoid cd_transform(",
+    "expected": false,
+    "source": "P9.24 predecessor67",
+    "extra_replacements": [
+      [
+        "cd_transform(e,local,out);",
+        "alien(e,local,out);"
+      ]
+    ]
+  },
+  {
+    "id": "legacy.integer-overflow",
+    "original_id": "integer-overflow",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[a*6+b]",
+    "new": "local[((18446744073709551615ULL+2)%6)*6+b]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.unsigned-underflow",
+    "original_id": "unsigned-underflow",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[a*6+b]",
+    "new": "local[((0u-1u)%6)*6+b]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.negative-remainder",
+    "original_id": "negative-remainder",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[a*6+b]",
+    "new": "local[((-1)%6)*6+b]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.storage-limit",
+    "original_id": "storage-limit",
+    "tu": "core_structural_frame_inertia",
+    "old": "double local[36]={0};",
+    "new": "double local[730]={0};",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.recursive-producer",
+    "original_id": "recursive-producer",
+    "tu": "core_structural_frame_inertia",
+    "old": "cd_transform(e,local,out);",
+    "new": "cd_consistent_mass(e,mass,out);",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.changed-summary-input",
+    "original_id": "changed-summary-input",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "density_kg_m3[original]*area*L,matrix",
+    "new": "density_kg_m3[original]*area,matrix",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.initialized-output-control",
+    "original_id": "initialized-output-control",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "double matrix[36];",
+    "new": "double matrix[36]={0};",
+    "expected": true,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.producer-output-alias",
+    "original_id": "producer-output-alias",
+    "tu": "core_structural_frame_inertia",
+    "old": "cd_transform(e,local,out);",
+    "new": "cd_transform(e,out,out);",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.producer-read-before-write",
+    "original_id": "producer-read-before-write",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "out[0]+=mass;double l=e->length;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.unsigned-division-hidden",
+    "original_id": "unsigned-division-hidden",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[a*6+b]",
+    "new": "local[a*6+b+((0u-1u)/4096u)]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.double-scalar-zero-launder",
+    "original_id": "double-scalar-zero-launder",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;double z=1;z/=2;local[0]=mass/l*z;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.double-array-zero-launder",
+    "original_id": "double-array-zero-launder",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;double q[1]={1};local[0]=mass/l*(q[0]/2);",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.char-narrowing",
+    "original_id": "char-narrowing",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "unsigned char z=256;double l=e->length;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.typedef-narrowing",
+    "original_id": "typedef-narrowing",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "Small z=256;double l=e->length;",
+    "expected": false,
+    "source": "P9.24 predecessor67",
+    "prefix": "typedef unsigned char Small;\n"
+  },
+  {
+    "id": "legacy.short-conversion",
+    "original_id": "short-conversion",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "unsigned short z=1;double l=e->length;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.new-dimensioned-local",
+    "original_id": "new-dimensioned-local",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "double z [[fisics::dim(length)]]=0;double l=e->length;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.float-storage",
+    "original_id": "float-storage",
+    "tu": "core_structural_frame_inertia",
+    "old": "double l=e->length;",
+    "new": "float z=1;double l=e->length;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.double-scalar-valid",
+    "original_id": "double-scalar-valid",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;double z=1;z/=2;local[0]=mass*(z*2)/3;",
+    "expected": true,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.double-array-valid",
+    "original_id": "double-array-valid",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;double q[1]={1};local[0]=mass*((q[0]/2)*2)/3;",
+    "expected": true,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.fmax-zero-launder",
+    "original_id": "fmax-zero-launder",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;local[0]=mass/l*fmax(0,1);",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.fabs-zero-launder",
+    "original_id": "fabs-zero-launder",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;local[0]=mass/l*(fabs(-1)+1);",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.typed-zero-product",
+    "original_id": "typed-zero-product",
+    "tu": "core_structural_frame_inertia",
+    "old": "local[3]=local[18]=mass/6;",
+    "new": "local[3]=local[18]=mass/6;local[0]=mass/l*0;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.decay-for-angular-rate",
+    "original_id": "decay-for-angular-rate",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->mass[i][j],o->accepted.velocity[j]);damping",
+    "new": "o->mass[i][j],(j%3==2?o->settings.alpha_m_per_s:o->accepted.velocity[j]));damping",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.angular-rate-for-decay",
+    "original_id": "angular-rate-for-decay",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "dt,o->settings.alpha_m_per_s,old.velocity[i]",
+    "new": "dt,o->accepted.velocity[2],old.velocity[i]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.energy-for-torque",
+    "original_id": "energy-for-torque",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "old.frame.state.applied[i],t.load[i]",
+    "new": "(i%3==2?kinetic:old.frame.state.applied[i]),t.load[i]",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.target-pointer-alias",
+    "original_id": "target-pointer-alias",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "double *alias=t.load;alias[0]=0;o->accepted.tick++;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.work-pointer-alias",
+    "original_id": "work-pointer-alias",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "double *alias=w->result.displacement;alias[0]=0;o->accepted.tick++;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.settings-late-write",
+    "original_id": "settings-late-write",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "o->settings.alpha_m_per_s=0;o->accepted.tick++;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.formal-rebinding",
+    "original_id": "formal-rebinding",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "o->accepted.tick++;",
+    "new": "endpoint_load=endpoint_load;o->accepted.tick++;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.callback-rebinding",
+    "original_id": "callback-rebinding",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "memset(o->mass,0,sizeof(o->mass));",
+    "new": "cb=cb;memset(o->mass,0,sizeof(o->mass));",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.unforced-guard-changed",
+    "original_id": "unforced-guard-changed",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "if(endpoint_load)memcpy",
+    "new": "if(!endpoint_load)memcpy",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.metadata-stripped",
+    "original_id": "metadata-stripped",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "#include \"core_structural_frame_motion_internal.h\"",
+    "new": "#undef __FISICS__\n#include \"core_structural_frame_motion_internal.h\"",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.old-state-pointer",
+    "original_id": "old-state-pointer",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "CoreStructuralFrameMotionState old=o->accepted;",
+    "new": "CoreStructuralFrameMotionState *old=&o->accepted;",
+    "expected": false,
+    "source": "P9.24 predecessor67",
+    "extra_replacements": [
+      [
+        "old.",
+        "old->"
+      ]
+    ]
+  },
+  {
+    "id": "legacy.indirect-zeroing",
+    "original_id": "indirect-zeroing",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "memset(o->mass,0,sizeof(o->mass));",
+    "new": "void *(*original_memset)(void *,int,size_t)=memset;void *(*memset)(void *,int,size_t)=original_memset;memset(o->mass,0,sizeof(o->mass));",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.indirect-allocation",
+    "original_id": "indirect-allocation",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "CsFiberWork *w=core_calloc(1,sizeof(*w));",
+    "new": "void *(*allocate)(size_t,size_t)=core_calloc;void *(*core_calloc)(size_t,size_t)=allocate;CsFiberWork *w=core_calloc(1,sizeof(*w));",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.wrong-callback-receiver",
+    "original_id": "wrong-callback-receiver",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "const DynamicTrial *v=ptr;",
+    "new": "const DynamicTrial *v=NULL;",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.capacity-not-active",
+    "original_id": "capacity-not-active",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "3*v->node_a,3*v->node_a+1",
+    "new": "24,3*v->node_a+1",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.inactive-consumer",
+    "original_id": "inactive-consumer",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "for(size_t i=0;i<n;i++){o->accepted.inertial",
+    "new": "for(size_t i=0;i<27;i++){o->accepted.inertial",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  },
+  {
+    "id": "legacy.initializer-count",
+    "original_id": "initializer-count",
+    "tu": "core_structural_frame_motion_integrate",
+    "old": "size_t n=3*(m->nodes+m->joints);CsFiberWork",
+    "new": "size_t n=27;CsFiberWork",
+    "expected": false,
+    "source": "P9.24 predecessor67"
+  }
+]

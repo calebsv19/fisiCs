@@ -70,5 +70,9 @@ double probe_callback_reserve_score(
     double window_m
         [[fisics::dim(length)]]
         [[fisics::unit(meter)]] = fisics_convert_unit(window_ft, "meter");
-    return (state.total_energy_j / window_m) + state.total_charge_ah;
+    /* A dimensionless numerical checksum, not a sum of physical quantities. */
+    double one_meter [[fisics::dim(length)]] [[fisics::unit(meter)]] = 1.0;
+    double one_joule [[fisics::dim(energy)]] [[fisics::unit(joule)]] = 1.0;
+    double one_ampere_hour [[fisics::dim(charge)]] [[fisics::unit(ampere_hour)]] = 1.0;
+    return ((state.total_energy_j / one_joule) / (window_m / one_meter)) + (state.total_charge_ah / one_ampere_hour);
 }

@@ -1,5 +1,8 @@
 # Physics Units Pilot
 
+Continue from this units pilot to physical kinds, frames, energy forms and strict
+coverage with the [Physical Authoring Path](../../docs/physics_authoring_path.md).
+
 This example lane is the first public validation customer for the `fisiCs`
 physics-units overlay.
 

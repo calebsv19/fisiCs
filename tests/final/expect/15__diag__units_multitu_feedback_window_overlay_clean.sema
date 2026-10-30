@@ -331,7 +331,7 @@ Extension Units Annotations: 7
   - line 16: m*kg/s^2 [resolved, unit=pound_force, unit-resolved]
   - line 17: m^2*kg/s^2 [resolved, unit=watt_hour, unit-resolved]
   - line 20: s [resolved, unit=millisecond, unit-resolved]
-Extension Units Expr Results: 18
+Extension Units Expr Results: 26
   - line 6: number-literal [dim=1, resolved]
   - line 6: number-literal [dim=1, resolved]
   - line 7: number-literal [dim=1, resolved]
@@ -348,5 +348,13 @@ Extension Units Expr Results: 18
   - line 13: number-literal [dim=1, resolved]
   - line 15: number-literal [dim=1, resolved]
   - line 15: number-literal [dim=1, resolved]
+  - line 16: expr [dim=m, resolved, unit=meter]
+  - line 16: expr [dim=m, resolved, unit=meter]
+  - line 16: assignment(+=) [dim=m, resolved, unit=meter]
+  - line 17: expr [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 17: expr [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 17: assignment(+=) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 20: expr [dim=m, resolved, unit=meter]
+  - line 21: expr [dim=m^2*kg/s^2, resolved, unit=joule]
   - line 22: number-literal [dim=1, resolved]
   - line 23: number-literal [dim=1, resolved]

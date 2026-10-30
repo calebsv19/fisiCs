@@ -2,6 +2,8 @@
 
 #include "analyze_decls_internal.h"
 #include "Extensions/extension_units_view.h"
+#include "Extensions/extension_units_call_contracts.h"
+#include "Extensions/PhysicalSemantics/physical_semantics.h"
 #include "Utils/profiler.h"
 
 #include <ctype.h>
@@ -438,8 +440,10 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 }
 
                 const FisicsUnitsAnnotation* unitsAnn =
-                    fisics_extension_lookup_units_annotation(scope ? scope->ctx : NULL, node);
+                    fisics_extension_lookup_units_declarator_annotation(scope ? scope->ctx : NULL, node, i);
                 Symbol* existing = lookupSymbol(&scope->table, ident->valueNode.value);
+                if (existing && existing->kind == SYMBOL_VARIABLE)
+                    fisics_physical_redeclare_variable(scope->ctx,ident,existing,varType);
                 if (existing) {
                     if (existing->kind != SYMBOL_VARIABLE) {
                         addErrorWithRanges(ident ? ident->location : node->location,
@@ -526,6 +530,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                                    ident ? ident->valueNode.value : NULL);
                                 continue;
                             }
+                            fisics_physical_redeclare_variable(scope->ctx,ident,linked,varType);
                             if (!parsedTypesStructurallyCompatibleInScope(&linked->type, varType, scope)) {
                                 addVariableTypeConflictError(ident,
                                                              node,
@@ -682,6 +687,9 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             bool isDefinition = (node->type == AST_FUNCTION_DEFINITION);
 
             Symbol* existing = lookupSymbol(&scope->table, funcName->valueNode.value);
+            fisics_units_note_function_return_contract(scope->ctx, node,
+                existing && existing->kind == SYMBOL_FUNCTION ? &existing->type : NULL, returnType);
+            fisics_physical_redeclare_function(scope->ctx,node,existing);
             if (existing && existing->kind == SYMBOL_FUNCTION) {
                 if (!existing->definition) {
                     ParsedType reboundType = parsedTypeClone(
@@ -796,6 +804,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         freeFunctionSignatureParameters(&tmp.signature);
                         break;
                     }
+                    fisics_units_inherit_return_attributes(&existing->type,returnType);
                     mergeCompatibleParsedTypeDetailsInScope(
                         &existing->type,
                         node->type == AST_FUNCTION_DEFINITION
@@ -865,6 +874,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     break;
                 }
                 if (linkedFunction) {
+                    fisics_physical_redeclare_function(scope->ctx,node,linkedFunction);
                     const ParsedType* currentReturn =
                         node->type == AST_FUNCTION_DEFINITION
                             ? &node->functionDef.returnType

@@ -136,7 +136,7 @@ void analyze(ASTNode* node, Scope* scope) {
                     s->hasDefinition = true;
                     symbolAttachUnitsAnnotation(
                         s,
-                        fisics_extension_lookup_units_annotation(fscope ? fscope->ctx : NULL, p),
+                        fisics_extension_lookup_units_declarator_annotation(fscope ? fscope->ctx : NULL, p, k),
                         k);
 
                     addToScope(fscope, s);

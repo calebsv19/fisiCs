@@ -1,0 +1,693 @@
+{
+  "schema": "fisiCs.physical_semantics_policy",
+  "schema_version": 7,
+  "policy_id": "compiler.mutable.storage.v1",
+  "catalog_paths": [
+    "frame_catalog.json",
+    "dynamic_energy_catalog.json",
+    "catalog.json"
+  ],
+  "linear_kinds": [
+    "quantity.pressure",
+    "quantity.area",
+    "quantity.inertia",
+    "quantity.displacement",
+    "quantity.translational_stiffness",
+    "quantity.force",
+    "quantity.torque",
+    "quantity.angle",
+    "quantity.rotational_stiffness",
+    "quantity.force_per_angle",
+    "quantity.moment_per_displacement",
+    "quantity.line_load",
+    "quantity.energy",
+    "quantity.ratio",
+    "quantity.geometric_length",
+    "quantity.length_squared",
+    "quantity.length_cubed",
+    "quantity.section_modulus",
+    "quantity.axial_rigidity",
+    "quantity.flexural_rigidity",
+    "quantity.coupling_coefficient",
+    "quantity.thermal_expansion_coefficient",
+    "quantity.mechanical_strain",
+    "quantity.mass",
+    "quantity.velocity",
+    "quantity.angular_rate",
+    "quantity.moment_of_inertia",
+    "quantity.rotational_momentum",
+    "quantity.momentum",
+    "quantity.duration",
+    "quantity.inverse_duration",
+    "quantity.inertia_translation_rotation",
+    "quantity.inertia_rotation_translation"
+  ],
+  "affine_pairs": [
+    {
+      "absolute_kind": "quantity.temperature.absolute",
+      "difference_kind": "quantity.temperature.difference"
+    }
+  ],
+  "origins": [
+    {
+      "id": "origin.kelvin.zero",
+      "absolute_kind": "quantity.temperature.absolute"
+    }
+  ],
+  "operation_rules": [
+    {
+      "id": "rule.translational_stiffness.displacement",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.translational_stiffness",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.displacement.translational_stiffness",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.translational_stiffness"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.force_per_angle.angle",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.force_per_angle",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.angle.force_per_angle",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.force_per_angle"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.moment_per_displacement.displacement",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.moment_per_displacement",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.displacement.moment_per_displacement",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.moment_per_displacement"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.rotational_stiffness.angle",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.rotational_stiffness",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.angle.rotational_stiffness",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angle",
+        "quantity.rotational_stiffness"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.translational_stiffness",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.translational_stiffness"
+      ],
+      "result_kind": "quantity.translational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.translational_stiffness.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.translational_stiffness",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.translational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.coupling_coefficient",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.coupling_coefficient"
+      ],
+      "result_kind": "quantity.coupling_coefficient",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.coupling_coefficient.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.coupling_coefficient",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.coupling_coefficient",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.rotational_stiffness",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.rotational_stiffness"
+      ],
+      "result_kind": "quantity.rotational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.rotational_stiffness.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.rotational_stiffness",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.rotational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.force",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.force"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.force.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.ratio.torque",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.torque"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.torque.ratio",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.pressure.area",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.pressure",
+        "quantity.area"
+      ],
+      "result_kind": "quantity.axial_rigidity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.pressure.inertia",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.pressure",
+        "quantity.inertia"
+      ],
+      "result_kind": "quantity.flexural_rigidity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.geometric_length.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.geometric_length",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.length_squared",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.length_squared.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.length_squared",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.length_cubed",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.axial_rigidity.geometric_length",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.axial_rigidity",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.translational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.flexural_rigidity.length_cubed",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.flexural_rigidity",
+        "quantity.length_cubed"
+      ],
+      "result_kind": "quantity.translational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.translational_stiffness.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.translational_stiffness",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.coupling_coefficient",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.coupling_coefficient.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.coupling_coefficient",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.rotational_stiffness",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.line_load.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.line_load",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.line_load.length_squared",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.line_load",
+        "quantity.length_squared"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.force.area",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.area"
+      ],
+      "result_kind": "quantity.pressure",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.torque.section_modulus",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.section_modulus"
+      ],
+      "result_kind": "quantity.pressure",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.construct.tr",
+      "operation": "frame_coupling_tr",
+      "operand_kinds": [
+        "quantity.coupling_coefficient"
+      ],
+      "result_kind": "quantity.force_per_angle",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.construct.rt",
+      "operation": "frame_coupling_rt",
+      "operand_kinds": [
+        "quantity.coupling_coefficient"
+      ],
+      "result_kind": "quantity.moment_per_displacement",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.work.translation",
+      "operation": "translation_work",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.displacement"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.work.rotation",
+      "operation": "rotation_work",
+      "operand_kinds": [
+        "quantity.torque",
+        "quantity.angle"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.load.transverse_moment",
+      "operation": "transverse_line_moment",
+      "operand_kinds": [
+        "quantity.force",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.torque",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.thermal_expansion_coefficient.temperature.difference",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.thermal_expansion_coefficient",
+        "quantity.temperature.difference"
+      ],
+      "result_kind": "quantity.mechanical_strain",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.temperature.difference.thermal_expansion_coefficient",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.temperature.difference",
+        "quantity.thermal_expansion_coefficient"
+      ],
+      "result_kind": "quantity.mechanical_strain",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.axial_rigidity.mechanical_strain",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.axial_rigidity",
+        "quantity.mechanical_strain"
+      ],
+      "result_kind": "quantity.force",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.divide.displacement.geometric_length",
+      "operation": "divide",
+      "operand_kinds": [
+        "quantity.displacement",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.mechanical_strain",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.multiply.mechanical_strain.geometric_length",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.mechanical_strain",
+        "quantity.geometric_length"
+      ],
+      "result_kind": "quantity.displacement",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.velocity.mass",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.mass"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.momentum.velocity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.momentum",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.angular_rate.moment_of_inertia",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.moment_of_inertia"
+      ],
+      "result_kind": "quantity.rotational_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.rotational_momentum.angular_rate",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.rotational_momentum",
+        "quantity.angular_rate"
+      ],
+      "result_kind": "quantity.energy",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.duration.inverse_duration",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.duration",
+        "quantity.inverse_duration"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.ratio.velocity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.velocity"
+      ],
+      "result_kind": "quantity.velocity",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.ratio.angular_rate",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.angular_rate"
+      ],
+      "result_kind": "quantity.angular_rate",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.dynamic.ratio.ratio",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.ratio",
+        "quantity.ratio"
+      ],
+      "result_kind": "quantity.ratio",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.coupling.translation_rotation.velocity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.inertia_translation_rotation"
+      ],
+      "result_kind": "quantity.rotational_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.coupling.translation_rotation.angular_rate",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.inertia_translation_rotation"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.coupling.rotation_translation.velocity",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.velocity",
+        "quantity.inertia_rotation_translation"
+      ],
+      "result_kind": "quantity.rotational_momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    },
+    {
+      "id": "rule.coupling.rotation_translation.angular_rate",
+      "operation": "multiply",
+      "operand_kinds": [
+        "quantity.angular_rate",
+        "quantity.inertia_rotation_translation"
+      ],
+      "result_kind": "quantity.momentum",
+      "reference_role": "linear",
+      "origin_policy": "none",
+      "provenance": "inputs"
+    }
+  ],
+  "representations": [],
+  "shape_helpers": [],
+  "frame_contexts": [],
+  "reference_points": [],
+  "frames": [],
+  "frame_transforms": [],
+  "energy_forms": [
+    "energy.elastic",
+    "energy.mixed",
+    "energy.thermal"
+  ],
+  "energy_transfers": []
+}

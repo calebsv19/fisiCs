@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "analyze_expr_internal.h"
+#include "Extensions/extension_units_expr_bindings.h"
 #include "analyze_core.h"
 #include "Extensions/extension_diagnostics.h"
 #include "Extensions/extension_units_call_contracts.h"
+#include "Extensions/Units/units_math_semantics.h"
 #include "syntax_errors.h"
 #include "symbol_table.h"
 #include "const_eval.h"
@@ -621,7 +623,14 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             }
         }
     }
+    bool realMathArguments = argInfos && argCount > 0;
+    for (size_t i = 0; realMathArguments && i < argCount; ++i)
+        realMathArguments = typeInfoIsArithmetic(&argInfos[i]) &&
+            !argInfos[i].isComplex && !argInfos[i].isImaginary;
+    fisics_units_note_math_call(scope ? scope->ctx : NULL, node, sym, realMathArguments);
     if (sym && sym->kind == SYMBOL_FUNCTION) {
+        fisics_extension_note_units_call_arg_contract_from_param_type(scope->ctx,node,
+            FISICS_UNITS_RETURN_CONTRACT_INDEX,&sym->type);
         FunctionSignature* sig = &sym->signature;
         node->functionCall.usesPrototype = sig->hasPrototype;
         if (!sig->hasPrototype) {
@@ -704,6 +713,8 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
         if (haveTarget) {
             ParsedType retParsed = parsedTypeFunctionReturnType(&fnTarget);
             if (retParsed.kind != TYPE_INVALID) {
+                fisics_extension_note_units_call_arg_contract_from_param_type(scope->ctx,node,
+                    FISICS_UNITS_RETURN_CONTRACT_INDEX,&retParsed);
                 profiler_record_value("semantic_count_type_info_site_temp", 1);
                 profiler_record_value("semantic_count_type_info_temp_fn_callable_ret", 1);
                 result = typeInfoFromParsedType(&retParsed, scope);
@@ -788,6 +799,11 @@ TypeInfo analyzeMemberAccessExpression(ASTNode* node, Scope* scope) {
 
     const ParsedType* fieldType = analyzeExprLookupFieldType(&base, node->memberAccess.field, scope);
     if (fieldType) {
+        if (scope && cc_overlay_physics_units_enabled(scope->ctx)) {
+            (void)fisics_extension_note_units_type_binding(scope->ctx,node,fieldType);
+            fisics_units_note_origin(scope->ctx,node,
+                analyzeExprLookupFieldOrigin(&base,node->memberAccess.field,scope));
+        }
         profiler_record_value("semantic_count_type_info_site_temp", 1);
         profiler_record_value("semantic_count_type_info_temp_member_field", 1);
         TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);

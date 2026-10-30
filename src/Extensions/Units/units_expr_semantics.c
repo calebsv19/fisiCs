@@ -5,11 +5,17 @@
 #include "AST/ast_node.h"
 #include "Compiler/compiler_context.h"
 #include "Extensions/extension_diagnostics.h"
+#include "Extensions/Units/units_call_semantics.h"
+#include "Extensions/Units/units_math_semantics.h"
+#include "Extensions/Units/units_access_semantics.h"
+#include "Extensions/Units/units_return_semantics.h"
 #include "Extensions/extension_units_call_contracts.h"
 #include "Extensions/extension_units_expr_bindings.h"
 #include "Extensions/extension_units_expr_table.h"
 #include "Extensions/extension_units_view.h"
 #include "Extensions/Units/units_conversion.h"
+#include "Extensions/Units/units_initializer_semantics.h"
+#include "Extensions/Units/units_literal_semantics.h"
 #include "Syntax/scope.h"
 #include "Syntax/type_checker.h"
 
@@ -17,9 +23,6 @@
 
 static void walk_expr_results(ASTNode* node, CompilerContext* ctx);
 static bool node_is_explicit_units_convert_call(const ASTNode* node);
-static void maybe_record_owner_literal(CompilerContext* ctx,
-                                       ASTNode* ownerNode,
-                                       ASTNode* expression);
 static bool type_info_is_record(const TypeInfo* info);
 static ASTNode* resolve_units_record_definition(const ParsedType* parsedType,
                                                 const TypeInfo* info,
@@ -30,6 +33,7 @@ static bool lookup_units_record_field(ASTNode* recordDef,
                                       ASTNode** outFieldDecl,
                                       const ParsedType** outFieldType);
 static Scope* s_units_root_scope = NULL;
+static ASTNode* s_units_current_function = NULL;
 
 typedef struct UnitsPointerAlias {
     const char* name;
@@ -155,29 +159,6 @@ static bool units_resolved_and_different(const FisicsUnitDef* leftUnit,
     return leftUnitResolved && rightUnitResolved && leftUnit && rightUnit && leftUnit != rightUnit;
 }
 
-static Symbol* resolve_named_callee_symbol(const ASTNode* callee) {
-    if (!s_units_root_scope || !callee || callee->type != AST_IDENTIFIER || !callee->valueNode.value) {
-        return NULL;
-    }
-    return resolveInScopeChain(s_units_root_scope, callee->valueNode.value);
-}
-
-static ASTNode* function_param_decl_at(const Symbol* sym, size_t index) {
-    if (!sym || !sym->definition) return NULL;
-    ASTNode* def = sym->definition;
-    ASTNode** params = NULL;
-    size_t paramCount = 0;
-    if (def->type == AST_FUNCTION_DEFINITION) {
-        params = def->functionDef.parameters;
-        paramCount = def->functionDef.paramCount;
-    } else if (def->type == AST_FUNCTION_DECLARATION) {
-        params = def->functionDecl.parameters;
-        paramCount = def->functionDecl.paramCount;
-    }
-    if (!params || index >= paramCount) return NULL;
-    return params[index];
-}
-
 static void collect_function_return_units(ASTNode* node,
                                           CompilerContext* ctx,
                                           bool* found,
@@ -283,15 +264,22 @@ static void collect_function_return_units(ASTNode* node,
 
 static void maybe_record_function_call_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_FUNCTION_CALL || node_is_explicit_units_convert_call(node)) return;
-    Symbol* sym = resolve_named_callee_symbol(node->functionCall.callee);
-    if (!sym || !sym->definition || sym->definition->type != AST_FUNCTION_DEFINITION) return;
+    const FisicsUnitsCallArgContract* contract = fisics_extension_lookup_units_call_arg_contract(
+        ctx,node,FISICS_UNITS_RETURN_CONTRACT_INDEX);
+    if (contract && contract->resolved) {
+        fisics_extension_set_units_expr_result_with_unit(ctx,node,contract->dim,true,
+            contract->unitDef,contract->unitResolved);
+        return;
+    }
+    ASTNode* definition = fisics_extension_lookup_units_function_binding(ctx,node->functionCall.callee);
+    if (!definition || definition->type != AST_FUNCTION_DEFINITION) return;
 
     bool found = false;
     bool conflict = false;
     FisicsDim8 returnDim = fisics_dim_zero();
     const FisicsUnitDef* returnUnit = NULL;
     bool returnUnitResolved = false;
-    collect_function_return_units(sym->definition->functionDef.body,
+    collect_function_return_units(definition->functionDef.body,
                                   ctx,
                                   &found,
                                   &conflict,
@@ -306,59 +294,6 @@ static void maybe_record_function_call_result(CompilerContext* ctx, ASTNode* nod
                                                            true,
                                                            returnUnitResolved ? returnUnit : NULL,
                                                            returnUnitResolved);
-}
-
-static void maybe_validate_function_call_argument_units(CompilerContext* ctx, ASTNode* node) {
-    if (!ctx || !node || node->type != AST_FUNCTION_CALL) return;
-    bool sawContract = false;
-    for (size_t i = 0; i < node->functionCall.argumentCount; ++i) {
-        const FisicsUnitsCallArgContract* contract =
-            fisics_extension_lookup_units_call_arg_contract(ctx, node, i);
-        if (!contract) continue;
-        sawContract = true;
-        if (!contract->resolved || !contract->unitResolved || !contract->unitDef) continue;
-
-        ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : NULL;
-        FisicsDim8 argDim = fisics_dim_zero();
-        const FisicsUnitDef* argUnit = NULL;
-        bool argUnitResolved = false;
-        if (!lookup_resolved_expr_metadata(ctx, argNode, &argDim, &argUnit, &argUnitResolved)) continue;
-        if (!fisics_dim_equal(argDim, contract->dim)) continue;
-        if (units_resolved_and_different(contract->unitDef, true, argUnit, argUnitResolved)) {
-            fisics_extension_diag_units_implicit_unit_conversion(ctx,
-                                                                 argNode ? argNode : node,
-                                                                 "argument",
-                                                                 argUnit,
-                                                                 contract->unitDef);
-        }
-    }
-    if (sawContract) return;
-
-    Symbol* sym = resolve_named_callee_symbol(node->functionCall.callee);
-    if (!sym || sym->kind != SYMBOL_FUNCTION) return;
-
-    size_t pairCount = node->functionCall.argumentCount < sym->signature.paramCount
-                           ? node->functionCall.argumentCount
-                           : sym->signature.paramCount;
-    for (size_t i = 0; i < pairCount; ++i) {
-        ASTNode* paramDecl = function_param_decl_at(sym, i);
-        const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, paramDecl);
-        if (!ann || !ann->resolved || !ann->unitResolved || !ann->unitDef || ann->dimDuplicateCount > 1) continue;
-
-        ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : NULL;
-        FisicsDim8 argDim = fisics_dim_zero();
-        const FisicsUnitDef* argUnit = NULL;
-        bool argUnitResolved = false;
-        if (!lookup_resolved_expr_metadata(ctx, argNode, &argDim, &argUnit, &argUnitResolved)) continue;
-        if (!fisics_dim_equal(argDim, ann->dim)) continue;
-        if (units_resolved_and_different(ann->unitDef, true, argUnit, argUnitResolved)) {
-            fisics_extension_diag_units_implicit_unit_conversion(ctx,
-                                                                 argNode ? argNode : node,
-                                                                 "argument",
-                                                                 argUnit,
-                                                                 ann->unitDef);
-        }
-    }
 }
 
 static const char* explicit_conversion_context_for_binary(const char* op) {
@@ -608,61 +543,37 @@ static bool lookup_member_base_type_info(CompilerContext* ctx,
     return outInfo->category != TYPEINFO_INVALID;
 }
 
-static bool var_decl_contains_name(ASTNode* decl, const char* name) {
-    if (!decl || decl->type != AST_VARIABLE_DECLARATION || !name || !name[0]) return false;
-    for (size_t i = 0; i < decl->varDecl.varCount; ++i) {
-        ASTNode* varName = decl->varDecl.varNames ? decl->varDecl.varNames[i] : NULL;
-        const char* value = (varName && varName->type == AST_IDENTIFIER) ? varName->valueNode.value : NULL;
-        if (value && strcmp(value, name) == 0) return true;
-    }
-    return false;
-}
-
-static const FisicsUnitsAnnotation* lookup_units_annotation_by_decl_name(CompilerContext* ctx,
-                                                                         const char* name) {
-    if (!ctx || !ctx->extensionState || !name || !name[0]) return NULL;
-    const FisicsUnitsAnnotation* match = NULL;
-    for (size_t i = 0; i < ctx->extensionState->unitsAnnotationCount; ++i) {
-        const FisicsUnitsAnnotation* ann = &ctx->extensionState->unitsAnnotations[i];
-        if (!units_annotation_is_concrete(ann) || !var_decl_contains_name(ann->node, name)) continue;
-        if (match && !units_annotations_same_concrete(match, ann)) {
-            return NULL;
-        }
-        match = ann;
-    }
-    return match;
-}
-
 static const FisicsUnitsAnnotation* lookup_member_units_annotation(CompilerContext* ctx,
                                                                   ASTNode* node,
                                                                   int depth) {
     if (!ctx || !node || depth > 16) return NULL;
     if (node->type != AST_DOT_ACCESS && node->type != AST_POINTER_ACCESS) return NULL;
     if (!node->memberAccess.field || !node->memberAccess.field[0]) return NULL;
+    if (lookup_bound_units_parsed_type(ctx, node)) return NULL;
 
     TypeInfo baseInfo = makeInvalidType();
     if (!lookup_member_base_type_info(ctx,
                                       node->memberAccess.base,
                                       node->type == AST_POINTER_ACCESS,
                                       &baseInfo)) {
-        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+        return NULL;
     }
     if (!type_info_is_record(&baseInfo)) {
-        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+        return NULL;
     }
 
     ASTNode* recordDef = resolve_units_record_definition(baseInfo.originalType, &baseInfo, ctx);
     if (!recordDef) {
-        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+        return NULL;
     }
 
     ASTNode* fieldDecl = NULL;
     if (!lookup_units_record_field(recordDef, node->memberAccess.field, 0, &fieldDecl, NULL)) {
-        return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+        return NULL;
     }
     const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, fieldDecl);
     if (units_annotation_is_concrete(ann)) return ann;
-    return lookup_units_annotation_by_decl_name(ctx, node->memberAccess.field);
+    return NULL;
 }
 
 static const FisicsUnitsAnnotation* lookup_assignment_lvalue_units_annotation(CompilerContext* ctx,
@@ -744,6 +655,13 @@ static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) 
     }
 
     if (strcmp(node->assignment.op, "=") == 0) {
+        /* Authored literal writes adopt the lvalue representation, just like
+         * declaration initializers. Never relabel identifiers or call results. */
+        if (fisics_units_is_literal_value(node->assignment.value)) {
+            (void)fisics_extension_set_units_expr_result_with_unit(ctx, node,
+                targetDim, true, targetUnit, targetUnitResolved);
+            return;
+        }
         if (!fisics_dim_equal(targetDim, valueDim)) {
             fisics_extension_diag_units_assign_dim_mismatch(ctx, node, targetDim, valueDim);
             return;
@@ -846,30 +764,6 @@ static void maybe_record_ternary_result(CompilerContext* ctx, ASTNode* node) {
                                                            trueUnitResolved && trueUnit == falseUnit);
 }
 
-static void maybe_record_decl_owned_literal(CompilerContext* ctx,
-                                            ASTNode* declNode,
-                                            DesignatedInit* init) {
-    if (!ctx || !declNode || !init || !init->expression) return;
-    maybe_record_owner_literal(ctx, declNode, init->expression);
-}
-
-static void maybe_record_owner_literal(CompilerContext* ctx,
-                                       ASTNode* ownerNode,
-                                       ASTNode* expression) {
-    if (!ctx || !ownerNode || !expression) return;
-    if (!is_dimensionless_literal(expression)) return;
-
-    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, ownerNode);
-    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1) return;
-
-    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
-                                                           expression,
-                                                           ann->dim,
-                                                           true,
-                                                           ann->unitResolved ? ann->unitDef : NULL,
-                                                           ann->unitResolved);
-}
-
 static const char* string_literal_payload(const ASTNode* node) {
     if (!node || node->type != AST_STRING_LITERAL) return NULL;
     const char* payload = NULL;
@@ -933,27 +827,6 @@ static void maybe_record_units_conversion_call(CompilerContext* ctx, ASTNode* no
                                                            true,
                                                            targetUnit,
                                                            true);
-}
-
-static void maybe_validate_decl_owned_initializer_units(CompilerContext* ctx,
-                                                        ASTNode* declNode,
-                                                        DesignatedInit* init) {
-    if (!ctx || !declNode || !init || !init->expression) return;
-    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, declNode);
-    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1 || !ann->unitResolved || !ann->unitDef) return;
-
-    FisicsDim8 initDim = fisics_dim_zero();
-    const FisicsUnitDef* initUnit = NULL;
-    bool initUnitResolved = false;
-    if (!lookup_resolved_expr_metadata(ctx, init->expression, &initDim, &initUnit, &initUnitResolved)) return;
-    if (!fisics_dim_equal(initDim, ann->dim)) return;
-    if (units_resolved_and_different(ann->unitDef, true, initUnit, initUnitResolved)) {
-        fisics_extension_diag_units_implicit_unit_conversion(ctx,
-                                                             init->expression,
-                                                             "initializer",
-                                                             initUnit,
-                                                             ann->unitDef);
-    }
 }
 
 static bool type_info_is_record(const TypeInfo* info) {
@@ -1021,28 +894,6 @@ static bool lookup_units_record_field(ASTNode* recordDef,
     return false;
 }
 
-static void validate_units_initializer_against_owner(CompilerContext* ctx,
-                                                     ASTNode* ownerNode,
-                                                     ASTNode* expression) {
-    if (!ctx || !ownerNode || !expression) return;
-
-    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, ownerNode);
-    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1 || !ann->unitResolved || !ann->unitDef) return;
-
-    FisicsDim8 initDim = fisics_dim_zero();
-    const FisicsUnitDef* initUnit = NULL;
-    bool initUnitResolved = false;
-    if (!lookup_resolved_expr_metadata(ctx, expression, &initDim, &initUnit, &initUnitResolved)) return;
-    if (!fisics_dim_equal(initDim, ann->dim)) return;
-    if (units_resolved_and_different(ann->unitDef, true, initUnit, initUnitResolved)) {
-        fisics_extension_diag_units_implicit_unit_conversion(ctx,
-                                                             expression,
-                                                             "initializer",
-                                                             initUnit,
-                                                             ann->unitDef);
-    }
-}
-
 static void validate_units_aggregate_initializer(CompilerContext* ctx,
                                                  const ParsedType* aggregateType,
                                                  ASTNode* compoundExpr,
@@ -1085,10 +936,10 @@ static void validate_units_aggregate_initializer(CompilerContext* ctx,
             if (type_info_is_record(&fieldInfo)) {
                 validate_units_aggregate_initializer(ctx, fieldType, entry->expression, depth + 1);
             } else {
-                validate_units_initializer_against_owner(ctx, fieldDecl, entry->expression);
+                fisics_units_validate_initializer(ctx, fieldDecl, entry->expression, false);
             }
         } else {
-            validate_units_initializer_against_owner(ctx, fieldDecl, entry->expression);
+            fisics_units_validate_initializer(ctx, fieldDecl, entry->expression, false);
         }
 
         if (!entry->fieldName || !entry->fieldName[0]) {
@@ -1097,12 +948,11 @@ static void validate_units_aggregate_initializer(CompilerContext* ctx,
     }
 }
 
-static void walk_designated_init(ASTNode* declNode, DesignatedInit* init, CompilerContext* ctx) {
+static void walk_designated_init(ASTNode* declNode, size_t declaratorIndex, DesignatedInit* init, CompilerContext* ctx) {
     if (!init) return;
     walk_expr_results(init->indexExpr, ctx);
     walk_expr_results(init->expression, ctx);
-    maybe_record_decl_owned_literal(ctx, declNode, init);
-    maybe_validate_decl_owned_initializer_units(ctx, declNode, init);
+    fisics_units_validate_declarator_initializer(ctx, declNode, declaratorIndex, init->expression);
 }
 
 static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
@@ -1123,7 +973,7 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
         case AST_VARIABLE_DECLARATION:
             for (size_t i = 0; i < node->varDecl.varCount; ++i) {
                 DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
-                walk_designated_init(node, init, ctx);
+                walk_designated_init(node, i, init, ctx);
                 maybe_remember_units_pointer_alias(ctx,
                                                    node->varDecl.varNames ? node->varDecl.varNames[i] : NULL,
                                                    init);
@@ -1161,12 +1011,16 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
             }
             break;
 
-        case AST_FUNCTION_DEFINITION:
+        case AST_FUNCTION_DEFINITION: {
+            ASTNode* previous = s_units_current_function;
+            s_units_current_function = node;
             for (size_t i = 0; i < node->functionDef.paramCount; ++i) {
                 walk_expr_results(node->functionDef.parameters ? node->functionDef.parameters[i] : NULL, ctx);
             }
             walk_expr_results(node->functionDef.body, ctx);
+            s_units_current_function = previous;
             break;
+        }
 
         case AST_IF_STATEMENT:
             walk_expr_results(node->ifStmt.condition, ctx);
@@ -1202,6 +1056,7 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
 
         case AST_RETURN:
             walk_expr_results(node->returnStmt.returnValue, ctx);
+            fisics_units_validate_return(ctx,s_units_current_function,node);
             break;
 
         case AST_LABEL_DECLARATION:
@@ -1232,6 +1087,8 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
             walk_expr_results(node->expr.left, ctx);
             walk_expr_results(node->expr.right, ctx);
             maybe_record_unary_result(ctx, node);
+            if (node->type == AST_UNARY_EXPRESSION && node->expr.op && strcmp(node->expr.op, "*") == 0)
+                fisics_units_record_access_result(ctx, node);
             break;
 
         case AST_ASSIGNMENT:
@@ -1255,15 +1112,18 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
         case AST_ARRAY_ACCESS:
             walk_expr_results(node->arrayAccess.array, ctx);
             walk_expr_results(node->arrayAccess.index, ctx);
+            fisics_units_record_access_result(ctx, node);
             break;
 
         case AST_POINTER_DEREFERENCE:
             walk_expr_results(node->pointerDeref.pointer, ctx);
+            fisics_units_record_access_result(ctx, node);
             break;
 
         case AST_POINTER_ACCESS:
         case AST_DOT_ACCESS:
             walk_expr_results(node->memberAccess.base, ctx);
+            fisics_units_record_access_result(ctx, node);
             break;
 
         case AST_STRUCT_FIELD_ACCESS:
@@ -1276,13 +1136,14 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
                 walk_expr_results(node->functionCall.arguments ? node->functionCall.arguments[i] : NULL, ctx);
             }
             maybe_record_units_conversion_call(ctx, node);
-            maybe_record_function_call_result(ctx, node);
-            maybe_validate_function_call_argument_units(ctx, node);
+            if (!fisics_units_record_math_result(ctx, node))
+                maybe_record_function_call_result(ctx, node);
+            fisics_units_validate_call_arguments(ctx, node, s_units_root_scope);
             break;
 
         case AST_COMPOUND_LITERAL:
             for (size_t i = 0; i < node->compoundLiteral.entryCount; ++i) {
-                walk_designated_init(node,
+                walk_designated_init(node, 0,
                                      node->compoundLiteral.entries ? node->compoundLiteral.entries[i] : NULL,
                                      ctx);
             }

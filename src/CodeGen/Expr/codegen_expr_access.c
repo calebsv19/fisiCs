@@ -113,7 +113,10 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     memset(&expandedArrayParsed, 0, sizeof(expandedArrayParsed));
     expandedArrayParsed.kind = TYPE_INVALID;
     bool expandedArrayParsedOwned = false;
-    if (cg_expand_surface_typedef_parsed_type(ctx, arrayParsed, &expandedArrayParsed)) {
+    if (arrayParsed) {
+        if (!cg_expand_surface_typedef_parsed_type(ctx, arrayParsed, &expandedArrayParsed)) {
+            expandedArrayParsed = parsedTypeClone(arrayParsed);
+        }
         arrayParsed = &expandedArrayParsed;
         expandedArrayParsedOwned = true;
     }
