@@ -228,3 +228,22 @@ optional kit is explicit and changes no installed/default compiler. The kit's
 experimental matrix-flow workflow requires its documented LLVM22 analysis
 configuration and separately supplied reviewed source fixture. Package acceptance
 must exercise the extracted kit as well as the ordinary CLI.
+
+## Contained release preparation
+
+The maintained release owner can set `PREPARATION_ROOT` to a fresh absolute
+owned build directory. Only the fixed release-contract, CLI metadata, developer
+smoke, OS-policy contract, release-root contract, preparation contract and
+disposable-package goals are admitted. The dispatcher copies declared regular
+Git inputs into an isolated writable workspace, preserving source identity and
+omitting ignored outputs. The outer release-owner process sandbox enforces
+the write boundary. Package output is exported only after successful checks;
+occupied or symlinked output roots are refused. Ordinary compiler builds use
+the existing graph when `PREPARATION_ROOT` is absent. This route grants no
+signing, publication, installation or Registry promotion.
+
+The existing credential owner can separately dispatch its fixed `release-notarize`
+goal with the same snapshot policy. It runs alone, preserves the owner-supplied
+Make shell/notary context, and writes only its fresh bound authentication root.
+This dispatch is not credential or publication authority; use the maintained
+release owner and its retained claim.

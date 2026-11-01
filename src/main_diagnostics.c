@@ -40,10 +40,18 @@ static char* dup_with_indexed_ext(const char* basePath,
 
 char* main_create_temp_object_path(const char* baseName) {
     (void)baseName;
-    char tmpl[] = "/tmp/mycc-XXXXXX";
+    const char* tempDir = getenv("TMPDIR");
+    if (!tempDir || !tempDir[0]) tempDir = "/tmp";
+    size_t directoryLen = strlen(tempDir);
+    bool needsSeparator = tempDir[directoryLen - 1u] != '/';
+    size_t templateSize = directoryLen + (needsSeparator ? 1u : 0u) + sizeof("mycc-XXXXXX");
+    char* tmpl = (char*)malloc(templateSize);
+    if (!tmpl) return NULL;
+    snprintf(tmpl, templateSize, "%s%smycc-XXXXXX", tempDir, needsSeparator ? "/" : "");
     int fd = mkstemp(tmpl);
     if (fd == -1) {
         perror("mkstemp");
+        free(tmpl);
         return NULL;
     }
     close(fd);
@@ -51,15 +59,18 @@ char* main_create_temp_object_path(const char* baseName) {
     char* withExt = (char*)malloc(len + 3u);
     if (!withExt) {
         unlink(tmpl);
+        free(tmpl);
         return NULL;
     }
     snprintf(withExt, len + 3u, "%s.o", tmpl);
     if (rename(tmpl, withExt) != 0) {
         perror("rename");
         unlink(tmpl);
+        free(tmpl);
         free(withExt);
         return NULL;
     }
+    free(tmpl);
     return withExt;
 }
 

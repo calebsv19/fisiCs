@@ -292,3 +292,18 @@ The full release example pack is documented in
 - For practical public canaries, read [../examples/canaries/README.md](../examples/canaries/README.md).
 - For overlay behavior and limits, read [extension_overlays.md](./extension_overlays.md).
 - For release/archive packaging, read [cli_release_workflow.md](./cli_release_workflow.md).
+
+## Temporary Object Files
+
+Compile-and-link commands place intermediate objects in a nonempty `TMPDIR`.
+When `TMPDIR` is unset or empty, the default is `/tmp`. A configured directory
+must already exist and be writable; an unusable value fails rather than falling
+back outside the selected directory. Intermediate objects are removed after
+successful linking or a linker failure.
+
+The focused driver regression checks directory selection, paths with spaces,
+long paths, fallback, failure and cleanup:
+
+```sh
+python3 tests/integration/run_driver_tmpdir.py /absolute/path/to/fisics
+```

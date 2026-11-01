@@ -1,3 +1,6 @@
+ifneq ($(strip $(PREPARATION_ROOT)),)
+include make/preparation.mk
+else
 # === Config ===
 .DEFAULT_GOAL := all
 CC := cc
@@ -85,7 +88,7 @@ RELEASE_PLATFORM ?= macOS
 RELEASE_ARCH ?= arm64
 ifeq ($(RELEASE_PLATFORM),macOS)
 RELEASE_LLVM_LIBS_RAW := $(shell $(LLVM_CONFIG) --link-static --libs core native nativecodegen x86codegen passes --system-libs)
-RELEASE_ZSTD_STATIC := $(shell brew --prefix zstd 2>/dev/null)/lib/libzstd.a
+RELEASE_ZSTD_STATIC ?= $(shell pkg-config --variable=libdir libzstd 2>/dev/null)/libzstd.a
 RELEASE_LLVM_LIBS := $(subst -lzstd,$(RELEASE_ZSTD_STATIC),$(RELEASE_LLVM_LIBS_RAW))
 RELEASE_LINK_FLAGS := -lc++ -Wl,-dead_strip_dylibs
 else
@@ -1514,7 +1517,7 @@ os-policy-runtime: $(BIN)
 os-policy-guest: $(BIN)
 	@python3 $(OS_POLICY_RUNNER) --tier guest
 
-os-policy-contract:
+os-policy-contract: $(BIN)
 	@python3 tests/os_policy/test_runner_contract.py
 	@python3 tests/os_policy/test_external_canary_contract.py
 
@@ -1805,3 +1808,10 @@ physical-mutable-storage-contract-test: $(BIN)
 	  rm -rf "$$out"; \
 	else echo "Mutable storage failure evidence retained at $$out"; exit 1; fi
 test: physical-mutable-storage-contract-test
+
+preparation-producer-contract-test:
+	@python3 -B tests/integration/test_preparation_producer.py
+
+.PHONY: preparation-producer-contract-test
+
+endif # ordinary compiler graph
