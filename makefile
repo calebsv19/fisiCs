@@ -1236,6 +1236,9 @@ statement-expr-default: $(BIN)
 statement-expr-disabled: $(BIN)
 	@./tests/parser/run_statement_expr_disabled.sh ./$(BIN)
 
+parser-expression-depth: $(BIN)
+	@./tests/parser/run_expression_depth.sh ./$(BIN)
+
 spec-tests: $(BIN)
 	@./tests/spec/test_run_ast_golden_contract.sh ./$(BIN)
 	@MallocNanoZone=0 DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
@@ -1243,7 +1246,8 @@ spec-tests: $(BIN)
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
               cast-grouped for_typedef comma-decl-init function-pointer \
               compound-literal-nested-braces switch-flow goto-flow \
-              statement-expr-enabled statement-expr-default statement-expr-disabled recovery
+              statement-expr-enabled statement-expr-default statement-expr-disabled \
+              parser-expression-depth recovery
 
 syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic-bool \
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \

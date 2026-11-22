@@ -10,6 +10,7 @@
 #include "parser_main.h"
 #include "AST/ast_node.h"
 #include "Compiler/diagnostics.h"
+#include "Compiler/frontend_limits.h"
 #include "Utils/profiler.h"
 
 #include <stdlib.h>
@@ -121,15 +122,29 @@ static ASTNode* parseGNUStatementExpression(Parser* parser) {
 
 // Main Pratt parser loop
 ASTNode* parseExpressionPratt(Parser* parser, int minPrecedence) {
+    if (!parser) {
+        return NULL;
+    }
+    if (parser->expressionDepth >= FISICS_FRONTEND_MAX_EXPRESSION_DEPTH) {
+        if (!parser->expressionDepthLimitReported) {
+            printParseError("expression nesting limit exceeded", parser);
+            markParserFatalError(parser);
+            parser->expressionDepthLimitReported = true;
+        }
+        return NULL;
+    }
+    parser->expressionDepth++;
+
+    ASTNode* result = NULL;
     if (!isValidExpressionStart(parser->currentToken.type)) {
         printParseError("Unexpected token at start of expression", parser);
-        return NULL;
+        goto done;
     }
     Token token = parser->currentToken;
     advance(parser);
 
     ASTNode* left = nud(parser, token);
-    if (!left) return NULL;
+    if (!left) goto done;
 
     PARSER_DEBUG_PRINTF("DEBUG: Starting Pratt parse loop with token: '%s' (precedence %d), minPrecedence=%d\n",
            parser->currentToken.value, getTokenPrecedence(parser->currentToken.type), minPrecedence);
@@ -146,10 +161,14 @@ ASTNode* parseExpressionPratt(Parser* parser, int minPrecedence) {
         advance(parser);
 
         left = led(parser, left, op);
-        if (!left) return NULL;
+        if (!left) goto done;
     }
 
-    return left;
+    result = left;
+
+done:
+    parser->expressionDepth--;
+    return result;
 }
 
 
@@ -281,6 +300,7 @@ static ASTNode* nud(Parser* parser, Token token) {
         case TOKEN_DECREMENT:
         case TOKEN_ASTERISK: {
             ASTNode* right = parseExpressionPratt(parser, 11); // Higher than any binary
+            if (!right) return NULL;
             ASTNode* node = createUnaryExprNode(getOperatorString(token.type), right, false);
             astNodeSetProvenance(node, &token);
             return node;
@@ -288,6 +308,7 @@ static ASTNode* nud(Parser* parser, Token token) {
 
         case TOKEN_BITWISE_AND: {  // prefix address-of
             ASTNode* right = parseExpressionPratt(parser, 11); // prefix-unary rbp
+            if (!right) return NULL;
             ASTNode* node = createUnaryExprNode(getOperatorString(token.type), right, false);
             astNodeSetProvenance(node, &token);
             return node;
@@ -332,6 +353,9 @@ static ASTNode* nud(Parser* parser, Token token) {
     }
 
     ASTNode* expr = parseExpressionPratt(parser, -1);
+    if (!expr) {
+        return NULL;
+    }
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' in grouping", parser);
         return NULL;
@@ -378,8 +402,11 @@ static ASTNode* led(Parser* parser, ASTNode* left, Token token) {
         case TOKEN_BITWISE_XOR:
         case TOKEN_LEFT_SHIFT:
         case TOKEN_RIGHT_SHIFT:
-            return createBinaryExprNode(getOperatorString(type), left,
-                   parseExpressionPratt(parser, getTokenRightBindingPower(type)));
+        {
+            ASTNode* right = parseExpressionPratt(parser, getTokenRightBindingPower(type));
+            if (!right) return NULL;
+            return createBinaryExprNode(getOperatorString(type), left, right);
+        }
 
         case TOKEN_ASSIGN:
         case TOKEN_PLUS_ASSIGN:
@@ -392,8 +419,11 @@ static ASTNode* led(Parser* parser, ASTNode* left, Token token) {
         case TOKEN_BITWISE_XOR_ASSIGN:
         case TOKEN_LEFT_SHIFT_ASSIGN:
         case TOKEN_RIGHT_SHIFT_ASSIGN:
-            return createAssignmentNode(left,
-                   parseExpressionPratt(parser, getTokenRightBindingPower(type)), type);
+        {
+            ASTNode* right = parseExpressionPratt(parser, getTokenRightBindingPower(type));
+            if (!right) return NULL;
+            return createAssignmentNode(left, right, type);
+        }
 
 	case TOKEN_INCREMENT:
 	case TOKEN_DECREMENT: {

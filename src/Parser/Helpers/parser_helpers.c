@@ -94,6 +94,8 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->preserveDirectives = preserveDirectives;
     parser->suppressErrors = false;
     parser->fatalParseErrors = 0;
+    parser->expressionDepth = 0;
+    parser->expressionDepthLimitReported = false;
     parser->switchDepth = 0;
     parser->anonTagCounter = 0;
     parser->ordinaryScope = NULL;

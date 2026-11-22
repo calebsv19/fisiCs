@@ -802,8 +802,59 @@ void destroyLexer(Lexer* lexer) {
     lexer->length = 0;
 }
 
+static bool skipCommentTrivia(Lexer* lexer, Token* errorToken) {
+    LexerMark start = lexer_mark(lexer);
+    char next = lexer->source[lexer->position + 1];
+
+    if (next == '/') {
+        lexer->position += 2;
+        while (lexer->source[lexer->position] != '\n' &&
+               lexer->source[lexer->position] != '\0') {
+            lexer->position++;
+        }
+        return true;
+    }
+
+    lexer->position += 2;
+    while (!(lexer->source[lexer->position] == '*' &&
+             lexer->source[lexer->position + 1] == '/')) {
+        if (lexer->source[lexer->position] == '\0') {
+            report_lexer_error(lexer, start, "Unterminated block comment", "/*");
+            if (errorToken) {
+                *errorToken = make_token(lexer,
+                                         TOKEN_UNKNOWN,
+                                         (char*)"Unterminated comment",
+                                         start);
+            }
+            return false;
+        }
+        if (lexer->source[lexer->position] == '\n') {
+            lexer->position++;
+            lexer->line++;
+            lexer->lineStart = lexer->position;
+            continue;
+        }
+        lexer->position++;
+    }
+    lexer->position += 2;
+    return true;
+}
+
 Token getNextToken(Lexer* lexer) {
-    skipWhitespace(lexer);
+    for (;;) {
+        skipWhitespace(lexer);
+        if (isEOF(lexer) || lexer->source[lexer->position] != '/') {
+            break;
+        }
+        char next = lexer->source[lexer->position + 1];
+        if (next != '/' && next != '*') {
+            break;
+        }
+        Token errorToken;
+        if (!skipCommentTrivia(lexer, &errorToken)) {
+            return errorToken;
+        }
+    }
 
     if (lexer_debug_enabled()) {
     	LEXER_DEBUG_PRINTF("DEBUG: Current char in getNextToken(): '%c' (ASCII: %d) at line %d\n",

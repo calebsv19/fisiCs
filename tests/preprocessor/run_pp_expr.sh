@@ -27,5 +27,5 @@ cc -Wall -Wextra -std=c99 \
   "$ROOT_DIR/src/Lexer/keyword_lookup.c" \
   -o "$OUT_BIN"
 
-"$OUT_BIN"
-echo "preprocessor expression evaluator test passed."
+(ulimit -s 1024; "$OUT_BIN")
+echo "preprocessor expression evaluator test passed (1024 KiB stack)."

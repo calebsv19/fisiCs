@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Preprocessor/pp_expr.h"
+#include "Compiler/frontend_limits.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -14,6 +15,7 @@ typedef struct {
     const Token* tokens;
     size_t count;
     size_t cursor;
+    size_t expressionDepth;
     bool error;
 } PPExprParser;
 
@@ -101,6 +103,40 @@ static bool parser_is_done(PPExprParser* parser) {
 }
 
 static PPValue parse_conditional(PPExprParser* parser, bool eval);
+static PPValue parse_unary(PPExprParser* parser, bool eval);
+
+static bool parser_enter_nested_expression(PPExprParser* parser) {
+    if (!parser || parser->expressionDepth >= FISICS_FRONTEND_MAX_EXPRESSION_DEPTH) {
+        if (parser) parser->error = true;
+        return false;
+    }
+    parser->expressionDepth++;
+    return true;
+}
+
+static void parser_leave_nested_expression(PPExprParser* parser) {
+    if (parser && parser->expressionDepth > 0) {
+        parser->expressionDepth--;
+    }
+}
+
+static PPValue parse_nested_conditional(PPExprParser* parser, bool eval) {
+    if (!parser_enter_nested_expression(parser)) {
+        return pp_value_signed(0);
+    }
+    PPValue value = parse_conditional(parser, eval);
+    parser_leave_nested_expression(parser);
+    return value;
+}
+
+static PPValue parse_nested_unary(PPExprParser* parser, bool eval) {
+    if (!parser_enter_nested_expression(parser)) {
+        return pp_value_signed(0);
+    }
+    PPValue value = parse_unary(parser, eval);
+    parser_leave_nested_expression(parser);
+    return value;
+}
 
 static PPValue parse_integer_token(const Token* tok, bool* ok) {
     if (!tok || !tok->value) {
@@ -184,7 +220,7 @@ static PPValue parse_primary(PPExprParser* parser, bool eval) {
             return pp_value_signed(0);
         case TOKEN_LPAREN: {
             parser_advance(parser);
-            PPValue value = parse_conditional(parser, eval);
+            PPValue value = parse_nested_conditional(parser, eval);
             if (!parser_match(parser, TOKEN_RPAREN)) {
                 parser->error = true;
             }
@@ -202,10 +238,10 @@ static PPValue parse_unary(PPExprParser* parser, bool eval) {
         switch (tok->type) {
             case TOKEN_PLUS:
                 parser_advance(parser);
-                return parse_unary(parser, eval);
+                return parse_nested_unary(parser, eval);
             case TOKEN_MINUS: {
                 parser_advance(parser);
-                PPValue operand = parse_unary(parser, eval);
+                PPValue operand = parse_nested_unary(parser, eval);
                 if (!eval) return pp_value_signed(0);
                 if (operand.isUnsigned) {
                     return pp_value_unsigned((uint64_t)(0 - operand.bits));
@@ -214,12 +250,12 @@ static PPValue parse_unary(PPExprParser* parser, bool eval) {
             }
             case TOKEN_LOGICAL_NOT: {
                 parser_advance(parser);
-                PPValue operand = parse_unary(parser, eval);
+                PPValue operand = parse_nested_unary(parser, eval);
                 return eval ? pp_value_bool(!pp_value_truthy(operand)) : pp_value_signed(0);
             }
             case TOKEN_BITWISE_NOT: {
                 parser_advance(parser);
-                PPValue operand = parse_unary(parser, eval);
+                PPValue operand = parse_nested_unary(parser, eval);
                 if (!eval) return pp_value_signed(0);
                 if (operand.isUnsigned) {
                     return pp_value_unsigned(~operand.bits);
@@ -481,13 +517,13 @@ static PPValue parse_conditional(PPExprParser* parser, bool eval) {
     }
     parser_advance(parser);
     bool evalTrue = eval && pp_value_truthy(condition);
-    PPValue trueValue = parse_conditional(parser, evalTrue);
+    PPValue trueValue = parse_nested_conditional(parser, evalTrue);
     if (!parser_match(parser, TOKEN_COLON)) {
         parser->error = true;
         return pp_value_signed(0);
     }
     bool evalFalse = eval && !pp_value_truthy(condition);
-    PPValue falseValue = parse_conditional(parser, evalFalse);
+    PPValue falseValue = parse_nested_conditional(parser, evalFalse);
     if (!eval) {
         return pp_value_signed(0);
     }
@@ -517,6 +553,7 @@ bool pp_expr_eval_tokens(PPExprEvaluator* eval,
     parser.tokens = tokens;
     parser.count = count;
     parser.cursor = 0;
+    parser.expressionDepth = 0;
     parser.error = false;
 
     PPValue value = parse_conditional(&parser, true);

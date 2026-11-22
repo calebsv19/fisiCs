@@ -645,33 +645,6 @@ Token handleComment(Lexer* lexer) {
         return make_token(lexer, TOKEN_DIV_ASSIGN, (char*)"/=", slashStart);
     }
 
-    if (next == '/') {
-        lexer->position += 2;
-        while (lexer->source[lexer->position] != '\n' && lexer->source[lexer->position] != '\0') {
-            lexer->position++;
-        }
-        return getNextToken(lexer);
-    }
-
-    if (next == '*') {
-        lexer->position += 2;
-        while (!(lexer->source[lexer->position] == '*' && lexer->source[lexer->position + 1] == '/')) {
-            if (lexer->source[lexer->position] == '\0') {
-                report_lexer_error(lexer, slashStart, "Unterminated block comment", "/*");
-                return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated comment", slashStart);
-            }
-            if (lexer->source[lexer->position] == '\n') {
-                lexer->position++;
-                lexer->line++;
-                lexer->lineStart = lexer->position;
-                continue;
-            }
-            lexer->position++;
-        }
-        lexer->position += 2;
-        return getNextToken(lexer);
-    }
-
     lexer->position++;
     return make_token(lexer, TOKEN_DIVIDE, strndup("/", 1), slashStart);
 }

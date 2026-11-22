@@ -44,6 +44,8 @@ typedef struct Parser {
     bool preserveDirectives;
     bool suppressErrors;
     size_t fatalParseErrors;
+    size_t expressionDepth;
+    bool expressionDepthLimitReported;
     int switchDepth;
     unsigned long long anonTagCounter;
     CompilerContext* ctx;

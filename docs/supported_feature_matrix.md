@@ -33,6 +33,7 @@ compiler-usability pass.
 | Surface | Current contract |
 | --- | --- |
 | Preprocessor | supported and broadly covered by dedicated lanes plus final manifests |
+| Frontend expression nesting | ordinary and `#if`/`#elif` expressions are bounded to 256 recursive parsing steps; over-limit input is rejected instead of consuming source-proportional native stack |
 | Normal host headers | supported when available on the current host/toolchain |
 | Host-available standard-library runtime behavior | actively validated through bucket `14` runtime/header manifests |
 | Unsupported-by-host headers | not promised when the underlying host does not provide them |
