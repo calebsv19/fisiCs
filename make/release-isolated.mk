@@ -1,9 +1,18 @@
 # Release compiler outputs are private to the selected release root.
 RELEASE_BUILD_DIR := $(RELEASE_ROOT)/compiler-build
 RELEASE_BUILD_BIN := $(RELEASE_BUILD_DIR)/fisics
+RELEASE_BUILD_RUNTIME := $(RELEASE_BUILD_DIR)/libfisics_memcheck_runtime.a
 
 release-build:
-	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off BUILD_DIR="$(RELEASE_BUILD_DIR)/objects" BIN="$(RELEASE_BUILD_BIN)" LIB_FRONTEND="$(RELEASE_BUILD_DIR)/libfisics_frontend.a" LLVM_LIBS='$(RELEASE_LLVM_LIBS)' PROFILE_LDFLAGS='$(RELEASE_LINK_FLAGS)' "$(RELEASE_BUILD_BIN)"
+	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off \
+		BUILD_DIR="$(RELEASE_BUILD_DIR)/objects" \
+		BIN="$(RELEASE_BUILD_BIN)" \
+		LIB_FRONTEND="$(RELEASE_BUILD_DIR)/libfisics_frontend.a" \
+		MEMCHECK_RUNTIME_LIB="$(RELEASE_BUILD_RUNTIME)" \
+		FISICS_MEMCHECK_RUNTIME_RELPATH="../lib/fisics/libfisics_memcheck_runtime.a" \
+		LLVM_LIBS='$(RELEASE_LLVM_LIBS)' \
+		PROFILE_LDFLAGS='$(RELEASE_LINK_FLAGS)' \
+		"$(RELEASE_BUILD_BIN)" "$(RELEASE_BUILD_RUNTIME)"
 
 release-artifact-disposable:
 	@python3 scripts/create_release_root.py "$(RELEASE_ROOT)"

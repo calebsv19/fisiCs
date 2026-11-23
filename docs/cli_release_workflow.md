@@ -107,6 +107,8 @@ archive bytes.
 
 - `release-verify` checks:
   - staged binary exists and is executable
+  - the compiler-relative memory-check runtime archive is present and its exact
+    bytes survive both archive formats
   - the macOS binary has no Homebrew- or machine-local dynamic-library paths;
     LLVM is linked into the release binary and only system-relative dynamic
     dependencies are accepted

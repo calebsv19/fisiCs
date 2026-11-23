@@ -40,7 +40,8 @@ ifeq ($(PARSER_DEBUG),1)
 PARSER_DEFS += -DPARSER_DEBUG
 endif
 
-BASE_CFLAGS = -Wall -Wextra -Wpedantic $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\" -DFISICS_VERSION=\"$(RELEASE_VERSION)\"
+FISICS_MEMCHECK_RUNTIME_RELPATH ?= build/$(BUILD_PROFILE)/libfisics_memcheck_runtime.a
+BASE_CFLAGS = -Wall -Wextra -Wpedantic $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\" -DFISICS_VERSION=\"$(RELEASE_VERSION)\" -DFISICS_MEMCHECK_RUNTIME_RELPATH=\"$(FISICS_MEMCHECK_RUNTIME_RELPATH)\"
 BASE_LDFLAGS := $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
 ifeq ($(BUILD_PROFILE),sanitized)
@@ -100,6 +101,7 @@ RELEASE_ROOT ?= build/release
 RELEASE_STAGE_ROOT := $(RELEASE_ROOT)/stage
 RELEASE_STAGE_DIR := $(RELEASE_STAGE_ROOT)/$(RELEASE_BASENAME)
 RELEASE_BIN := $(RELEASE_STAGE_DIR)/bin/fisics
+RELEASE_RUNTIME := $(RELEASE_STAGE_DIR)/lib/fisics/libfisics_memcheck_runtime.a
 RELEASE_ARTIFACT_ZIP := $(RELEASE_ROOT)/$(RELEASE_BASENAME).zip
 RELEASE_ARTIFACT_TGZ := $(RELEASE_ROOT)/$(RELEASE_BASENAME).tar.gz
 RELEASE_MANIFEST := $(RELEASE_ROOT)/$(RELEASE_BASENAME).manifest.txt
@@ -207,10 +209,12 @@ $(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c $(RELEASE_VERSION_FILE)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
 
-$(MEMCHECK_RUNTIME_OBJ): $(MEMCHECK_RUNTIME_SRC) $(MEMCHECK_RUNTIME_DIR)/fisics_memcheck_runtime.h
+# The archive links into generated programs, which do not link sanitizer libraries.
+MEMCHECK_RUNTIME_CFLAGS = $(filter-out -fsanitize=%,$(PROFILE_CFLAGS))
+$(MEMCHECK_RUNTIME_OBJ): $(MEMCHECK_RUNTIME_SRC) $(MEMCHECK_RUNTIME_DIR)/fisics_memcheck_runtime.h makefile
 	@mkdir -p $(dir $@)
 	@echo "Compiling memory-check runtime support..."
-	$(CC) -Wall -Wextra -Wpedantic $(PROFILE_CFLAGS) $(DEPFLAGS) -I$(MEMCHECK_RUNTIME_DIR) -c $< -o $@
+	$(CC) -Wall -Wextra -Wpedantic $(MEMCHECK_RUNTIME_CFLAGS) $(DEPFLAGS) -I$(MEMCHECK_RUNTIME_DIR) -c $< -o $@
 
 $(MEMCHECK_RUNTIME_LIB): $(MEMCHECK_RUNTIME_OBJ)
 	@echo "Archiving memory-check runtime support..."
@@ -259,8 +263,9 @@ include make/release-isolated.mk
 release-stage: release-build
 	@echo "Staging release tree..."
 	@rm -rf "$(RELEASE_STAGE_DIR)"
-	@mkdir -p "$(RELEASE_STAGE_DIR)/bin"
+	@mkdir -p "$(RELEASE_STAGE_DIR)/bin" "$(RELEASE_STAGE_DIR)/lib/fisics"
 	@cp -f "$(RELEASE_BUILD_BIN)" "$(RELEASE_BIN)"
+	@cp -f "$(RELEASE_BUILD_RUNTIME)" "$(RELEASE_RUNTIME)"
 	@cp -f README.md AGENTS.md LICENSE "$(RELEASE_STAGE_DIR)/"
 	@cp -R docs examples compilation include "$(RELEASE_STAGE_DIR)/"
 	@python3 -B tools/matrix_flow/developer_kit.py --compiler-root "$(CURDIR)" --out "$(RELEASE_STAGE_DIR)/developer"
@@ -345,6 +350,7 @@ release-notarize: release-sign
 release-verify:
 	@echo "Verifying release bundle..."
 	@test -x "$(RELEASE_BIN)"
+	@test -f "$(RELEASE_RUNTIME)"
 	@test -f "$(RELEASE_ARTIFACT_ZIP)"
 	@test -f "$(RELEASE_ARTIFACT_TGZ)"
 	@test -f "$(RELEASE_SHA256)"
@@ -389,8 +395,11 @@ release-pkg: release-sign
 	fi
 	@echo "Building installer pkg..."
 	@rm -rf "$(RELEASE_PKG_ROOT)"
-	@mkdir -p "$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/bin" "$(RELEASE_ROOT)"
+	@mkdir -p "$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/bin" \
+		"$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/lib/fisics" "$(RELEASE_ROOT)"
 	@cp -f "$(RELEASE_BIN)" "$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/bin/fisics"
+	@cp -f "$(RELEASE_RUNTIME)" \
+		"$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/lib/fisics/libfisics_memcheck_runtime.a"
 	@pkgbuild --root "$(RELEASE_PKG_ROOT)" \
 		--identifier "$(PKG_IDENTIFIER)" \
 		--version "$(RELEASE_VERSION)" \
@@ -511,7 +520,8 @@ integration-memory-check-codegen-direct-calls: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@bash ./tests/integration/run_memory_check_codegen_direct_calls.sh ./$(BIN) "$(MEMCHECK_RUNTIME_LIB)"
 
 integration-memory-check-driver-auto-link: $(BIN) $(MEMCHECK_RUNTIME_LIB)
-	@bash ./tests/integration/run_memory_check_driver_auto_link.sh ./$(BIN)
+	@bash ./tests/integration/run_memory_check_driver_auto_link.sh \
+		./$(BIN) "$(abspath $(MEMCHECK_RUNTIME_LIB))"
 
 integration-memory-check-canaries: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@bash ./tests/integration/run_memory_check_canaries.sh ./$(BIN)

@@ -108,6 +108,7 @@ class Fisics < Formula
 
   def install
     bin.install "bin/fisics"
+    (lib/"fisics").install "lib/fisics/libfisics_memcheck_runtime.a"
     doc.install "README.md", "LICENSE"
   end
 

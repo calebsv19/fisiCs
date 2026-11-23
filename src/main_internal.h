@@ -59,6 +59,8 @@ typedef struct {
     const StringList* linkerFrameworks;
 } MainDriverConfig;
 
+char* main_resolve_memory_check_runtime_archive(void);
+
 typedef struct {
     char* name;
     SymbolKind kind;

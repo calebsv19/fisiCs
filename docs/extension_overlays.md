@@ -203,15 +203,24 @@ The older non-site wrapper names remain available for manual runtime tests and
 external experiments, but compiler-generated memory-check calls use the
 site-aware wrappers so diagnostics can include source labels.
 
-For final executable builds, the driver auto-links the local runtime archive:
+For final executable builds, the driver auto-links a runtime archive anchored
+to the compiler executable rather than the invocation directory. Source builds
+use the compiler-relative development archive:
 
 ```text
 build/unsanitized/libfisics_memcheck_runtime.a
 ```
 
-Set `FISICS_MEMCHECK_RUNTIME_LIB=/path/to/libfisics_memcheck_runtime.a` only
-when a custom runtime archive location is needed. Compile-only mode can emit
-instrumented object code, but it does not auto-link the runtime.
+Release archives install the same runtime at
+`lib/fisics/libfisics_memcheck_runtime.a` beside the package's `bin`
+directory. Set
+`FISICS_MEMCHECK_RUNTIME_LIB=/absolute/path/to/libfisics_memcheck_runtime.a`
+only when a custom runtime archive location is needed. Relative overrides and
+non-regular files are rejected; accepted paths are canonicalized and appear in
+the printed linker invocation. Default discovery requires macOS or Linux
+with access to /proc/self/exe on Linux. If the compiler cannot resolve its
+own path, the link fails unless a trusted absolute override is supplied.
+Compile-only mode emits instrumented object code without linking the runtime.
 
 ### Reporting
 

@@ -88,14 +88,6 @@ static bool write_units_metadata_artifact(const MainDriverConfig* config,
     return ok;
 }
 
-static const char* memory_check_runtime_archive_path(void) {
-    const char* override = getenv("FISICS_MEMCHECK_RUNTIME_LIB");
-    if (override && override[0]) {
-        return override;
-    }
-    return "build/unsanitized/libfisics_memcheck_runtime.a";
-}
-
 static bool mapforge_auto_fallback_enabled(void) {
     if (env_flag_enabled("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK")) {
         return false;
@@ -763,7 +755,10 @@ static int run_link_mode(const MainDriverConfig* config) {
     if (allOk &&
         memory_check_overlay_enabled(config) &&
         config->inputCFiles->count > 0) {
-        allOk = string_list_push(&argvList, memory_check_runtime_archive_path());
+        char* runtimeArchive =
+            main_resolve_memory_check_runtime_archive();
+        allOk = runtimeArchive && string_list_push(&argvList, runtimeArchive);
+        free(runtimeArchive);
     }
     for (size_t i = 0; allOk && i < config->linkerSearchPaths->count; ++i) {
         size_t len = strlen(config->linkerSearchPaths->items[i]) + 3u;
