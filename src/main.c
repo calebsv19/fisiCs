@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <dirent.h>
 #include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -17,6 +15,7 @@
 #include <llvm-c/ErrorHandling.h>
 
 #include "main_internal.h"
+#include "main_process_guard.h"
 #include "Compiler/build_graph.h"
 #include "Compiler/build_manifest.h"
 #include "Compiler/physical_receipt.h"
@@ -40,10 +39,6 @@
 #ifndef FISICS_VERSION
 #define FISICS_VERSION "unknown"
 #endif
-
-static char g_proc_guard_path[PATH_MAX] = {0};
-static pid_t g_proc_guard_group_pid = 0;
-static int g_proc_guard_timeout_sec = 0;
 
 static void print_cli_version(FILE* out) {
     fprintf(out, "fisiCs %s\n", FISICS_VERSION);
@@ -266,146 +261,6 @@ static int run_hardware_project_cli(int argc, char** argv) {
     return ok ? 0 : 1;
 }
 
-static void fisics_proc_guard_cleanup(void) {
-    if (g_proc_guard_path[0] != '\0') {
-        unlink(g_proc_guard_path);
-        g_proc_guard_path[0] = '\0';
-    }
-}
-
-static int parse_nonnegative_int_env_with_default(const char* key, int defaultValue) {
-    const char* raw = getenv(key);
-    if (!raw || !raw[0]) return defaultValue;
-    char* end = NULL;
-    long v = strtol(raw, &end, 10);
-    if (!end || *end != '\0' || v < 0 || v > 100000) {
-        return defaultValue;
-    }
-    return (int)v;
-}
-
-static void cleanup_stale_guard_entries(const char* dirPath) {
-    DIR* dir = opendir(dirPath);
-    if (!dir) return;
-    struct dirent* ent = NULL;
-    while ((ent = readdir(dir)) != NULL) {
-        if (strncmp(ent->d_name, "pid-", 4) != 0) continue;
-        const char* pidPart = ent->d_name + 4;
-        char* end = NULL;
-        long pid = strtol(pidPart, &end, 10);
-        if (!end || *end != '\0' || pid <= 0) continue;
-        if (kill((pid_t)pid, 0) == -1 && errno == ESRCH) {
-            char filePath[PATH_MAX];
-            if (snprintf(filePath, sizeof(filePath), "%s/%s", dirPath, ent->d_name) < (int)sizeof(filePath)) {
-                unlink(filePath);
-            }
-        }
-    }
-    closedir(dir);
-}
-
-static int count_guard_entries(const char* dirPath) {
-    int count = 0;
-    DIR* dir = opendir(dirPath);
-    if (!dir) return 0;
-    struct dirent* ent = NULL;
-    while ((ent = readdir(dir)) != NULL) {
-        if (strncmp(ent->d_name, "pid-", 4) == 0) {
-            count++;
-        }
-    }
-    closedir(dir);
-    return count;
-}
-
-static void fisics_timeout_handler(int signo) {
-    (void)signo;
-    fisics_proc_guard_cleanup();
-    const char msg[] =
-        "Error: fisics compile watchdog timed out; aborting hung compiler process.\n";
-    (void)write(STDERR_FILENO, msg, sizeof(msg) - 1u);
-    if (g_proc_guard_group_pid > 0) {
-        (void)kill(-g_proc_guard_group_pid, SIGKILL);
-    }
-    _exit(124);
-}
-
-static void fisics_proc_guard_disarm_timeout(void) {
-    if (g_proc_guard_timeout_sec > 0) {
-        alarm(0);
-    }
-}
-
-static void fisics_proc_guard_arm_timeout(void) {
-    g_proc_guard_timeout_sec =
-        parse_nonnegative_int_env_with_default("FISICS_TIMEOUT_SEC", 180);
-    if (g_proc_guard_timeout_sec <= 0) {
-        return;
-    }
-
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = fisics_timeout_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-    if (sigaction(SIGALRM, &sa, NULL) != 0) {
-        fprintf(stderr,
-                "Warning: failed to install fisics watchdog handler; continuing without timeout.\n");
-        g_proc_guard_timeout_sec = 0;
-        return;
-    }
-
-    if (setpgid(0, 0) == 0 || (errno == EACCES || errno == EPERM)) {
-        pid_t groupPid = getpgrp();
-        if (groupPid == getpid()) {
-            g_proc_guard_group_pid = groupPid;
-        }
-    }
-
-    alarm((unsigned int)g_proc_guard_timeout_sec);
-}
-
-static bool fisics_proc_guard_enter(void) {
-    int maxProcs = parse_nonnegative_int_env_with_default("FISICS_MAX_PROCS", 1);
-    if (maxProcs <= 0) return true;
-
-    const char* dirPath = "/tmp/fisics_proc_guard";
-    if (mkdir(dirPath, 0700) != 0 && errno != EEXIST) {
-        fprintf(stderr, "Warning: failed to create process-guard dir %s\n", dirPath);
-        return true;
-    }
-
-    cleanup_stale_guard_entries(dirPath);
-    int running = count_guard_entries(dirPath);
-    if (running >= maxProcs) {
-        fprintf(stderr,
-                "Error: refusing to start fisics (FISICS_MAX_PROCS=%d, currently active=%d)\n",
-                maxProcs,
-                running);
-        fprintf(stderr,
-                "Hint: set FISICS_MAX_PROCS higher, or set it to 0 to disable this guard.\n");
-        return false;
-    }
-
-    pid_t pid = getpid();
-    if (snprintf(g_proc_guard_path, sizeof(g_proc_guard_path), "%s/pid-%ld", dirPath, (long)pid) >= (int)sizeof(g_proc_guard_path)) {
-        g_proc_guard_path[0] = '\0';
-        return true;
-    }
-
-    int fd = open(g_proc_guard_path, O_CREAT | O_EXCL | O_WRONLY, 0600);
-    if (fd < 0) {
-        // Best effort: don't hard-fail if guard file cannot be created.
-        g_proc_guard_path[0] = '\0';
-        return true;
-    }
-    char msg[64];
-    int len = snprintf(msg, sizeof(msg), "%ld\n", (long)pid);
-    if (len > 0) (void)write(fd, msg, (size_t)len);
-    close(fd);
-    atexit(fisics_proc_guard_cleanup);
-    return true;
-}
 
 void string_list_free(StringList* list) {
     if (!list) return;
